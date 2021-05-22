@@ -119,9 +119,9 @@ cmd zip $ apack -F.zip -- $f.zip $(realpath --relative-base=$PWD -- $fx) 2>&1
 cmd zip-each $ apack -e -F.zip -- $(realpath --relative-base=$PWD -- $fx) 2>&1
 cmd zip-repack $ arepack -e -F.zip -- $fx
 
-cmd archive-mount &lfarc $id $f
-cmd archive-mount-password $lfarc -p $id $f
-cmd archive-unmount &lfarc -u $id
+cmd archive-mount &lfmount $id $f
+cmd archive-mount-password $lfmount -p $id $f
+cmd archive-unmount &lfmount -u $id
 
 # image stuff
 cmd img-rot-cw  &for img in $fx; do convert -rotate 90  $img $img; done

@@ -2,8 +2,8 @@
 # mount and unmount archives with lf. (read-only.)
 # requires archivemount. duuuuuh.
 # usage:
-# mounting: $ lfarc $id $f
-# unmounting: $ lfarc -u $id
+# mounting: $ lfmount $id $f
+# unmounting: $ lfmount -u $id
 
 shopt -s dotglob nullglob
 
@@ -18,7 +18,7 @@ lfecho () {
 }
 
 id="$1"
-tmp="${XDG_RUNTIME_DIR:-/tmp}/lf/archivemount"
+tmp="${XDG_RUNTIME_DIR:-/tmp}/lf/mount"
 
 # this block handles unmounting.
 if [ "$unmount" = true ]; then
