@@ -77,12 +77,8 @@ l () {
 }
 
 o () {
-    ! is_mounted && echo not mounted. && return 1
-    if [ -d "$mnt/sdcard" ]; then
-        termopen "$mnt/sdcard"
-    else
-        termopen "$mnt"
-    fi
+    m
+    $TERMFILE "$mnt"
 }
 
 cleanup () {

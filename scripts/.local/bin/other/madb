@@ -45,11 +45,8 @@ l () {
 }
 
 o () {
-    if [ -d "$mnt/sdcard" ]; then
-        termopen "$mnt/sdcard"
-    else
-        termopen "$mnt"
-    fi
+    m
+    $TERMFILE "$mnt"
 }
 
 cleanup () {
