@@ -94,8 +94,8 @@ alias linein='pactl load-module module-loopback latency_msec=5'
 alias lineinu='pactl unload-module module-loopback'
 
 # view system logs
-alias logview='sudo less /var/log/everything.log '
-alias loglive='sudo tail -n 20 -f /var/log/everything.log'
+alias logview='less /var/log/everything.log '
+alias loglive='tail -n 20 -f /var/log/everything.log'
 
 # fc-font aliases
 alias font-cache='fc-cache -r -v'
