@@ -1,5 +1,9 @@
 colors:
 
+  cursor:
+   text: CellBackground
+   cursor: '#888888'
+
   primary:
     background: '#151515'
     foreground: '#aaaaaa'
@@ -8,10 +12,6 @@ colors:
     bright_foreground: '0x1C1508'
     dim_background:    '0x202322'
     bright_background: '0x353433'
-
-  cursor:
-   text: CellBackground
-   cursor: '#888888'
 
   normal:
     black:   '#383838'
@@ -33,6 +33,3 @@ colors:
     red:     '#a95551'
     white:   '#d0b8a3'
     yellow:  '#a98051'
-
-# old colors
-# background: '#0d2021' # blue
