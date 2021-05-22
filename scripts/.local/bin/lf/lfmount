@@ -58,12 +58,12 @@ mnt="$tmp/$rand/mount/$(basename "$ar")"
 mkdir -p "$mnt"
 touch "$tmp/$rand/mount/press-uu-to-unmount"
 
-archivemount -o readonly $password_arg "$ar" "$mnt"
+msg="$(archivemount -o readonly $password_arg "$ar" "$mnt" 2>&1)"
 
 if [ "$(ls -A "$mnt" | wc -l)" -le 0 ]; then
     fusermount -u "$mnt"
     rm -rf "$tmp/$rand"
-    lfecho mount failed.
+    lfecho mount failed: "$msg"
     exit 1
 fi
 
