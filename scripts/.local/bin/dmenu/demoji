@@ -1,0 +1,20 @@
+#!/bin/sh
+# The famous "get a menu of emojis to copy" script.
+
+# Get user selection via dmenu from emoji file.
+sel="$(
+    cut -d ';' -f1 ~/.local/share/demoji/emojies |
+        dmenu -fn "peep:size=15"  -l 30 | sed "s/ .*//"
+)"
+
+# Exit if none sel.
+[ -z "$sel" ] && exit
+
+# If you run this command with an argument, it will automatically insert the
+# character. Otherwise, show a message that the emoji has been copied.
+if [ -n "$1" ]; then
+    xdotool type "$sel"
+else
+    echo "$sel" | tr -d '\n' | xclip -selection clipboard
+    notify-send -t 2000 "'$sel' copied to clipboard." &
+fi

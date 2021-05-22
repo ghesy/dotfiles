@@ -1,0 +1,19 @@
+#!/bin/sh
+# run webui-aria2.
+# requires webui-aria2 package from aur, and node.
+
+run () {
+    cd /usr/share/webapps/webui-aria2
+    setsid -f "$BROWSER" "http://localhost:8888"
+    pgrep --exact --full 'node node-server.js' ||
+        node node-server.js
+}
+
+down () {
+    pkill --exact --full 'node node-server.js'
+}
+
+case $1 in
+    d | down) down;;
+    *) run ;;
+esac

@@ -1,0 +1,6 @@
+#!/bin/sh
+# backup cron jobs.
+path=$XDG_CONFIG_HOME/fcronjobs
+fcrontab -l > $path/usertab
+sudo fcrontab -l > $path/roottab
+sudo fcrontab -u systab -l > $path/systab

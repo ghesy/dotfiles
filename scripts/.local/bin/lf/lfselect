@@ -1,0 +1,15 @@
+#!/bin/sh
+# reads filenames from stdin and selects them in lf.
+id=$1
+[ -n "$2" ] && list="$2" || list="$(cat)"
+
+if [ "$(echo "$list" | wc -l)" -eq 1 ]; then
+    lf -remote "send $id select \"$list\""
+    exit
+fi
+
+echo "$list" | while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    lf -remote "send $id select \"$file\""
+    lf -remote "send $id toggle"
+done

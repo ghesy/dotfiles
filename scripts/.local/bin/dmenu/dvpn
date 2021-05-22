@@ -1,0 +1,56 @@
+#!/bin/sh
+# a simple dmenu interface for windscribe vpn.
+# uses dunstify, which comes with dunst.
+
+main () {
+    eval "$( choices vpn Connect,Disconnect )"
+}
+
+Connect ()
+{
+    eval "loc=$(
+        choices location '
+            best,
+            crumpets,
+            custard,
+            ranch,
+            france:seine,
+            castle,
+            amsterdam:canal
+        '
+    )"
+    [ -z $loc ] && return
+    [ $loc = best ] && loc=
+    wind connect $loc
+}
+
+Disconnect ()
+{
+    wind disconnect
+    sudo -A sh -c '
+        resolvconf -d windscribe
+        resolvconf -u
+        resolvconf -r unbound
+    '
+}
+
+# this function is a wrapper for windscribe, which
+# shows the output messages of windscribe as system notifications.
+wind ()
+{
+    # get random number as msgid of dunstify
+    # which lets us replace/update a previous notification
+    id=$(shuf -n1 -i10000-99999)
+
+    unbuffer sh -c 'windscribe $@ | rmctrlchar' '' $@ |
+        while IFS= read -r msg; do
+            echo "$msg" | grep -Ev 'symlink|changed' |
+                xargs -I{} dunstify -u low -r $id Windscribe {}
+        done
+
+    # refresh net and tor widgets
+    dwmbarref net tor
+}
+
+main "$@"
+exit

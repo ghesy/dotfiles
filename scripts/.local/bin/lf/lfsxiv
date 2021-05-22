@@ -1,0 +1,12 @@
+#!/bin/sh
+
+id="$1"
+img="$2"
+
+cd "$(dirname "$img")" || exit 1
+list="$(ls -AN1)"
+num="$(echo "$list" | awk -v i="$(basename "$img")" '$0==i{print NR}')"
+
+sel="$(ls -AN1 | sxiv -aion$num)"
+[ -z "$sel" ] && exit
+echo "$sel" | lfselect $id

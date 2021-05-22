@@ -1,0 +1,50 @@
+#!/bin/dash
+# run this with -i and it will start stalonetray
+# and then hide it.
+# run it with no arguments and it will show
+# the tray momentarily, or as I've recently
+# taken to calling it, glance.
+
+# config
+glance_time=60
+tray_cmd="stalonetray --config $STALONETRAYRC"
+
+# paths
+cache="${XDG_RUNTIME_DIR:-/tmp}/tray"
+winid="$cache/winid"
+mapped="$cache/map"
+
+main() {
+    case "$1" in
+        -i) init ;;
+        *) toggle ;;
+    esac
+}
+
+toggle() {
+    pgrep -x stalonetray || {
+        echo tray not running, start with -i >&2; exit 1
+    }
+
+    [ -f "$mapped" ] &&
+        xdotool windowunmap $(cat $winid) &&
+        rm "$mapped" &&
+        exit
+
+    touch "$mapped"
+    xdotool windowmap $(cat $winid)
+}
+
+init() {
+    pgrep -x stalonetray && echo already running >&2 && exit 1
+    mkdir -p $cache
+    $tray_cmd &
+    sleep 0.2
+    xdotool search --name stalonetray > $winid
+    xdotool set_window --overrideredirect 1 $(cat $winid)
+    xdotool windowunmap $(cat $winid)
+    wait
+}
+
+main "$@"
+exit

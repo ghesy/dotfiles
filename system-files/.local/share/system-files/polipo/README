@@ -1,0 +1,3 @@
+Polipo is a http/https proxy server... or something like that.
+I use it to basically convert the SOCKS proxy of Tor, to https proxy.
+Because youtube-dl kinda doesn't support SOCKS proxy.

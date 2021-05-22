@@ -1,0 +1,70 @@
+#!/bin/sh
+# this script accompanies barrier (https://github.com/debauchee/barrier).
+# it runs commands when your mouse leaves or enters the local machine.
+
+# config
+# how often to check if we're on local machine or remote, in seconds.
+interval=10
+
+# this hook runs when mouse enters the local machine.
+on_local_hook ()
+{
+    pgrep -x safeeyes >/dev/null && safeeyes --enable
+}
+
+# this hook runs when mouse leaves the local machine.
+on_remote_hook ()
+{
+    pgrep -x safeeyes >/dev/null && safeeyes --disable
+}
+
+
+main ()
+{
+    on_local=yes
+    while true; do
+        is_no_remote_machine_connected && sleep $((interval*3)) && continue
+        is_pointer_on_remote_machine && on_remote_do || on_local_do
+        sleep "$interval"
+    done
+}
+
+
+is_no_remote_machine_connected ()
+{
+    pgrep -x barriers >/dev/null && return 1
+    return 0
+}
+
+
+is_pointer_on_remote_machine ()
+{
+    get_prop_wndw_under_mouse | grep -Exq 'TIMESTAMP.*=\s*' && return 0
+    return 1
+}
+
+
+get_prop_wndw_under_mouse ()
+{
+    xprop -id $(xdotool getmouselocation | cut -d: -f5)
+}
+
+
+on_remote_do ()
+{
+    [ $on_local = no ] && return
+    on_local=no
+    on_remote_hook
+}
+
+
+on_local_do ()
+{
+    [ $on_local = yes ] && return
+    on_local=yes
+    on_local_hook
+}
+
+
+main "$@"
+exit

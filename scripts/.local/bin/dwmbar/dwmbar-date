@@ -1,0 +1,3 @@
+#!/bin/sh
+echo 
+date '+%a %b %Y-%m-%d %H:%M'

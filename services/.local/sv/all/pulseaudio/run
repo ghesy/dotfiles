@@ -1,0 +1,3 @@
+#!/bin/sh
+pkill -x pulseaudio
+exec pulseaudio --log-target=syslog

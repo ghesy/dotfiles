@@ -1,0 +1,99 @@
+#!/bin/bash
+# mount ftp servers from a server list.
+# i use it to mount my phone with the
+# help of an ftp server android app.
+# requires curlftpfs.
+
+# config
+iplist='
+192.168.1.15:2121
+'
+mntdir=~/Mount/FTP
+
+main () {
+    iplist="$(echo "$iplist" | awk NF)"
+
+    while true; do
+
+        if [ -z "$ip" ]; then
+            clear
+            echo "choose server"
+            echo -e "q\tquit"
+            echo "$iplist" | nl -w1
+            read -s -n 1 char
+
+            case "$char" in
+                q) exit ;;
+                *) [ "$char" -le 0 ] && continue
+            esac
+
+            ip="$(echo "$iplist" | sed "${char}q;d" | cut -f2)"
+            [ -z "$ip" ] && continue
+            mnt="$mntdir/$char"
+        fi
+
+        clear
+        echo "$ip"; echo
+        echo "m: mount  u: unmount"
+        echo "o: open   b: back   q: quit"
+        echo
+
+        case "$char" in
+            m) m ;;
+            u) u ;;
+            o) o ;;
+            b) ip= ; continue ;;
+            q) exit ;;
+        esac
+
+        read -s -n 1 char
+
+    done
+}
+
+m () {
+    mkdir -p "$mnt"
+    echo "$mnt"
+    is_mounted && echo already mounted. && return
+    cleanup
+    echo "connecting..."
+    curlftpfs -o utf8 "ftp://$ip" "$mnt"
+    is_mounted && echo mounted. || rmdir "$mnt"
+    cleanup
+}
+
+u () {
+    ! is_mounted && echo not mounted. && return 1
+    fusermount -u "$mnt" && echo unmounted.
+    rmdir "$mnt"
+}
+
+l () {
+    l="$(adb devices)"
+    [ "$(echo "$l" | wc -l)" = 1 ] &&
+        echo "no adb devices found." >&2 &&
+        return 1
+    echo "$l"
+}
+
+o () {
+    ! is_mounted && echo not mounted. && return 1
+    if [ -d "$mnt/sdcard" ]; then
+        termopen "$mnt/sdcard"
+    else
+        termopen "$mnt"
+    fi
+}
+
+cleanup () {
+    is_mounted || u >/dev/null 2>&1
+}
+
+is_mounted () {
+    [ $(ls -A "$mnt" 2>/dev/null | wc -l) -gt 0 ] && return 0
+    grep -q "$ip" /etc/mtab && return 0
+    return 1
+}
+
+main "$@"
+exit

@@ -1,0 +1,694 @@
+# Below, there should be one TERM entry for each termtype that is colorizable
+TERM Eterm
+TERM ansi
+TERM color-xterm
+TERM con132x25
+TERM con132x30
+TERM con132x43
+TERM con132x60
+TERM con80x25
+TERM con80x28
+TERM con80x30
+TERM con80x43
+TERM con80x50
+TERM con80x60
+TERM cons25
+TERM console
+TERM cygwin
+TERM dtterm
+TERM dvtm
+TERM dvtm-256color
+TERM eterm-color
+TERM fbterm
+TERM gnome
+TERM gnome-256color
+TERM jfbterm
+TERM konsole
+TERM konsole-256color
+TERM kterm
+TERM linux
+TERM linux-c
+TERM mach-color
+TERM mlterm
+TERM putty
+TERM putty-256color
+TERM rxvt
+TERM rxvt-256color
+TERM rxvt-cygwin
+TERM rxvt-cygwin-native
+TERM rxvt-unicode
+TERM rxvt-unicode-256color
+TERM rxvt-unicode256
+TERM screen
+TERM screen-16color
+TERM screen-16color-bce
+TERM screen-16color-bce-s
+TERM screen-16color-s
+TERM screen-256color
+TERM screen-256color-bce
+TERM screen-256color-bce-s
+TERM screen-256color-italic
+TERM screen-256color-s
+TERM screen-bce
+TERM screen-w
+TERM screen.Eterm
+TERM screen.linux
+TERM screen.rxvt
+TERM screen.xterm-256color
+TERM st
+TERM st-256color
+TERM st-meta
+TERM st-meta-256color
+TERM terminator
+TERM tmux
+TERM tmux-256color
+TERM vt100
+TERM xterm
+TERM xterm-16color
+TERM xterm-256color
+TERM xterm-256color-italic
+TERM xterm-88color
+TERM xterm-color
+TERM xterm-debian
+TERM xterm-termite
+
+# Below are the color init strings for the basic file types. A color init string
+# consists of one or more of the following numeric codes:
+#
+# Attributes:
+#
+#  0     to restore default color
+#  1     for brighter colors
+#  4     for underlined text
+#  5     for flashing text
+#
+# Foreground:
+#
+# 30     for black foreground
+# 31     for red foreground
+# 32     for green foreground
+# 33     for yellow (or brown) foreground
+# 34     for blue foreground
+# 35     for purple foreground
+# 36     for cyan foreground
+# 37     for white (or gray) foreground
+#
+# Background:
+#
+# 40     for black background
+# 41     for red background
+# 42     for green background
+# 43     for yellow (or brown) background
+# 44     for blue background
+# 45     for purple background
+# 46     for cyan background
+# 47     for white (or gray) background
+#
+# 256 colour is available:
+#
+# - https://www.mail-archive.com/bug-coreutils@gnu.org/msg11030.html
+# - https://github.com/morhetz/gruvbox
+#
+# Text color coding:
+# 38;5;COLOR_NUMBER
+# Background color coding:
+# 48;5;COLOR_NUMBER
+# COLOR_NUMBER is from 0 to 255.
+
+# NORMAL 00;38;5;250 # no color code at all
+# FILE   00;38;5;223 # regular file: use no color at all
+# NORMAL 38;5;144    # no color code at all
+NORMAL 38;5;252 # no color code at all
+FILE   38;5;252 # regular file: use no color at all
+RESET  00;38;5;172 # reset to "normal" color
+DIR    38;5;73     # directory
+LINK   38;5;97     # symbolic link. (If you set this to 'target' instead of a
+                   # numerical value, the color is as for the file pointed to.)
+
+MULTIHARDLINK         04        # regular file with more than one link
+FIFO                  40;33     # pipe
+SOCK                  38;5;211  # socket
+DOOR                  38;5;211  # door
+BLK                   40;33;01  # block device driver
+CHR                   40;33;01  # character device driver
+ORPHAN                40;31;01  # symlink to nonexistent file, or non-stat'able file
+SETUID                37;41     # file that is setuid (u+s)
+SETGID                30;43     # file that is setgid (g+s)
+CAPABILITY            30;41     # file with capability
+STICKY_OTHER_WRITABLE 01;36;44  # dir that is sticky and other-writable (+t,o+w)
+OTHER_WRITABLE        38;5;208;48;5;243 # dir that is other-writable (o+w) and not sticky
+STICKY                38;5;208;48;5;243 # dir with the sticky bit set (+t) and not other-writable
+
+# This is for files with execute permission:
+EXEC  38;5;64;3
+
+# Crufty and ignorable files
+# .bak   38;5;246
+# .cache 38;5;246
+# .dist  38;5;246
+# .lock  38;5;246
+# .log   38;5;246
+# .old   38;5;246
+# .orig  38;5;246
+# .temp  38;5;246
+# .tmp   38;5;246
+# .DS_Store   38;5;246
+# .localized  38;5;246
+# .CFUserTextEncoding  38;5;246
+
+# Git
+# .git                  38;5;172
+# .gitignore            38;5;240
+# .gitattributes        38;5;240
+# .gitmodules           38;5;240
+
+# Encrypted data
+# .asc                  38;5;192;3
+# .bfe                  38;5;192;3
+# .enc                  38;5;192;3
+# .gpg                  38;5;192;3
+# .signature            38;5;192;3
+# .sig                  38;5;192;3
+# .p12                  38;5;192;3
+# .pem                  38;5;192;3
+# .pgp                  38;5;192;3
+# .p7s                  38;5;192;3
+# *id_dsa                38;5;192;3
+# *id_rsa                38;5;192;3
+# *id_ecdsa              38;5;192;3
+# *id_ed25519            38;5;192;3
+
+# Fonts
+# .afm                  38;5;66
+# .fon                  38;5;66
+# .fnt                  38;5;66
+# .pfb                  38;5;66
+# .pfm                  38;5;66
+# .ttf                  38;5;66
+# .otf                  38;5;66
+# # Web Open Font Format
+# .woff                 38;5;66
+# .woff2                38;5;66
+# # postscript fonts
+# .PFA                  38;5;66
+# .pfa                  38;5;66
+
+# unreadable red: 38;5;124
+# good red:       01;31
+# pinky pink:     38;5;125
+# Archives or compressed
+.a    38;5;137
+.ace  38;5;137
+.arj  38;5;137
+.bz   38;5;137
+.bz2  38;5;137
+.cpio 38;5;137
+.dz   38;5;137
+.ear  38;5;137
+.gz   38;5;137
+.lz   38;5;137
+.lrz  38;5;137
+.lzh  38;5;137
+.lzo  38;5;137
+.lzma 38;5;137
+.rar  38;5;137
+.rz   38;5;137
+.sar  38;5;137
+.tar  38;5;137
+.taz  38;5;137
+.tbz  38;5;137
+.tbz2 38;5;137
+.tgz  38;5;137
+.tlz  38;5;137
+.txz  38;5;137
+.tz   38;5;137
+.war  38;5;137
+.warc 38;5;137
+.WARC 38;5;137
+.xz   38;5;137
+.z    38;5;137
+.Z    38;5;137
+.zz   38;5;137
+.zip  38;5;137
+.zipx 38;5;137
+.zpaq 38;5;137
+.zst  38;5;137
+.zstd 38;5;137
+.zoo  38;5;137
+.7z   38;5;137
+.s7z  38;5;137
+.sz   38;5;137
+
+# dark grey: 38;5;239
+# segments from 0 to three digits after first extension letter {{{2
+.r[0-9]{0,2}          38;5;137
+.zx[0-9]{0,2}         38;5;137
+.z[0-9]{0,2}          38;5;137
+# partial files
+.part                 38;5;137
+
+# partition images
+.iso                  38;5;137
+.bin                  38;5;137
+.nrg                  38;5;137
+.qcow                 38;5;137
+.sparseimage          38;5;137
+.toast                38;5;137
+.vcd                  38;5;137
+.vmdk                 38;5;137
+
+# packaged apps
+# .apk                  38;5;212
+# .ipa                  38;5;212
+# .deb                  38;5;212
+# .rpm                  38;5;212
+# .jad                  38;5;212
+# .jar                  38;5;212
+# .cab                  38;5;212
+# .pak                  38;5;212
+# .pk3                  38;5;212
+# .vdf                  38;5;212
+# .vpk                  38;5;212
+# .bsp                  38;5;212
+# .dmg                  38;5;212
+# .crx                  38;5;212 # Google Chrome extension
+# .xpi                  38;5;212 # Mozilla Firefox extension
+
+# dim purple: 38;5;97
+# khaki:  38;5;137
+# graphics
+.bmp    38;5;35
+.dicom  38;5;35
+.tiff   38;5;35
+.tif    38;5;35
+.TIFF   38;5;35
+.cdr    38;5;35
+.flif   38;5;35
+.gif    38;5;35
+.icns   38;5;35
+.ico    38;5;35
+.jpeg   38;5;35
+.JPG    38;5;35
+.jpg    38;5;35
+.nth    38;5;35
+.png    38;5;35
+.PNG    38;5;35
+.psd    38;5;35
+.pxd    38;5;35
+.pxm    38;5;35
+.xpm    38;5;35
+.webp   38;5;35
+.WEBP   38;5;35
+.anx    38;5;35
+.asf    38;5;35
+.axv    38;5;35
+.cgm    38;5;35
+.dl     38;5;35
+.emf    38;5;35
+.flc    38;5;35
+.fli    38;5;35
+.flv    38;5;35
+.gl     38;5;35
+.mng    38;5;35
+.nuv    38;5;35
+.ogv    38;5;35
+.ogx    38;5;35
+.pbm    38;5;35
+.pcx    38;5;35
+.pgm    38;5;35
+.ppm    38;5;35
+.qt     38;5;35
+.rm     38;5;35
+.svg    38;5;35
+.svgz   38;5;35
+.tga    38;5;35
+.vob    38;5;35
+.webm   38;5;35
+.xbm    38;5;35
+.xcf    38;5;35
+.xwd    38;5;35
+.yuv    38;5;35
+
+# sharp bright purple: 38;5;97
+# vector
+.ai                   38;5;35
+.eps                  38;5;35
+.epsf                 38;5;35
+.drw                  38;5;35
+.ps                   38;5;35
+.svg                  38;5;35
+
+# bright green: 38;5;114
+# dunno pink:   38;5;125;1
+# video
+.avi                  01;31
+.divx                 01;31
+.IFO                  01;31
+.m2v                  01;31
+.m4v                  01;31
+.mkv                  01;31
+.MKV                  01;31
+.MOV                  01;31
+.mov                  01;31
+.mp4                  01;31
+.MP4                  01;31
+.mp4v                 01;31
+.mpeg                 01;31
+.mpg                  01;31
+.ogm                  01;31
+.rmvb                 01;31
+.sample               01;31
+.wmv                  01;31
+
+# mobile/streaming
+.3g2                  01;31
+.3gp                  01;31
+.gp3                  01;31
+.gp4                  01;31
+.asf                  01;31
+.flv                  01;31
+.ts                   01;31
+.ogv                  01;31
+.f4v                  01;31
+
+# lossless
+.VOB                  01;31
+.vob                  01;31
+
+# subtitles
+.ass                  38;5;109
+.srt                  38;5;109
+.ssa                  38;5;109
+.sub                  38;5;109
+.sup                  38;5;109 # bitmap image track
+.vtt                  38;5;109
+
+# khaki: 38;5;137;1
+# brightyellow: 38;5;185
+# audio
+.3ga                  01;33
+.S3M                  01;33
+.aac                  01;33
+.amr                  01;33
+.au                   01;33
+.caf                  01;33
+.dat                  01;33
+.dts                  01;33
+.fcm                  01;33
+.m4a                  01;33
+.mod                  01;33
+.mp3                  01;33
+.MP3                  01;33
+.mp4a                 01;33
+.oga                  01;33
+.ogg                  01;33
+.opus                 01;33
+.s3m                  01;33
+.sid                  01;33
+.wma                  01;33
+
+# lossless
+.ape                  01;33
+.aiff                 01;33
+.cda                  01;33
+.flac                 01;33
+.alac                 01;33
+.mid                  01;33
+.midi                 01;33
+.pcm                  01;33
+.wav                  01;33
+.wv                   01;33
+.wvc                  01;33
+
+# bright orange: 38;5;214
+# light blue: 38;5;117
+# normie documents
+# .txt   38;5;173
+# .1     38;5;173
+# .doc   38;5;173
+# .docx  38;5;173
+# .json  38;5;173
+# .md    38;5;173
+# .neon  38;5;173
+# .odp   38;5;173
+# .ppt   38;5;173
+# .pps   38;5;173
+# .pptx  38;5;173
+# .ods   38;5;173
+# .odt   38;5;173
+# .phtml 38;5;173
+# .ppt   38;5;173
+# .pptx  38;5;173
+# .tex   38;5;173
+# .xls   38;5;173
+# .xlsx  38;5;173
+# .xml   38;5;173
+# .csv   38;5;173
+# .tsv   38;5;173
+
+# purple: 38;5;35
+# binary docs
+.cbr   38;5;173
+.cbz   38;5;173
+.chm   38;5;173
+.djvu  38;5;173
+.pdf   38;5;173
+.PDF   38;5;173
+.mobi  38;5;173
+.epub  38;5;173
+.azw3  38;5;173
+.fb2   38;5;173
+.fb3   38;5;173
+
+# orange: 38;5;172
+# dark green: 01;30;32
+# shell
+.awk                  38;5;108
+.bash                 38;5;108
+.bat                  38;5;108
+.BAT                  38;5;108
+.sed                  38;5;108
+.sh                   38;5;108
+.zsh                  38;5;108
+.vim                  38;5;108
+.kak                  38;5;108
+
+# interpreted
+.ahk                  38;5;108
+
+# python
+.py                   38;5;108
+.ipynb                38;5;108
+
+# ruby
+.rb                   38;5;108
+.gemspec              38;5;108
+
+# perl
+.pl                   38;5;108
+.PL                   38;5;108
+.t                    38;5;108
+
+# sql
+.msql                 38;5;108
+.mysql                38;5;108
+.pgsql                38;5;108
+.sql                  38;5;108
+
+# Tool Command Language
+.tcl                  38;5;108
+
+# R language
+.r                    38;5;108
+.R                    38;5;108
+
+# GrADS script
+.gs                   38;5;108
+
+# Clojure
+.clj                  38;5;108
+.cljs                 38;5;108
+.cljc                 38;5;108
+
+# Clojure gorilla REPL worksheet
+.cljw                 38;5;108
+
+# Scala
+.scala                38;5;108
+.sc                   38;5;108
+
+# Dart
+.dart                 38;5;108
+
+# compiled
+# assembly language
+.asm                  38;5;108
+
+# LISP
+.cl                   38;5;108
+.lisp                 38;5;108
+.rkt                  38;5;108
+
+# lua
+.lua                  38;5;108
+
+# Moonscript
+.moon                 38;5;108
+
+# C
+.c                    38;5;108
+.C                    38;5;108
+.h                    38;5;108
+.H                    38;5;108
+.tcc                  38;5;108
+
+# C++
+.c++                  38;5;108
+.h++                  38;5;108
+.hpp                  38;5;108
+.hxx                  38;5;108
+.ii                   38;5;108
+
+# method file for Objective C
+.M                    38;5;108
+.m                    38;5;108
+
+# csharp
+.cc                   38;5;108
+.cs                   38;5;108
+.cp                   38;5;108
+.cpp                  38;5;108
+.cxx                  38;5;108
+
+# Crystal
+.cr                   38;5;108
+
+# Google golang
+.go                   38;5;108
+
+# fortran
+.f                    38;5;108
+.F                    38;5;108
+.for                  38;5;108
+.ftn                  38;5;108
+.f90                  38;5;108
+.F90                  38;5;108
+.f95                  38;5;108
+.F95                  38;5;108
+.f03                  38;5;108
+.F03                  38;5;108
+.f08                  38;5;108
+.F08                  38;5;108
+
+# Nim
+.nim                  38;5;108
+.nimble               38;5;108
+
+# pascal
+.s                    38;5;108
+.S                    38;5;108
+
+# Rust
+.rs                   38;5;108
+
+# AppleScript
+.scpt                 38;5;108
+
+# Swift
+.swift                38;5;108
+
+# ?
+.sx                   38;5;108
+
+# Vala
+.vala                 38;5;108
+.vapi                 38;5;108
+
+# interface file in GHC - https://github.com/trapd00r/LS_COLORS/pull/9
+.hi                   38;5;108
+
+# haskell
+.hs                   38;5;108
+.lhs                  38;5;108
+
+# agda
+.agda                 38;5;108
+.lagda                38;5;108
+.lagda.tex            38;5;108
+.lagda.rst            38;5;108
+.lagda.md             38;5;108
+.agdai                38;5;108
+
+# Zig
+.zig                  38;5;108
+
+# V
+.v                    38;5;108
+
+# # binaries
+# # compiled apps for interpreted languages
+# .pyc                  38;5;240
+# .tf                   38;5;168
+# .tfstate              38;5;168
+# .tfvars               38;5;168
+
+# bright af pink: 38;5;125;1
+# html
+.css                  38;5;108
+.less                 38;5;108
+.sass                 38;5;108
+.scss                 38;5;108
+.htm                  38;5;108
+.html                 38;5;108
+.jhtm                 38;5;108
+.mht                  38;5;108
+.eml                  38;5;108
+.mustache             38;5;108
+
+# java
+.coffee               38;5;108
+.java                 38;5;108
+.js                   38;5;108
+.mjs                  38;5;108
+.jsm                  38;5;108
+.jsp                  38;5;108
+
+# php
+.php                  38;5;108
+
+# CakePHP view scripts and helpers
+.ctp                  38;5;108
+
+# Twig template engine
+.twig                 38;5;108
+
+# vb/a
+.vb                   38;5;108
+.vba                  38;5;108
+.vbs                  38;5;108
+
+
+# # Build stuff
+# *Dockerfile           38;5;155
+# .dockerignore         38;5;240
+# *Makefile             38;5;155
+# *MANIFEST             38;5;243
+# *pm_to_blib           38;5;240
+
+# # Functional Configuration
+# .nix                  38;5;155
+# .dhall                38;5;155
+# # ruby rake
+# .rake                 38;5;155
+# # automake
+# .am                   38;5;242
+# .in                   38;5;242
+# .hin                  38;5;242
+# .scan                 38;5;242
+# .m4                   38;5;242
+# .old                  38;5;242
+# .out                  38;5;242
+# .SKIP                 38;5;244
+
+# Specify filetype for vim:
+# vim: ft=dircolors

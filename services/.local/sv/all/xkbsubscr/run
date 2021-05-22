@@ -1,0 +1,5 @@
+#!/bin/sh
+exec sh -c "
+    xkblayout-subscribe |
+        xargs -L1 sh -c \"notify-send \$(xkblayout-state print %s)\"
+"

@@ -1,0 +1,10 @@
+#!/bin/sh
+# Prompt yes or no.
+
+printf "No\\nYes" |
+    dmenu -p "$1" -nb darkred -sb red -sf white -nf gray |
+    grep -x Yes || exit 1
+
+shift; [ -z "$*" ] && exit 0
+
+/bin/sh -c "$1"

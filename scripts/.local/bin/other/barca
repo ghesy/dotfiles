@@ -1,0 +1,10 @@
+#!/bin/sh
+# show FCBarcelona's matches and LaLiga's table.
+apikeyfile="$XDG_CONFIG_HOME/soccer3/apikey"
+apikey="$(cat "$apikeyfile")"
+(
+    printf 'table:\n\n'
+    unbuffer soccer3 --apikey "$apikey" --standings --league=PD
+    printf '\nmatches:\n\n'
+    unbuffer soccer3 --apikey "$apikey" --team=FCB --upcoming
+) | $PAGER

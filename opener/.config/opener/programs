@@ -1,0 +1,39 @@
+# vim:ft=sh
+# specify programs or functions for opening files.
+
+# these functions are provided by default:
+# gui: runs the program in background.
+# fgd: runs the program in foreground.
+# tui: runs the program in $TERMINAL.
+# findtype: get type of the file using definitions in the types file.
+
+# open function: it's called by opener.
+# it's argument(s) are all the files passed to opener.
+open ()
+{
+    case "$(findtype "$1")" in
+        image)  image "$@" ;;
+        audio)  fgd mpvmusic   -- "$@" ;;
+        video)  gui mpv        -- "$@" ;;
+        gimp)   gui gimp       -- "$@" ;;
+        ebook)  gui foliate    -- "$@" ;;
+        doc)    gui zathura    -- "$@" ;;
+        html)   gui "$BROWSER" -- "$@" ;;
+        text)   fgd "$EDITOR"  -- "$@" ;;
+        manual) fgd man        -- "$@" ;;
+        office) gui libreoffice   "$@" ;;
+        spreadsheet) fgd sc-im -- "$@" ;;
+        kicad_proj)  gui kicad    "$@" ;;
+        kicad_pcb)   gui pcbnew   "$@" ;;
+        kicad_sch)   gui eeschema "$@" ;;
+        archive*) fgd atool --list --page -- "$@" ;;
+    esac
+}
+
+image ()
+{
+    case $lf_mode in
+        true ) gui lfsxiv "$lf_id" "$@" ;;
+        false) gui sxiv -a -- "$@" ;;
+    esac
+}

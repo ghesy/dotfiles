@@ -1,0 +1,4 @@
+#!/bin/sh
+# like lsusb but update every second, and ommit root hub entries.
+# requires usbutils.
+watch --differences --no-title --interval 1 sh -c "lsusb | grep -vE 'Linux.*root hub'"

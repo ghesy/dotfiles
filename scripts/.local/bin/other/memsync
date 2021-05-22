@@ -1,0 +1,43 @@
+#!/bin/sh
+# this script puts a directory in ram (like tmpfs or zram)
+# and symlinks it back to it's original place.
+# it also keeps a backup of it on disk (cause ram gets rekt if pc turns off).
+# if the symlinks or backups don't exist, it will make them.
+# otherwise, it will just sync the ram directory to disk.
+#
+# look at this link to understand what this script does:
+# https://wiki.archlinux.org/index.php/Firefox/Profile_on_RAM
+
+# args
+name="$1" # example: firefox
+perm="$2" # example: 0700
+volatile_dir="$3" # example: /mnt/zram/sync
+target_dir="$4" # example: ~/.mozilla/firefox/*.default-release
+
+for var in "$name" "$target_dir" "$volatile_dir" "$perm"; do
+    [ -z "$var" ] && echo "variable empty" >&2 && exit 1
+done
+
+target_dir_name="$(basename "$target_dir")"
+volatile="${volatile_dir}/${name}-${target_dir_name}-${USER}"
+
+[ ! -r "$volatile" ] && mkdir -p -m${perm} "$volatile"
+
+link="$target_dir_name"
+static="${target_dir_name}.static"
+
+cd "$(dirname "$target_dir")"
+
+if [ "$(readlink $link)" != "$volatile" ]; then
+    mv "$target_dir_name" "$static"
+    ln -s "$volatile" "$link"
+fi
+
+if [ -e "$link/.unpacked" ]; then
+    rsync -av --delete --exclude .unpacked "./$link/" "./$static/"
+else
+    rsync -av "./$static/" "./$link/"
+    touch "$link/.unpacked"
+fi
+
+echo "finished syncing $name."

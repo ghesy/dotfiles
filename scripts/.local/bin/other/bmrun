@@ -1,0 +1,9 @@
+#!/bin/sh
+# run my g script in a new terminal,
+# then open lf in the selected bookmark path.
+$TERMINAL -e sh -c '
+    p="$(bm -f)" || exit 1
+    lfrun "$p"
+    cd "$(lflast)"
+    exec $SHELL
+'

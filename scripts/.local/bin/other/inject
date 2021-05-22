@@ -1,0 +1,50 @@
+#!/bin/sh
+
+# with this script, you can remap a key or key combination, to
+# different keys in different programs.
+
+# for example, you can have ctrl+shift+j be ctrl+Page_Up
+# in firefox, right-arrow in coolreader3, and unaffected (ctrl+shift+j)
+# in all other programs, by simply binding this command to ctrl+shift+j
+# in a hotkey program of your choice (something like sxhkd):
+#   $  inject ctrl+shift+j firefox ctrl+Page_Up cr3 Right
+
+# you can find the correct name of keys here:
+# https://cgit.freedesktop.org/xorg/proto/x11proto/plain/keysymdef.h
+
+# first argument is the key that will be sent if current active
+# window is none of the given programs, second is the program
+# you want to send another key to, and third is the key you want
+# to send. you can add more program-key pairs as fourth and fifth
+# arguments, sixth and seventh, and so on, as many as you want.
+
+# an example sxhkd entry maps ctrl-c to ctrl-p in firefox,
+# and alt-t in chrome. if the current active program is neither,
+# this program sends the original key (ctrl-c).
+
+# Example sxhkd entry:
+# ctrl + c
+#	inject ctrl+c firefox ctrl+p chrome alt+t
+
+[ "$#" -lt 3 ] && echo 'error: give at least 3 args' && exit 1
+
+default_key="$1"; shift
+active_id=$(xdotool getactivewindow)
+
+while [ "$#" -ge 2 ]; do
+
+    target_class="$1"
+    target_key="$2"
+    shift 2
+
+    target_id=$(
+        xdotool search --class "$target_class" | grep "$active_id"
+    )
+
+    [ -z "$target_id" ] && continue
+
+    xdotool key --clearmodifiers --window "$target_id" "$target_key"
+    exit 0
+done
+
+xdotool key --clearmodifiers --window "$active_id" "$default_key"

@@ -1,0 +1,4 @@
+#!/bin/sh
+# returns 0 if given window is focused, otherwise returns 1.
+# lmao finally a script that does only one thing and honors the unix philosophy.
+xdotool search --class "$1" | grep -xq "$(xdotool getactivewindow)"

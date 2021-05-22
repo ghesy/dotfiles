@@ -1,0 +1,5 @@
+# refresh host-based adblocker
+&bootrun 05 22 * * * hblock
+
+# sort and fetch pacman mirrors
+&bootrun 10 22 * * * dankmirrors

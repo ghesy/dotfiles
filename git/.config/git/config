@@ -1,0 +1,11 @@
+[user]
+    name = ehsan gn.
+    email = ehsangn@protonmail.ch
+[credential]
+    helper = cache
+[alias]
+    up = pull --rebase --autostash
+    tree = log --oneline --graph --decorate --all
+    upstr = rebase --rebase-merges --autostash
+[init]
+    defaultBranch = master

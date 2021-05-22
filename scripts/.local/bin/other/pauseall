@@ -1,0 +1,3 @@
+#!/bin/sh
+# pause all players.
+playerctl -a pause

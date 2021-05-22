@@ -1,0 +1,19 @@
+#!/bin/sh
+# show mounted disks and their free/used disk space.
+
+printf "\
+\nDisk       Mountpoint         Used                Free        Total\n\n"
+
+df -T |
+  awk '
+    /^\/dev\/sd/ {
+      printf "%-10s %-18s %-6.2f %2s %1s %-3s %1s %-6.2f %2s %-6.2f %3s\n",
+      $1,                          # filesystem name (ex. /dev/sda)
+      $7,                          # mountpoint
+      $4/(1024*1024), "GB ",       # used space in gigabytes
+      "(", $6, ") ",               # usage percentage
+      $5/(1024*1024), "GB  ",      # free space in gigabytes
+      ($4+$5)/(1024*1024), "GB   " # total space in gigabytes
+    }
+  '
+echo

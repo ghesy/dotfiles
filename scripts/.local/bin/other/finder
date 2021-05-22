@@ -1,0 +1,77 @@
+#!/bin/sh
+# search for files and directories.
+#
+# instead of recursing, it increments the depth of search, which
+# is usually much faster at finding the files you want.
+#
+# so it searches files and dirs in the current dir, then
+# files and dirs that are one level deeprer, then those that are
+# two level deeper, and so on.
+#
+# max search depth can be increased/decreased mid-run with ctrl-n and ctrl-p.
+#
+# requires find and fzf.
+
+# config
+# initial search depth
+max_depth=8
+
+main ()
+{
+    # make fzf fullscreen if -f is supplied
+    [ "$1" = -f ] && shift && height='--height=100%'
+
+    while true; do
+        out="$( depth_find "$max_depth" "$@" | fzffn "$max_depth" "$query" )"
+      query="$( echo "$out" | head -n1 )" # the stuff that was typed into fzf
+        key="$( echo "$out" | sed '2q;d' )" # the key combination received by fzf
+       file="$( echo "$out" | tail -n1 )" # the selected file in fzf
+
+        [ -z "$out" ] && exit 1
+
+        case "$key" in
+            ctrl-n ) max_depth=$((max_depth+1)) ;;
+            ctrl-p ) max_depth=$((max_depth-1)) ;;
+            '') echo "$file"; exit ;;
+        esac
+
+        [ "$max_depth" -lt 1  ] && max_depth=1
+        [ "$max_depth" -gt 30 ] && max_depth=30
+    done
+}
+
+depth_find ()
+{
+    max_depth=$1
+    shift
+    for current_depth in $(seq 1 "$max_depth"); do
+        findfn "$current_depth" "$@"
+    done
+}
+
+findfn ()
+{
+    current_depth=$1
+    shift
+    find -L "$@" \
+        -mindepth $current_depth \
+        -maxdepth $current_depth \
+        -not -path '*/\.git/*'   \
+        -not -name '.git'        \
+        2>/dev/null
+}
+
+fzffn ()
+{
+    depth=$1
+    query=$2
+    fzf \
+        --prompt "Depth=$depth (^n:inc, ^p:dec) " \
+        --expect ctrl-n,ctrl-p \
+        --query "$query" \
+        --print-query \
+        $height
+}
+
+main "$@"
+exit

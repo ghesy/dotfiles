@@ -1,0 +1,11 @@
+#!/bin/sh
+# show arguments in a notification.
+[ "$1" = -i ] && shift && stdin="$(cat)"
+n=1;
+for arg; do
+    args="${args}${n} - $arg
+"
+n=$((n+1))
+done
+[ -n "$stdin" ] && notify-send -- stdin "$stdin"
+notify-send -- args "$args"

@@ -1,0 +1,14 @@
+HP_M1132
+1
+0
+0
+0
+1
+1
+1
+0
+surf $0 2>/dev/null&
+http://localhost:631/sum.html#STANDARD_OPTIONS
+
+0
+0 736 218 448 643

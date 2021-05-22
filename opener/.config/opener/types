@@ -1,0 +1,84 @@
+# specify file types here.
+#
+# each group consists of 3 lines.
+# groups are seperated by one or more blank line(s).
+#
+# first line of each group is the name/label of file type.
+#   it's what the findtype function outputs.
+# second line is a regex that matches against files' mime-type,
+# third line is a regex that matches against files' extention.
+#
+# regexes are extended regexes, interpreted via egrep or grep -E.
+#
+# leading spaces and tabs in each line are ignored.
+# text after pound sign (comments) in each line are ignored.
+#
+# if you want to omit mimetype or extention, put ^$ as the pattern.
+
+gimp
+    xcf|svg|photoshop
+    ^(xfc|svg|psd)$
+
+blender
+    ^$
+    ^blend$
+
+ebook
+    /epub
+    ^(epub|azw3|mobi|fb[23])$
+
+spreadsheet
+    /x-sc$
+    ^(sc|csv|sxc|xlsx?|xlt|xlw|gnm|gnumeric)$
+
+doc
+    vnd.djvu|pdf
+    ^(pdf)$
+
+office
+    opendoc|officedoc|msword
+    ^(pptx?|od[dfgpst]|docx?|sxc|xlsx?|xlt|xlw|gnm|gnumeric)$
+
+html
+    html
+    ^x?html?$
+
+image
+    image/
+    ^(jpg|png|gif|bmp|ico)$
+
+audio
+    audio/
+    ^(mp3|ogg|flac)$
+
+video
+    video/
+    ^(mp4|mkv|wma)$
+
+manual
+    troff
+    ^1$
+
+kicad_proj
+    ^$
+    ^pro$
+
+kicad_pcb
+    ^$
+    ^kicad_pcb(-bak)?$
+
+kicad_sch
+    ^$
+    ^sch(-bak)?$
+
+archive1
+    app.*7z|app.*rar|app.*zstd|app.*gzip
+    ^(7z|zstd?|ace|ar|arc|bz2?|cab|cpio|cpt|deb|dgc|dmg|gz)$
+
+archive2
+    app.*7z|app.*rar|app.*zstd|app.*gzip
+    ^(iso|jar|msi|pkg|rar|shar|tar|tgz|xar|xpi|xz|zip)$
+
+text
+    ^text
+    ^(xml|json|csv|tex|py|pl|rb|js|sh|php|ms)$

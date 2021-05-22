@@ -1,0 +1,4 @@
+#!/bin/sh
+usv check dwmbar | grep -q down && usv up dwmbar && exit
+usv down dwmbar
+xsetroot -name ' '

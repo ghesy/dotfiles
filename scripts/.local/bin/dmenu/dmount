@@ -1,0 +1,14 @@
+#!/bin/sh
+# Show some options to launch some mounting scripts with dmenu.
+
+# Config
+prompt='Mount What?'
+
+actions="
+ Flash : $TERMINAL -e bashmount,
+ MTP   : mmtp,
+ ADB   : $TERMINAL -e madb,
+ﴓ FTP   : $TERMINAL -e mftp
+"
+
+eval "$(choices "$prompt" "$actions")"

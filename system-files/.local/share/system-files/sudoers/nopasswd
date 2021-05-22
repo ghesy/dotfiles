@@ -1,0 +1,5 @@
+# replace these lines in sudoers:
+## No password asked for the following executables
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/protonvpn,/usr/bin/poweroff,/usr/bin/reboot,/usr/bin/gru
+b-reboot,/usr/bin/hwclock,/usr/bin/ntpdate,/usr/bin/zzz,/usr/bin/chrt,/usr/bin/nethogs,/usr/
+bin/resolvconf

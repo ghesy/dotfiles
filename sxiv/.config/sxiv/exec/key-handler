@@ -1,0 +1,50 @@
+#!/bin/sh
+
+case $1 in
+    "y") supercp-clip --clear ;;
+    "t") dmenu-prompt 'Trash images?' && trash=true ;;
+    "d") dmenu-prompt 'Really Delete images?' && delete=true ;;
+    "h") notify-send --urgency=low --expire-time=5000 'sxiv key-handler help' \
+'y    copy as file
+Y    copy as image
+r,R  rotate the image cw/ccw
+a    autorotate the image
+g    open in gimp
+p    print the images
+w    set as wallpaper
+t    trash the images
+d    permanently delete the images
+'
+
+esac
+
+while read -r file
+do
+    case "$1" in
+        "w") wallpaper "$file" & ;;
+        "r") convert -rotate 90 "$file" "$file" ;;
+        "R") convert -rotate -90 "$file" "$file" ;;
+        "a") jhead -autorot "$file" ;;
+        "f") convert -flop "$file" "$file" ;;
+        "g") gimp "$file" & ;;
+        "t") [ "$trash" = true ] && trash-put "$file" ;;
+        "T") notify-send "${file}" ;;
+        "d") [ "$delete" = true ] && rm "$file" ;;
+        "p") mpv "$(vidsxiv --get-video "$file")" ;;
+        "P") dmenu-print "$file" ;;
+        "y") readlink -f "${PWD}/${file}" | xargs supercp-clip --add ;;
+        "Y")
+            readlink -f "$file" | xargs xclip -selection clipboard -target "$(file --mime-type "$file" | awk '{print $2}')" -in &&
+            notify-send "$(readlink -f "$file") copied to clipboard" &
+           ;;
+    esac
+done
+
+case $1 in
+    "y") msg='successfully copied images.' ;;
+    "t") [ "$trash" = true ] && msg='successfully trashed images.' ;;
+    "d") [ "$delete" = true ] && msg='successfully deleted images.' ;;
+esac
+
+[ -n "$msg" ] && notify-send "$msg"
+exit 0

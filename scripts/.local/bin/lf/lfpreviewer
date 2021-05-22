@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Config
+cache="${XDG_RUNTIME_DIR:-/tmp}/lf/thumbnails"
+
+main ()
+{
+    mkdir -p "$cache"
+    imgpath="$cache/thumbnail.$(uid "$1")"
+
+    w="$2"; h="$3"; x="$4"; y="$5"
+
+    case "$(echo "$1" | awk '{print tolower($0)}')" in
+
+        *.tar.*|*.zip|*.7z|*.rar|*.xz|*.gz|*.bz2|*.tgz|*.txz|*.Z|*.xz|\
+            *.deb|*.ar|*.arc|*.cab|*.cpio|*.jar|*.war|*.ear|*.oxt|\
+            *.shar|*.xpi|*.zstd|*.ace|*.cpt|*.pkg|*.xar)
+
+            als "$1"
+        ;;
+
+        *.wav|*.mp3|*.flac|*.m4a|*.wma|*.ape|*.ac3|\
+            *.og[agx]|*.spx|*.opus|*.as[fx]|*.flac)
+
+            mediainfo "$1"
+        ;;
+
+        *.pdf)
+
+            [ ! -f "${imgpath}.jpg" ] &&
+                pdftoppm -jpeg -f 1 -singlefile "$1" "$imgpath"
+
+            image "${imgpath}.jpg"
+        ;;
+
+        *.svg)
+
+            [ ! -f "${imgpath}.jpg" ] &&
+                convert "$1" "${imgpath}.jpg"
+
+            image "${imgpath}.jpg"
+        ;;
+
+        *.epub)
+
+            [ ! -f "$imgpath" ] &&
+                epub-thumbnailer "$1" "$imgpath" 1024
+
+            image "$imgpath"
+        ;;
+
+        *.avi|*.mp4|*.wmv|*.dat|*.3gp|*.ogv|*.mkv|*.mpg|*.mpeg|*.vob|*.fl[icv]|\
+            *.m2v|*.mov|*.webm|*.ts|*.mts|*.m4v|*.r[am]|*.qt|*.divx)
+
+            [ ! -f "${imgpath}.jpg" ] &&
+                ffmpegthumbnailer -s0 -q5 -i "$1" -o "${imgpath}.jpg"
+
+            image "${imgpath}.jpg"
+        ;;
+
+        *.bmp|*.gif|*.jpg|*.jpeg|*.jpe|*.png|*.xpm|*.webp|*.dng)
+
+            image "$1"
+        ;;
+
+        *.[1-8]) man "$1" | col -b ;;
+        *.o)     nm "$1"  | less ;;
+        *.torrent) transmission-show "$1" ;;
+        *.iso)  iso-info --no-header -l "$1" ;;
+        *.odt,*.ods,*.odp,*.sxw) odt2txt "$1" ;;
+        *.doc)  catdoc "$1" ;;
+        *.docx) docx2txt "$1" - ;;
+        *.csv)  bat -f --number --paging=never "$1" | sed s/,/\\n/g ;;
+        *)      bat -f --number --paging=never "$1" ;;
+
+    esac
+}
+
+uid ()
+{
+    stat --printf '%n\0%i\0%F\0%s\0%W\0%Y' -- "$(readlink -f "$1")" |
+        sha256sum | awk '{print $1}'
+}
+
+image ()
+{
+    if [ -z "$DISPLAY" ]; then
+        chafa -s ${w}x${h} "$1"
+        exit
+    fi
+
+    declare -p -A cmd=(\
+                               \
+        [action]=add           \
+        [identifier]="PREVIEW" \
+        [path]="$1"            \
+        [x]="$x"               \
+        [y]="$y"               \
+        [max_width]="$((w-1))" \
+        [max_height]="$h"      \
+                               \
+    ) > "$FIFO_UEBERZUG"
+
+    exit 1
+}
+
+main "$@"

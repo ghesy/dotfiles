@@ -1,0 +1,64 @@
+#!/bin/bash
+# access the storage of android devices
+# through adb via adbfs.
+# requires adbfs-rootless.
+
+# config
+mnt=~/Mount/ADB
+
+main () {
+    while true; do
+        clear
+        echo "m: mount  u: unmount"
+        echo "l: list   o: open   q: quit"
+        echo
+        case "$in" in
+            m) m ;;
+            u) u ;;
+            l) l ;;
+            o) o ;;
+            q) exit ;;
+        esac
+        read -s -n 1 in
+    done
+}
+
+m () {
+    l -q || return
+    is_mounted && echo "already mounted." && return
+    cleanup
+    adbfs -o auto_unmount "$mnt"
+    is_mounted && echo "mounted."
+    cleanup
+}
+
+u () {
+    fusermount -u "$mnt" && echo unmounted.
+}
+
+l () {
+    l="$(adb devices)"
+    [ "$(echo "$l" | wc -l)" = 1 ] &&
+        echo "no adb devices found." >&2 &&
+        return 1
+    [ "$1" != -q ] && echo "$l"
+}
+
+o () {
+    if [ -d "$mnt/sdcard" ]; then
+        termopen "$mnt/sdcard"
+    else
+        termopen "$mnt"
+    fi
+}
+
+cleanup () {
+    is_mounted || u >/dev/null 2>&1
+}
+
+is_mounted () {
+    [ $(ls -A "$mnt" 2>/dev/null | wc -l) -gt 0 ]
+}
+
+main "$@"
+exit

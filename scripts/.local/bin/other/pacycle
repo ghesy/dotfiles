@@ -1,0 +1,19 @@
+#!/bin/sh
+# cycle audio output devices.
+# requires pactl and paswitch(aur).
+
+current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
+sink_list="$(pactl list short sinks)"
+sink_ids="$(echo "$sink_list" | cut -f1)"
+first_sink_id="$(echo "$sink_ids" | head -n1)"
+current_sink_id=$(echo "$sink_list" | grep "$current_sink" | cut -f1)
+
+(echo "$sink_ids"; echo "$first_sink_id") | while IFS= read -r sink_id; do
+    [ $sink_id = $current_sink_id ] && read -r sink_id && paswitch $sink_id
+done
+
+mkdir -p "$(dirname "$AUDIO_GLYPH")"
+conf=~/.config/dwmbar/audio-glyphs
+[ ! -r $conf ] && echo  > "$AUDIO_GLYPH"
+current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
+awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$AUDIO_GLYPH"

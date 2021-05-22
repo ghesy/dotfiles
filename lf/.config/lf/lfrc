@@ -1,0 +1,237 @@
+# ==============
+# = Settings
+# ==============
+
+set shell bash
+set shellopts "-u"
+set ifs "\n"
+set icons
+set period 1
+set nopreview
+set nodrawbox
+set ratios 1
+set dircounts
+set info "size"
+set scrolloff 10
+set incsearch 1
+set tabstop 4
+
+set previewer lfpreviewer
+set cleaner   lfcleaner
+
+set timefmt   "2006-01-02 15:04"
+set promptfmt "\033[2m%d"
+set errorfmt  "\033[31m%s\033[0m"
+
+set nohidden
+set hiddenfiles ".Trash-1000:$RECYCLE.BIN:System Volume Information"
+
+# ==============
+# = Commands
+# ==============
+
+# basic stuff
+cmd q quit
+cmd wq quit
+cmd edit $$EDITOR -- $f
+cmd suedit $suedit -- $f
+cmd open        &opener --lf $id -- $f
+cmd openfork    &opener -f --lf $id -- $f
+cmd openall     &opener --lf $id -- $fx
+cmd openallfork &opener -f --lf $id -- $fx
+cmd opennormal  $opener -- $f
+
+cmd mkexec &{{
+    [ ! -f $f ] && exit
+    if [ -x $f ]; then chmod a-x -- $f
+    else chmod a+x -- $f; fi
+    lfreload -f $id
+}}
+
+cmd delete ${{
+    echo '  permanently deleting files:'; echo
+    echo "$fx"; echo
+    confirm '  delete?' && rm -rf -- $fx
+}}
+
+cmd bulkrename ${{
+    for path in $fx; do
+        basename "$path"
+    done | vidir -
+}}
+
+# console stuff
+cmd editor push $$EDITOR<space>--<space>
+cmd trash  push &trash-put<space>$fx;lfreload<space>$id
+cmd touch  push &touch<space><space>;lfreload<space>$id<home><a-f><right>
+cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lfreload<space>$id;lfselect<space>$id<space>"$name"<home><a-f><right><right>
+
+# bookmarkig
+cmd bookmarks ${{
+    p="$(bm)" || exit
+    lf -remote "send $id select '$p'"
+    lf -remote "send $id open"
+}}
+cmd bookmark-add  push &<space>bm<space>add<space>
+cmd bookmark-rm   push &<space>bm<space>rm<space>
+
+# info
+cmd mediainfo     $mediainfo $f  | less
+cmd mediainfo-all $mediainfo $fx | less
+cmd filetype      %file -b --mime-type -- $f | tr -d '\n'; printf '; '; file -b -- $f
+cmd filetype-all  ${{
+    for file in $fx; do
+        basename -- $file
+        file -b --mime-type -- $file
+        file -b -- $file
+        echo
+    done | less
+}}
+
+# size of files and dirs
+cmd sized0  %echo " calculating...";du -sh 2>/dev/null
+cmd sized1  $du -h --max-depth=1 | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
+cmd dust    !dust -sbr
+cmd ncdu    $ncdu
+
+# archive stuff
+cmd extract $echo '  extracting:'; echo "$fx"; aunpack -De -- $fx
+
+cmd zstd ${{
+    export ZSTD_CLEVEL=18
+    export ZSTD_NBTHREADS=0
+    apack -F.tar.zst -- $f.tar.zst $(realpath --relative-base=$PWD -- $fx) 2>&1 | grep -v ^Wide
+}}
+
+cmd zstd-each ${{
+    export ZSTD_CLEVEL=18
+    export ZSTD_NBTHREADS=0
+    apack -e -F.tar.zst -- $(realpath --relative-base=$PWD -- $fx) 2>&1 | grep -v ^Wide
+}}
+
+cmd zstd-repack ${{
+    export ZSTD_CLEVEL=18
+    export ZSTD_NBTHREADS=0
+    arepack -e -F.tar.zst -- $fx 2>&1 | grep -v ^Wide
+}}
+
+cmd zip $ apack -F.zip -- $f.zip $(realpath --relative-base=$PWD -- $fx) 2>&1
+cmd zip-each $ apack -e -F.zip -- $(realpath --relative-base=$PWD -- $fx) 2>&1
+cmd zip-repack $ arepack -e -F.zip -- $fx
+
+cmd archive-mount &lfarc $id $f
+cmd archive-mount-password $lfarc -p $id $f
+cmd archive-unmount &lfarc -u $id
+
+# image stuff
+cmd img-rot-cw  &for img in $fx; do convert -rotate 90  $img $img; done
+cmd img-rot-ccw &for img in $fx; do convert -rotate -90 $img $img; done
+cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
+cmd gimp &gimp $fx
+
+# other stuff
+cmd toggle_preview &lftp $id
+cmd finder $lf -remote "send $id select '$(finder -f)'"
+cmd yankpath &echo -n $f | xsel -i -p -b
+cmd drag &dragon-drag-and-drop $fx
+
+# ==============
+# = Bindings
+# ==============
+
+map U  &termopen
+map L  openfork
+map oa openall
+map oA openallfork
+map on opennormal
+map rn rename
+map yy copy
+map dd cut
+map pp paste
+map ua invert
+map <c-a> invert
+map uc unselect
+map uv clear
+map pf toggle_preview
+map yp yankpath
+map ft filetype
+map fT filetype-all
+map mi mediainfo
+map mI mediainfo-all
+map si set reverse!
+map sr set reverse!
+
+map vi  editor
+map E   edit
+map svi suedit
+
+map D  trash
+map purge delete
+map mk mkdir
+map to touch
+map xx !$f
+map ax mkexec
+map dr drag
+
+map ex extract
+map zz zstd
+map zZ zstd-each
+map zr zstd-repack
+map Zz zip
+map ZZ zip-each
+map Zr zip-repack
+map mm archive-mount
+map mM archive-mount-password
+map uu archive-unmount
+map du sized0
+map dU sized1
+map ds dust
+map dn ncdu
+
+map <c-f> finder
+map <c-n> bookmarks
+map ba bookmark-add
+map br bookmark-rm
+
+map rl img-rot-cw
+map rh img-rot-ccw
+map ar img-autorot
+map gi gimp
+
+map <c-r> reload
+map <c-e> down
+map <c-y> up
+
+map at argtest
+map <enter> shell-wait
+
+# renaming
+map A  rename # at the very end
+map cw push A<c-u> # new rename
+map I  push A<c-a> # at the very beginning
+map cW bulkrename
+
+# avoid unknown mapping error when pressing esc or tab.
+map <esc> :echo
+map <tab> :echo
+
+# ==================
+# = Remove Bindings
+# ==================
+
+map r
+map y
+map d
+map p
+map v
+map u
+map c
+map e
+map i
+map w
+map t
+map m
+map f
+map F
+map "'"
+map '"'

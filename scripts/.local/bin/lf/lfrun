@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# Config
+lftmp="${XDG_RUNTIME_DIR:-/tmp}/lf"
+fifo="$lftmp/fifo"
+lastdir="$lftmp/lastdirlocal"
+
+set -e
+
+main ()
+{
+    case "$1" in
+        -remote|-doc|-version|-server)
+            lf "$@"
+            return
+        ;;
+    esac
+
+    trap cleanup EXIT HUP
+
+    mkdir -p "$fifo" "$lastdir"
+
+    is_in_graphical_environment && ueberzug_init
+
+    lf_run "$@"
+}
+
+lf_run ()
+{
+    lastdirfile="$(mktemp "$lastdir/XXXXXX")"
+    lf -last-dir-path="$lastdirfile" "$@" 3>&-
+
+    if [ ! -r "$lastdirfile" ] || [ -z "$(cat "$lastdirfile")" ]
+    then
+        rm "$LFLASTDIR"
+        return
+    fi
+
+    mv "$lastdirfile" "$LFLASTDIR" >/dev/null 2>&1
+}
+
+ueberzug_init ()
+{
+    export FIFO_UEBERZUG="$fifo/ueberzug-$$"
+    mkfifo "$FIFO_UEBERZUG"
+    ueberzug layer -s <"$FIFO_UEBERZUG" -p bash &
+    exec 3>"$FIFO_UEBERZUG"
+}
+
+is_in_graphical_environment ()
+{
+    [ -n "$DISPLAY" ] && [ -z "$SSH_CLIENT" ] && [ -z "$SSH_TTY" ] && return 0
+    return 1
+}
+
+cleanup ()
+{
+    exec 3>&-
+    rm -f "$FIFO_UEBERZUG" "$lastdirfile"
+}
+
+main "$@"
+exit

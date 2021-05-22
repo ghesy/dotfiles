@@ -1,0 +1,21 @@
+#!/bin/sh
+
+echo 
+
+allconns="$(nmcli c show --active | grep -owiE 'ethernet|wifi|bluetooth')"
+conn="$(echo "$allconns" | head -n1)"
+count="$(echo "$allconns" | wc -l)"
+
+case $conn/$count in
+    ''/* ) echo ; exit ;;
+    */1 ) ;;
+    ethernet/* ) echo  ;;
+    wifi/* ) echo 直 ;;
+    bluetooth/* ) echo  ;;
+esac
+
+case "$(country --timeout 6 --maxtime 7)" in
+    ir) echo  ;;
+    '') echo  ;;
+     *) echo  ;;
+esac

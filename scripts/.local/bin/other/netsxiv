@@ -1,0 +1,65 @@
+#!/bin/sh
+# this script gets links of internet images and it downloads them,
+# caches them and opens them when downloaded.
+# it will open it from cache if you give it the same link again.
+# used in tuir's mailcap to open reddit images.
+
+tmp="${XDG_RUNTIME_DIR:-/tmp}"
+cache="$tmp/netsxiv/cache"
+cachetable="$cache/netsxiv-cachetable"
+mkdir -p "$cache"
+touch "$cachetable"
+
+[ "$1" = "--gif" ] && is_gif=true && shift
+url="$1"
+cached_img_name=$(awk '$1=="'"$url"'" {print $2}' "$cachetable")
+cached_img="$cache/${cached_img_name}"
+a2cfile="${cached_img}.aria2"
+netsxivfile="${cached_img}.netsxiv"
+if [ -r "$a2cfile" ] || [ -r "$netsxivfile" ]; then
+    notify-send "this file's download is already in progress"
+    exit 0
+fi
+
+open() {
+    sxiv -a -- "$@" || mpv --keep-open=always -- "$@"
+}
+
+rand() {
+    shuf -n1 -i100000-999999
+}
+
+dl()
+{
+    name="img-$(rand)"
+    if [ "$is_gif" = true ]; then name="img-$(rand).gif"; fi
+    file="$cache/${name}"
+    touch "${file}.netsxiv"
+    echo "$url $name" >> "$cachetable" || notify-send "writing cachetable failed"
+
+    if [ "$(country)" = ir ]; then
+        proxy='--all-proxy=127.0.0.1:8123'
+        aria2c --no-conf --quiet --timeout=10 --connect-timeout=4 --dir="$cache" --out="$name" "$url" ||
+            if ! aria2c $proxy --no-conf --quiet --dir="$cache" --out="$name" "$url"; then
+                notify-send "aria2c failed"
+                rm "${file}.aria2" "${file}.netsxiv"
+                exit 1
+            fi
+    else
+        if ! aria2c --no-conf --quiet --dir="$cache" --out="$name" "$url"; then
+            notify-send "aria2c failed"
+            rm "${file}.aria2" "${file}.netsxiv"
+            exit 1
+        fi
+    fi
+
+    rm "${file}.netsxiv"
+    open "$file"
+}
+
+if [ -n "$cached_img_name" ]; then
+    open "$cached_img" || dl
+else
+    dl
+fi
+exit 0

@@ -1,0 +1,4 @@
+#!/bin/sh
+cat "$AUDIO_GLYPH"
+pamixer --get-volume-human
+mpc | grep -qi '^\[playing' && echo 

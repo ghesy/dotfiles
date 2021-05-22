@@ -1,0 +1,6 @@
+#!/bin/sh
+echo 
+threshold=$(cat ~/.config/dwmbar/mem-threshold 2>/dev/null)
+raw=$(free | awk 'FNR==2 {print $3}')
+[ $raw -lt ${threshold:-3000000} ] && echo  && exit
+free -h | awk 'FNR==2 {print $3}'

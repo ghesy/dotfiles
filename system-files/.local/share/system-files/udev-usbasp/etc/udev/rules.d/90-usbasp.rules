@@ -1,0 +1,1 @@
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="05dc", SYMLINK+="usbasbprog", GROUP="usb", MODE="660"

@@ -1,0 +1,61 @@
+#!/bin/sh
+dir="$XDG_CONFIG_HOME/gimme"
+aliases="$dir/aliases"
+functions="$dir/functions"
+
+main ()
+{
+    for arg; do case "$arg" in
+        -l | --list ) list=true; shift ;;
+        -t | --test ) test=true; shift ;;
+        -h | --help ) err "this is a program runner script" ;;
+        --) shift; break ;;
+        *) break ;;
+    esac done
+
+    [ ! -r "$aliases" ] && err "not found: $aliases"
+    [ -r "$functions" ] && . "$functions"
+    cd "$dir" || err "no dir: $dir"
+
+    [ "$list" = true ] && list_aliases_exit
+    [ -z "$1" ] && exit 1
+    if [ "$test" = true ]; then get_command "$@"; exit; fi
+    eval "$(get_command "$@")"
+}
+
+list_aliases_exit ()
+{
+    format "$aliases" |
+        sed -e 's/[ \t]*:.*//g' -e 's/[ \t]*,[ \t]*/\n/g'
+    exit 0
+}
+
+get_command ()
+{
+    format "$aliases" | grep -Em1 "^(.*,[ \t]*)?$*[ \t]*[,:]" | cut -d: -f2-
+}
+
+format ()
+{
+    handle_line_breaks "$@" | add_includes | awk 'NF && !/^#/'
+}
+
+add_includes ()
+{
+    awk ' ! /^include\s+\S+/ { print $0; next }
+        { while (getline line<$2) { print line } } ' "$@"
+}
+
+handle_line_breaks ()
+{
+    sed ':a;N;$!ba;s/\\\n//g' "$@"
+}
+
+err ()
+{
+    echo "gimme: $*" >&2
+    exit 1
+}
+
+main "$@"
+exit

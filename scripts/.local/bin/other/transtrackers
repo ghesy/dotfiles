@@ -1,0 +1,5 @@
+#!/bin/sh
+# add more trackers to transmission torrents using transmission-trackers,
+# but first check if transmission is running and that we are connected
+# to the internet.
+pidof -q transmission-daemon && country -q && transmission-trackers

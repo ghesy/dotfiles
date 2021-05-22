@@ -1,0 +1,12 @@
+#!/bin/sh
+# recursively convert extentions of files in a directory, from upper to lower case.
+
+echo "This program will now convert file extentions from upper to lower case recursively."
+printf "press enter to continue..."
+read x
+
+find . -name '*.*' -exec sh -c '
+  a=$(echo "$0" | sed -E "s/([^.]*)\$/\L\1/");
+  [ "$a" != "$0" ] && mv "$0" "$a" ' {} \;
+
+echo "done."

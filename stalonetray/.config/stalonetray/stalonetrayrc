@@ -1,0 +1,11 @@
+# stalonetray's config file
+icon_size 24
+geometry 1x1+2-3
+grow_gravity W
+icon_gravity SW
+no_shrink false
+parent_bg true
+transparent false
+background black
+icon_size 24
+kludges force_icons_size

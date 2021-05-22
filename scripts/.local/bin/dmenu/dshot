@@ -1,0 +1,78 @@
+#!/bin/sh
+# an improved version of luke smith's screenshot script.
+# requires maim, and my 'choices' script.
+# it lets you choose the kind of screenshot to take,
+# including copying the image or even highlighting an area to copy.
+# scrotcucks on suicidewatch right now.
+
+# config
+save_to=/media/screenshots
+save_to_fallback=~
+prompt='Screenshot Method:'
+
+# delay between pressing enter and taking the shot.
+# 0.2 seconds works pretty well.
+delay=0.2
+
+# command used to copy image to clipboard
+clipcmd='xclip -selection clipboard -t image/png'
+
+# initial mode (available modes: save, clipboard)
+mode=save
+
+main ()
+{
+    eval "$(
+        choices "$prompt" "
+            mode=$mode     : toggle_mode; return,
+            Fullscreen     : cmd=fullscreen,
+            Select area    : cmd=select_area,
+            Current window : cmd=current_window
+        "
+    )"
+
+    [ -z $cmd ] && return
+
+    # disable picom before taking non-fullscreen screenshots.
+    # usv is a script of mine that controls my services.
+    # if you don't know any of this, just comment out this line.
+    [ $cmd != fullscreen ] && which usv && usv down picom
+
+    sleep $delay
+    make_name
+    eval "${cmd}_${mode}" && notify-send -t 1000 'screenshot taken.'
+
+    # re-enable picom.
+    [ $cmd != fullscreen ] && which usv && usv up picom
+}
+
+fullscreen_save()       { maim -u "${name}_full.png"    ;}
+fullscreen_clipboard()  { maim -u | $clipcmd            ;}
+select_area_save()      { maim -u -s "${name}_sele.png" ;}
+select_area_clipboard() { maim -u -s | $clipcmd         ;}
+current_window_save()      { maim -u -i "$(active)" "${name}_wndw.png" ;}
+current_window_clipboard() { maim -u -i "$(active)" | $clipcmd         ;}
+
+toggle_mode ()
+{
+    [ $mode = save ] && mode=clipboard || mode=save
+    main
+}
+
+active ()
+{
+    xdotool getactivewindow
+}
+
+make_name ()
+{
+    [ ! -w "$save_to" ] &&
+        save_to="$save_to_fallback"
+
+    rand="$(shuf -n1 -i1000-9999)"
+    date="$(date +%Y-%m-%d_%H%M%S)_$rand"
+    name="$save_to/sc_${date}"
+}
+
+main "$@"
+exit

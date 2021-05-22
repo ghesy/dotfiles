@@ -1,0 +1,38 @@
+colors:
+
+  primary:
+    background: '#151515'
+    foreground: '#aaaaaa'
+
+    dim_foreground:    '#666666'
+    bright_foreground: '0x1C1508'
+    dim_background:    '0x202322'
+    bright_background: '0x353433'
+
+  cursor:
+   text: CellBackground
+   cursor: '#888888'
+
+  normal:
+    black:   '#383838'
+    blue:    '#98bd5e'
+    cyan:    '#dcdcdc'
+    green:   '#8c8c8c'
+    magenta: '#a3a3a3'
+    orange:  '0xcc6953'
+    red:     '#a97775'
+    white:   '#d8c8bb'
+    yellow:  '#a99175'
+
+  bright:
+    black:   '#474747'
+    blue:    '#657d3e'
+    cyan:    '#c9c9c9'
+    green:   '#666666'
+    magenta: '#767676'
+    red:     '#a95551'
+    white:   '#d0b8a3'
+    yellow:  '#a98051'
+
+# old colors
+# background: '#0d2021' # blue

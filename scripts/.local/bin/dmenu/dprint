@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# config
+prompt="Choose printer:"
+actions="
+HP Laser Printer    : print HP_M1132,
+Epson Photo Printer : print EPSON_L800,
+GUI                 : gui_print
+"
+
+main()
+{
+    $(choices "$prompt" "$actions") "$@"
+}
+
+print()
+{
+    printer="$1"
+    shift
+    msg="$(2>&1 lp -q 20 -d "$printer" -- "$@")"
+    notify-send -u low -- "Printing via $1" "$msg"
+}
+
+gui_print()
+{
+    gtklp -c "$XDG_CONFIG_HOME/gtklp" -- "$@"
+}
+
+main "$@"
+exit

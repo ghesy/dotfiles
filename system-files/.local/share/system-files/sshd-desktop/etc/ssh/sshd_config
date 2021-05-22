@@ -1,0 +1,52 @@
+#	$OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/local/sbin:/usr/local/bin:/usr/bin
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+# allowed users and path to keys
+AllowUsers koonix sftp_access
+AuthorizedKeysFile /etc/ssh/authorized-keys/%u
+
+# connection
+Protocol 2 # use the newer, more secure protocol 2
+Port 6969
+LoginGraceTime 90
+PermitRootLogin no
+MaxAuthTries 6
+MaxSessions 20
+TCPKeepAlive no
+Compression yes
+ClientAliveInterval 300
+ClientAliveCountMax 5
+
+# security
+AuthenticationMethods publickey
+PubkeyAuthentication yes
+PermitEmptyPasswords no
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM no
+AllowTcpForwarding no
+X11Forwarding no
+PrintMotd no
+PrintLastLog no
+
+# enable sftp
+Subsystem sftp /usr/lib/ssh/sftp-server
+
+# allow local connections without key
+Match Address 192.168.1.*
+    AuthenticationMethods publickey password
+    PasswordAuthentication yes
+
+# set sftp for user sftp_access
+Match User sftp_access
+    ChrootDirectory /mnt
+    ForceCommand internal-sftp

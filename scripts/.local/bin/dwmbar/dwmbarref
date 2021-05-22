@@ -1,0 +1,16 @@
+#!/bin/sh
+
+siglist="
+date 1
+mem 2
+tor 3
+net 4
+audio 5
+battery 10
+"
+
+for module; do
+    signum="$(echo "$siglist" | grep "$module" | cut -d' ' -f2)"
+    [ -z "$signum" ] && echo "module $module doesn't exist" >&2 && exit 1
+    kill -$((signum+34)) $(pidof dwmbar)
+done

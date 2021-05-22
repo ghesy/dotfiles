@@ -1,0 +1,27 @@
+#!/bin/bash
+# this script asks you for a system action.
+# requires my choices script.
+
+# config
+prompt="System action:"
+reboot_prompt="Reboot to:"
+
+reboot_items="
+ Artix   : dmenu-prompt 'Reboot?' 'sudo -A reboot',
+ Windows : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Windows; sudo -A reboot',
+ Devuan  : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Devuan; sudo -A reboo',
+"
+
+items="
+ Lock      : lock,
+鈴 Sleep    : lock; usv down safeeyes; sudo -A zzz; usv up safeeyes,
+⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A poweroff',
+ Reboot    : reboot_choices,
+ Logout    : dmenu-prompt 'Logout?' 'pkill -x xinit',
+"
+
+reboot_choices () {
+    eval "$(choices "$reboot_prompt" "$reboot_items")"
+}
+
+eval "$(choices "$prompt" "$items")"

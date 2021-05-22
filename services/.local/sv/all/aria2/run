@@ -1,0 +1,2 @@
+#!/bin/sh
+exec aria2c --conf-path="$ARIA2_CONF"

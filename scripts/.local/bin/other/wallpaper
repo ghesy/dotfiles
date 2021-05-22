@@ -1,0 +1,4 @@
+#!/bin/sh
+# set wallpaper.
+feh --no-fehbg --bg-fill "$1"
+cp -f "$1" ~/.local/share/wall/main.png

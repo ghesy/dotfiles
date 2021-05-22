@@ -1,0 +1,99 @@
+#!/bin/bash
+# this script looks for connected
+# android phones for 50 seconds,
+# and mounts them when connected.
+# requires jmtpfs and utils like awk, sed, etc.
+
+# config
+mnt=~/Mount/MTP
+file_manager=termopen
+notify=false
+
+main ()
+{
+    bullshit
+    mkdir -p "$mnt" || exit 1
+    cleanup
+
+    [ -n "$file_manager" ] && for dir in "$mnt"/*; do
+        setsid -f "$file_manager" "$dir"
+    done
+
+    for i in $(seq 1 100); do
+        mount
+        sleep 1
+        cleanup
+    done
+}
+
+mount ()
+{
+    list || return
+
+    for num in $(seq 1 $count); do
+
+        vendor="$(echo "$vendors" | sed "${num}q;d")"
+        id="$(echo "$ids" | sed "${num}q;d")"
+        name="$(echo "$names" | sed "${num}q;d")"
+
+        dirname="$vendor$(echo $id | tr -d ,)"
+        mntpath="$mnt/$dirname"
+        mkdir -p "$mntpath"
+
+        [ "$(ls -A "$mntpath" | wc -l)" -gt 0 ] &&
+            continue
+
+        jmtpfs -device="$id" "$mntpath" -o auto_unmount
+
+        [ $(ls -A "$mntpath" | wc -l) -lt 1 ] && return 1
+
+        [ -n "$file_manager" ] && setsid -f "$file_manager" "$mntpath"
+        [ "$notify" = true ] && notify-send -t 2000 mtp "mounted $name"
+
+    done
+}
+
+# unmount orphaned mountpoints,
+# remove empty directories
+cleanup ()
+{
+    for dir in "$mnt"/*; do
+        [ "$(ls -A "$dir" | wc -l)" -gt 0 ] &&
+            continue
+        fusermount -u "$dir"
+        rmdir "$dir"
+    done
+}
+
+# create lists of info of connected devices.
+list ()
+{
+    list="$(jmtpfs -l)"
+    infoes="$(echo "$list" | awk 'f;/^Available/{f=1}' | sort -u)"
+    vendors="$(echo "$infoes" | awk -F', ' '{print $6}')"
+    ids="$(echo "$infoes" | awk -F', ' '{print $1","$2}')"
+    names="$(echo "$list" | awk -F'is a ' '/^Device/ {print $2}')"
+    lcount="$(echo "$list" | wc -l)"
+    count="$(echo "$infoes" | wc -l)"
+    [ -z "$infoes" ] && return 1
+    return 0
+}
+
+# exit if mmtp is already running,
+# also set some shell options and stuff
+bullshit ()
+{
+    pid="${XDG_RUNTIME_DIR:-/tmp}/mmtp-pid"
+    shopt -s dotglob nullglob
+    trap '' ABRT # capture jmtpfs's ugly abort signals.
+
+    if [ -e "$pid" ]; then
+        echo already running. 2>&1
+        exit 1
+    fi
+    trap "rm $pid" EXIT HUP
+    echo $$ > "$pid"
+}
+
+main "$@"
+exit

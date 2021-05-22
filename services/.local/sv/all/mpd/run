@@ -1,0 +1,3 @@
+#!/bin/sh
+ulimit -l 65535
+exec mpd --no-daemon

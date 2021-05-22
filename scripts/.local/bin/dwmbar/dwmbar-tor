@@ -1,0 +1,5 @@
+#!/bin/sh
+echo 旅
+country --quiet --tor --timeout 7 --maxtime 8 &&
+    echo  ||
+    echo 

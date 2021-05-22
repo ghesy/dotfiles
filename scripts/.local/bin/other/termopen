@@ -1,0 +1,10 @@
+#!/bin/sh
+# open my filemanager in given path.
+if [ -f "$1" ]; then
+    cd "$(dirname "$1")" || exit
+elif [ -d "$1" ]; then
+    cd "$1" || exit
+fi
+setsid -f "$TERMINAL" -e sh -c '
+    lfrun; cd "$(lflast)"; exec "$SHELL"
+' >/dev/null 2>&1

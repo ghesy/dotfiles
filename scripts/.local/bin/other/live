@@ -1,0 +1,92 @@
+#!/bin/sh
+# soystemd 2021-04-10 (https://github.com/soystemd)
+# sets a video or gif as your wallpaper.
+# requires mpv, xwinwrap and xrandr.
+# to kill the live wallpaper, just run this with no arguments.
+#
+# example:
+#   $ live video.mp4
+#
+# for killing:
+#   $ live
+
+# config
+script_name='live'
+mpv_args='
+--fullscreen
+--loop-file
+--no-audio
+--sid=no
+--no-osc
+--no-osd-bar
+--no-input-default-bindings
+--no-stop-screensaver
+--load-scripts=no
+--no-terminal
+-wid WID
+'
+
+main ()
+{
+    wallpaper="$1"
+    kill_other_instances
+    set_wallpaper_all_displays "$wallpaper"
+    wait
+}
+
+kill_other_instances ()
+{
+    [ -n "$wallpaper" ] && error_checks
+    pkill -x --older 1 --signal USR1 "$script_name"
+    [ -z "$wallpaper" ] && exit
+    trap exit USR1
+    trap 'kill -- -$$' EXIT HUP
+}
+
+set_wallpaper_all_displays ()
+{
+    local wallpaper="$1"
+    for display_geometry in $(get_display_geometries); do
+        set_wallpaper "$display_geometry" "$wallpaper" &
+    done
+}
+
+set_wallpaper ()
+{
+    local display_geometry="$1"
+    local wallpaper="$2"
+    xwinwrap -ov -ni -g "$display_geometry" -- \
+        mpv $(mpv_args) "$wallpaper" >/dev/null 2>&1
+}
+
+get_display_geometries ()
+{
+    xrandr -q | grep ' connected' |
+        grep --only-matching --perl-regexp '\d+x\d+\+\d+\+\d+'
+}
+
+error_checks ()
+{
+    [ ! -r "$wallpaper" ] &&
+        echo bad file given >&2 &&
+        exit 1
+
+    [ -z "$DISPLAY" ] &&
+        echo no display >&2 &&
+        exit 1
+}
+
+mpv_wid ()
+{
+    wid="$1"
+    shift
+    mpv $(mpv_args) --wid="$wid" "$@"
+}
+
+mpv_args ()
+{
+    echo "$mpv_args" | tr '\n' ' '
+}
+
+main "$@"
+exit

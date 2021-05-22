@@ -1,0 +1,28 @@
+Paint - Image editing:
+    pinta
+
+Image Compression:
+    jpegoptim, optipng
+
+Recording:
+    obs-studio
+
+Disk Usage Analyzer:
+    ncdu
+
+Disk Bandwidth:
+    iotop
+
+CPU Info:
+    gotop, i7z
+
+Mail:
+    claws-mail
+
+Music Visualizer:
+    cava
+
+Electronics:
+    simulide
+    qucs
+    kicad

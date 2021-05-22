@@ -1,0 +1,4 @@
+#!/bin/sh
+# like runit's sv, but controls my user services.
+export SVDIR="$USVDIR"
+sv "$@"

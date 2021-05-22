@@ -1,0 +1,2 @@
+#!/bin/sh
+SUDO_COMMAND="sudoedit $*" sudoedit "$@"

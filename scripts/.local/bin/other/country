@@ -1,0 +1,39 @@
+#!/bin/sh
+# this script is for connectivity and geoip testing.
+# exits with failure if no internet connection,
+# otherwise returns country code of your public ip.
+# requires the $IPLOOUP and $PSOCKS variables from my .zprofile.
+
+# defaults
+tor=false
+quiet=false
+timeout=10
+maxtime=20
+
+argcheck () {
+    [ -z "$2" ] &&
+        echo "$1 needs a parameter" >&2 &&
+        exit 1
+}
+
+while true; do
+    case "$1" in
+        -t | --timeout) argcheck "$@"; timeout="$2"; shift 2 ;;
+        -m | --maxtime) argcheck "$@"; maxtime="$2"; shift 2 ;;
+        -q | --quiet) quiet=true; shift ;;
+        -p | --tor) tor=true; shift ;;
+        '') break ;;
+    esac
+done
+
+[ $tor = true ] && proxy_arg="--proxy socks5://$PSOCKS"
+
+ip="$(
+    curl --silent $proxy_arg \
+        --connect-timeout $timeout --max-time $maxtime "$IPLOOKUP"
+)"
+
+[ $? -ne 0 ] && exit 1
+[ $quiet = true ] && exit 0
+
+geoiplookup "$ip" | cut -d' ' -f4 | tr -d ',' | tr A-Z a-z
