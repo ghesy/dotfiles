@@ -1,15 +1,5 @@
 #	$OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
 
-# This is the sshd server system-wide configuration file.  See
-# sshd_config(5) for more information.
-
-# This sshd was compiled with PATH=/usr/local/sbin:/usr/local/bin:/usr/bin
-
-# The strategy used for options in the default sshd_config shipped with
-# OpenSSH is to specify options with their default value where
-# possible, but leave them commented.  Uncommented options override the
-# default value.
-
 # allowed users and path to keys
 AllowUsers koonix sftp_access
 AuthorizedKeysFile /etc/ssh/authorized-keys/%u
