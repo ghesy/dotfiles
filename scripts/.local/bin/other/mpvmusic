@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 clear -x; tput civis # hide cursor
 mpv \
     --audio-display=no --term-osd-bar \
