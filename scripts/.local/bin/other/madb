@@ -8,18 +8,19 @@ mnt=~/Mount/ADB
 
 main () {
     while true; do
+        nocursor
         clear
         echo "m: mount  u: unmount"
         echo "l: list   o: open   q: quit"
         echo
-        case "$in" in
+        case "$char" in
             m) m ;;
             u) u ;;
             l) l ;;
             o) o ;;
             q) exit ;;
         esac
-        read -s -n 1 in
+        read -s -n 1 char
     done
 }
 
@@ -46,7 +47,7 @@ l () {
 
 o () {
     m
-    $TERMFILE "$mnt"
+    is_mounted && $TERMFILE "$mnt"
 }
 
 cleanup () {
@@ -55,6 +56,11 @@ cleanup () {
 
 is_mounted () {
     [ $(ls -A "$mnt" 2>/dev/null | wc -l) -gt 0 ]
+}
+
+nocursor () {
+    tput civis
+    trap 'tput cnorm' EXIT
 }
 
 main "$@"
