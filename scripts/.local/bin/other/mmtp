@@ -6,7 +6,7 @@
 
 # config
 mnt=~/Mount/MTP
-file_manager=termopen
+file_manager=$FILE
 notify=false
 
 main ()
