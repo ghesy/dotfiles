@@ -5,90 +5,86 @@
 # requires curlftpfs.
 
 # config
-iplist='
-192.168.1.15:2121
-'
+hosts=~/.config/mftp/hosts
 mntdir=~/Mount/FTP
 
-main () {
-    iplist="$(echo "$iplist" | awk NF)"
-
+main ()
+{
+    hosts="$(grep -vE '^$|^#' "$hosts")"
+    nocursor
     while true; do
 
-        if [ -z "$ip" ]; then
-            clear
-            echo "choose server"
-            echo -e "q\tquit"
-            echo "$iplist" | nl -w1
-            read -s -n 1 char
-
-            case "$char" in
-                q) exit ;;
-                *) [ "$char" -le 0 ] && continue
-            esac
-
-            ip="$(echo "$iplist" | sed "${char}q;d" | cut -f2)"
-            [ -z "$ip" ] && continue
-            mnt="$mntdir/$char"
-        fi
-
         clear
-        echo "$ip"; echo
-        echo "m: mount  u: unmount"
-        echo "o: open   b: back   q: quit"
-        echo
-
-        case "$char" in
-            m) m ;;
-            u) u ;;
-            o) o ;;
-            b) ip= ; continue ;;
-            q) exit ;;
-        esac
+        echo "choose server"
+        echo -e "q: quit"
+        echo "$hosts" | cut -d, -f1 | nl -w1 -s': '
 
         read -s -n 1 char
+        case "$char" in
+            q) exit ;;
+            '') continue ;;
+            *) [ "$char" -gt 0 ] || continue
+        esac
 
+        mnt="$mntdir/$char"
+        line="$(echo "$hosts" | sed "${char}q;d")"
+        host="$(echo "$line" | cut -d, -f1)"
+        user="$(echo "$line" | cut -sd, -f2-)"
+
+        [ -n "$line" ] || [ -n "$host"] || continue
+        [ -n "$user" ] && user=",user=$user"
+        break
+
+    done
+
+    mnt
+    ! is_mounted && return
+    while true; do
+        open
+        unmnt
+        ! is_mounted && break
     done
 }
 
-m () {
+mnt ()
+{
     mkdir -p "$mnt"
-    echo "$mnt"
     is_mounted && echo already mounted. && return
     cleanup
     echo "connecting..."
-    curlftpfs -o utf8 "ftp://$ip" "$mnt"
+    curlftpfs -o utf8"$user" "ftp://$host" "$mnt"
     is_mounted && echo mounted. || rmdir "$mnt"
     cleanup
 }
 
-u () {
+unmnt ()
+{
     ! is_mounted && echo not mounted. && return 1
     fusermount -u "$mnt" && echo unmounted.
     rmdir "$mnt"
 }
 
-l () {
-    l="$(adb devices)"
-    [ "$(echo "$l" | wc -l)" = 1 ] &&
-        echo "no adb devices found." >&2 &&
-        return 1
-    echo "$l"
-}
-
-o () {
-    m
+open ()
+{
     $TERMFILE "$mnt"
 }
 
-cleanup () {
+cleanup ()
+{
     is_mounted || u >/dev/null 2>&1
 }
 
-is_mounted () {
+is_mounted ()
+{
     [ $(ls -A "$mnt" 2>/dev/null | wc -l) -gt 0 ] && return 0
-    grep -q "$ip" /etc/mtab && return 0
+    grep -q "$host" /etc/mtab && return 0
     return 1
+}
+
+nocursor ()
+{
+    tput civis
+    trap 'tput cnorm' EXIT
 }
 
 main "$@"
