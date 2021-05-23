@@ -17,7 +17,7 @@ export PAGER='less'
 export BROWSER='firefox'
 export READER='zathura'
 export TERMFILE='lfrun'
-export FILE="$TERMINAL -e $TERMFILE"
+export FILE='termopen'
 export OPENER='opener'
 export TERMCMD="$TERMINAL"
 
