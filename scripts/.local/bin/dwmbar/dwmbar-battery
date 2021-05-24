@@ -1,15 +1,9 @@
 #!/bin/sh
-
-which acpi >/dev/null 2>&1 || exit
-
-acpi="$(acpi -b 2>&1)"
-echo "$acpi" | grep -iwq ^no && exit
-
-echo 
-
-case $(echo "$acpi" | cut -d, -f2 | cut -c2- | tr -d '\n') in
-    9[89]%) printf 100%% ;;
-    *) echo $percentage | tr -d '\n' ;;
+echo 
+dev=$(echo /sys/class/power_supply/BAT*)
+s=$(grep -wiq charging $dev/status && echo +)
+p=$(cat $dev/capacity)
+case $p in
+    9[89]) echo 100%$s ;;
+    *) echo $p%$s ;;
 esac
-
-echo "$acpi" | grep -iwq charging && printf +
