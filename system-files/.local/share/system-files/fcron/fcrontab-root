@@ -1,0 +1,8 @@
+# disable mailing
+!mail(false)
+
+# refresh host-based adblocker
+&bootrun 05 23 * * * /usr/bin/hblock
+
+# remove old tmp files
+&bootrun 15 23 * * * /usr/local/bin/tmpcleaner
