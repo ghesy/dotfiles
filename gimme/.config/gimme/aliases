@@ -1,0 +1,70 @@
+# this file contains aliases for gimme.
+# lines starting with a pound sign are comments.
+
+# aliases are separated by commas, and command
+# is separated from aliases by a colon.
+
+# you can break long lines with a backslash
+# followed by a newline.
+
+# you can also divide your aliases into multiple
+# files, put them in the same directory
+# as this one, and then include them from this file:
+# include <file>
+
+firefox, browser : firefox
+grub : su grub-customizer
+claws mail, email : claws-mail
+gparted, partition : su gparted
+
+ts3 : teamspeak
+discord : discord
+ripcord : ripcord
+telegram : telegram-desktop
+
+whatsapp : web https://web.whatsapp.com
+cups : web localhost:631
+router : web http://192.168.1.1/system.htm
+port forwarding : web http://192.168.1.1/virtualSrv.htm
+transmission web : web localhost:9091
+github : web https://github.com/soystemd
+syncthing : web localhost:8384
+
+gimp : gimp
+mspaint, pinta : pinta
+print gui : gtklp -c "$XDG_CONFIG_HOME/gtklp"
+what's printing : gtklpq
+obs, recorder : obs
+laptop : vncviewer 192.168.1.35:0
+re tor : restor
+
+reddit : tui tuir
+gotop, cpu : tui gotop
+htop : tui htop
+nettop : tuisu nethogs
+disktop, iotop : tuisu iotop
+res router : tui resrouter
+barca, la liga : tui barca
+lsusb, devices : tui watchusb
+
+autolock : xset s on
+no autolock : xset s off
+
+spice, circuit sim, qucs : qucs
+avr sim, simulide : simulide
+kicad, pcb, eda : kicad
+symphytum : symphytum
+pavucontrol : pavucontrol
+
+line in : \
+    pactl set-source-port 1 analog-input-linein; pactl set-source-volume 1 10%
+
+no line in : \
+    pactl set-source-port 1 analog-input-linein; pactl set-source-volume 1 0%
+
+dmount : dmount
+dvpn : dvpn
+games : dgames
+history pop, last notification : dunstctl history-pop
+
+# vim:ft=conf

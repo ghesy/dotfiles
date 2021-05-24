@@ -1,0 +1,17 @@
+# vim:ft=sh
+
+tui () {
+    $TERMINAL -e sh -c "$@"
+}
+
+su () {
+    sudo -A "$@"
+}
+
+tuisu () {
+    $TERMINAL -e sudo -A sh -c "$@"
+}
+
+web () {
+    firefox --new-window "$@"
+}
