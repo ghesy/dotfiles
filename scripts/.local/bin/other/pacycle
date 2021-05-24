@@ -14,6 +14,6 @@ done
 
 mkdir -p "$(dirname "$AUDIO_GLYPH")"
 conf=~/.config/dwmbar/audio-glyphs
-[ ! -r $conf ] && echo  > "$AUDIO_GLYPH"
+[ ! -r $conf ] && echo  > "$AUDIO_GLYPH" && exit
 current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
 awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$AUDIO_GLYPH"
