@@ -1,0 +1,5 @@
+#!/bin/sh
+printf 'proc:\t'
+awk 'NR==3{printf("%.0f%%\n",$3*10/7)}' /proc/net/wireless
+printf 'nm:\t'
+nmcli d wifi | awk -F'/s' '/^\*/{print$2}' | awk '{print$1"%"}'
