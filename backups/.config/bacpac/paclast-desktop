@@ -1,3 +1,4 @@
+2021-05-25 12:06 simple-mtpfs
 2021-05-18 22:25 ttf-allura
 2021-05-18 22:25 ttf-choc
 2021-05-18 22:25 otf-sansita
@@ -37,12 +38,9 @@
 2021-04-23 01:54 nginx
 2021-04-23 01:53 certbot
 2021-04-16 18:51 rsm
-2021-04-16 14:30 asr-manpages
 2021-04-16 11:38 syncthing
 2021-04-06 20:05 moreutils
-2021-04-05 13:15 timer
 2021-04-05 12:28 vitetris
-2021-04-03 20:39 dust-bin
 2021-04-03 19:51 keychain
 2021-03-31 13:19 foliate
 2021-03-30 21:57 epub-thumbnailer-git
@@ -75,18 +73,13 @@
 2021-03-11 19:16 vazir-fonts
 2021-03-11 13:37 bear
 2021-03-09 00:00 firefox
-2021-03-06 23:31 steam-fonts
 2021-03-06 01:04 dragon-drag-and-drop-git
 2021-03-05 20:08 lsof
 2021-03-05 12:10 ytfzf-git
 2021-03-05 12:00 tuxi-git
 2021-03-05 12:00 pup
-2021-03-04 15:01 xcowsay
 2021-03-03 22:23 barrier
 2021-03-03 00:56 usbmuxd
-2021-02-26 20:34 zpaq
-2021-02-26 20:34 paq8o
-2021-02-26 20:34 balz
 2021-02-26 20:31 lib32-gmp4
 2021-02-26 20:30 python-pylint
 2021-02-26 17:10 paru
@@ -111,7 +104,6 @@
 2021-01-17 00:45 pulseaudio-virtualmic
 2021-01-15 18:27 pavucontrol
 2021-01-15 18:04 pulseaudio-alsa
-2021-01-15 17:59 womic
 2021-01-15 12:19 nethogs
 2021-01-14 22:04 joyutils
 2021-01-05 00:43 pacman4console
@@ -225,7 +217,6 @@
 2020-09-20 23:56 xorg-mkfontscale
 2020-09-20 23:54 xorg-bdftopcf
 2020-09-20 21:30 dina-font
-2020-09-20 21:15 gohufont
 2020-09-18 12:36 polipo
 2020-09-17 22:18 teamspeak3
 2020-09-17 21:33 tor-runit
