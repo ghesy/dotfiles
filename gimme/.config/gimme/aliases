@@ -66,6 +66,7 @@ no line in : \
 dmount : dmount
 dvpn : dvpn
 games : dgames
+nm,wifi : networkmanager_dmenu
 history pop, last notification : dunstctl history-pop
 
 # vim:ft=conf
