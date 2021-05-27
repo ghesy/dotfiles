@@ -16,6 +16,7 @@ firefox, browser : firefox
 grub : su grub-customizer
 claws mail, email : claws-mail
 gparted, partition : su gparted
+book : foliate
 
 ts3 : teamspeak
 discord : discord
