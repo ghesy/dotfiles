@@ -1,10 +1,10 @@
 acpi
 acpi_call
+alacritty
 alsa-utils
 android-tools
 arandr
 aria2
-atool
 autoconf
 automake
 avr-gcc
@@ -28,6 +28,7 @@ claws-mail
 claws-mail-themes
 cmatrix
 cowsay
+cpupower
 curlftpfs
 dash
 dialog
@@ -74,6 +75,7 @@ gtkmm
 gzip
 hblock
 htop
+i7z
 intel-ucode
 intltool
 iotop
@@ -93,6 +95,7 @@ lib32-libpulse
 lib32-openal
 libreoffice-still
 libtool
+light
 linux
 linux-firmware
 llvm
@@ -143,6 +146,7 @@ perl-image-exiftool
 picom
 pkgconf
 playerctl
+powertop
 pulseaudio
 pulseaudio-alsa
 pup
@@ -161,6 +165,7 @@ python-qtpy
 python-unidecode
 python-xlib
 qalculate-gtk
+qt4
 ripgrep
 rsm
 rsync
@@ -243,7 +248,6 @@ xorg-sessreg
 xorg-setxkbmap
 xorg-smproxy
 xorg-x11perf
-xorg-xbacklight
 xorg-xcmsdb
 xorg-xcursorgen
 xorg-xdpyinfo
