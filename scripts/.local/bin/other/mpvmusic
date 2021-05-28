@@ -1,7 +1,7 @@
 #!/bin/sh
 clear -x; tput civis # hide cursor
 mpv \
-    --audio-display=no --term-osd-bar \
+    --audio-display=no --term-osd-bar --force-window=no \
     --keep-open=yes --display-tags-clr --term-title='mpv' \
     --msg-level=cplayer=error,ffmpeg=fatal,ffmpeg/demuxer=error \
     --term-status-msg='File: ${filename}\n\nTitle:  ${metadata/by-key/title}\nArtist: ${metadata/by-key/artist}\nAlbum:  ${metadata/by-key/album}\n\n${!playlist-count==1:Playing ${playlist-pos-1}/${playlist-count}\n}${?pause==yes:(Paused) }${time-pos} / ${duration}' \
