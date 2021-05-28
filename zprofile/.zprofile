@@ -10,15 +10,15 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 
 # default programs
-export TERMINAL='alacritty'
-export EDITOR='nvim'
-export VISUAL='nvim'
-export PAGER='less'
-export BROWSER='firefox'
-export READER='zathura'
-export TERMFILE='lfrun'
-export FILE='termopen'
-export OPENER='opener'
+export TERMINAL=kitty
+export EDITOR=nvim
+export VISUAL=nvim
+export PAGER=less
+export BROWSER=firefox
+export READER=zathura
+export TERMFILE=lfrun
+export FILE=termopen
+export OPENER=opener
 export TERMCMD="$TERMINAL"
 
 # set terminal color mode to truecolor.
@@ -67,7 +67,7 @@ export LESSHISTFILE="-"
 export PSOCKS='127.0.0.1:9050' # tor's socks proxy
 export PHTTP='127.0.0.1:8123' # polipo's http(s) proxy
 export IPLOOKUP_FILE="$XDG_CONFIG_HOME/iplookup/site"
-export IPLOOKUP="$(cat "$IPLOOKUP_FILE")"
+export IPLOOKUP="$(head -n1 "$IPLOOKUP_FILE")"
 export USVDIR="$HOME/.local/sv/run" # user services
 export LFLASTDIR="$XDG_RUNTIME_DIR/lf/lastdir"
 export AUDIO_GLYPH="$XDG_RUNTIME_DIR/dwmbar/audio_glyph"
