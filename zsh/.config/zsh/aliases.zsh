@@ -34,7 +34,6 @@ bindctrl u 'setsid -f $TERMINAL > /dev/null 2>&1 \n'
 bindctrl o lf
 bindctrl f finder
 bindctrl n g
-bindctrl b '/usr/bin/clear -x'
 
 # basic stuff
 alias clear='sl'
