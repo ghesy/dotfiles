@@ -1,11 +1,12 @@
 # the zoomer shell's config.
-
 # history settings
 HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 mkdir -p "$(dirname "$HISTFILE")"
 
+# don't exit by ctrl-d
+setopt ignoreeof
 # cd to paths typed in the shell, without the cd command
 setopt autocd
 # glob dotfiles as well
