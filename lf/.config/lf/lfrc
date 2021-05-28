@@ -131,9 +131,9 @@ cmd gimp &gimp $fx
 
 # other stuff
 cmd toggle_preview &lftp $id
-cmd finder $lf -remote "send $id select '$(finder -f)'"
 cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop $fx
+cmd finder $finder -f | lfselect $id
 
 # ==============
 # = Bindings
