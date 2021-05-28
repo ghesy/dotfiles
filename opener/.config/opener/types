@@ -49,7 +49,7 @@ image
 
 audio
     audio/
-    ^(mp3|ogg|flac)$
+    ^(mp3|ogg|flac|wav)$
 
 video
     video/
