@@ -35,7 +35,6 @@ Plug 'andreypopp/vim-colors-plain'
 Plug 'jaredgorski/fogbell.vim'
 Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
-Plug 'takac/vim-hardtime'
 Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim',
 \ {'on':['Files','GFiles','Colors','Ag','Lines','Tags','BLines','Rg',
@@ -45,9 +44,6 @@ Plug 'mbbill/undotree',
 \ {'on':['UndotreeShow','UndotreeToggle','UndotreeFocus','UndotreeHide']}
 
 call plug#end()
-
-" vim-hardtime
-let g:hardtime_default_on = 1
 
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
@@ -236,6 +232,7 @@ autocmd FocusGained * silent checktime
 
 " recompile if configs updated
 autocmd BufWritePost *.config/sxhkd/sxhkdrc !pkill --signal SIGUSR1 sxhkd
+autocmd BufWritePost *tmux/tmux.conf !tmux source ~/.config/tmux/tmux.conf
 autocmd BufWritePost *dunst/dunstrc !pkill dunst
 
 " c/c++ highlighting settings
