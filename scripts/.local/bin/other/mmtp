@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # this script looks for connected android or MTP devices
 # for 30 seconds, and mounts them when connected.
 # if any device is already mounted, it just opens them.
@@ -37,10 +37,10 @@ mount ()
 # cleanup orphaned mountpoints.
 mountpoints ()
 {
-    shopt -s dotglob nullglob
-    for dir in "$mnt"/*/; do
+    for dir in "$mnt"/*; do
+        [ -d "$dir" ] || continue
         rmdir "$dir"
-        file="${dir}test-$(shuf -n1 -i10000-99999)"
+        file="$dir/test-$(shuf -n1 -i10000-99999)"
         if touch "$file"; then
             rm -f "$file"
             $file_manager "$dir"

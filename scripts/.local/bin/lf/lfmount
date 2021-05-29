@@ -1,11 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 # mount and unmount archives with lf. (read-only.)
 # requires archivemount. duuuuuh.
 # usage:
 # mounting: $ lfmount $id $f
 # unmounting: $ lfmount -u $id
-
-shopt -s dotglob nullglob
 
 case "$1" in
     -u) shift; unmount=true ;;
@@ -44,11 +42,11 @@ ar="$2"
 
 # check if the archive is already mounted
 # and go there if it is.
-for dir in "$tmp"/*/; do
-    [ ! -d "$dir" ] && break
-    if [ "$ar" = "$(cat "${dir}source")" ]; then
+for dir in "$tmp"/*; do
+    [ ! -d "$dir" ] && continue
+    if [ "$ar" = "$(cat "$dir/source")" ]; then
         lfecho already mounted.
-        lfselect "$id" "${dir}mount"/*/
+        lfselect "$id" "$dir/mount"/*/
         exit
     fi
 done
