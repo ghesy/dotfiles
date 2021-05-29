@@ -1,16 +1,15 @@
 # the zoomer shell's config.
-# history settings
-HISTSIZE=10000
-SAVEHIST=10000
-HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
-mkdir -p "$(dirname "$HISTFILE")"
 
+HISTSIZE=1000000
+SAVEHIST=1000000
+HISTFILE=~/.cache/zsh/history
+mkdir -p $(dirname $HISTFILE)
+setopt HIST_IGNORE_SPACE # don't put commands starting with space into history
+setopt HIST_IGNORE_DUPS # don't put duplicate commands into history
 setopt ignoreeof # don't exit by ctrl-d
 setopt autocd # cd to paths typed in the shell, without the cd command
 setopt globdots # glob dotfiles as well
-setopt nullglob # make globs null if they match nothing
-setopt HIST_IGNORE_SPACE # don't put commands starting with space into history
-setopt HIST_IGNORE_DUPS # don't put duplicate commands into history
+setopt nullglob # make globs expand to nothing if they match nothing
 
 # ==============================================
 # ==============================================
