@@ -6,7 +6,7 @@ main () {
     links="$(getlinks)"
     [ -z "$links" ] && exit 1
     sel="$(echo "$links" | dmenu -p 'choose link')" || exit
-    eval "$(echo copy\\nopen | dmenu -p 'do what?')"
+    eval "$(printf copy\\nopen | dmenu -p 'do what?')"
 }
 
 copy () {
