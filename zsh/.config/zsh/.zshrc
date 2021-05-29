@@ -112,3 +112,4 @@ precmd () {
     unfunction newline
 }
 stty stop undef # disable ctrl-s to freeze terminal.
+clear
