@@ -40,8 +40,8 @@ laptop : vncviewer 192.168.1.35:0
 re tor : restor
 
 reddit : tui tuir
-gotop, cpu : tui gotop
-htop : tui htop
+gotop : tui gotop
+cpu, htop : tui htop
 nettop : tuisu nethogs
 disktop, iotop : tuisu iotop
 res router : tui resrouter
