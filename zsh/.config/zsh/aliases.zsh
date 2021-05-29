@@ -36,7 +36,6 @@ bindctrl f finder
 bindctrl n g
 
 # basic stuff
-alias clear='sl'
 alias mk='mkdir -pv'
 alias cp='cp -iv'
 alias mv='mv -iv'
