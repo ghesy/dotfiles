@@ -17,37 +17,26 @@ set termguicolors
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
 
-Plug 'neoclide/coc.nvim', {'branch':'release'}
-Plug 'jackguo380/vim-lsp-cxx-highlight'
+"Plug 'neoclide/coc.nvim', {'branch':'release'}
+"Plug 'jackguo380/vim-lsp-cxx-highlight'
 Plug 'drmikehenry/vim-headerguard', {'on':'HeaderguardAdd'}
-Plug 'tpope/vim-fugitive', {'on':'Git'}
+Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'justinmk/vim-sneak'
 Plug 'tpope/vim-surround'
-Plug 'elzr/vim-json'
-Plug 'kovetskiy/sxhkd-vim'
 Plug 'tpope/vim-eunuch'
-Plug 'junegunn/goyo.vim'
-Plug 'junegunn/limelight.vim'
 Plug 'bling/vim-bufferline'
 Plug 'pbrisbin/vim-colors-off'
-Plug 'andreypopp/vim-colors-plain'
-Plug 'jaredgorski/fogbell.vim'
 Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
+Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim',
 \ {'on':['Files','GFiles','Colors','Ag','Lines','Tags','BLines','Rg',
 \  'Buffers','BTags','Marks','Windows','Locate','History','Snippets',
 \  'Commits','BCommits','Commands','Maps','Helptags','Filetypes']}
-Plug 'mbbill/undotree',
-\ {'on':['UndotreeShow','UndotreeToggle','UndotreeFocus','UndotreeHide']}
 
 call plug#end()
-
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
-let g:limelight_conceal_guifg = '#555555'
 
 " basics
 set hidden
@@ -271,11 +260,6 @@ function Off()
     colorscheme off
 endfunction
 
-" " some settings for c/c++ code
-" endfunction
-" autocmd FileType * if (&ft=='c' || &ft=='cpp')
-"  \ | colorscheme gruvbox-material | set cursorline | endif
-
 " recognise double-slash cpp-style comments in json files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
@@ -285,9 +269,3 @@ source ~/.config/nvim/killbuff.vim
 source ~/.config/nvim/term.vim
 source ~/.config/nvim/coc.vim
 source ~/.config/nvim/gruvbox.vim
-
-" no idea why I installed rooter
-" rooter settings
-"let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', 'prjroot']
-"let g:rooter_targets = '/,*.c,*.cpp,*.h,*.hh,*.cc,*.rs,*.css,*.js,*.ts,*.go,*.py,Makefile,*.gitignore,*.yml,*.yaml'
-"let g:rooter_silent_chdir = 1
