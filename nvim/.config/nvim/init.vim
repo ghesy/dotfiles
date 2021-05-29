@@ -1,4 +1,3 @@
-" leader is space
 let mapleader = " "
 
 " install vim-plug
@@ -9,9 +8,7 @@ if ! filereadable(system('echo -n "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/sit
     autocmd VimEnter * PlugInstall
 endif
 
-" enable 24 bit color mode
-let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+" enable truecolor
 set termguicolors
 
 " plugins
@@ -264,8 +261,8 @@ endfunction
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " load other configs
+"source ~/.config/nvim/coc.vim
 source ~/.config/nvim/status.vim
 source ~/.config/nvim/killbuff.vim
 source ~/.config/nvim/term.vim
-source ~/.config/nvim/coc.vim
 source ~/.config/nvim/gruvbox.vim
