@@ -27,7 +27,7 @@ function! Killbuff()
         " kill the buffer (after switching to another buffer so that
         " the window doesn't get closed)
         bprev
-        if ( &buftype == "terminal" ) | bw! # | else | bd # | endif
+        if ( &buftype == "terminal" ) | bw! # | else | silent! bd # | endif
     endif
 endfunction
 
