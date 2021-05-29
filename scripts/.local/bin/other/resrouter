@@ -2,23 +2,19 @@
 # this script connects to my router via telnet and reboots it.
 
 # config
-ip=192.168.1.1
-user=admin
-pass="$(cat ~/.config/resrouter/password)"
+conf=~/.config/resrouter
+host=$conf/host # ip address of router
+cmds=$conf/cmds # sequence of text/commands to send to router for rebooting
 
-# sequence of commands for rebooting
-cmdlist="
-$user
-$pass
-reboot
-"
+host="$(cat $host)"
+cmds="$(awk NF $cmds)"
 
 # connect to router via telnet and send the commands
 (
     sleep 0.2
-    printf "$cmdlist" | awk NF | while IFS= read -r cmd; do
+    printf "$cmds" | awk NF | while IFS= read -r cmd; do
         sleep 0.1
         printf "${cmd}\r"
     done
     sleep 0.2
-) | telnet $ip
+) | telnet $host
