@@ -46,9 +46,9 @@ ar="$2"
 # and go there if it is.
 for dir in "$tmp"/*/; do
     [ ! -d "$dir" ] && break
-    if [ "$ar" = "$(cat "$dir/source")" ]; then
+    if [ "$ar" = "$(cat "${dir}source")" ]; then
         lfecho already mounted.
-        lfselect "$id" "$dir/mount"/*/
+        lfselect "$id" "${dir}mount"/*/
         exit
     fi
 done

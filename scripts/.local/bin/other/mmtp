@@ -40,7 +40,7 @@ mountpoints ()
     shopt -s dotglob nullglob
     for dir in "$mnt"/*/; do
         rmdir "$dir"
-        file="$dir/test-$(shuf -n1 -i10000-99999)"
+        file="${dir}test-$(shuf -n1 -i10000-99999)"
         if touch "$file"; then
             rm -f "$file"
             $file_manager "$dir"
