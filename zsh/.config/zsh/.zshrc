@@ -5,23 +5,12 @@ SAVEHIST=10000
 HISTFILE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/history"
 mkdir -p "$(dirname "$HISTFILE")"
 
-# don't exit by ctrl-d
-setopt ignoreeof
-# cd to paths typed in the shell, without the cd command
-setopt autocd
-# glob dotfiles as well
-setopt globdots
-# make globs null if they match nothing
-setopt nullglob
-# don't put commands starting with space into history
-setopt HIST_IGNORE_SPACE
-# don't put duplicate commands into history
-setopt HIST_IGNORE_DUPS
-
-# enable fast-syntax-highlighting plugin
-source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
-# disable bold red color in fast syntax highlighting
-FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
+setopt ignoreeof # don't exit by ctrl-d
+setopt autocd # cd to paths typed in the shell, without the cd command
+setopt globdots # glob dotfiles as well
+setopt nullglob # make globs null if they match nothing
+setopt HIST_IGNORE_SPACE # don't put commands starting with space into history
+setopt HIST_IGNORE_DUPS # don't put duplicate commands into history
 
 # ==============================================
 # ==============================================
@@ -112,4 +101,10 @@ precmd () {
     unfunction newline
 }
 stty stop undef # disable ctrl-s to freeze terminal.
+
+# enable fast-syntax-highlighting plugin
+source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
+# unbold the red color in syntax highlighting
+FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
+
 clear
