@@ -166,11 +166,13 @@ pavucontrol
 perl-image-exiftool
 picom
 pinta
+pipewire
+pipewire-alsa
+pipewire-pulse
 pkgconf
 playerctl
 progress
 protonvpn-cli-ng
-pulseaudio
 pulseaudio-alsa
 pup
 pv
