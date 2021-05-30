@@ -2,18 +2,42 @@
 # cycle audio output devices.
 # requires pactl and paswitch(aur).
 
-current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-sink_list="$(pactl list short sinks)"
-sink_ids="$(echo "$sink_list" | cut -f1)"
-first_sink_id="$(echo "$sink_ids" | head -n1)"
-current_sink_id=$(echo "$sink_list" | grep "$current_sink" | cut -f1)
+main () {
+    switch $(get_next_sink)
+    set_glyph
+    dwmbarref audio
+}
 
-(echo "$sink_ids"; echo "$first_sink_id") | while IFS= read -r sink_id; do
-    [ $sink_id = $current_sink_id ] && read -r sink_id && paswitch $sink_id
-done
+switch () {
+    pactl set-default-sink $1
+    pactl list short sink-inputs | cut -f1 | while IFS= read -r program; do
+        pactl move-sink-input $program $1
+    done
+}
 
-mkdir -p "$(dirname "$AUDIO_GLYPH")"
-conf=~/.config/dwmbar/audio-glyphs
-[ ! -r $conf ] && echo  > "$AUDIO_GLYPH" && exit
-current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$AUDIO_GLYPH"
+get_next_sink () {
+    vars
+    echo "$loop" | while IFS= read -r id; do
+        [ $id = $current_id ] && read -r id && echo $id
+    done
+}
+
+set_glyph () {
+    conf=~/.config/dwmbar/audio-glyphs
+    mkdir -p "$(dirname "$AUDIO_GLYPH")"
+    [ ! -r $conf ] && echo  > "$AUDIO_GLYPH" && exit
+    current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
+    awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$AUDIO_GLYPH"
+}
+
+vars () {
+    all="$(pactl list short sinks)"
+    current="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
+    ids="$(echo "$all" | cut -f1)"
+    first_id="$(echo "$ids" | head -n1)"
+    current_id=$(echo "$all" | grep "$current" | cut -f1)
+    loop="$(echo "$ids"; echo "$first_id")"
+}
+
+main "$@"
+exit
