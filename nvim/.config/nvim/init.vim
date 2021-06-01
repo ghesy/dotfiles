@@ -70,14 +70,12 @@ set pyxversion=3
 
 " cmd
 set cmdheight=1
-set laststatus=1
+set laststatus=0
 set showcmd
 set noshowmode
 
-" turn off netrw history
+" other
 let g:netrw_dirhistmax = 0
-
-" don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
 " aliases
@@ -106,7 +104,7 @@ nnoremap <silent> z. :<C-u>normal! zszH<CR>
 nnoremap H ^
 nnoremap L $
 
-" indentation
+" indent
 nmap <C-h> vip<
 nmap <C-l> vip>
 vmap <C-h> <gv4h
@@ -115,7 +113,7 @@ vmap <C-l> >gv4l
 " quick macro
 nnoremap Q @q
 
-" paste the last yanked texts
+" paste the last yanked text
 noremap <Leader>p "0p
 noremap <Leader>P "0P
 
@@ -147,11 +145,9 @@ nnoremap <Leader>rb :BLines<CR>
 nnoremap <leader>rg :Rg<CR>
 map <leader>fb :Buffers<CR>
 
-" splits
+" splits and windows
 nnoremap <silent><Leader>vs :vs<CR>
 nnoremap <silent><Leader>sp :sp<CR>
-
-" window commands
 nmap <silent><C-h> :wincmd h<CR>
 nmap <silent><C-j> :wincmd j<CR>
 nmap <silent><C-k> :wincmd k<CR>
@@ -161,23 +157,13 @@ nnoremap <silent><Leader>d :vertical resize -5<CR>
 nnoremap <silent><Leader>I :resize +5<CR>
 nnoremap <silent><Leader>D :resize -5<CR>
 nnoremap <silent><Leader>eq :wincmd =<CR>
-
-" jump to previously-accessed split
-nnoremap <Leader><Leader> <C-W><C-p>
-
-" close split/window
 nnoremap <silent><Leader>wq :wincmd q<CR>
-
-" only keep the current split/window
 nnoremap <silent><Leader>on :only<CR>
 nnoremap <silent><Leader>ON :call Onlybuff()<CR>
-
-" close buffers
 nnoremap <silent><Leader>bw :call Killbuff()<CR>
 nnoremap <silent><Leader>bd :call Killbuff()<CR>
 
 " search for visually selected text.
-silent! nunmap //
 vnoremap <silent> // :<C-U>
   \ let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
   \ gvy/<C-R>=&ic?'\c':'\C'<CR><C-R><C-R>=substitute(
@@ -217,34 +203,18 @@ function FixBufferNavigationMaps()
     endif
 endfunction
 
-" refresh open buffer if changed.
+" reload file if changed
 autocmd CursorHold,CursorHoldI * silent checktime
 autocmd FocusGained * silent checktime
 
-" recompile if configs updated
-autocmd BufWritePost *.config/sxhkd/sxhkdrc !pkill --signal SIGUSR1 sxhkd
-autocmd BufWritePost *tmux/tmux.conf !tmux source ~/.config/tmux/tmux.conf
-autocmd BufWritePost *dunst/dunstrc !pkill dunst
-
-" c/c++ highlighting settings
-let g:lsp_cxx_hl_use_nvim_text_props = 0
-let g:cpp_class_scope_highlight = 1
-let g:cpp_member_variable_highlight = 1
-let g:cpp_class_decl_highlight = 1
-
 " colors
 colorscheme off
-
+set statusline=─
+set fillchars=stl:-,stlnc:─
 function FixColors()
-    " modify colors
-    hi StatusLine guifg=#bbbbbb ctermfg=white cterm=NONE gui=NONE
-    hi StatusLineNC guifg=#707070 ctermfg=darkgrey cterm=NONE gui=NONE
-
-    " make vertical split line a sexy thin line
-    set fillchars+=vert:│
-    hi VertSplit guifg=#303030 ctermfg=darkgrey cterm=NONE gui=NONE ctermbg=NONE guibg=NONE
-
-    " make background transparent
+    hi StatusLine guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi StatusLineNC guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi VertSplit guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
     hi Normal guibg=NONE ctermbg=NONE
     hi LineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
@@ -252,22 +222,9 @@ endfunction
 autocmd ColorScheme * call FixColors()
 call FixColors()
 
-function On()
-    CocStart
-    colorscheme gruvbox-material
-endfunction
-
-function Off()
-    CocDisable
-    colorscheme off
-endfunction
-
 " recognise double-slash cpp-style comments in json files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " load other configs
-"source ~/.config/nvim/coc.vim
-source ~/.config/nvim/status.vim
 source ~/.config/nvim/killbuff.vim
 source ~/.config/nvim/term.vim
-source ~/.config/nvim/gruvbox.vim
