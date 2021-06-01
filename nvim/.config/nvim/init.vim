@@ -126,6 +126,11 @@ map <C-v> "+P
 " clear search
 nnoremap <silent><Leader>cs :let @/=''<CR>
 
+" compile markdown
+autocmd FileType markdown
+  \ nnoremap <Leader>md :silent !md %:p:S<CR> |
+  \ nnoremap <Leader>cc :silent !md -o %:p:S<CR>
+
 " fugitive
 nmap <Leader>gs :G<CR>
 nmap <Leader>gt :Git log --oneline --graph --decorate --all <CR>
