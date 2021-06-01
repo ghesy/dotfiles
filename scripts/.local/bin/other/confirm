@@ -7,7 +7,7 @@ tput civis
 trap 'tput cnorm; exit 1' INT TERM
 trap 'tput cnorm; echo' EXIT
 
-prompt="$1"
+prompt="$*"
 [ -n "$prompt" ] && prompt="$prompt "
 prompt="$prompt[N/y]"
 printf "$prompt"
