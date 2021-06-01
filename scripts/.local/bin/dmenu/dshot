@@ -36,14 +36,14 @@ main ()
     # disable picom before taking non-fullscreen screenshots.
     # usv is a script of mine that controls my services.
     # if you don't know any of this, just comment out this line.
-    [ $cmd != fullscreen ] && which usv && usv down picom
+    [ $cmd != fullscreen ] && command -v usv && usv down picom
 
     sleep $delay
     make_name
     eval "${cmd}_${mode}" && notify-send -t 1000 'screenshot taken.'
 
     # re-enable picom.
-    [ $cmd != fullscreen ] && which usv && usv up picom
+    [ $cmd != fullscreen ] && command -v usv && usv up picom
 }
 
 fullscreen_save()       { maim -u "${name}_full.png"    ;}
