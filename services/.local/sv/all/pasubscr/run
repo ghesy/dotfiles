@@ -1,2 +1,2 @@
 #!/bin/sh
-exec sh -c 'stdbuf -oL pulseaudio-subscribe | xargs -L1 dwmbarref audio'
+pulseaudio-subscribe | xargs -Ix dwmbarref audio
