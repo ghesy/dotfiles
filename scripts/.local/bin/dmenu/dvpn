@@ -27,11 +27,9 @@ Connect ()
 Disconnect ()
 {
     wind disconnect
-    sudo -A sh -c '
-        resolvconf -d windscribe
-        resolvconf -u
-        resolvconf -r unbound
-    '
+    sudo -A resolvconf -d windscribe
+    sudo -A resolvconf -u
+    sudo -A resolvconf -r unbound
 }
 
 # this function is a wrapper for windscribe, which
