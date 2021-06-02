@@ -1,0 +1,2 @@
+#!/bin/sh
+nmcli monitor | grep -i --line-buffered 'con.*now' | xargs -Ix dwmbarref net tor
