@@ -22,16 +22,16 @@ main ()
     [ "$1" = -f ] && shift && height='--height=100%'
 
     while true; do
-        out="$( depth_find "$max_depth" "$@" | fzffn "$max_depth" "$query" )"
-      query="$( echo "$out" | head -n1 )" # the stuff that was typed into fzf
-        key="$( echo "$out" | sed '2q;d' )" # the key combination received by fzf
-       file="$( echo "$out" | tail -n1 )" # the selected file in fzf
+          out="$( depth_find "$max_depth" "$@" | fzffn "$max_depth" "$query" )"
+        query="$( echo "$out" | head -n1   )" # the stuff that was typed into fzf
+          key="$( echo "$out" | sed '2q;d' )" # the key combination received by fzf
+         file="$( echo "$out" | tail -n1   )" # the selected file in fzf
 
         [ -z "$out" ] && exit 1
 
         case "$key" in
-            ctrl-n ) max_depth=$((max_depth+1)) ;;
-            ctrl-p ) max_depth=$((max_depth-1)) ;;
+            ctrl-n ) max_depth=$((max_depth + 1)) ;;
+            ctrl-p ) max_depth=$((max_depth - 1)) ;;
             '') echo "$file"; exit ;;
         esac
 
@@ -56,8 +56,8 @@ findfn ()
     find -L "$@" \
         -mindepth $current_depth \
         -maxdepth $current_depth \
-        -not -path '*/\.git/*'   \
-        -not -name '.git'        \
+        -not -path '*/\.git/*' \
+        -not -name '.git' \
         2>/dev/null
 }
 
