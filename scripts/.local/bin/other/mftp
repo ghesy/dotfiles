@@ -11,10 +11,10 @@ mntdir=~/Mount/FTP
 main ()
 {
     mkconfig
-    fhosts="$(grep -vE '^$|^#' "$hosts")"
     nocursor
     while true; do
 
+        fhosts="$(grep -vE '^$|^#' "$hosts")"
         clear
         echo "choose server"
         echo "q: quit"
@@ -92,8 +92,7 @@ nocursor ()
 
 edit ()
 {
-    ed="$EDITOR"
-    [ -z "$ed" ] && ed="$VISUAL"
+    ed="${EDITOR:-$VISUAL}"
     [ -z "$ed" ] && ed=xdg-open
     $ed "$hosts"
 }
