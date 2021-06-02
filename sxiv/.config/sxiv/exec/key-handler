@@ -30,8 +30,7 @@ do
         "t") [ "$trash" = true ] && trash-put "$file" ;;
         "T") notify-send "${file}" ;;
         "d") [ "$delete" = true ] && rm "$file" ;;
-        "p") mpv "$(vidsxiv --get-video "$file")" ;;
-        "P") dmenu-print "$file" ;;
+        "p") dprint "$file" ;;
         "y") readlink -f "${PWD}/${file}" | xargs supercp-clip --add ;;
         "Y")
             readlink -f "$file" | xargs xclip -selection clipboard -target "$(file --mime-type "$file" | awk '{print $2}')" -in &&
