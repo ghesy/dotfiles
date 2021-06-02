@@ -1,93 +1,49 @@
 #!/bin/bash
 # this script downloads or streams internet videos.
 # if it's given a censored link and my vpn is off, it uses tor.
+# requires youtube-dl, mpv, and torsocks.
 
-# Config
-censored_links_regex='youtube.com/(watch|playlist)|youtu.be/'
+# config
+blocked_regex='youtube.com/(watch|playlist)|youtu.be/'
 cookie=$XDG_DATA_HOME/ytdl/cookie
-proxy="$PHTTP"
 home_country=ir
-ytdl_cmd=youtube-dl
+ytdl=youtube-dl
+tor=
 
-main ()
-{
-    # Check args
-    [ -z "$*" ] && echo 'error: give at least one arg' && exit 1
-
-    # Check if link is censored
-    is_link_censored=false
-    is_link_censored "$@" &&
-        is_link_censored=true &&
-        echo link is censored, will use proxy if needed.
-
-
-    # Check if vpn is on
-    is_vpn_on=false
-    is_vpn_on &&
-        is_vpn_on=true &&
-        echo vpn is on, won\'t route through proxy.
-
+main() {
+    [ -z "$*" ] && echo 'ytdl: no links given' && exit 1
+    vpn_off && link_blocked "$@" && tor=torsocks
     case "$1" in
-
-        --mpv | --live | --stream)
-            shift
-            stream "$@"
-            ;;
-
-        *)
-            download "$@"
-            ;;
-
+        -s) shift; stream "$@" ;;
+        *) download "$@" ;;
     esac
 }
 
-download ()
-{
-    proxyarg=
-    [ $is_vpn_on = true ] && proyarg="--proxy $proxy"
-
-    "$ytdl_cmd" $proxyarg --cookies "$cookie" --force-ipv4 "$@"
+download() {
+    $tor $ytdl --cookies $cookie --force-ipv4 "$@"
 }
 
-stream ()
-{
-    if  [ $is_vpn_on = true  ] ||
-        [ $is_link_censored = false ]
-    then
-        stream_mpv "$@"
-    else
-        stream_proxy "$@"
-    fi
+stream() {
+    notify-send ytdl 'loading video...'
+    $tor mpv -- "$@"
 }
 
-# Get the video using youtube-dl and tor proxy, and pipe it to mpv.
-stream_proxy ()
-{
-    "$ytdl_cmd" $proxy --cookies "$cookie" --force-ipv4 --verbose -o - "$@" |
-        mpv -v --force-seekable=yes --keep-open=yes -
+vpn_off() {
+    [ "$(country)" = "$home_country" ] && return 0 || return 1
 }
 
-stream_mpv ()
-{
-    notify-send mpv "$*"
-    mpv "$@"
-}
-
-# Check if vpn is on by checking geoip
-is_vpn_on ()
-{
-    [ "$(country)" = "$home_country" ] && return 1
-    return 0
-}
-
-is_link_censored ()
-{
-    printf %s "$@" |
-        grep -qE "$censored_links_regex" &&
-        return 0
-    return 1
-
+link_blocked() {
+    printf %s "$@" | grep -qE "$blocked_regex" && return 0 || return 1
 }
 
 main "$@"
 exit
+
+# # Get the video using youtube-dl and tor proxy, and pipe it to mpv.
+# stream_tor()
+# {
+#     notify-send mpv "$*"
+#     torsocks mpv -- "$@"
+#     # $torsocks "$ytdl" --cookies "$cookie" --force-ipv4 --verbose -o - "$@" |
+#     #     mpv -v --force-seekable=yes --keep-open=yes -
+# }
