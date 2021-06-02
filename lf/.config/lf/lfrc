@@ -130,7 +130,7 @@ cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
 cmd gimp &gimp $fx
 
 # other stuff
-cmd toggle_preview &lftp $id
+cmd toggle_preview &lftpw $id
 cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect $id
