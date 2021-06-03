@@ -3,9 +3,13 @@
 # requires pactl and paswitch(aur).
 
 main () {
-    switch $(get_next_sink)
-    set_glyph
-    dwmbarref audio
+    case "$1" in
+       -g) set_glyph; exit ;;
+        *)
+            switch $(get_next_sink)
+            set_glyph
+            dwmbarref audio ;;
+    esac
 }
 
 switch () {
