@@ -1,7 +1,6 @@
 #!/bin/sh
 # suspend, then hibernate.
 # similar to systemd's suspend-then-hibernate.
-sudo -Av
 
 # =======
 # config
@@ -29,7 +28,7 @@ die() {
 }
 
 # check xprintidle
-[ -z "$DISPLAY" ] || command -v xprintidle || die xprintidle isn\'t installed
+[ -z "$DISPLAY" ] || command -v xprintidle >/dev/null || die xprintidle isn\'t installed
 
 # get absolute time of wakeup
 time=$(date -d "now+${delay_min}min" +%s) || die bad delay value
@@ -37,7 +36,7 @@ time=$(date -d "now+${delay_min}min" +%s) || die bad delay value
 [ $wakeup_delay_sec -gt 1 ] || die bad wakeup delay value
 
 # suspend and wake up at specified time
-sudo rtcwake -m no -t $time || die couldn't set wakeup alarm
+sudo -A rtcwake -m no -t $time || die couldn\'t set wakeup alarm
 $suspend
 
 # get time of now
