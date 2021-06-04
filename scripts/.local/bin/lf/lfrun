@@ -17,11 +17,8 @@ main ()
     esac
 
     trap cleanup EXIT HUP
-
     mkdir -p "$fifo" "$lastdir"
-
     is_in_graphical_environment && ueberzug_init
-
     lf_run "$@"
 }
 
