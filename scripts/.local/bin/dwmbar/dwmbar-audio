@@ -1,4 +1,4 @@
 #!/bin/sh
-! cat "$AUDIO_GLYPH" && sleep 1 && pacycle -g && cat "$AUDIO_GLYPH"
+! cat "$AUDIO_GLYPH" && sleep 2 && pacycle -g && sleep 2 && cat "$AUDIO_GLYPH"
 pamixer --get-volume-human
 mpc | grep -qi '^\[playing' && echo 
