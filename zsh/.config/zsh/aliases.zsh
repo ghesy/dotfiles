@@ -122,7 +122,6 @@ alias freq='watch -n1 grep \"cpu MHz\" /proc/cpuinfo'
 
 # searching
 alias sdot='finder ~/.dots'
-alias sc='finder ~/.local/bin ~/.config ~/Repositories ~/.local/sv'
 alias sd='finder /mnt/drives/d'
 alias sx='finder /mnt/drives/x'
 alias sy='finder /mnt/drives/y'
