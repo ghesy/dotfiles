@@ -14,7 +14,7 @@ reboot_items="
 
 items="
  Lock      : lock,
-鈴 Sleep    : lock; usv down safeeyes; sudo -A zzz; usv up safeeyes,
+鈴 Sleep    : lock; usv down safeeyes pipewire; sudo -A zzz; usv up safeeyes pipewire,
 ⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A poweroff',
  Reboot    : reboot_choices,
  Logout    : dmenu-prompt 'Logout?' 'pkill -x xinit',
