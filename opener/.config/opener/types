@@ -16,8 +16,8 @@
 # if you want to omit mimetype or extention, put ^$ as the pattern.
 
 gimp
-    xcf|svg|photoshop
-    ^(xfc|svg|psd)$
+    xcf|photoshop
+    ^(xfc|psd)$
 
 blender
     ^$
@@ -45,7 +45,7 @@ html
 
 image
     image/
-    ^(jpg|png|gif|bmp|ico)$
+    ^(jpe?g|png|gif|bmp|ico|svg|webp)$
 
 audio
     audio/
