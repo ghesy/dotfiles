@@ -91,7 +91,6 @@ cmd filetype-all  ${{
 # size of files and dirs
 cmd sized0  %echo " calculating...";du -sh 2>/dev/null
 cmd sized1  $du -h --max-depth=1 | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
-cmd dust    !dust -sbr
 cmd ncdu    $ncdu
 
 # archive stuff
