@@ -2,7 +2,7 @@
 
 Xft.dpi: 102
 *.foreground: #aaaaaa
-*.background: #151515
+*.background: #202020
 
 #define font1 Fira Mono
 #define font2 Hack Nerd Font Mono
