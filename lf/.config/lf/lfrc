@@ -35,10 +35,10 @@ cmd q quit
 cmd wq quit
 cmd edit $$EDITOR -- $f
 cmd suedit $suedit -- $f
-cmd open        &opener --lf $id -- $f
-cmd openfork    &opener -f --lf $id -- $f
-cmd openall     &opener --lf $id -- $fx
-cmd openallfork &opener -f --lf $id -- $fx
+cmd open        &opener -l$id -- $f
+cmd openall     &opener -l$id -- $fx
+cmd openfork    &opener -fl$id -- $f
+cmd openallfork &opener -fl$id -- $fx
 cmd opennormal  $opener -- $f
 
 cmd mkexec &{{
@@ -60,6 +60,10 @@ cmd bulkrename ${{
     done | vidir -
 }}
 
+# go to the next/previous parent directory
+cmd parent-up   push :cmd<space>open<enter>;hkl:cmd<space>open<space>&opener<space>-l$id<space>--<space>$f<enter>
+cmd parent-down push :cmd<space>open<enter>;hjl:cmd<space>open<space>&opener<space>-l$id<space>--<space>$f<enter>
+
 # console stuff
 cmd editor push $$EDITOR<space>--<space>
 cmd trash  push &trash-put<space>$fx;lfreload<space>$id
@@ -72,6 +76,7 @@ cmd bookmarks ${{
     lf -remote "send $id select '$p'"
     lf -remote "send $id open"
 }}
+
 cmd bookmark-add  push &<space>bm<space>add<space>
 cmd bookmark-rm   push &<space>bm<space>rm<space>
 
@@ -129,7 +134,7 @@ cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
 cmd gimp &gimp $fx
 
 # other stuff
-cmd toggle_preview &lftpw $id
+cmd toggle-preview &lftpw $id
 cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect $id
@@ -138,6 +143,8 @@ cmd finder $finder -f | lfselect $id
 # = Bindings
 # ==============
 
+map K  parent-up
+map J  parent-down
 map U  &termopen
 map L  openfork
 map oa openall
@@ -151,7 +158,7 @@ map ua invert
 map <c-a> invert
 map uc unselect
 map uv clear
-map pf toggle_preview
+map pf toggle-preview
 map yp yankpath
 map ft filetype
 map fT filetype-all
