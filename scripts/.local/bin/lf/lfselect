@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # reads filenames from stdin and selects them in lf.
+
 id=$1
 [ -n "$2" ] && list="$2" || list="$(cat)"
 
@@ -8,8 +9,23 @@ if [ "$(echo "$list" | wc -l)" -eq 1 ]; then
     exit
 fi
 
-echo "$list" | while IFS= read -r file; do
-    [ -z "$file" ] && continue
-    lf -remote "send $id select \"$file\""
-    lf -remote "send $id toggle"
-done
+cmd=
+count=0
+
+# build command line to select files and send
+# to lf, 15 files at a time.
+# sending all the files at once instead of only 15
+# can crash lf.
+while IFS= read -r file; do
+    ((count++))
+    cmd="${cmd}select<space>\"$file\";toggle;"
+    if [ $count -gt 15 ]; then
+        wc="$(echo "$cmd" | wc -c)"
+        lf -remote "send $id push :$cmd<enter>"
+        echo "$wc"
+        count=0;
+        cmd=
+    fi
+done <<< "$(printf "%s\n" "$list" | sed 's/ /<space>/g')"
+
+[ -n "$cmd" ] && lf -remote "send $id push :$cmd<enter>"
