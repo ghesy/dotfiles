@@ -1,7 +1,6 @@
 #!/bin/sh
 # My preferred lf icons
 # This script is sourced by .profile or .zprofile at startup.
-# Old archive icon=遲
 
 # This is the list for lf icons:
 export LF_ICONS="di=:\
@@ -18,9 +17,9 @@ ex=:\
 *.png=:\
 *.webp=:\
 *.ico=:\
-*.jpg=:\
-*.jpe=:\
-*.jpeg=:\
+*.jpg=:\
+*.jpe=:\
+*.jpeg=:\
 *.gif=:\
 *.svg=:\
 *.tif=:\
