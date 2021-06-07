@@ -19,10 +19,8 @@ alias l1=' lsd -A1'
 alias ll=' lsd -hal'
 
 lf() {
-    case "$1" in
-        -remote|-doc|-version|-server) command lf "$@" ;;
-        *) lfrun "$@"; cd "$(lflast)" ;;
-    esac
+    lfrun "$@"
+    cd "$(lflast "$@")"
 }
 
 finder() { local xx="$(command finder "$@")"; [ -n "$xx" ] && lf "$xx" }
