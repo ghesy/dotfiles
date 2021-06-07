@@ -24,4 +24,4 @@ reboot_choices () {
     eval "$(choices "$reboot_prompt" "$reboot_items")"
 }
 
-eval "$(choices "$prompt" "$items")"
+eval "$(choices "$prompt" "$items" "$1")"
