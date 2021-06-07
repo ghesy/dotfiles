@@ -14,9 +14,8 @@ touch "$cachetable"
 url="$1"
 cached_img_name=$(awk '$1=="'"$url"'" {print $2}' "$cachetable")
 cached_img="$cache/${cached_img_name}"
-a2cfile="${cached_img}.aria2"
 netsxivfile="${cached_img}.netsxiv"
-if [ -r "$a2cfile" ] || [ -r "$netsxivfile" ]; then
+if [ -r "$netsxivfile" ]; then
     notify-send "this file's download is already in progress"
     exit 0
 fi
@@ -31,7 +30,7 @@ rand() {
 
 dl()
 {
-    name="img-$(rand)"
+    name="img-$(rand).jpg"
     if [ "$is_gif" = true ]; then name="img-$(rand).gif"; fi
     file="$cache/${name}"
     touch "${file}.netsxiv"
@@ -39,16 +38,16 @@ dl()
 
     if [ "$(country)" = ir ]; then
         proxy='--all-proxy=127.0.0.1:8123'
-        aria2c --no-conf --quiet --timeout=10 --connect-timeout=4 --dir="$cache" --out="$name" "$url" ||
-            if ! aria2c $proxy --no-conf --quiet --dir="$cache" --out="$name" "$url"; then
-                notify-send "aria2c failed"
-                rm "${file}.aria2" "${file}.netsxiv"
+        curl --connect-timeout 4 -m 10 -o "$cache/$name" "$url" ||
+            if ! torsocks curl -o "$cache/$name" "$url"; then
+                notify-send "curl failed"
+                rm "${file}.netsxiv"
                 exit 1
             fi
     else
-        if ! aria2c --no-conf --quiet --dir="$cache" --out="$name" "$url"; then
-            notify-send "aria2c failed"
-            rm "${file}.aria2" "${file}.netsxiv"
+        if ! curl --connect-timeout 10 -m 60 -o "$cache/$name" "$url"; then
+            notify-send "download failed"
+            rm "${file}.netsxiv"
             exit 1
         fi
     fi
