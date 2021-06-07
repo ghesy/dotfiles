@@ -2,13 +2,18 @@
 # specify programs or functions for opening files.
 
 # these functions are provided by default:
-# gui: runs the program in background.
-# fgd: runs the program in foreground.
-# tui: runs the program in $TERMINAL.
-# findtype: get type of the file using definitions in the types file.
+#   gui: runs the program in background.
+#   fgd: runs the program in foreground.
+#   tui: runs the program in $TERMINAL.
+#   findtype: get type of the file using definitions in the types file.
 
-# open function: it's called by opener.
-# it's argument(s) are all the files passed to opener.
+# these variables are provided as well:
+#   $lf_mode: true if opener is in lf mode (-l, --lf).
+#               false otherwise.
+#   $lf_id:   is equal to the argument passed to -l or --lf option.
+
+# open() is called by opener.
+# it's arguments are the files that need to be opened.
 open ()
 {
     case "$(findtype "$1")" in
