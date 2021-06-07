@@ -5,10 +5,8 @@
 set shell bash
 set shellopts "-u"
 set ifs "\n"
-set icons
 set period 1
 set nopreview
-set nodrawbox
 set ratios 1
 set dircounts
 set info "size"
@@ -134,7 +132,7 @@ cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
 cmd gimp &gimp $fx
 
 # other stuff
-cmd toggle-preview &lftpw $id
+cmd toggle-preview &lftpw $id 1 1:1 off
 cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect $id
