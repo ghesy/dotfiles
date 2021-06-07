@@ -1,7 +1,0 @@
-#!/bin/sh
-# get a file containing a command and it's arguments,
-# separated by newlines, and run it.
-argfile="$1"
-cmd="$(sed '1q;d' "$argfile")"
-sed 1d "$argfile" | xargs -d'\n' "$cmd"
-rm -f "$argfile"

@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-[ -z "$FIFO_UEBERZUG" ] && exit 1
-declare -p -A cmd=([action]=remove [identifier]="PREVIEW") > "$FIFO_UEBERZUG"
