@@ -69,7 +69,6 @@ export PHTTP='127.0.0.1:8123' # polipo's http(s) proxy
 export IPLOOKUP_FILE="$XDG_CONFIG_HOME/iplookup/site"
 export IPLOOKUP="$(head -n1 "$IPLOOKUP_FILE")"
 export USVDIR="$HOME/.local/sv/run" # user services
-export LFLASTDIR="$XDG_RUNTIME_DIR/lf/lastdir"
 export AUDIO_GLYPH="$XDG_RUNTIME_DIR/dwmbar/audio_glyph"
 
 # aria2
