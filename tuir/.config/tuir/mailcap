@@ -31,7 +31,7 @@ image/*; netsxiv '%s'; test=test -n "$DISPLAY"
 
 # Youtube videos are assigned a custom mime-type, which can be streamed with
 # vlc or youtube-dl.
-video/*; ytdl --stream '%s'; test=test -n "$DISPLAY"
+video/*; ytdl -s '%s'; test=test -n "$DISPLAY"
 
 #video/x-youtube; mpv --ytdl-format=bestvideo+bestaudio/best '%s' test=test -n "$DISPLAY"
 #video/x-youtube; mpv '%s' --width 640 --height 480; test=test -n "$DISPLAY"
