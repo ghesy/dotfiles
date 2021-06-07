@@ -32,7 +32,6 @@ cmatrix
 cool-retro-term
 coolreader
 cowsay
-cpupower
 cups
 cups-pdf
 cups-runit
@@ -173,7 +172,6 @@ pkgconf
 playerctl
 progress
 protonvpn-cli-ng
-pulseaudio-alsa
 pulsemixer
 pup
 pv
@@ -223,6 +221,7 @@ tigervnc
 timidity++
 tor
 tor-runit
+torsocks
 transmission-cli
 trash-cli
 tree
