@@ -13,15 +13,12 @@ avr-libc
 avrdude
 barrier
 base
-bat
 bear
 binutils
 bison
 c-lolcat
-catdoc
 certbot
 certbot-nginx
-chafa
 chaotic-keyring
 chaotic-mirrorlist
 checkbashisms
@@ -41,7 +38,6 @@ dialog
 dictd
 dina-font
 discord
-docx2txt
 dos2unix
 dunst
 elogind-runit
@@ -53,7 +49,6 @@ fakeroot
 fcron
 fcron-runit
 feh
-ffmpegthumbnailer
 figlet
 file
 findutils
@@ -126,7 +121,6 @@ maim
 make
 man-db
 mari0
-mediainfo
 moreutils
 mpc
 mpd
@@ -148,7 +142,6 @@ npm
 ntfs-3g
 ntp
 obs-studio
-odt2txt
 openresolv
 openssh-runit
 openvpn

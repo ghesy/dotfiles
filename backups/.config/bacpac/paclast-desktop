@@ -1,3 +1,4 @@
+2021-06-08 19:06 lfutils-meta
 2021-06-08 02:13 opener-git
 2021-06-08 02:00 lfutils-git
 2021-06-02 22:33 torsocks
@@ -11,7 +12,6 @@
 2021-05-18 22:25 ttf-allura
 2021-05-18 22:25 ttf-choc
 2021-05-18 22:25 otf-sansita
-2021-05-15 16:59 atool-git
 2021-05-15 12:39 github-cli
 2021-05-15 01:31 xkblayout-subscribe-git
 2021-05-14 22:38 xkblayout-state-git
@@ -48,9 +48,6 @@
 2021-04-03 19:51 keychain
 2021-03-31 13:19 foliate
 2021-03-30 21:57 epub-thumbnailer-git
-2021-03-30 21:57 bat
-2021-03-30 21:57 catdoc
-2021-03-30 21:57 docx2txt
 2021-03-30 21:56 perl-image-exiftool
 2021-03-30 18:34 ripcord
 2021-03-30 17:48 libxft-bgra
@@ -116,7 +113,6 @@
 2020-12-09 10:51 figlet-fonts
 2020-12-08 02:49 python-pipx
 2020-12-08 02:39 gperf
-2020-12-07 19:18 archivemount
 2020-12-05 13:17 safeeyes
 2020-12-05 13:16 transmission-trackers-git
 2020-12-04 19:21 android-tools
@@ -182,7 +178,6 @@
 2020-10-22 02:36 playerctl
 2020-10-21 00:51 sane
 2020-10-21 00:20 epson-inkjet-printer-l800
-2020-10-16 00:29 ffmpegthumbnailer
 2020-10-15 03:48 dictd
 2020-10-13 11:31 foomatic-db-nonfree-ppds
 2020-10-13 11:18 usbutils
@@ -235,9 +230,6 @@
 2020-09-01 11:34 w3m
 2020-09-01 11:32 highlight
 2020-09-01 10:55 python-pdftotext
-2020-09-01 10:52 chafa
-2020-09-01 10:51 odt2txt
-2020-09-01 10:51 mediainfo
 2020-08-31 23:00 zenity
 2020-08-31 22:58 winetricks
 2020-08-31 17:10 xcape
