@@ -62,6 +62,9 @@ cmd bulkrename ${{
 cmd parent-up   push :cmd<space>open<enter>;hkl:cmd<space>open<space>&opener<space>-l$id<space>--<space>$f<enter>
 cmd parent-down push :cmd<space>open<enter>;hjl:cmd<space>open<space>&opener<space>-l$id<space>--<space>$f<enter>
 
+# follow symlinks
+cmd follow &lfselect $id $(readlink -f $f)
+
 # console stuff
 cmd editor push $$EDITOR<space>--<space>
 cmd trash  push &trash-put<space>$fx;lfreload<space>$id
@@ -148,6 +151,7 @@ map L  openfork
 map oa openall
 map oA openallfork
 map on opennormal
+map fo follow
 map rn rename
 map yy copy
 map dd cut
