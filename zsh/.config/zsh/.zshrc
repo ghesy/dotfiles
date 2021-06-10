@@ -11,45 +11,24 @@ setopt autocd # cd to paths typed in the shell, without the cd command
 setopt globdots # glob dotfiles as well
 setopt nullglob # make globs expand to nothing if they match nothing
 
-# ==============================================
-# ==============================================
-
-# path for zcompdump
-zcompdump=~/.local/share/zsh/dump/zcompdump
-mkdir -p "$(dirname "$zcompdump")"
-
-# The following lines were added by compinstall
-zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
-zstyle ':completion:*' expand prefix suffix
-zstyle ':completion:*' file-sort modification
-zstyle ':completion:*' insert-unambiguous false
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+# tab complete options
+autoload -U compinit
+zstyle ':completion:*' completer _complete _ignored _correct _approximate
+zstyle ':completion:*' max-errors 2
+zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list '' \
-'m:{[:lower:][:upper:]}={[:upper:][:lower:]}' \
+'m:{[:lower:]}={[:upper:]}' \
 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} r:|[._-]=** r:|=**' \
 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} r:|[._-]=** r:|=** l:|=*'
-zstyle ':completion:*' max-errors 2
-zstyle ':completion:*' menu select=1
-zstyle ':completion:*' original true
-zstyle ':completion:*' select-prompt %SScrlling active: current selection at %p%s
-zstyle ':completion:*' verbose true
-zstyle :compinstall filename "${XDG_CONFIG_HOME:-$HOME/.config}/zsh/.zshrc"
-autoload -Uz compinit
-compinit -d "$zcompdump"
-_comp_options+=(globdots)
-# End of lines added by compinstall
-# Load complist
 zmodload zsh/complist
-
-# ==============================================
-# ==============================================
+compinit
+_comp_options+=(globdots)
 
 # vi mode
 bindkey -v
 export KEYTIMEOUT=1
 
-# use vim keys in tab complete menu:
+# use vim keys in tab complete menu
 bindkey -M menuselect 'h' vi-backward-char
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
@@ -69,9 +48,9 @@ function zle-keymap-select {
   fi
 }
 zle -N zle-keymap-select
+# initiate `vi insert` as keymap
+# (can be removed if `bindkey -V` has been set elsewhere)
 zle-line-init() {
-    # initiate `vi insert` as keymap
-    # (can be removed if `bindkey -V` has been set elsewhere)
     zle -K viins
     echo -ne "\e[5 q"
 }
