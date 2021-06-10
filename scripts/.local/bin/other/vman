@@ -1,12 +1,5 @@
 #!/bin/sh
 # view man-pages in vim.
-# uses vim's builtin Man command.
-
 # exit if no args given
-[ -z "$*" ] &&
-    echo "what manual do you want bruv?" &&
-    exit
-
-# if man page exists, open it in vim.
-man -w "$@" > /dev/null &&
-    $EDITOR -c "Man $*" -c 'setlocal colorcolumn=0 | bprev | bd'
+[ -z "$*" ] && echo "what manual do you want bruv?" && exit
+man -w "$@" > /dev/null && $EDITOR -c "Man $*" -c 'bprev | bd'
