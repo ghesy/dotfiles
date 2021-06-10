@@ -122,8 +122,8 @@ nnoremap <silent><Leader>cs :let @/=''<CR>
 
 " compile markdown
 autocmd FileType markdown
-  \ nnoremap <Leader>md :silent !md %:p:S<CR> |
-  \ nnoremap <Leader>cc :silent !md -o %:p:S<CR>
+  \ nnoremap <Leader>md :silent !mdpdf %:p:S<CR> |
+  \ nnoremap <Leader>cc :silent !mdpdf -o %:p:S<CR>
 
 " fugitive
 nmap <Leader>gs :G<CR>
