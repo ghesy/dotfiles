@@ -1,7 +1,7 @@
 # the zoomer shell's config.
 
-HISTSIZE=1000000
-SAVEHIST=1000000
+HISTSIZE=10000000
+SAVEHIST=10000000
 HISTFILE=~/.cache/zsh/history
 mkdir -p $(dirname $HISTFILE)
 setopt HIST_IGNORE_SPACE # don't put commands starting with space into history
@@ -15,7 +15,7 @@ setopt nullglob # make globs expand to nothing if they match nothing
 # ==============================================
 
 # path for zcompdump
-zcompdump="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/dump/zcompdump"
+zcompdump=~/.local/share/zsh/dump/zcompdump
 mkdir -p "$(dirname "$zcompdump")"
 
 # The following lines were added by compinstall
