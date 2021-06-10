@@ -87,7 +87,7 @@ export MPD_HOST=127.0.0.1
 
 # fzf settings
 export FZF_DEFAULT_OPTS="
---layout=reverse --height=40% --border=rounded
+--layout=reverse --height=40% --border=sharp
 --bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top
 --color=dark
 --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
