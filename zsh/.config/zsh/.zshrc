@@ -90,14 +90,14 @@ test -r "$aliasesfile" && source "$aliasesfile"
 # shell prompt
 autoload -U colors && colors
 precmd () {
-    local wd="${PWD/#$HOME/~}"
-    local depth=$(echo "$wd" | tr '/' '\n' | wc -l)
-    [ "$depth" -ge 3 ] && local wd="$(echo "$wd" | rev | cut -d'/' -f1-3 | rev)"
+    local red="%{$fg[red]%}"; local blue="%{$fg[blue]%}"
+    local green="%{$fg[green]%}"; local yellow="%{$fg[yellow]%}"
+    local r="%{$reset_color%}"
+
+    local wd="$(echo "${PWD/#$HOME/~}" | rev | cut -d'/' -f1-3 | rev)"
     local git="$(git branch --show-current 2>/dev/null)"
-    [ -n "$git" ] && git="at $git"
-    newline () { printf "\n➜ " }
-    PS1="%n in $wd $git$(newline)"
-    unfunction newline
+    [ -n "$git" ] && git="${r}at $red$git"
+    PS1="$yellow%n ${r}in $blue$wd $git$r$(printf "\n➜ ")"
 }
 stty stop undef # disable ctrl-s to freeze terminal.
 
