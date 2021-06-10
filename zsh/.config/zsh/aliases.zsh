@@ -24,14 +24,13 @@ lf() {
 }
 
 finder() { local xx="$(command finder "$@")"; [ -n "$xx" ] && lf "$xx" }
-g() { cd "$(bm "$@")" }
+bm() { cd "$(command bm "$@")" }
 
 # bindings
 bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
-bindctrl u 'setsid -f $TERMINAL > /dev/null 2>&1 \n'
 bindctrl o lf
 bindctrl f finder
-bindctrl n g
+bindctrl n bm
 
 # basic stuff
 alias mk='mkdir -pv'
@@ -68,19 +67,20 @@ alias svi='sudoedit'
 alias speed='speedtest-cli --bytes'
 
 # git
-alias G=git
-alias gits='git status'
-alias gitl='git log --oneline'
-alias gita='git add'
-alias gitaa='git add -A'
-alias gitc='git commit'
-alias gitcm='git commit -m'
-alias gitl3='git -P log --oneline -n3'
-alias gitssh='
-ssh-add -l | grep -q "$(ssh-keygen -lf ~/.ssh/id_github)" ||
-    ssh-add ~/.ssh/id_github'
-alias gitp='gitssh; git push || figlet failed; gitl3'
-alias gitpa='gitssh; git remote | { xargs -L1 git push --all || figlet failed }; gitl3'
+
+# add my github ssh key to ssh agent, only if it isn't already added
+alias gssh='ssh-add -l | grep -q "$(ssh-keygen -lf ~/.ssh/id_github)" || ssh-add ~/.ssh/id_github'
+alias g='gssh; command git'
+alias git=g
+alias gs='g status'
+alias gl='g log --oneline'
+alias ga='g add'
+alias gaa='g add -A'
+alias gc='g commit'
+alias gcm='g commit -m'
+alias gl3='g -P log --oneline -n3'
+alias gp='g push || figlet failed; gl3'
+alias gpa='g remote | { xargs -L1 g push || figlet failed }; gl3'
 
 # shellcheck
 alias shch='shellcheck'
@@ -98,11 +98,7 @@ alias font-cache='fc-cache -r -v'
 font-search() { fc-list | grep -i "$1" }
 
 # dictionary
-d() {
-    d="$(command dict "$@")"
-    [ $? -ne 0 ] && return 1
-    echo "$d" | colorit -c ~/.config/colorit/colorit.conf | $PAGER
-}
+alias d=vimdict
 
 # color diff
 alias cdiff='diff --color=always'
@@ -129,8 +125,7 @@ alias sdl='finder /mnt/drives/d/downloads'
 alias sfilm='finder /mnt/drives/x/Film /mnt/drives/d/Film'
 
 # run vim fugitive
-alias fugitive='vim -c Git -c only'
-alias gs='fugitive'
+alias fu='vim -c Git -c only'
 
 # top
 alias nettop='sudo nethogs'
