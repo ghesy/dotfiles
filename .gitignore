@@ -1,2 +1,3 @@
 services/**/supervise
+zsh/**/*compdump
 htop/
