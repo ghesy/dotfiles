@@ -98,8 +98,7 @@ alias font-cache='fc-cache -r -v'
 font-search() { fc-list | grep -i "$1" }
 
 # dictionary
-d()
-{
+d() {
     d="$(command dict "$@")"
     [ $? -ne 0 ] && return 1
     echo "$d" | colorit -c ~/.config/colorit/colorit.conf | $PAGER
