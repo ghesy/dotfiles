@@ -16,7 +16,7 @@ call plug#begin('~/.local/share/nvim/plugged')
 
 "Plug 'neoclide/coc.nvim', {'branch':'release'}
 "Plug 'jackguo380/vim-lsp-cxx-highlight'
-Plug 'drmikehenry/vim-headerguard', {'on':'HeaderguardAdd'}
+Plug 'drmikehenry/vim-headerguard'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'justinmk/vim-sneak'
@@ -28,11 +28,7 @@ Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
 Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
-Plug 'junegunn/fzf.vim',
-\ {'on':['Files','GFiles','Colors','Ag','Lines','Tags','BLines','Rg',
-\  'Buffers','BTags','Marks','Windows','Locate','History','Snippets',
-\  'Commits','BCommits','Commands','Maps','Helptags','Filetypes']}
-
+Plug 'junegunn/fzf.vim'
 call plug#end()
 
 " basics
