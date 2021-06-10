@@ -14,7 +14,7 @@ copy () {
 }
 
 open () {
-    setsid -f "$BROWSER" "$sel"
+    setsid -f "$BROWSER" "$sel" >/dev/null 2>&1
 }
 
 getlinks () {

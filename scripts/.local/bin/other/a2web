@@ -4,7 +4,7 @@
 
 run () {
     cd /usr/share/webapps/webui-aria2
-    setsid -f "$BROWSER" "http://localhost:8888"
+    setsid -f "$BROWSER" "http://localhost:8888" >/dev/null 2>&1
     pgrep --exact --full 'node node-server.js' ||
         node node-server.js
 }
