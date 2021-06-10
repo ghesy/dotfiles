@@ -94,7 +94,6 @@ jhead
 joyutils
 jpegoptim
 jq
-jre8-openjdk
 jxrlib
 keychain
 kicad
@@ -153,6 +152,7 @@ pacman
 pacman-contrib
 pamixer
 paru
+pass
 patch
 pavucontrol
 perl-image-exiftool
@@ -186,6 +186,7 @@ python-setuptools
 python-unidecode
 python-xlib
 qalculate-gtk
+qucs
 reflector
 ripgrep
 rsm

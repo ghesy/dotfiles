@@ -1,6 +1,12 @@
-2021-06-08 19:06 lfutils-meta
+2021-06-10 23:03 vimdict-git
+2021-06-10 17:04 dictd
+2021-06-10 15:05 dict-wikt-en-all
+2021-06-10 14:59 dict-gcide
+2021-06-10 13:09 pass
+2021-06-09 22:47 lfutils-git
+2021-06-09 22:47 lfutils-meta
+2021-06-09 22:46 lf
 2021-06-08 02:13 opener-git
-2021-06-08 02:00 lfutils-git
 2021-06-02 22:33 torsocks
 2021-05-30 17:23 pulsemixer
 2021-05-30 16:13 pipewire
@@ -47,7 +53,6 @@
 2021-04-05 12:28 vitetris
 2021-04-03 19:51 keychain
 2021-03-31 13:19 foliate
-2021-03-30 21:57 epub-thumbnailer-git
 2021-03-30 21:56 perl-image-exiftool
 2021-03-30 18:34 ripcord
 2021-03-30 17:48 libxft-bgra
@@ -91,7 +96,6 @@
 2021-02-26 13:28 hydroxide
 2021-02-26 13:19 fontpreview-ueberzug-git
 2021-02-11 11:11 c-lolcat
-2021-02-08 21:55 jre8-openjdk
 2021-02-08 00:13 adbfs-rootless-git
 2021-02-04 00:06 python-soccer-cli-git
 2021-02-01 15:39 xorg-xwininfo
@@ -178,7 +182,6 @@
 2020-10-22 02:36 playerctl
 2020-10-21 00:51 sane
 2020-10-21 00:20 epson-inkjet-printer-l800
-2020-10-15 03:48 dictd
 2020-10-13 11:31 foomatic-db-nonfree-ppds
 2020-10-13 11:18 usbutils
 2020-10-13 11:15 python-pyqt5
@@ -272,7 +275,6 @@
 2020-08-10 17:35 kicad-library
 2020-08-09 21:26 xorg-xev
 2020-08-09 19:49 geoip
-2020-08-09 17:27 lf
 2020-08-08 17:01 perl-expect
 2020-08-08 13:57 xclip
 2020-08-08 13:36 unclutter
