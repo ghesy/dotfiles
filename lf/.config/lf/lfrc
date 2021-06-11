@@ -39,6 +39,26 @@ cmd openfork    &opener -fl$id -- $f
 cmd openallfork &opener -fl$id -- $fx
 cmd opennormal  $opener -- $f
 
+cmd paste &{{
+    l=~/.local/share/lf/files
+    case $(head -n1 $l) in
+    move) mv -- $(sed 1d $l) . ;;
+    copy)
+        lf -remote "send $id map q echo copy in progress"
+        rsync -ab --inplace --info=progress2 -- $(sed 1d $l) . |
+            stdbuf -i0 -o0 -e0 tr '\r' '\n' |
+            while IFS= read -r info; do
+                percent="[$(echo "$info" | awk '{print $2}')]"
+                lf -remote "send $id echo $percent"
+            done
+        lf -remote "send $id map q quit"
+    esac
+    [ $? -ne 0 ] && exit
+    rm $l
+    lfreload -f $id
+    lf -remote 'send clear'
+}}
+
 cmd mkexec &{{
     [ ! -f $f ] && exit
     if [ -x $f ]; then chmod a-x -- $f
