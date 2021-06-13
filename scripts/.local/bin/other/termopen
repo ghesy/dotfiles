@@ -5,6 +5,4 @@ if [ -f "$1" ]; then
 elif [ -d "$1" ]; then
     cd "$1" || exit
 fi
-setsid -f "$TERMINAL" -e sh -c '
-    lfrun; cd "$(lflast)"; exec "$SHELL"
-' >/dev/null 2>&1
+setsid -f "$TERMINAL" >/dev/null 2>&1
