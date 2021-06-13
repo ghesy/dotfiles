@@ -144,7 +144,7 @@ cleanup ()
     agetty --show-issue
 }
 
-trap clean EXIT
+trap cleanup EXIT
 
 # startx
 [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] &&
