@@ -1,3 +1,4 @@
 services/**/supervise
+**/error.log
 zsh/**/*compdump
 htop/
