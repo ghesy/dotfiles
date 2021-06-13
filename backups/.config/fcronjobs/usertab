@@ -1,5 +1,0 @@
-# backup firefox profile and ccls cache to disk every 2 hours
-@ 2h /bin/sh -lc syncall
-
-# add more trackers to torrents every 5 minutes
-@ 5 /bin/sh -lc transtrackers
