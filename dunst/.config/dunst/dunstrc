@@ -1,11 +1,12 @@
 [global]
-    geometry = "350x5-20+38"
+    geometry = "350x5-5+23"
     icon_position = left
+    frame_width = 3
+    opacity =
     separator_height = 1
     horizontal_padding = 8
     padding = 8
-    frame_width = 1
-    frame_color = "#bbbbbb"
+    frame_color = "#9d9d9d"
     font = Alegreya Sans 14
     line_height = 3
     word_wrap = yes
