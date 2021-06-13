@@ -161,7 +161,8 @@ cmd gimp &gimp $fx
 # other stuff
 cmd toggle-preview &lftpw $id 1 1:1 off
 cmd yankpath &echo -n $f | xsel -i -p -b
-cmd drag &dragon-drag-and-drop $fx
+cmd drag &dragon-drag-and-drop -a -x $fx
+cmd drag-separate &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect $id
 
 # ==============
@@ -205,6 +206,7 @@ map to touch
 map xx !$f
 map ax mkexec
 map dr drag
+map dR drag-separate
 
 map ex extract
 map zz zstd
