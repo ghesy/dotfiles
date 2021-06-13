@@ -1,0 +1,13 @@
+# paclist's config
+
+# package lists to generate
+lists=(
+#   user     group    path                                         command
+    koonix   wheel    /home/koonix/.local/share/paclist/official   'pacman -Qqne'
+    koonix   wheel    /home/koonix/.local/share/paclist/aur        'pacman -Qqme'
+    koonix   wheel    /home/koonix/.local/share/paclist/all        'pacman -Qq'
+    koonix   wheel    /home/koonix/.local/share/paclist/last       paclast
+)
+
+# suffix to add to list names
+suffix=-$(cat /etc/hostname)
