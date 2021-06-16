@@ -6,14 +6,15 @@ function Percent()
     let above = line('w0') - 1
     let below = line('$') - line('w$')
     if below <= 0
-        return above ? 'Bot' : 'All'
+        let l:p = above ? 'Bot' : 'All'
     elseif above <= 0
-        return 'Top'
+        let l:p = 'Top'
     else
-        return printf('%2d%%', above > 1000000 ?
+        let l:p = printf('%2d%%', above > 1000000 ?
             \ above / ((above + below) / 100) :
             \ above * 100 / (above + below))
     endif
+    return printf('%3d %s', getcurpos()[2], l:p)
 endf
 
 let g:bufferline_echo = 0
