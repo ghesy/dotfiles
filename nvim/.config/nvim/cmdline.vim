@@ -50,7 +50,7 @@ function CmdLine()
 endf
 
 autocmd CursorHold,CursorMoved,VimResized * call CmdLine()
-autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,
+autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,BufWritePost,
 \InsertLeave,CursorHoldI * call UpdateBuffers() | call CmdLine()
 
 nn <silent><Esc> :call UpdateBuffers()<BAR>call CmdLine()<CR><Esc>
