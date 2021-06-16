@@ -10,13 +10,13 @@ function BottomTerminal()
     terminal
     call setbufvar(bufnr('%'), "IsBottomTerminal", "true")
     startinsert
-endfunction
+endf
 
 function FixBottomTerminalSize()
     if getbufvar(bufnr('%'), "IsBottomTerminal") == "true"
         resize 10
     endif
-endfunction
+endf
 
 autocmd BufEnter,BufWinEnter,WinEnter term://* silent! call FixBottomTerminalSize()
 
@@ -26,7 +26,7 @@ function TermEsc()
     else
         tnoremap <silent><Esc> <Esc>
     endif
-endfunction
+endf
 
 " fix scrolloff causing glitches in terminal
 autocmd TermEnter * setlocal scrolloff=0 | setlocal nonumber |

@@ -22,7 +22,7 @@ function! StatuslineGitBranch()
     catch
     endtry
   endif
-endfunction
+endf
 
 augroup GetGitBranch
   autocmd!

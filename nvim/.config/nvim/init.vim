@@ -173,7 +173,7 @@ vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 function BufferNavigationMaps()
     nnoremap <silent> <C-n>   :bnext<CR>
     nnoremap <silent> <C-p>   :bprev<CR>
-endfunction
+endf
 call BufferNavigationMaps()
 
 " undotree
@@ -188,7 +188,7 @@ function UndoTreeRun()
         UndotreeHide
     endif
     call FixBufferNavigationMaps()
-endfunction
+endf
 
 function FixBufferNavigationMaps()
     if ( bufname('%') =~# "undotree_" || bufname('%') =~# "diffpanel_" )
@@ -197,7 +197,7 @@ function FixBufferNavigationMaps()
     else
         call BufferNavigationMaps()
     endif
-endfunction
+endf
 
 " reload file if changed
 autocmd CursorHold,CursorHoldI * silent checktime
@@ -214,7 +214,7 @@ function FixColors()
     hi Normal guibg=NONE ctermbg=NONE
     hi LineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
-endfunction
+endf
 autocmd ColorScheme * call FixColors()
 call FixColors()
 
