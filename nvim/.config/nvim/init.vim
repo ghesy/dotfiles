@@ -44,42 +44,32 @@ set shiftwidth=4
 set expandtab
 set smartindent
 set list lcs=tab:\\ "
-set background=dark
-set nocursorline
-set signcolumn=no
 set scrolloff=5
-set sidescrolloff=5
-set backspace=indent,eol,start
-set matchpairs+=<:> " use % to jump between pairs
+set sidescrolloff=10
+set matchpairs+=<:>
 
 " searching
 set ignorecase
 set smartcase
-set incsearch
-set hlsearch
 
 " files
 set undofile
 set noswapfile
-set nobackup
-set pyxversion=3
 
 " cmd
-set cmdheight=1
 set laststatus=0
-set showcmd
 set noshowmode
 
 " other
 let g:netrw_dirhistmax = 0
-set shortmess+=c
+set shortmess+=ac
 
 " aliases
-command W    execute "w"
-command Wq   execute "wq"
-command Q    execute "q"
-command Qa   execute "qa"
-command Wqa  execute "wqa"
+command W    exec "w"
+command Wq   exec "wq"
+command Q    exec "q"
+command Qa   exec "qa"
+command Wqa  exec "wqa"
 
 " search for files natively in vim
 set path+=**
@@ -91,10 +81,10 @@ autocmd BufWritePre * %s/\s\+$//e
 autocmd BufWritePre * %s/\n\+\%$//e
 
 " open terminal in vim's pwd
-nnoremap <silent>U :silent !termopen $PWD<CR>
+nnoremap <silent>U :silent !termopen<CR>
 
 " center the cursor horizontally
-nnoremap <silent> z. :<C-u>normal! zszH<CR>
+nnoremap <silent> z. :normal! zszH<CR>
 
 " go to start/end of line
 nnoremap H ^
@@ -139,7 +129,7 @@ nmap <Leader>gp :diffput<CR>
 nnoremap <Leader>ff :Files<CR>
 nnoremap <Leader>rb :BLines<CR>
 nnoremap <leader>rg :Rg<CR>
-map <leader>fb :Buffers<CR>
+nnoremap <leader>fb :Buffers<CR>
 
 " splits and windows
 nnoremap <silent><Leader>vs :vs<CR>
@@ -155,19 +145,24 @@ nnoremap <silent><Leader>D :resize -5<CR>
 nnoremap <silent><Leader>eq :wincmd =<CR>
 nnoremap <silent><Leader>wq :wincmd q<CR>
 nnoremap <silent><Leader>on :only<CR>
-nnoremap <silent><Leader>ON :call Onlybuff()<CR>
-nnoremap <silent><Leader>bw :call Killbuff()<CR>
-nnoremap <silent><Leader>bd :call Killbuff()<CR>
+nnoremap <silent><Leader>ON :call OnlyBuffer()<CR>
+nnoremap <silent><Leader>bw :call KillBuffer()<CR>
+nnoremap <silent><Leader>bd :call KillBuffer()<CR>
+
+" equalize window sizes upon vim resize
+au VimResized * wincmd =
 
 " search for visually selected text.
-vnoremap <silent> // :<C-U>
+vno/remap <silent> // :<C-U>
   \ let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
   \ gvy/<C-R>=&ic?'\c':'\C'<CR><C-R><C-R>=substitute(
   \ escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
   \ gVzv:call setreg('"', old_reg, old_regtype)<CR>
 
 " perform replace on visually-selected text
-vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+vnoremap <C-r> "hy:%s/<C-r><C-r>=substitute(
+  \ escape(@h, '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR>
+  \//gc<left><left><left>
 
 " move between buffers
 function BufferNavigationMaps()
@@ -200,17 +195,21 @@ function FixBufferNavigationMaps()
 endf
 
 " reload file if changed
-autocmd CursorHold,CursorHoldI * silent checktime
-autocmd FocusGained * silent checktime
+autocmd FocusGained,CursorHold,CursorHoldI *
+  \ if !bufexists("[Command Line]") | silent checktime | endif
 
-" colors
+" colors and appearance
+let g:gruvbox_material_enable_italic = 1
+let g:gruvbox_material_better_performance = 1
+let g:gruvbox_material_disable_italic_comment = 0
 colorscheme off
 set statusline=─
-set fillchars=stl:-,stlnc:─
+set fillchars=stl:━,stlnc:─
 function FixColors()
-    hi StatusLine guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
-    hi StatusLineNC guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
-    hi VertSplit guifg=#404040 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi StatusLine guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi StatusLineNC guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi VertSplit guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi EndOfBuffer guifg=#404040 ctermfg=darkgrey guibg=NONE ctermbg=NONE
     hi Normal guibg=NONE ctermbg=NONE
     hi LineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
@@ -222,5 +221,6 @@ call FixColors()
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " load other configs
-source ~/.config/nvim/killbuff.vim
+source ~/.config/nvim/killbuffer.vim
 source ~/.config/nvim/term.vim
+source ~/.config/nvim/cmdline.vim

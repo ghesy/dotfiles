@@ -1,8 +1,8 @@
 " a couple of functions for closing buffers withous messing with splits.
-" Killbuff() and Onlybuf().
+" KillBuffer() and OnlyBuffer().
 
 " delete the current buffer without fucking with open splits
-function! Killbuff()
+function! KillBuffer()
     " if it's an unlisted buffer (fzf, nerdtree, undotree, ...),
     " or it's a coc diag window, wipe it.
     if ( buflisted(bufnr('%')) == 0  ||
@@ -18,7 +18,6 @@ function! Killbuff()
             let l:orig_winid = win_getid()
             for l:winid in win_findbuf(bufnr('%'))
                 if ( l:winid == l:orig_winid ) | continue | endif
-                echo l:winid
                 call win_gotoid(l:winid)
                 bprev
             endfor
@@ -29,29 +28,30 @@ function! Killbuff()
         bprev
         if ( &buftype == "terminal" ) | bw! # | else | silent! bd # | endif
     endif
-endfunction
+endf
 
 
-" Killbuff all buffers except the active one.
-function! Onlybuff()
+" KillBuffer all buffers except the active one.
+function! OnlyBuffer()
     if (exists(':UndotreeHide') != 0)
         UndotreeHide
     endif
     if (IsCurrentBufferFugitive())
         edit _TemporaryBuffer
-        silent! call BufKillOthers()
+        silent! call OnlyBuffer()
         Git
         bw _TemporaryBuffer
         return
     endif
-    let l:orig_buffnum = buffer_number('%')
-    for l:buffer_number in (filter(range(1, bufnr('$')), 'bufloaded(v:val)'))
-        if ( l:buffer_number == l:orig_buffnum ) | continue | endif
-        if ( getbufinfo(l:buffer_number)[0].changed == 1 ) | continue | endif
-        execute ":buffer" l:buffer_number
-        call Killbuff()
+    let l:orig_buffnum = bufnr('%')
+    " for l:buffnum in (filter(range(1, bufnr('$')), 'bufloaded(v:val)'))
+    for l:buffnum in range(1, bufnr('$'))
+        if ( l:buffnum == l:orig_buffnum ) | continue | endif
+        if ( getbufinfo(l:buffnum)[0].changed == 1 ) | continue | endif
+        exec ":buffer" l:buffnum
+        call KillBuffer()
     endfor
-endfunction
+endf
 
 
 function! IsCurrentBufferCocDiag()
@@ -60,7 +60,7 @@ function! IsCurrentBufferCocDiag()
     else
         return 0
     endif
-endfunction
+endf
 
 
 function! IsCurrentBufferFugitive()
@@ -69,4 +69,4 @@ function! IsCurrentBufferFugitive()
     else
         return 0
     endif
-endfunction
+endf
