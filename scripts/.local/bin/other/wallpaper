@@ -1,4 +1,48 @@
 #!/bin/sh
 # set wallpaper.
-feh --no-fehbg --bg-fill "$1"
-cp -f "$1" ~/.local/share/wall/main.png
+# option -s : only set the wallpaper, no pywal, no themeing.
+
+main() {
+    [ "$1" = -s ] && shift && onlyset=true
+    set_wallpaper "$1" || exit 0
+    [ "$onlyset" = true ] && exit 0
+    generate || exit 0
+    dunst-init &
+    recompile &
+    wait
+}
+
+set_wallpaper() {
+    dest=~/.local/share/wall/main.png
+    cp -f "$1" $dest
+    feh --no-fehbg --bg-fill $dest || return 1
+}
+
+generate() {
+    command -v wal || return 1
+    wal -c
+    wal -n -a $(cat ~/.config/wal/alpha) -i $dest
+}
+
+recompile() {
+    cp ~/.cache/wal/zathura /tmp/wal-zathura
+    sudo -Av || return 1
+    usv down dwmbar
+    for prog in dwm dmenu dwmBar; do
+        (
+            sudo -nv || exit 1
+            header=$(echo $prog | tr 'A-Z' 'a-z').h
+            cp -f ~/.cache/wal/$header /tmp/wal-$header
+            cd ~/Repositories/branched/$prog || exit 1
+            make clean
+            make
+            sudo make install
+            pkill -ix $prog
+        ) &
+    done
+    wait
+    usv up dwmbar
+}
+
+main "$@"
+exit
