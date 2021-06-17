@@ -23,3 +23,4 @@ set recolor-darkcolor "#aaaaaa"
 set statusbar-fg "#aaaaaa"
 set inputbar-fg "#aaaaaa"
 set notification-error-fg "#a95551"
+include /tmp/wal-zathura
