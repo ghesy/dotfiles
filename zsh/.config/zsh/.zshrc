@@ -84,6 +84,9 @@ source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
 # unbold the red color in syntax highlighting
 FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
 
+# set pywal colors
+source ~/.cache/wal/colors.sh 2>/dev/null
+
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
 export TERMINIT=true;
