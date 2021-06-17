@@ -32,6 +32,9 @@ xset s 600 # lock after 600 seconds of inactivity
 # disable screen blanking
 xset dpms 0 0 0 &
 
+# start dunst
+dunst-init &
+
 # run some programs and services via runit's runsvdir
 # stuff like pulseaudio, mpd, aria2, transmission, dwmbar, stalonetray, etc.
 runsvdir -P "$USVDIR" &
