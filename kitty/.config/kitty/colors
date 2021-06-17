@@ -1,4 +1,4 @@
-background #202020
+background #101010
 foreground #a8a59a
 cursor #888888
 color0 #282828
@@ -19,3 +19,4 @@ color7 #a89984
 color15 #ebdbb2
 selection_background #4d4d4d
 selection_foreground #222222
+background_opacity 0.85
