@@ -1,49 +1,91 @@
 #!/bin/sh
+# sxiv's key handler script
 
-case $1 in
-    "y") supercp-clip --clear ;;
-    "t") dmenu-prompt 'Trash images?' && trash=true ;;
-    "d") dmenu-prompt 'Really Delete images?' && delete=true ;;
-    "h") notify-send --urgency=low --expire-time=5000 'sxiv key-handler help' \
-'y    copy as file
-Y    copy as image
-r,R  rotate the image cw/ccw
-a    autorotate the image
-g    open in gimp
-p    print the images
-w    set as wallpaper
-t    trash the images
-d    permanently delete the images
-'
-
-esac
-
-while read -r file
-do
+main() {
+    images="$(cat)"
+    first="$(echo "$images" | head -n1)"
+    count="$(echo "$images" | wc -l)"
     case "$1" in
-        "w") wallpaper "$file" & ;;
-        "r") convert -rotate 90 "$file" "$file" ;;
-        "R") convert -rotate -90 "$file" "$file" ;;
-        "a") jhead -autorot "$file" ;;
-        "f") convert -flop "$file" "$file" ;;
-        "g") gimp "$file" & ;;
-        "t") [ "$trash" = true ] && trash-put "$file" ;;
-        "T") notify-send "${file}" ;;
-        "d") [ "$delete" = true ] && rm "$file" ;;
-        "p") dprint "$file" ;;
-        "y") readlink -f "${PWD}/${file}" | xargs supercp-clip --add ;;
-        "Y")
-            readlink -f "$file" | xargs xclip -selection clipboard -target "$(file --mime-type "$file" | awk '{print $2}')" -in &&
-            notify-send "$(readlink -f "$file") copied to clipboard" &
-           ;;
+        h) help ;;
+        w) wallpaper "$first" >/dev/null 2>&1 ;;
+        W) wallpaper -s "$first" >/dev/null 2>&1 ;;
+        g) x setsid -f gimp -- ;;
+        p) x dprint ;;
+        t)
+            x -p "Trash $count images?" trash-put -- &&
+                n "Trashed $count images." ;;
+        d)
+            x -p "Delete $count images permanently?" rm -- &&
+                n "Deleted $count images." ;;
+        a)
+            x -p "Autorotate $count images?" jhead -autorot &&
+                n "Autorotated $count images." ;;
+        r)
+            p "Rotate $count images?" conv -rotate 90 &&
+                n "Rotated $count images." ;;
+        R)
+            p "Rotate $count images?" conv -rotate -90 &&
+                n "Rotated $count images." ;;
+        f)
+            p "Flop $count images?" conv -flop &&
+                n "Flopped $count images." ;;
+        y)
+            xclip -selection clipboard -t "$(file -b --mime-type "$first")" "$first" &&
+                n -i "$first" "Copied to clipboard." ;;
     esac
-done
+}
 
-case $1 in
-    "y") msg='successfully copied images.' ;;
-    "t") [ "$trash" = true ] && msg='successfully trashed images.' ;;
-    "d") [ "$delete" = true ] && msg='successfully deleted images.' ;;
-esac
+# xargs
+x() {
+    if [ "$1" = -p ]; then
+        dmenu-prompt "$2" || return 1
+        shift 2
+    fi
+    echo "$images" | xargs -d'\n' "$@" >/dev/null 2>&1
+}
 
-[ -n "$msg" ] && notify-send "$msg"
-exit 0
+# prompt
+p() {
+    if [ $count -gt 1 ]; then
+        dmenu-prompt "$1" || return 1
+    fi
+    shift
+    "$@"
+}
+
+# notify
+n() {
+    if [ "$1" = -i ]; then
+        icon="$PWD/$(basename "$2")"
+        shift 2
+    fi
+    notify-send -i "${icon:-none}" sxiv "$*"
+}
+
+# apply rotate/flop/... to images using convert
+conv() {
+    echo "$images" | xargs -I{} convert "$@" {} {} >/dev/null 2>&1
+}
+
+help() {
+    notify-send 'sxiv key-handler help' "$(print_help)"
+}
+
+print_help() {
+cat << 'eof'
+y)   copy image to clipboard
+a)   auto rotate based on metadata
+r,R) rotate cw/ccw
+f)   flip horizontally
+g)   open in gimp
+p)   print
+w)   set as wallpaper
+W)   set as wallpaper, no pywal
+t)   trash
+d)   permanently delete
+h)   show this help message
+eof
+}
+
+main "$@"
+exit
