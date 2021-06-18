@@ -212,6 +212,7 @@ function FixColors()
     hi EndOfBuffer guifg=#404040 ctermfg=darkgrey guibg=NONE ctermbg=NONE
     hi Normal guibg=NONE ctermbg=NONE
     hi LineNr guibg=NONE ctermbg=NONE
+    hi CursorLineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
 endf
 autocmd ColorScheme * call FixColors()
