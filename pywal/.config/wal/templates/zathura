@@ -1,0 +1,8 @@
+set recolor-lightcolor rgba({color0.rgb},0)
+set inputbar-bg "{color0}"
+set default-bg {color0.rgba}
+set statusbar-bg "{color0}"
+set notification-error-bg "{color0}"
+set recolor-darkcolor "{color7}"
+set statusbar-fg "{color7}"
+set inputbar-fg "{color7}"
