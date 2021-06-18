@@ -107,6 +107,7 @@ export TMPDIR="/tmp"
 
 # bat theme
 export BAT_THEME='gruvbox-dark'
+export LF_BAT_OPTS='-p'
 
 # less colors
 export LESS='-RSmci'
