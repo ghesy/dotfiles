@@ -1,38 +1,25 @@
 #!/bin/sh
 
-# set some paths
-xinit="/etc/X11/xinit"
-sysresources="$xinit/.Xresources"
-sysmodmap="$xinit/.Xmodmap"
-userresources="$XDG_CONFIG_HOME/X11/xresources"
-usermodmap="$HOME/.Xmodmap"
-
-# merge in defaults and keymaps
-[ -f "$sysresources" ]  && xrdb -merge $sysresources
-[ -f "$sysmodmap" ]     && xmodmap $sysmodmap
-[ -f "$userresources" ] && xrdb -merge "$userresources"
-[ -f "$usermodmap" ]    && xmodmap "$usermodmap"
-
 # source xinitrc.d scripts
-if [ -d "$xinit/xinitrc.d" ]; then
-    for f in "$xinit"/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done
-    unset f
-fi
+for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done
+unset f
 
-# set my key remaps and other xset arguments
-remaps &
+# merge xresources
+xrdb -merge ~/.config/X11/xresources
 
 # disable bell
-xset -b &
+xset -b
 
-# auto locking
-xss-lock slock & # set locker to slock
-xset s 600 # lock after 600 seconds of inactivity
+# lock after 600 seconds of inactivity
+xset s 600
 
 # disable screen blanking
-xset dpms 0 0 0 &
+xset dpms 0 0 0
 
-# start dunst
+# set keyboard/mouse remaps configurations
+remaps &
+
+# startup dunst
 dunst-init &
 
 # run some programs and services via runit's runsvdir
@@ -47,10 +34,6 @@ wall main.png || wall artix.png
 
 # lock the screen
 (sleep 0.2; lock) &
-
-# =====================
-# = Window Manager
-# =====================
 
 # loop to launch dwm and relaunch if killed
 while true; do
