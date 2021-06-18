@@ -55,7 +55,7 @@ alias build='make clean; make; sudo make install; make clean'
 # pacman
 alias p='sudo pacman'
 alias a='paru'
-alias pls='paclast -r | head'
+alias pl='paclast -t | head'
 
 # vim
 alias v='nvim'
