@@ -46,13 +46,16 @@ function CmdLineMain()
     echo l:line
 endf
 
-function CmdLine()
-    call timer_start(1, {-> execute('call CmdLineMain()', '')})
+function CmdLine(...)
+    if a:0 == 1 | let l:time = a:1 | else | let l:time = 1 | endif
+    call timer_start(l:time, {-> execute('call CmdLineMain()', '')})
 endf
 
 autocmd CursorHold,CursorMoved,VimResized * call CmdLine()
-autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,BufWritePost,
-\InsertLeave,CursorHoldI * call UpdateBuffers() | call CmdLine()
+autocmd BufWritePost * call UpdateBuffers() | call CmdLine(50)
+autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,InsertLeave,CursorHoldI *
+  \ call UpdateBuffers() | call CmdLine()
+
 
 nn <silent><Esc> :call UpdateBuffers()<BAR>call CmdLine()<CR><Esc>
 nn <silent>u u:call UpdateBuffers()<BAR>call CmdLine()<CR>
