@@ -1,7 +1,7 @@
 #define PYWAL
-static const char * text_color = "{color15}";
+static const char * text_color = "{foreground}";
 static const char *colorname[NUMCOLS] = {{
-    [INIT] =   "{color0}",
+    [INIT] =   "{background}",
     [INPUT] =  "{color2}",
-    [FAILED] = "{color0}",
+    [FAILED] = "{background}",
 }};
