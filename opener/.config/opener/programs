@@ -31,7 +31,7 @@ open ()
         kicad_proj)  gui kicad    "$@" ;;
         kicad_pcb)   gui pcbnew   "$@" ;;
         kicad_sch)   gui eeschema "$@" ;;
-        archive*) fgd atool --list --page -- "$@" ;;
+        archive*) fgd sh -c 'atool --list --page -- "$@" 2>/dev/null' '' "$@" ;;
     esac
 }
 
