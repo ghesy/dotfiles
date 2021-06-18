@@ -85,7 +85,7 @@ source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
 FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
 
 # set pywal colors
-source ~/.cache/wal/colors.sh 2>/dev/null
+source ~/.cache/wal/fzf 2>/dev/null
 
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
