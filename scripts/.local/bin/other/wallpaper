@@ -7,6 +7,7 @@ main() {
     set_wallpaper "$1" || exit 0
     [ "$onlyset" = true ] && exit 0
     generate || exit 0
+    pywalfox update &
     dunst-init &
     recompile &
     wait
