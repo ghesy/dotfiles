@@ -1,0 +1,4 @@
+#!/bin/sh
+sv check avahi-daemon >/dev/null || exit 1
+sv check cupsd >/dev/null || exit 1
+exec /usr/bin/ipp-usb

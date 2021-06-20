@@ -1,0 +1,5 @@
+#!/bin/sh
+exec >/dev/null 2>&1
+export USER=root
+export SUDO_USER=koonix
+exec skr

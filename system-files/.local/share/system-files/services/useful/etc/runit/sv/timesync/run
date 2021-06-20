@@ -1,0 +1,5 @@
+#!/bin/sh
+sv check NetworkManager > /dev/null || exit 1
+sleep 5
+ntpd -gq
+exec pause

@@ -1,0 +1,4 @@
+#!/bin/sh
+sv check dbus > /dev/null || exit 1
+cd /usr/lib/python3/dist-packages/timekpr
+exec /usr/bin/timekprd
