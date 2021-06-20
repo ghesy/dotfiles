@@ -1,5 +1,5 @@
 #!/bin/sh
 # run my g script in a new terminal,
 # then open lf in the selected bookmark path.
-cd "$(bm l | dmenu -p 'go where?' | xargs bm)" || exit 1
-termopen
+bm="$(bm l | dmenu -p 'go where?')"
+[ -n "$bm" ] && termopen "$(bm "$bm")"
