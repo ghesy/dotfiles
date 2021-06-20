@@ -1,8 +1,6 @@
 #!/bin/sh
 # open my filemanager in given path.
-if [ -f "$1" ]; then
-    cd "$(dirname "$1")" || exit
-elif [ -d "$1" ]; then
-    cd "$1" || exit
-fi
-setsid -f "$TERMINAL" >/dev/null 2>&1
+set -- "${1:-PWD}"
+path="$(dirname "$1")"
+[ -d "$1" ] && path="$1"
+$TERMINAL -e sh -c "cd \"$path\"; exec $SHELL" >/dev/null 2>&1
