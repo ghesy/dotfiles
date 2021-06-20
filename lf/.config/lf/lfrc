@@ -178,6 +178,7 @@ cmd finder $finder -f | lfselect $id
 # = Bindings
 # ==============
 
+map ~  cd ~
 map .  set hidden!
 map K  parent-up
 map J  parent-down
