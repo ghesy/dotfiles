@@ -23,14 +23,14 @@ lf() {
     cd "$(lflast "$@")"
 }
 
-finder() { local xx="$(command finder "$@")"; [ -n "$xx" ] && lf "$xx" }
-bm() { cd "$(command bm "$@")" }
+search() { f="$(finder "$@")" && lf "$f"; unset f }
+b() { cd "$(bm "$@")" }
 
 # bindings
 bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
 bindctrl o lf
-bindctrl f finder
-bindctrl n bm
+bindctrl f search
+bindctrl n b
 
 # basic stuff
 alias mk='mkdir -pv'
