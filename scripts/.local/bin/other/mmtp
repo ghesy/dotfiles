@@ -16,6 +16,7 @@ main ()
         mount
         sleep 1
     done
+    tmpcleanup
 }
 
 # loop over detected devices,
@@ -61,6 +62,13 @@ instances ()
     trap "trap - EXIT; exit" USR1
     trap "rm $pid" EXIT
     echo $$ > "$pid"
+}
+
+# cleanup old simple-mtpfs temp files.
+tmpcleanup ()
+{
+    find /tmp -maxdepth 1 -type d -iname 'simple-mtpfs-*' -mtime +1 \
+        -exec rmdir '{}' ';' 2>/dev/null
 }
 
 main "$@"
