@@ -106,7 +106,7 @@ export DICS="/usr/share/stardict/dic/"
 export TMPDIR="/tmp"
 
 # bat theme
-export BAT_THEME='gruvbox-dark'
+export BAT_THEME='Nord'
 export LF_BAT_OPTS='-p'
 
 # less colors
