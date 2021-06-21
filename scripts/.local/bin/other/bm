@@ -1,22 +1,36 @@
 #!/bin/sh
-# this script bookmarks paths.
+# a script for bookmarking directories
+# and accessing them.
 
-# Config
+# config
 bookmarks="$XDG_DATA_HOME/bm/bookmarks"
 fs='[ \\t]*\\|[ \\t]*'
 
 main ()
 {
-    # make fzf fullscreen if -f is supplied
-    [ "$1" = -f ] && shift && height='--height=100%'
+    opts="$(getopt -odlarfh -- "$@")" && eval set -- "$opts" || { echo; help; return 1; }
+
+    while true; do case "$1" in
+        -d) bmrun; return ;;
+        -f) height='--height=100%'; shift ;;
+        -a) add "$2"; return 1 ;;
+        -r) shift; remove "$@"; return 1 ;;
+        -l) list; return 1 ;;
+        -h) help; return 1 ;;
+        --) shift; break ;;
+         *) help; return 1 ;;
+    esac; done
 
     case "$1" in
-        a | add) add "$2" ;;
-        rm | remove) shift; remove "$@" ;;
-        l | list) list ;;
         '') get_path "$(selector)" ;;
-        *) get_path "$@" ;;
+         *) get_path "$@" ;;
     esac
+}
+
+bmrun ()
+{
+    sel="$(list | dmenu -p 'go where?')"
+    [ -n "$sel" ] && ${FILE:-xdg-open} "$(get_path "$sel")"
 }
 
 get_path ()
@@ -76,6 +90,25 @@ list ()
 awkfn ()
 {
     awk -v FS="$fs" "$@"
+}
+
+help() {
+    print_help >&2
+}
+
+print_help() {
+cat << 'eof'
+bm: a script for bookmarking directories.
+Usage: bm [-dlarf] [bookmark-name]
+Options:
+  -d            ask a bookmark via dmenu and open it.
+  -l            list bookmark names, one per line.
+  -a name       bookmark the current working directory
+                  with the given name.
+  -r name...    remove the given bookmark(s).
+  -f            set fzf's height to 100%.
+  -h            show this help message.
+eof
 }
 
 main "$@"
