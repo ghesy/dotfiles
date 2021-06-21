@@ -24,7 +24,9 @@ lf() {
 }
 
 search() { f="$(finder "$@")" && lf "$f"; unset f }
-b() { cd "$(bm "$@")" }
+b()  { p="$(bm "$@")" && cd "$p"; unset p }
+_b() { compadd $(bm -l) }
+compdef _b b
 
 # bindings
 bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
