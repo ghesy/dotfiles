@@ -108,6 +108,7 @@ export TMPDIR="/tmp"
 # bat theme
 export BAT_THEME='Nord'
 export LF_BAT_OPTS='-p'
+export LF_IMG_REGEX='.*\.(jpe?g|png|gif|bmp|ico|svg|webp)$'
 
 # less colors
 export LESS='-RSmci'
@@ -142,7 +143,6 @@ cleanup ()
         sleep 0.01
     done &
     reset
-    agetty --show-issue
 }
 
 trap cleanup EXIT
