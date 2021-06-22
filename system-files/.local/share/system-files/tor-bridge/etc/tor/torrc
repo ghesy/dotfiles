@@ -1,0 +1,8 @@
+# these settings make tor use bridges.
+# to get new bridges:
+# send an email to bridges@torproject.org with body
+# "get transport obfs4",
+# or visit "https://bridges.torproject.org/bridges?transport=obfs4".
+UseBridges 1
+ClientTransportPlugin obfs4 exec /usr/bin/obfs4proxy managed
+Bridge obfs4 <ip:port> ...
