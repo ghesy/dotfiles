@@ -2,7 +2,7 @@
 " KillBuffer() and OnlyBuffer().
 
 " delete the current buffer without fucking with open splits
-function! KillBuffer()
+function KillBuffer()
     " if it's an unlisted buffer (fzf, nerdtree, undotree, ...),
     " or it's a coc diag window, wipe it.
     if ( buflisted(bufnr('%')) == 0  ||
@@ -32,7 +32,7 @@ endf
 
 
 " KillBuffer all buffers except the active one.
-function! OnlyBuffer()
+function OnlyBuffer()
     if (exists(':UndotreeHide') != 0)
         UndotreeHide
     endif
@@ -44,17 +44,16 @@ function! OnlyBuffer()
         return
     endif
     let l:orig_buffnum = bufnr('%')
-    " for l:buffnum in (filter(range(1, bufnr('$')), 'bufloaded(v:val)'))
     for l:buffnum in range(1, bufnr('$'))
         if ( l:buffnum == l:orig_buffnum ) | continue | endif
         if ( getbufinfo(l:buffnum)[0].changed == 1 ) | continue | endif
-        exec ":buffer" l:buffnum
+        exec "buffer" l:buffnum
         call KillBuffer()
     endfor
 endf
 
 
-function! IsCurrentBufferCocDiag()
+function IsCurrentBufferCocDiag()
     if ( buffer_name('%') == '' && &syntax == 'qf' )
         return 1
     else
@@ -63,7 +62,7 @@ function! IsCurrentBufferCocDiag()
 endf
 
 
-function! IsCurrentBufferFugitive()
+function IsCurrentBufferFugitive()
     if ( &syntax == 'fugitive' )
         return 1
     else
