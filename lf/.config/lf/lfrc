@@ -48,29 +48,8 @@ cmd openfork &{{
     fi
 }}
 
-cmd cancel-copy echo no copy in progress
-cmd paste &{{
-    l=~/.local/share/lf/files
-    case $(head -n1 $l) in
-    move) mv -- $(sed 1d $l) . ;;
-    copy)
-        lf -remote "send $id map q echo copy in progress"
-        (rsync -ab --inplace --info=progress2 -- $(sed 1d $l) . |
-            stdbuf -i0 -o0 -e0 tr '\r' '\n' |
-            while IFS= read -r info; do
-                percent="[$(echo "$info" | awk '{print $2}')]"
-                lf -remote "send $id echo $percent"
-            done) &
-        lf -remote "send $id cmd cancel-copy &kill $(pgrep -nf '^rsync -ab')"
-        wait
-        lf -remote "send $id map q quit
-                    send $id cmd cancel-copy echo no copy in progress"
-    esac
-    [ $? -ne 0 ] && exit
-    rm $l
-    lfreload -f $id
-    lf -remote 'send clear'
-}}
+cmd cancel-copy echo no copy or move in progress
+cmd paste &lfpaste $id
 
 cmd mkexec &{{
     [ ! -f $f ] && exit
