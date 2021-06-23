@@ -22,7 +22,7 @@ set promptfmt "\033[2m%d"
 set errorfmt  "\033[31m%s\033[0m"
 
 set nohidden
-set hiddenfiles ".*:.Trash-1000:$RECYCLE.BIN:System Volume Information"
+set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
 
 # ==============
 # = Commands
