@@ -1,40 +1,88 @@
-nnoremap <silent><Leader>tt :term<CR>:startinsert<CR>
-nnoremap <silent><Leader>tb :call BottomTerminal()<CR>
+" open/close a terminal window with ctrl-b.
 
-" spawn a bottom terminal
-function BottomTerminal()
-    split
-    wincmd w
-    wincmd J
-    resize 10
-    terminal
-    call setbufvar(bufnr('%'), "IsBottomTerminal", "true")
+" bindings
+nno <silent><C-b> :call OpenTerm()<CR>
+nno <silent><C-t> :call KillTerm()<CR>
+fu TermMaps()
+    tno <silent><C-b> <C-\><C-n>:call GoBack()<CR>
+    tno <silent><C-t> <C-\><C-n>:call KillTerm()<CR>
+endf
+fu TermUnMaps()
+    tunmap <C-b>
+    tunmap <C-t>
+endf
+
+" if terminal buffer exists, open it in a new window.
+" otherwise, open a new terminal in a new window.
+fu OpenTerm()
+    if IsTerm(bufnr()) | call GoBack() | return | endif
+    let g:PrevWinNr = winnr()
+    call PrepWindow()
+    if OpenPrevTerm() | return | endif
+    term
     startinsert
+    call setbufvar(bufnr(), "MyTerm", "true")
 endf
 
-function FixBottomTerminalSize()
-    if getbufvar(bufnr('%'), "IsBottomTerminal") == "true"
-        resize 10
-    endif
+" find open the existing terminal buffer.
+fu OpenPrevTerm()
+    for l:num in range(1, bufnr('$'))
+        if !buflisted(l:num) | continue | endif
+        if !IsTerm(l:num) | continue | endif
+        exec "buffer" l:num
+        startinsert
+        return 1
+    endfor
+    return 0
 endf
 
-autocmd BufEnter,BufWinEnter,WinEnter term://* silent! call FixBottomTerminalSize()
-
-function TermEsc()
-    if buflisted(bufnr('%')) == "1"
-        tnoremap <silent><Esc> <C-\><C-n>
-    else
-        tnoremap <silent><Esc> <Esc>
-    endif
+" go to the window prior to opening the terminal.
+fu GoBack()
+    if !IsTerm(bufnr())  | return | endif
+    wincmd q
+    call win_gotoid(win_getid(g:PrevWinNr))
 endf
 
-" fix scrolloff causing glitches in terminal
-autocmd TermEnter * setlocal scrolloff=0 | setlocal nonumber |
-  \ setlocal norelativenumber | silent! call TermEsc()
+" find the open terminal buffer and kill it.
+fu KillTerm()
+    for l:num in range(1, bufnr('$'))
+        if !buflisted(l:num) | continue | endif
+        if !IsTerm(l:num) | continue | endif
+        exec l:num . "bd!"
+    endfor
+endf
 
-autocmd TermLeave * setlocal scrolloff=8 | setlocal number |
-  \ setlocal relativenumber   | silent! call TermEsc()
+" open a new window and position it properly.
+fu PrepWindow()
+    vsplit
+    wincmd l
+    wincmd L
+endf
 
-autocmd BufEnter,BufWinEnter,WinEnter,BufLeave,BufWinLeave,WinLeave term://*
-  \ silent! call TermEsc()
-autocmd TermOpen * silent! call TermEsc()
+" check wether the given buffer is a teminal that we opened.
+fu IsTerm(bufnum)
+    if getbufvar(a:bufnum, "MyTerm") == "true"
+        return 1 | else | return 0 | endif
+endf
+
+" turn off line numbers and scrolloff upon
+" entering terminal, revert upon leaving.
+autocmd TermEnter * call TermEnter()
+autocmd TermLeave * call TermLeave()
+
+fu TermEnter()
+    if !IsTerm(bufnr())  | return | endif
+    let g:OrigS = &scrolloff
+    let g:OrigN = &nu
+    let g:OrigR = &rnu
+    set nonu nornu scrolloff=0
+    call TermMaps()
+endf
+
+fu TermLeave()
+    if !IsTerm(bufnr())  | return | endif
+    if g:OrigN | setlocal nu  | endif
+    if g:OrigR | setlocal rnu | endif
+    exec "setlocal scrolloff=" . g:OrigS
+    call TermUnMaps()
+endf
