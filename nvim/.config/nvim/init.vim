@@ -14,8 +14,6 @@ set termguicolors
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
 
-"Plug 'neoclide/coc.nvim', {'branch':'release'}
-"Plug 'jackguo380/vim-lsp-cxx-highlight'
 Plug 'drmikehenry/vim-headerguard'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
@@ -32,6 +30,8 @@ Plug 'junegunn/fzf.vim'
 call plug#end()
 
 " basics
+set ignorecase
+set smartcase
 set hidden
 set updatetime=700
 set visualbell
@@ -48,28 +48,11 @@ set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
 
-" searching
-set ignorecase
-set smartcase
-
-" files
-set undofile
-set noswapfile
-
-" cmd
-set laststatus=0
-set noshowmode
-
 " other
 let g:netrw_dirhistmax = 0
 set shortmess+=ac
-
-" aliases
-command W    exec "w"
-command Wq   exec "wq"
-command Q    exec "q"
-command Qa   exec "qa"
-command Wqa  exec "wqa"
+set noswapfile
+set undofile
 
 " search for files natively in vim
 set path+=**
@@ -164,6 +147,9 @@ vnoremap <C-r> "hy:%s/<C-r><C-r>=substitute(
   \ escape(@h, '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR>
   \//gc<left><left><left>
 
+" recognise double-slash cpp-style comments in json files
+autocmd FileType json syntax match Comment +\/\/.\+$+
+
 " move between buffers
 function BufferNavigationMaps()
     nnoremap <silent> <C-n>   :bnext<CR>
@@ -176,7 +162,7 @@ nnoremap <silent><Leader>ut :call UndoTreeRun()<CR>
 autocmd BufEnter * call FixBufferNavigationMaps()
 
 function UndoTreeRun()
-    if buflisted(buffer_number('%'))
+    if buflisted(bufnr('%'))
         UndotreeToggle
         UndotreeFocus
     else
@@ -217,9 +203,6 @@ function FixColors()
 endf
 autocmd ColorScheme * call FixColors()
 call FixColors()
-
-" recognise double-slash cpp-style comments in json files
-autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " load other configs
 source ~/.config/nvim/killbuffer.vim
