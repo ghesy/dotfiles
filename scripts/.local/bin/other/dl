@@ -85,14 +85,12 @@ curlcmd()
     url="$2"
 
     if command -v aria2c >/dev/null; then
-        (
-        cd "$(dirname "$file")" || exit 1
         $tor aria2c --no-conf -x8 -k1M -s16 -m1 --disable-ipv6=true \
-            --connect-timeout=${timeout:-4} --async-dns=false \
-            --auto-file-renaming=false -o "$(basename "$file")" "$url"
-        )
+            --connect-timeout=${timeout:-4} --async-dns=false  \
+            --auto-file-renaming=false -d "$(dirname "$file")" \
+            -o "$(basename "$file")" "$url"
     else
-        $tor curl --connect-timeout ${timeout:-4} --xattr --output "$file" "$url"
+        $tor curl --connect-timeout ${timeout:-4} --xattr -o "$file" "$url"
     fi
 }
 
