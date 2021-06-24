@@ -1,0 +1,209 @@
+#!/bin/sh
+# download files in parralel using curl, cache them, then open them.
+# if you give the same url again, it will open it from cache.
+# if the url is censored, it will download it through tor using torsocks.
+
+# config
+parallel=2 # how many files to download in parallel
+opener="${OPENER:-xdg-open}" # opener program
+torcmd="torsocks" # program that routes traffic through tor
+dir="${XDG_RUNTIME_DIR:-/tmp}/dldir" # where to put the downloaded stuff
+
+main()
+{
+    totaljobs=$#
+    [ $# -eq 1 ] && open_foreground=true
+
+    while true; do
+        print_summary
+
+        [ $totaljobs -eq $(donejobs) ] && break
+        [ $# -le 0 ] && sleep 0.1 && continue
+        [ $(njobs) -ge $parallel ] && sleep 0.1 && continue
+
+        new_download_job "$1" &
+        echo $! >> "$pids"
+        shift
+    done
+
+    echo; echo done.
+}
+
+new_download_job()
+{
+    j=$(newjob)
+    download "$1" >/dev/null 2>&1
+    jobdone $j
+}
+
+download()
+{
+    url="$1"
+
+    if file="$(get_file_from_cachetable "$url")" && [ -r "$file" ]; then
+        true
+    else
+        file="$dir/$(rand)"
+        curldl "$file" "$url" || return 1
+        file="$(add_proper_extention_to_file "$file")"
+        ct="$(printf '%s\t\t%s\n' "$file" "$url"; cat "$cache_table" 2>/dev/null)"
+        printf '%s\n' "$ct" > "$cache_table"
+    fi
+
+    if [ "$open_foreground" = true ]; then
+        $OPENER "$file"
+    else
+        nohup $OPENER "$file" >/dev/null 2>&1 &
+    fi
+}
+
+curldl()
+{
+    file="$1"
+    url="$2"
+
+    curlcmd "$file" "$url" ||
+        curlcmd --tor "$file" "$url" || {
+            notify-send cachedl 'download failed.'
+            return 1
+        }
+
+    return 0
+}
+
+curlcmd()
+{
+    unset tor timeout
+    if [ "$1" = --tor ]; then
+        shift
+        tor="$torcmd"
+        command -v $torcmd >/dev/null || return 1
+        timeout=12
+    fi
+
+    file="$1"
+    url="$2"
+
+    if command -v aria2c >/dev/null; then
+        (
+        cd "$(dirname "$file")" || exit 1
+        $tor aria2c --no-conf -x8 -k1M -s16 -m1 --disable-ipv6=true \
+            --connect-timeout=${timeout:-4} --async-dns=false \
+            --auto-file-renaming=false -o "$(basename "$file")" "$url"
+        )
+    else
+        $tor curl --connect-timeout ${timeout:-4} --xattr --output "$file" "$url"
+    fi
+}
+
+get_file_from_cachetable()
+{
+    url="$1"
+    file="$(awk -v url="$url" '$2==url {print $1; exit}' "$cache_table")"
+    [ -n "$file" ] || return 1
+    printf '%s\n' "$file"
+}
+
+add_proper_extention_to_file()
+{
+    oldfile="$1"
+    newfile="$oldfile$(get_extention_from_mime "$oldfile")"
+    mv -f -- "$oldfile" "$newfile"
+    echo "$newfile"
+}
+
+get_extention_from_mime()
+{
+    case "$(file --brief --mime-type -- "$1")" in
+        */gif)      echo .gif   ;;
+        */png)      echo .png   ;;
+        image/*)    echo .jpg   ;;
+        *matroska)  echo .mkv   ;;
+        video/*)    echo .mp4   ;;
+        audio/*)    echo .mp3   ;;
+        */pdf)      echo .pdf   ;;
+        *photoshop) echo .psd   ;;
+        *epub*)     echo .epub  ;;
+        */zip)      echo .zip   ;;
+        */x-rar*)   echo .rar   ;;
+        */x-7z*)    echo .7z    ;;
+        */html)     echo .html  ;;
+        text/*)     echo .txt   ;;
+    esac
+}
+
+newjob()
+{
+    jobname=job-$(rand)
+    touch "$data_dir/$jobname"
+    echo $jobname >> "$job_table"
+    echo $jobname
+}
+
+njobs()
+{
+    ls -A1 "$data_dir" | grep job- | wc -l
+}
+
+jobdone()
+{
+    rm -f "$data_dir/$1"
+    n="$(donejobs)"
+    echo $(( n + 1 )) > "$done_jobs"
+}
+
+donejobs()
+{
+    ndone="$(cat "$done_jobs" 2>/dev/null)"
+    if [ -z "$ndone" ]; then
+        echo 0 > "$done_jobs"
+        echo 0
+    else
+        echo $ndone
+    fi
+}
+
+print_summary()
+{
+    printf '%s/%s complete, %s parallel downloads active\r' $(donejobs) $totaljobs $(njobs)
+}
+
+cleanup()
+{
+    find "$data_dir" -mindepth 1 -maxdepth 1 -type f -iname 'job-*' -mtime +1 \
+        -exec rm -f '{}' ';' 2>/dev/null
+
+    while IFS= read -r pid; do
+        if [ "$(ps -o comm= -p $$)" = "$(ps -o comm= -p $pid)" ]; then
+            kill $pid
+            notify-send killed $pid
+        fi
+    done < "$pids"
+    rm -f "$pids"
+
+    xargs -a "$job_table" -d'\n' rm -f 2>/dev/null
+    rm -f "$job_table" "$done_jobs"
+}
+
+rand()
+{
+    shuf -n1 -i100000-999999
+}
+
+# set some paths and directories
+data_dir="$dir/data"
+mkdir -p "$data_dir" || exit 1
+cache_table="$data_dir/cachetable"
+job_table="$data_dir/jobtable"
+done_jobs="$data_dir/donejobs"
+pids="$data_dir/pids"
+
+# cleanup temp files from past runs,
+# set some traps
+cleanup 2>/dev/null
+trap exit HUP
+trap 'cleanup 2>/dev/null; tput cnorm' EXIT
+tput civis
+
+main "$@"
+exit
