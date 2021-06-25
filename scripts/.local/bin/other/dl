@@ -7,7 +7,7 @@
 parallel=2 # how many files to download in parallel
 opener="${OPENER:-xdg-open}" # opener program
 torcmd="torsocks" # program that routes traffic through tor
-dir="${XDG_RUNTIME_DIR:-/tmp}/dldir" # where to put the downloaded stuff
+dir="${XDG_RUNTIME_DIR:-$HOME/.cache}/dldir" # where to put the downloaded stuff
 
 main()
 {
@@ -15,39 +15,30 @@ main()
     [ $# -eq 1 ] && open_foreground=true
 
     while true; do
+
         print_summary
 
-        [ $totaljobs -eq $(donejobs) ] && break
+        [ $(donejobs) -eq $totaljobs ] && break
         [ $# -le 0 ] && sleep 0.1 && continue
         [ $(njobs) -ge $parallel ] && sleep 0.1 && continue
 
-        new_download_job "$1" &
-        echo $! >> "$pids"
+        download_and_open "$1" &
         shift
+
     done
 
-    echo; echo done.
+    echo
+    echo done.
 }
 
-new_download_job()
+download_and_open()
 {
     j=$(newjob)
-    download "$1" >/dev/null 2>&1
-    jobdone $j
-}
 
-download()
-{
     url="$1"
 
-    if file="$(get_file_from_cachetable "$url")" && [ -r "$file" ]; then
-        true
-    else
-        file="$dir/$(rand)"
-        curldl "$file" "$url" || return 1
-        file="$(add_proper_extention_to_file "$file")"
-        ct="$(printf '%s\t\t%s\n' "$file" "$url"; cat "$cache_table" 2>/dev/null)"
-        printf '%s\n' "$ct" > "$cache_table"
+    if ! file="$(get_file_from_cache "$url")"; then
+        file="$(download "$url")" || return 1
     fi
 
     if [ "$open_foreground" = true ]; then
@@ -55,30 +46,37 @@ download()
     else
         nohup $OPENER "$file" >/dev/null 2>&1 &
     fi
+
+    jobdone $j
 }
 
-curldl()
+download()
 {
-    file="$1"
-    url="$2"
+    url="$1"
+    file="$dir/$(rand_date)"
 
-    curlcmd "$file" "$url" ||
-        curlcmd --tor "$file" "$url" || {
-            notify-send cachedl 'download failed.'
+    dlcmd "$file" "$url" ||
+        dlcmd --tor "$file" "$url" || {
+            notify-send dl "couldn't download file."
             return 1
         }
 
+    file="$(add_proper_extention_to_file "$file")"
+    add_to_cachetable "$file" "$url"
+
+    echo "$file"
     return 0
 }
 
-curlcmd()
+dlcmd()
 {
     unset tor timeout
     if [ "$1" = --tor ]; then
         shift
         tor="$torcmd"
         command -v $torcmd >/dev/null || return 1
-        timeout=12
+        ctime=12
+        time=20
     fi
 
     file="$1"
@@ -86,20 +84,32 @@ curlcmd()
 
     if command -v aria2c >/dev/null; then
         $tor aria2c --no-conf -x8 -k1M -s16 -m1 --disable-ipv6=true \
-            --connect-timeout=${timeout:-4} --async-dns=false  \
-            --auto-file-renaming=false -d "$(dirname "$file")" \
-            -o "$(basename "$file")" "$url"
+            --connect-timeout=${ctime:-4} --timeout=${time:-6} \
+            --async-dns=false --auto-file-renaming=false \
+            -d "$(dirname "$file")" -o "$(basename "$file")" "$url" >/dev/null
     else
-        $tor curl --connect-timeout ${timeout:-4} --xattr -o "$file" "$url"
+        $tor curl --connect-timeout ${timeout:-4} --max-time 120 \
+            --xattr -o "$file" "$url" >/dev/null
     fi
 }
 
-get_file_from_cachetable()
+get_file_from_cache()
 {
+    [ -r "$cache_table" ] || return 1
     url="$1"
     file="$(awk -v url="$url" '$2==url {print $1; exit}' "$cache_table")"
     [ -n "$file" ] || return 1
+    [ -r "$file" ] || return 1
     printf '%s\n' "$file"
+    return 0
+}
+
+add_to_cachetable()
+{
+    filev="$1"
+    urlv="$2"
+    ct="$(printf '%s\t\t%s\n' "$filev" "$urlv"; cat "$cache_table" 2>/dev/null)"
+    printf '%s\n' "$ct" > "$cache_table"
 }
 
 add_proper_extention_to_file()
@@ -133,19 +143,18 @@ get_extention_from_mime()
 newjob()
 {
     jobname=job-$(rand)
-    touch "$data_dir/$jobname"
-    echo $jobname >> "$job_table"
+    touch "$tmp_dir/$jobname"
     echo $jobname
 }
 
 njobs()
 {
-    ls -A1 "$data_dir" | grep job- | wc -l
+    ls -A1 "$tmp_dir" | grep job- | wc -l
 }
 
 jobdone()
 {
-    rm -f "$data_dir/$1"
+    rm -f "$tmp_dir/$1"
     n="$(donejobs)"
     echo $(( n + 1 )) > "$done_jobs"
 }
@@ -168,37 +177,31 @@ print_summary()
 
 cleanup()
 {
-    find "$data_dir" -mindepth 1 -maxdepth 1 -type f -iname 'job-*' -mtime +1 \
-        -exec rm -f '{}' ';' 2>/dev/null
-
-    while IFS= read -r pid; do
-        if [ "$(ps -o comm= -p $$)" = "$(ps -o comm= -p $pid)" ]; then
-            kill $pid
-            notify-send killed $pid
-        fi
-    done < "$pids"
-    rm -f "$pids"
-
-    xargs -a "$job_table" -d'\n' rm -f 2>/dev/null
-    rm -f "$job_table" "$done_jobs"
+    rm -rf "$tmp_dir"
+    rmdir "$(dirname "$tmp_dir")"
 }
 
 rand()
 {
-    shuf -n1 -i100000-999999
+    shuf -n1 -i1000000000-9999999999
+}
+
+rand_date()
+{
+    date +%s | rev | cut -c1-7 | rev | tr -d '\n'
+    shuf -n1 -i100-999
 }
 
 # set some paths and directories
 data_dir="$dir/data"
-mkdir -p "$data_dir" || exit 1
+tmp_dir="$dir/data/jobs/$(rand)"
 cache_table="$data_dir/cachetable"
-job_table="$data_dir/jobtable"
-done_jobs="$data_dir/donejobs"
-pids="$data_dir/pids"
+done_jobs="$tmp_dir/donejobs"
 
 # cleanup temp files from past runs,
 # set some traps
 cleanup 2>/dev/null
+mkdir -p "$tmp_dir" || exit 1
 trap exit HUP
 trap 'cleanup 2>/dev/null; tput cnorm' EXIT
 tput civis
