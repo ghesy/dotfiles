@@ -236,8 +236,8 @@ user_pref("browser.contentblocking.category", "custom");
 /* disable social tracking */
 user_pref("privacy.trackingprotection.socialtracking.enabled", true);
 
-/* resist fingerprinting (disable if causing weird behaviour in websites) */
-user_pref("privacy.resistFingerprinting", true);
+/* resist fingerprinting (it's set to false because it causes brakages) */
+user_pref("privacy.resistFingerprinting", false);
 
 /* disable some bullshit annoyances */
 user_pref("browser.startup.homepage_override.mstone", "ignore");
