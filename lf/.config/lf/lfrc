@@ -90,8 +90,8 @@ cmd bookmarks ${{
     lf -remote "send $id open"
 }}
 
-cmd bookmark-add  push &<space>bm<space>add<space>
-cmd bookmark-rm   push &<space>bm<space>rm<space>
+cmd bookmark-add  push &<space>bm<space>-a<space>
+cmd bookmark-rm   push &<space>bm<space>-r<space>
 
 # get info about files
 cmd mediainfo     $mediainfo $f  | less
