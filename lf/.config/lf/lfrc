@@ -93,22 +93,31 @@ cmd bookmarks ${{
 cmd bookmark-add  push &<space>bm<space>add<space>
 cmd bookmark-rm   push &<space>bm<space>rm<space>
 
-# info
+# get info about files
 cmd mediainfo     $mediainfo $f  | less
 cmd mediainfo-all $mediainfo $fx | less
-cmd filetype      %file -b --mime-type -- $f | tr -d '\n'; printf '; '; file -b -- $f
-cmd filetype-all  ${{
+
+cmd filetype %{{
+    file=$(readlink -f $f)
+    file -b --mime-type -- $file | tr -d '\n'
+    printf '; '
+    file -b -- $file
+}}
+
+cmd filetype-all ${{
     for file in $fx; do
         basename -- $file
+        printf '    '
         file -b --mime-type -- $file
+        printf '    '
         file -b -- $file
         echo
     done | less
 }}
 
 # size of files and dirs
-cmd sized0  %echo " calculating...";du -sh 2>/dev/null
-cmd sized1  $du -h --max-depth=1 | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
+cmd sized0  %echo " calculating..."; du -sh 2>/dev/null
+cmd sized1  $du -hd1 2>/dev/null | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
 cmd ncdu    $ncdu
 
 # archive stuff
