@@ -47,7 +47,8 @@ disktop, iotop : tuisu iotop
 res router : tui resrouter
 barca, la liga : tui barca
 lsusb, devices : tui watchusb
-pacmixer : tui pacmixer
+mixer : tui pulsemixer
+cava, visualizer : tui cava
 
 autolock : xset s on
 no autolock : xset s off
