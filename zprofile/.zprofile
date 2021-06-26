@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # add all of ~/.local/bin's immediate subdirectories to PATH.
 localpaths="$(find "$HOME/.local/bin" -mindepth 1 -maxdepth 1 -printf ":%p")"
 export PATH="${PATH}${localpaths}"
