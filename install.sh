@@ -9,8 +9,8 @@
 # that goes in there, will end up amongst our dotfiles, which is not ok.
 # read more on folding in stow's manpage.
 mkdir -p ~/.local/bin ~/.local/share/applications ~/.local/share/wall \
-    ~/.local/sv/run ~/.config/tremc ~/.config/kicad ~/.config/safeeyes \
-    ~/.config/pulse ~/.config/gtk-2.0 ~/.config/gtk-3.0 \
+    ~/.local/share/gnupg ~/.local/sv/run ~/.config/tremc ~/.config/kicad \
+    ~/.config/safeeyes ~/.config/pulse ~/.config/gtk-2.0 ~/.config/gtk-3.0 \
     ~/.config/transmission-daemon
 
 # install all the dotfile packages one by one.
