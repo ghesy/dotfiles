@@ -135,13 +135,13 @@ keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
 
 cleanup ()
-{
+{(
     for i in {1..100}; do
         tput reset
         sleep 0.01
     done &
-    reset
-}
+    reset &
+)}
 
 trap cleanup EXIT
 
