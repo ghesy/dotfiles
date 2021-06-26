@@ -1,74 +1,61 @@
 #!/bin/sh
-# sxiv's key handler script
+# sxiv's key handler script.
 
-main() {
-    images="$(cat)"
-    first="$(echo "$images" | head -n1)"
-    count="$(echo "$images" | wc -l)"
+main()
+{
+    imgs="$(cat)" # get list of images from stdin
+    first="$(imgs | head -n1)"
+    count="$(imgs | wc -l)"
+
     case "$1" in
         h) help ;;
-        w) wallpaper "$first" >/dev/null 2>&1 ;;
-        W) wallpaper -s "$first" >/dev/null 2>&1 ;;
-        g) x setsid -f gimp -- ;;
-        p) x dprint ;;
-        t)
-            x -p "Trash $count images?" trash-put -- &&
-                n "Trashed $count images." ;;
-        d)
-            x -p "Delete $count images permanently?" rm -- &&
-                n "Deleted $count images." ;;
-        a)
-            x -p "Autorotate $count images?" jhead -autorot &&
-                n "Autorotated $count images." ;;
-        r)
-            p "Rotate $count images?" conv -rotate 90 &&
-                n "Rotated $count images." ;;
-        R)
-            p "Rotate $count images?" conv -rotate -90 &&
-                n "Rotated $count images." ;;
-        f)
-            p "Flop $count images?" conv -flop &&
-                n "Flopped $count images." ;;
-        y)
-            xclip -selection clipboard -t "$(file -b --mime-type "$first")" "$first" &&
-                n -i "$first" "Copied to clipboard." ;;
+        w) wallpaper "$first" ;;
+        W) wallpaper -s "$first" ;;
+        g) args setsid -f gimp -- ;;
+        p) args dprint ;;
+        t) ask Trash &&
+            args trash-put -- &&
+            notif Trashed
+            ;;
+        d) ask Permanently Delete &&
+            args rm -- &&
+            notif Deleted
+            ;;
+        a) ask Autorotate &&
+            jhead -autorot &&
+            notif Autorotated
+            ;;
+        r) ask Rotate &&
+            conv -rotate  90 &&
+            notif Rotated
+            ;;
+        R) ask Rotate &&
+            conv -rotate -90 &&
+            notif Rotated
+            ;;
+        f) ask Flop &&
+            conv -flop &&
+            notif Flopped
+            ;;
+        y) xclip -selection clipboard -t \
+            "$(file -b --mime-type "$first")" "$first" &&
+            n -i "$first" "Copied to clipboard."
+            ;;
     esac
 }
 
-# xargs
-x() {
-    if [ "$1" = -p ]; then
-        dmenu-prompt "$2" || return 1
-        shift 2
-    fi
-    echo "$images" | xargs -d'\n' "$@" >/dev/null 2>&1
-}
+ask() { dmenu-prompt "$* $count images?" ;}
+args() { imgs | xargs -d'\n' "$@" ;}
+conv() { imgs | xargs -I{} convert "$@" {} {} ;}
+help() { notify-send 'sxiv key-handler help' "$(print_help)" ;}
+imgs() { printf '%s\n' "$imgs" ;}
 
-# prompt
-p() {
-    if [ $count -gt 1 ]; then
-        dmenu-prompt "$1" || return 1
-    fi
-    shift
-    "$@"
-}
-
-# notify
-n() {
+notif() {
     if [ "$1" = -i ]; then
         icon="$PWD/$(basename "$2")"
         shift 2
     fi
-    notify-send -i "${icon:-none}" sxiv "$*"
-}
-
-# apply rotate/flop/... to images using convert
-conv() {
-    echo "$images" | xargs -I{} convert "$@" {} {} >/dev/null 2>&1
-}
-
-help() {
-    notify-send 'sxiv key-handler help' "$(print_help)"
+    notify-send -i "${icon:-none}" sxiv "$* $count images."
 }
 
 print_help() {
