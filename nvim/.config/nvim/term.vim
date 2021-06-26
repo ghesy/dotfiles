@@ -72,17 +72,11 @@ autocmd TermLeave * call TermLeave()
 
 fu TermEnter()
     if !IsTerm(bufnr())  | return | endif
-    let g:OrigS = &scrolloff
-    let g:OrigN = &nu
-    let g:OrigR = &rnu
-    set nonu nornu scrolloff=0
+    setlocal nonu nornu scrolloff=0 sidescrolloff=0
     call TermMaps()
 endf
 
 fu TermLeave()
     if !IsTerm(bufnr())  | return | endif
-    if g:OrigN | setlocal nu  | endif
-    if g:OrigR | setlocal rnu | endif
-    exec "setlocal scrolloff=" . g:OrigS
     call TermUnMaps()
 endf
