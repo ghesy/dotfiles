@@ -48,8 +48,22 @@ cmd openfork &{{
     fi
 }}
 
-cmd cancel-copy echo no copy or move in progress
-cmd paste &lfpaste $id
+cmd paste ${{
+    list=~/.local/share/lf/files
+    mode=$(head -n1 $list)
+    srcs=$(sed 1d $list)
+    clear -x
+    case $mode in
+        copy) cpg -ag --backup=numbered $srcs . ;;
+        move) mvg  -g --backup=numbered $srcs . 2>/dev/null ;;
+    esac
+    e=$?
+    [ $e -eq 0 ] || exit
+    rm $list
+    lf -remote "send $id load"
+    lf -remote "send clear"
+    clear -x
+}}
 
 cmd mkexec &{{
     [ ! -f $f ] && exit
@@ -180,7 +194,6 @@ map rn rename
 map yy copy
 map dd cut
 map pp paste
-map cc cancel-copy
 map ua invert
 map <c-a> invert
 map uc unselect
