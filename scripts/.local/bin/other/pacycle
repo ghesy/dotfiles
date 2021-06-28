@@ -1,6 +1,5 @@
 #!/bin/sh
 # cycle audio output devices.
-# requires pactl and paswitch(aur).
 
 main () {
     case "$1" in
