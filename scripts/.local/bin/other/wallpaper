@@ -2,30 +2,49 @@
 # set wallpaper.
 # option -s : only set the wallpaper, no pywal, no themeing.
 
-main() {
-    [ "$1" = -s ] && shift && onlyset=true
-    set_wallpaper "$1" || exit 0
-    [ "$onlyset" = true ] && exit 0
-    generate || exit 0
-    pywalfox update &
-    dunst-init &
-    recompile &
+# config
+wall_path=~/.local/share/wall/main.png
+
+main()
+{
+    case "$1" in
+        -n) shift; no_pywal=true ;;
+        --) shift; break ;;
+         *) break ;;
+    esac
+
+    img="$1"
+
+    [ "$no_pywal" != true ] && pywal "$img" &
+
+    cp -f "$img" "$wall_path"
+    feh --no-fehbg --bg-fill "$wall_path"
+
     wait
 }
 
-set_wallpaper() {
-    dest=~/.local/share/wall/main.png
-    cp -f "$1" $dest
-    feh --no-fehbg --bg-fill $dest || return 1
-}
-
-generate() {
+pywal()
+{
     command -v wal >/dev/null || return 1
-    wal -c
-    wal -n -a $(cat ~/.config/wal/alpha) -i $dest
+
+    backend="$(ask_backend)" || exit 1
+    wal -i "$1" -n --backend "${backend:-wal}" -a "$(cat ~/.config/wal/alpha)"
+
+    recompile &
+    dunst-init &
+    pywalfox update &
+
+    wait
 }
 
-recompile() {
+ask_backend()
+{
+    printf '%s\n' wal colorthief haishoku colorz |
+        dmenu -p 'pywal backend:'
+}
+
+recompile()
+{
     cp ~/.cache/wal/zathura /tmp/wal-zathura
     sudo -A make -v >/dev/null 2>&1 || return 1
     usv down dwmbar
@@ -39,7 +58,8 @@ recompile() {
     usv up dwmbar
 }
 
-compile() {
+compile()
+{
     header=$(echo $1 | tr 'A-Z' 'a-z').h
     cp -f ~/.cache/wal/$header /tmp/wal-$header
     cd ~/Repositories/branched/$1 || return 1
