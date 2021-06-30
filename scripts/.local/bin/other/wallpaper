@@ -39,8 +39,9 @@ pywal()
 
 ask_backend()
 {
+    [ -t 2 ] && cmd='fzf --prompt' || cmd='dmenu -p'
     printf '%s\n' wal colorthief haishoku colorz |
-        dmenu -p 'pywal backend:'
+        $cmd 'pywal backend: '
 }
 
 recompile()
