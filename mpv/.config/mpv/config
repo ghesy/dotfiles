@@ -1,3 +1,5 @@
-sub-ass-force-style=FontName="Alegreya Sans"
+alang=jpn,eng,en,per,fa
+slang=eng,en,per,fa
+no-sub-visibility
 force-window=yes
 keep-open=yes
