@@ -1,3 +1,11 @@
+-- cut and save fragments of videos.
+-- source: https://github.com/snylonue/mpv_slicing_copy
+
+-- bindings
+SLICING_MARK = 'C'
+SLICING_MARK_CLEAR = 'c'
+SLICING_AUDIO = 'A'
+
 local msg = require "mp.msg"
 local utils = require "mp.utils"
 local options = require "mp.options"
@@ -162,6 +170,6 @@ elseif not file.is_dir then
     msg.warn(string.format("target_dir `%s` is a file", o.target_dir))
 end
 o.target_dir = mp.command_native({ "expand-path", o.target_dir })
-mp.add_key_binding("C", "slicing_mark", toggle_mark)
-mp.add_key_binding("A", "slicing_audio", toggle_audio)
-mp.add_key_binding("c", "clear_slicing_mark", clear_toggle_mark)
+mp.add_key_binding(SLICING_MARK, "slicing_mark", toggle_mark)
+mp.add_key_binding(SLICING_AUDIO, "slicing_audio", toggle_audio)
+mp.add_key_binding(SLICING_MARK_CLEAR, "clear_slicing_mark", clear_toggle_mark)
