@@ -10,7 +10,7 @@ main()
     case "$1" in
         h) help ;;
         w) wallpaper "$first" ;;
-        W) wallpaper -s "$first" ;;
+        W) wallpaper -n "$first" ;;
         g) args setsid -f gimp -- ;;
         p) args dprint ;;
         t) ask Trash &&
