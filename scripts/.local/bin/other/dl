@@ -1,5 +1,5 @@
 #!/bin/sh
-# download files in parralel using curl, cache them, then open them.
+# download files in parralel using aria2c or curl, cache them, then open them.
 # if you give the same url again, it will open it from cache.
 # if the url is censored, it will download it through tor using torsocks.
 
@@ -88,7 +88,7 @@ dlcmd()
             --async-dns=false --auto-file-renaming=false \
             -d "$(dirname "$file")" -o "$(basename "$file")" "$url" >/dev/null
     else
-        $tor curl --connect-timeout ${timeout:-4} --max-time 120 \
+        $tor curl --connect-timeout ${timeout:-4} --max-time 300 \
             --xattr -o "$file" "$url" >/dev/null
     fi
 }
