@@ -4,46 +4,99 @@
 # requires youtube-dl, mpv, and torsocks.
 
 # config
-blocked_regex='youtube.com/(watch|playlist)|youtu.be/'
-cookie=$XDG_DATA_HOME/ytdl/cookie
+blocked_urls_regex='youtube\.com/(watch|playlist)|youtu\.be/'
+default_format='best[height<=480]/bestvideo[height<=480]+bestaudio/best/bestvideo+bestaudio'
 home_country=ir
-ytdl=youtube-dl
-tor=
 
-main() {
-    [ -z "$*" ] && echo 'ytdl: no links given' && exit 1
-    vpn_off && link_blocked "$@" && tor=torsocks
+main()
+{
     case "$1" in
-        -s) shift; stream "$@" ;;
-        *) download "$@" ;;
+        -s) shift; fn=stream ;;
+        *) fn=dl
+        ;;
     esac
+    [ -z "$*" ] && die no links given
+    $fn "$@"
 }
 
-download() {
-    $tor $ytdl --cookies $cookie --force-ipv4 "$@"
+stream()
+{
+    tor="$(get_tor "$@")"
+    $tor mpv --ytdl-format="$default_format" -- "$@"
 }
 
-stream() {
-    notify-send ytdl 'loading video...'
-    $tor mpv -- "$@"
+stream_format()
+{
+    format="$(ask_format "$@")" || return 1
+    tor="$(get_tor "$@")"
+    $tor mpv ${format:+--ytdl-format="$format"} -- "$@"
 }
 
-vpn_off() {
-    [ "$(country)" = "$home_country" ] && return 0 || return 1
+dl()
+{
+    format="$(ask_format "$@")" || return 1
+    tor="$(get_tor "$@")"
+    $tor youtube-dl ${format:+-f "$format"} "$format" -- "$@"
 }
 
-link_blocked() {
-    printf %s "$@" | grep -qE "$blocked_regex" && return 0 || return 1
+ask_format()
+{
+    [ -t 2 ] && cmd='fzf --prompt' || cmd='dmenu -p'
+    while true; do
+        sel="$(print_typical_formats | $cmd 'quality: ')" || return 1
+        if [ "$sel" = other ]; then
+            sel="$(get_formats "$1" | $cmd 'quality: ')" || return 1
+            [ "$sel" = back ] && continue || break
+        else
+            break
+        fi
+    done
+    printf '%s\n' "$sel/$default_format" |
+        cut -f1
+}
+
+print_typical_formats()
+{
+    echo 'bestvideo+bestaudio/best'
+    echo 'bestvideo[height=720]+bestaudio'
+    echo 'best[height=720]'
+    echo 'bestvideo[height=480]+bestaudio'
+    echo 'best[height=480]'
+    echo 'bestvideo[height=360]+bestaudio'
+    echo 'best[height=360]'
+    echo 'bestaudio'
+    echo 'other'
+}
+
+get_formats()
+{
+    echo back
+    $tor youtube-dl -F "$1" 2>/dev/null |
+        grep -vE '^(\[|format)' |
+        sed 's/audio only\s\+tiny/audio-only audio/g' |
+        awk '{print $1"\t"$2"\t"$4}'
+}
+
+get_tor()
+{
+    vpn_off && link_blocked "$@" && echo torsocks
+}
+
+vpn_off()
+{
+    [ "$(country)" = "$home_country" ]
+}
+
+link_blocked()
+{
+    printf '%s\n' "$@" | grep -qE "$blocked_urls_regex"
+}
+
+die()
+{
+    printf '%s\n' "ytdl: $*" >&2
+    exit 1
 }
 
 main "$@"
 exit
-
-# # Get the video using youtube-dl and tor proxy, and pipe it to mpv.
-# stream_tor()
-# {
-#     notify-send mpv "$*"
-#     torsocks mpv -- "$@"
-#     # $torsocks "$ytdl" --cookies "$cookie" --force-ipv4 --verbose -o - "$@" |
-#     #     mpv -v --force-seekable=yes --keep-open=yes -
-# }
