@@ -3,9 +3,11 @@ localpaths="$(find "$HOME/.local/bin" -mindepth 1 -maxdepth 1 -printf ":%p")"
 export PATH="${PATH}${localpaths}"
 
 # xdg dirs
+export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
+export TMPDIR=/tmp
 
 # default programs
 export TERMINAL=kitty
@@ -18,9 +20,6 @@ export TERMFILE=lfrun
 export FILE=termopen
 export OPENER=opener
 export TERMCMD="$TERMINAL"
-
-# set terminal color mode to truecolor.
-export COLORTERM=truecolor
 
 # ~/ clean-up
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$XDG_CONFIG_HOME/java"
@@ -61,27 +60,22 @@ export GOPATH="$XDG_DATA_HOME/go"
 export GOBIN="$GOPATH/bin"
 export LESSHISTFILE="-"
 
+# pipx settings
+export PIPX_BIN_DIR=~/.local/bin/pipx
+mkdir -p "$PIPX_BIN_DIR"
+
+# have sudo ask for a password via dmenu
+export SUDO_ASKPASS="$HOME/.local/bin/dmenu/dmenu-askpass"
+
 # stuff used in my scripts
-export PSOCKS='127.0.0.1:9050' # tor's socks proxy
-export PHTTP='127.0.0.1:8123' # polipo's http(s) proxy
+export USVDIR="$HOME/.local/sv/run" # user services
+export PSOCKS='localhost:9050' # tor's socks proxy
 export IPLOOKUP_FILE="$XDG_CONFIG_HOME/iplookup/site"
 export IPLOOKUP="$(head -n1 "$IPLOOKUP_FILE")"
-export USVDIR="$HOME/.local/sv/run" # user services
-export AUDIO_GLYPH="$XDG_RUNTIME_DIR/dwmbar/audio_glyph"
 
 # aria2
 export ARIA2_CONF="$XDG_CONFIG_HOME/aria2/server.conf"
 export ARIA2_SECRET="$(grep ^rpc-secret "$ARIA2_CONF" | cut -d= -f2-)"
-
-# format of time and date (used by ls)
-export TIME_STYLE="+%F %T"
-
-# pipx Settings
-mkdir -p ~/.local/bin/pipx
-export PIPX_BIN_DIR=~/.local/bin/pipx
-
-# mpd settings
-export MPD_HOST=127.0.0.1
 
 # fzf settings
 export FZF_DEFAULT_OPTS="
@@ -97,11 +91,6 @@ export FZF_DEFAULT_OPTS="
 export TUIR_EDITOR="$EDITOR"
 export TUIR_BROWSER="$BROWSER"
 export TUIR_URLVIEWER="urlscan"
-
-# other stuff
-export SUDO_ASKPASS="$HOME/.local/bin/dmenu/dmenu-askpass"
-export DICS="/usr/share/stardict/dic/"
-export TMPDIR="/tmp"
 
 # bat theme
 export BAT_THEME='Nord'
@@ -119,32 +108,24 @@ export LESS_TERMCAP_se=$'\E[0m' # reset reverse video
 export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 export LESSOPEN='| bat -fppn -- %s 2>/dev/null' # colorize less using bat
 
-# LS_COLORS stuff
+# ls settings
 ls_colors="$XDG_CONFIG_HOME/lscolors/lscolors"
-lf_icons="$XDG_CONFIG_HOME/lf/lf-icons"
 test -r "$ls_colors" && source "$ls_colors"
-test -r "$lf_icons" && source "$lf_icons"
+export TIME_STYLE="+%F %T"
 
 # other stuff
+export MPD_HOST=localhost
+export MOZ_USE_XINPUT2="1" # Mozilla smooth scrolling/touchpads.
 export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
-export QT_QPA_PLATFORMTHEME="gtk2" # have qt use gtk2 theme.
-# export AWT_TOOLKIT="MToolkit wmname LG3D" # may have to install wmname
+export QT_QPA_PLATFORMTHEME=gtk2 # have qt use gtk2 theme.
 
-# run ssh-agent manager
+# run keychain (an ssh-agent manager)
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
 
-cleanup ()
-{(
-    for i in {1..100}; do
-        tput reset
-        sleep 0.01
-    done &
-    reset &
-)}
+# clear tty on exit
+trap reset EXIT
 
-trap cleanup EXIT
-
-# startx
+# start X
 [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] &&
     startx "$XINITRC" -- "$XSERVERRC" vt1 -keeptty >/dev/null 2>&1
