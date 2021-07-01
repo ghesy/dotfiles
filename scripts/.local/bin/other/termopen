@@ -1,6 +1,5 @@
 #!/bin/sh
-# open my filemanager in given path.
-set -- "${1:-PWD}"
-path="$(dirname "$1")"
-[ -d "$1" ] && path="$1"
+# open a terminal in the given path.
+set -- "${1:-$PWD}"
+[ -d "$1" ] && path="$1" || path="$(dirname "$1")"
 setsid -f $TERMINAL -e sh -c "cd \"$path\"; exec $SHELL" >/dev/null 2>&1
