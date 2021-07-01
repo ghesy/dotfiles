@@ -1,4 +1,5 @@
 #!/bin/sh
-! cat "$AUDIO_GLYPH" && sleep 2 && pacycle -g && sleep 2 && cat "$AUDIO_GLYPH"
+glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
+! cat "$glyph" && sleep 2 && pacycle -g && sleep 2 && cat "$glyph"
 pamixer --get-volume-human
 mpc | grep -qi '^\[playing' && echo 

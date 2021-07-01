@@ -27,10 +27,11 @@ get_next_sink () {
 
 set_glyph () {
     conf=~/.config/dwmbar/audio-glyphs
-    mkdir -p "$(dirname "$AUDIO_GLYPH")"
-    [ ! -r $conf ] && echo  > "$AUDIO_GLYPH" && exit
+    glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
+    mkdir -p "$(dirname "$glyph")"
+    [ ! -r $conf ] && echo  > "$glyph" && exit
     current_sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-    awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$AUDIO_GLYPH"
+    awk -F'->' -v c="$current_sink" 'match(c,$2){print$1}' $conf > "$glyph"
 }
 
 vars () {
