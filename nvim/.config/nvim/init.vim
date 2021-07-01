@@ -43,7 +43,7 @@ set softtabstop=4
 set shiftwidth=4
 set expandtab
 set smartindent
-set list lcs=tab:\\ "
+set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
