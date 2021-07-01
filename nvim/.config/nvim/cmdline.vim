@@ -89,10 +89,10 @@ function UpdateBuffers(...)
 endf
 
 " events that trigger a cmdline update
-autocmd CursorHold,CursorMoved,VimResized * call UpdateCmdLine()
+autocmd CursorMoved,VimResized * call UpdateCmdLine()
 autocmd BufWritePost * call UpdateBuffers(&updatetime)
-autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,InsertLeave,CursorHoldI *
-  \ call UpdateBuffers()
+autocmd BufWinEnter,WinEnter,BufDelete,BufWipeout,InsertLeave,
+   \CursorHold,CursorHoldI * call UpdateBuffers()
 
 " keypresses that trigger a cmdline update
 nn <silent>u u:call UpdateBuffers()<CR>
