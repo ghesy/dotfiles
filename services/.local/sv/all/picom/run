@@ -1,2 +1,2 @@
 #!/bin/sh
-exec picom
+exec picom --experimental-backends
