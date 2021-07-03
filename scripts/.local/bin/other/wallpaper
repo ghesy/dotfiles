@@ -1,24 +1,24 @@
 #!/bin/sh
 # set wallpaper.
-# option -s : only set the wallpaper, no pywal, no themeing.
+# option -n : only set the wallpaper, no pywal, no themeing.
 
 # config
-wall_path=~/.local/share/wall/main.png
+wall=~/.local/share/wall/main.png
+alpha="$(cat ~/.config/wal/alpha)"
 
 main()
 {
     case "$1" in
         -n) shift; no_pywal=true ;;
+        -a) shift; ask_backend=true ;;
         --) shift; break ;;
          *) break ;;
     esac
-
     img="$1"
 
-    [ "$no_pywal" != true ] && pywal "$img" &
-
-    cp -f "$img" "$wall_path"
-    feh --no-fehbg --bg-fill "$wall_path"
+    feh --no-fehbg --bg-fill "$img"
+    ln -sf "$(readlink -f "$img")" "$wall"
+    [ "$no_pywal" != true ] && pywal "$img"
 
     wait
 }
@@ -27,14 +27,65 @@ pywal()
 {
     command -v wal >/dev/null || return 1
 
-    backend="$(ask_backend)" || exit 1
-    wal -i "$1" -n --backend "${backend:-wal}" -a "$(cat ~/.config/wal/alpha)"
+    if [ "$ask_backend" = true ]; then
+        backend="$(ask_backend)" || return 1
+    fi
+
+    wal -i "$1" -n ${backend:+--backend "$backend"} -a "$alpha"
 
     recompile &
     dunst-init &
     pywalfox update &
+    fix_term_bg_colors &
+    other &
 
     wait
+}
+
+recompile()
+{
+    sudo -A make -v >/dev/null 2>&1
+    printf "compiling: "
+    for prog in dmenu slock; do
+        printf "$prog "
+        (compile $prog >/dev/null 2>&1 && echo compiled $prog.) &
+    done
+    echo
+    wait
+}
+
+compile()
+{
+    cd ~/Repositories/branched/$1 || return 1
+    cp -f ~/.cache/wal/$1.h pywal.h
+    make clean
+    make
+    sudo -A make install
+}
+
+fix_term_bg_colors()
+{
+    . ~/.cache/wal/colors.sh
+    fg="]10;${foreground}\\"
+    bg="]11;${background}\\"
+    cu="]12;${cursor}\\"
+    seq=""
+    for term in /dev/pts/*; do
+        echo "$term" | grep -qE '[0-9]' || continue
+        printf %s "$fg" "$bg" "$cu" > "$term"
+    done
+}
+
+other()
+{
+    # copy color files to where they belong
+    # so they can be included
+    cp ~/.cache/wal/zathura           ~/.config/zathura/pywal-colors
+    cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
+    # reload dwm colors from xresources by sending it the xrdb reload key
+    xdotool key super+F12
+    # have dwmbar reload it's colors from xresources by restarting it
+    usv restart dwmbar >/dev/null
 }
 
 ask_backend()
@@ -42,33 +93,6 @@ ask_backend()
     [ -t 2 ] && cmd='fzf --prompt' || cmd='dmenu -p'
     printf '%s\n' wal colorthief haishoku colorz |
         $cmd 'pywal backend: '
-}
-
-recompile()
-{
-    cp ~/.cache/wal/zathura /tmp/wal-zathura
-    sudo -A make -v >/dev/null 2>&1 || return 1
-    usv down dwmbar
-    printf "compiling: "
-    for prog in dwm dmenu slock dwmBar; do
-        printf "$prog "
-        (compile $prog) &
-    done
-    echo
-    wait
-    usv up dwmbar
-}
-
-compile()
-{
-    header=$(echo $1 | tr 'A-Z' 'a-z').h
-    cp -f ~/.cache/wal/$header /tmp/wal-$header
-    cd ~/Repositories/branched/$1 || return 1
-    make clean >/dev/null 2>&1
-    make >/dev/null 2>&1
-    sudo make install >/dev/null 2>&1
-    echo compiled $prog.
-    pkill -ix $1
 }
 
 main "$@"
