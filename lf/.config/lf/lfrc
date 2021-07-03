@@ -53,11 +53,13 @@ cmd paste ${{
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
     clear -x
+    tput civis
     case $mode in
         copy) cpg -ag --backup=numbered $srcs . ;;
         move) mvg  -g --backup=numbered $srcs . 2>/dev/null ;;
     esac
     e=$?
+    tput cnorm
     [ $e -eq 0 ] || exit
     rm $list
     lf -remote "send $id load"
