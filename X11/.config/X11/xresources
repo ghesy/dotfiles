@@ -1,16 +1,24 @@
 ! vim:ft=xdefaults
 
-Xft.dpi: 102
 *.foreground: #aaaaaa
 *.background: #202020
 
 #define font1 Fira Mono
-#define font2 Hack Nerd Font Mono
+#define font2 Symbols Nerd Font
 #define font3 JoyPixels
-#define font4 Noto Color Emoji
 
 *letterSpace: 0
-*font: xft:font1:pixelsize=16, xft:font2:pixelsize=20:minspace=false, xft:font3:pixelsize=14,xft:font4:pixelsize=14
-*boldFont: xft:font1:bold:pixelsize=16, xft:font2:pixelsize=20:minspace=False,xft:font3:pixelsize=14,xft:font4:pixelsize=14
-*italicFont: xft:font1:italic:pixelsize=16, xft:font2:pixelsize=20:minspace=False,xft:font3:pixelsize=14,xft:font4:pixelsize=14
-*boldItalicFont: xft:font1:bold:italic:pixelsize=16, xft:font2:pixelsize=20:minspace=False, xft:font3:pixelsize=14, xft:font4:pixelsize=14
+*font: xft:font1:pixelsize=16, xft:font2:pixelsize=20:minspace=false, xft:font3:pixelsize=14
+*boldFont: xft:font1:bold:pixelsize=16, xft:font2:pixelsize=20:minspace=False,xft:font3:pixelsize=14
+*italicFont: xft:font1:italic:pixelsize=16, xft:font2:pixelsize=20:minspace=False,xft:font3:pixelsize=14
+*boldItalicFont: xft:font1:bold:italic:pixelsize=16, xft:font2:pixelsize=20:minspace=False, xft:font3:pixelsize=14
+
+! include dpi settings file if it exists
+#if defined __has_include && __has_include ("dpi")
+#include "dpi"
+#endif
+
+! include pywal colors file if it exists
+#if defined __has_include && __has_include ("pywal-colors")
+#include "pywal-colors"
+#endif
