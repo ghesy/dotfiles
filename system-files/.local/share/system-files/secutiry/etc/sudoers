@@ -1,5 +1,3 @@
-# put these lines in sudoers:
-
 Defaults insults
 Defaults env_keep += "LANG LANGUAGE LINGUAS LC_* _XKB_CHARSET"
 Defaults timestamp_timeout=60, passwd_timeout=0
