@@ -1,0 +1,39 @@
+#!/bin/sh
+# dim the backlight, then restore
+# the brightness upon getting killed.
+# meant to be used as X's screensaver:
+# $ xss-lock -n dim slock
+# requires light(1).
+
+# how long to wait after dimming and before
+# turning off the backlight (setting brightness to zero)
+off_time=30 # in seconds
+
+# what percentage to drop brightness to
+dim_percentage=10
+
+# sleep forever
+pause() { sleep 1000000000 ;}
+
+# check wether changing the backlight is supported
+command -v light >/dev/null || pause
+light 2>&1 | grep -q found && pause
+
+# save current brightness
+b=$(light)
+b=${b%.*}
+
+# restore brightness upon exit
+trap exit HUP
+trap "light -S $b" EXIT
+
+# dim the backlight
+[ $b -le 20 ] && b=$((b/3)) || b=$dim_percentage
+light -S $b
+
+# turn off the backlight after some time
+sleep ${1:-$off_time}
+light -S 0
+
+# sleep forever
+pause

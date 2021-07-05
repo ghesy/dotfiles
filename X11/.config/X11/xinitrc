@@ -10,10 +10,10 @@ xrdb -merge ~/.config/X11/xresources
 # disable bell
 xset -b
 
-# lock after 600 seconds of inactivity
-xset s 600
+# set inactivity screensaver and lock times
+xset s ${X_DIM_TIME:-300} ${X_LOCK_TIME:-600}
 
-# disable screen blanking
+# disable the default screen blanking
 xset dpms 0 0 0
 
 # set keyboard/mouse remaps configurations
@@ -27,9 +27,7 @@ dunst-init &
 runsvdir -P "$USVDIR" &
 
 # set wallpaper
-wall () {
-    feh --no-fehbg --bg-fill ~/.local/share/wall/$1
-}
+wall() { feh --no-fehbg --bg-fill ~/.local/share/wall/$1 ;}
 wall main.png || wall artix.png
 
 # lock the screen
