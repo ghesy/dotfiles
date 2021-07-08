@@ -1,5 +1,9 @@
 auto-reload yes
 
+use-proxy yes
+proxy-type socks5
+proxy localhost:9050
+
 external-url-viewer "urlscan -dc -r 'linkhandler {}'"
 
 bind-key j down
