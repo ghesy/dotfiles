@@ -110,9 +110,10 @@ nmap <Leader>gp :diffput<CR>
 
 " fuzzy searching
 nnoremap <Leader>ff :Files<CR>
-nnoremap <Leader>rb :BLines<CR>
+nnoremap <Leader>FL :BLines<CR>
+nnoremap <leader>fl :Lines<CR>
 nnoremap <leader>rg :Rg<CR>
-nnoremap <leader>fb :Buffers<CR>
+nnoremap <C-f> :Buffers<CR>
 
 " splits and windows
 nnoremap <silent><Leader>vs :vs<CR>
