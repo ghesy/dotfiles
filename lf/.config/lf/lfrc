@@ -178,6 +178,12 @@ cmd drag &dragon-drag-and-drop -a -x $fx
 cmd drag-separate &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect $id
 
+cmd wallpaper ${{
+    printf '\e[?1049h'
+    wallpaper -- "$f"
+    printf '\e[?1049l'
+}}
+
 # ==============
 # = Bindings
 # ==============
@@ -208,6 +214,7 @@ map mi mediainfo
 map mI mediainfo-all
 map si set reverse!
 map sr set reverse!
+map wa wallpaper
 
 map vi  editor
 map E   edit
