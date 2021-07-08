@@ -49,10 +49,10 @@ cmd openfork &{{
 }}
 
 cmd paste ${{
+    printf '\e[?1049h'
     list=~/.local/share/lf/files
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
-    clear -x
     tput civis
     case $mode in
         copy) cpg -ag --backup=numbered $srcs . ;;
@@ -64,7 +64,7 @@ cmd paste ${{
     rm $list
     lf -remote "send $id load"
     lf -remote "send clear"
-    clear -x
+    printf '\e[?1049l'
 }}
 
 cmd mkexec &{{
