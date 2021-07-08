@@ -190,6 +190,7 @@ cmd wallpaper ${{
 
 map ~  cd ~
 map .  set hidden!
+map *  push :glob-select<space>
 map K  parent-up
 map J  parent-down
 map H  jumpback
