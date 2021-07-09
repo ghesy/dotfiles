@@ -1,21 +1,28 @@
 # the zoomer shell's config.
 
+# history settings
 HISTSIZE=10000000
 SAVEHIST=10000000
 HISTFILE=~/.cache/zsh/history
 mkdir -p $(dirname $HISTFILE)
-setopt HIST_IGNORE_SPACE # don't put commands starting with space into history
-setopt HIST_IGNORE_DUPS # don't put duplicate commands into history
+setopt sharehistory # share history between all sessions
+setopt histreduceblanks # remove superfluous blanks from history
+setopt histignorespace # don't put commands starting with space into history
+setopt histignoredups # don't put duplicate commands into history
+
+# other settings
 setopt ignoreeof # don't exit by ctrl-d
 setopt autocd # cd to paths typed in the shell, without the cd command
 setopt globdots # glob dotfiles as well
 setopt nullglob # make globs expand to nothing if they match nothing
+setopt interactivecomments # allow comments in interactive shell
 
 # tab complete options
 autoload -U compinit
 zstyle ':completion:*' completer _complete _ignored _correct _approximate
 zstyle ':completion:*' max-errors 2
 zstyle ':completion:*' menu select
+zstyle ':completion:*' hosts ''
 zstyle ':completion:*' matcher-list '' \
 'm:{[:lower:]}={[:upper:]}' \
 'm:{[:lower:][:upper:]}={[:upper:][:lower:]} r:|[._-]=** r:|=**' \
@@ -63,8 +70,8 @@ autoload edit-command-line; zle -N edit-command-line
 bindkey '^e' edit-command-line
 
 # load aliases
-aliasesfile="$XDG_CONFIG_HOME/zsh/aliases.zsh"
-test -r "$aliasesfile" && source "$aliasesfile"
+aliasesfile=~/.config/zsh/aliases.zsh
+[ -r "$aliasesfile" ] && source "$aliasesfile"
 
 # shell prompt
 autoload -U colors && colors
@@ -84,9 +91,7 @@ source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
 # unbold the red color in syntax highlighting
 FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
 
-# set pywal colors
+# fetch pywal colors
 source ~/.cache/wal/fzf 2>/dev/null
 
 # clear terminal on graphical terminal initialization
-[ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
-export TERMINIT=true;
