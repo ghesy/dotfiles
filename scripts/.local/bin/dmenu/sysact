@@ -6,18 +6,18 @@
 prompt="System action:"
 reboot_prompt="Reboot to:"
 
-reboot_items="
- Artix   : dmenu-prompt 'Reboot?' 'sudo -A reboot',
- Windows : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Windows; sudo -A reboot',
- Devuan  : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Devuan; sudo -A reboo',
-"
-
 items="
  Lock      : lock,
-鈴 Sleep    : lock; usv down safeeyes pipewire; sudo -A zzz; usv up safeeyes pipewire,
-⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A poweroff',
+鈴 Sleep    : nap,
+⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A shutdown -h now',
  Reboot    : reboot_choices,
  Logout    : dmenu-prompt 'Logout?' 'pkill -x xinit',
+"
+
+reboot_items="
+ Artix   : dmenu-prompt 'Reboot?' 'sudo -A shutdown -r now',
+ Windows : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Windows; sudo -A shutdown -r now',
+ Devuan  : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Devuan; sudo -A shutdown -r now',
 "
 
 reboot_choices () {
