@@ -1,7 +1,7 @@
 Defaults insults
-Defaults env_keep += "LANG LANGUAGE LINGUAS LC_* _XKB_CHARSET"
+Defaults env_keep += "EDITOR VISUAL PAGER LANG LANGUAGE LINGUAS LC_* _XKB_CHARSET"
 Defaults timestamp_timeout=60, passwd_timeout=0
 
 root ALL=(ALL) ALL
 %wheel ALL=(ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/protonvpn,/usr/bin/poweroff,/usr/bin/reboot,/usr/bin/grub-reboot,/usr/bin/zzz,/usr/bin/nethogs,/usr/bin/resolvconf,/usr/bin/make,/usr/bin/sv,/usr/bin/rsm
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/protonvpn,/usr/bin/shutdown,/usr/bin/poweroff,/usr/bin/reboot,/usr/bin/grub-reboot,/usr/bin/zzz,/usr/bin/nethogs,/usr/bin/resolvconf,/usr/bin/make,/usr/bin/sv,/usr/bin/rsm
