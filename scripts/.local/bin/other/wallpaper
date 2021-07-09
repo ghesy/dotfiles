@@ -15,6 +15,7 @@ main()
          *) break ;;
     esac
     img="$1"
+    [ ! -e "$img" ] && echo wallpaper: no image given >&2 && return 1
 
     feh --no-fehbg --bg-fill "$img"
     ln -sf "$(readlink -f "$img")" "$wall"
@@ -69,7 +70,6 @@ fix_term_bg_colors()
     fg="]10;${foreground}\\"
     bg="]11;${background}\\"
     cu="]12;${cursor}\\"
-    seq=""
     for term in /dev/pts/*; do
         echo "$term" | grep -qE '[0-9]' || continue
         printf %s "$fg" "$bg" "$cu" > "$term"
