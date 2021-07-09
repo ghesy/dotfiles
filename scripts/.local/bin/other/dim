@@ -13,7 +13,7 @@ off_time=30 # in seconds
 dim_percentage=10
 
 # sleep forever
-pause() { sleep 1000000000 ;}
+pause() { while true; do sleep 1000000000; done }
 
 # check wether changing the backlight is supported
 command -v light >/dev/null || pause
