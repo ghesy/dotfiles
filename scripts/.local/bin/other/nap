@@ -1,0 +1,66 @@
+#!/bin/sh
+# hibernate using susbernate if hibernating is supported,
+# suspend to memory otherwise.
+
+# config
+locker=slock
+
+main()
+{
+    disable_safeeyes
+
+    if can_hibernate; then
+        suspend_then_hibernate
+    else
+        sus
+    fi
+
+    enable_safeeyes
+}
+
+suspend_then_hibernate()
+{
+    setsid -f $locker
+    if installed susbernate; then
+        susbernate
+    elif installed loginctl; then
+        loginctl suspend-then-hibernate
+    elif installed systemctl; then
+        systemctl suspend-then-hibernate
+    fi
+}
+
+sus()
+{
+    if installed zzz; then
+        sudo -A zzz
+    elif installed loginctl; then
+        loginctl suspend
+    elif installed systemctl; then
+        systemctl suspend
+    fi
+}
+
+can_hibernate()
+{
+    grep 'resume=' /proc/cmdline
+}
+
+disable_safeeyes()
+{
+    installed usv && usv check safeeyes &&
+        safeeyes_running=true && usv down safeeyes
+}
+
+enable_safeeyes()
+{
+    [ "$safeeyes_running" = true ] && usv up safeeyes
+}
+
+installed()
+{
+    command -v "$1" >/dev/null
+}
+
+main "$@"
+exit
