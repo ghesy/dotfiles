@@ -40,9 +40,8 @@ alias mk='mkdir -pv'
 alias cp='cp -iv'
 alias mv='mv -iv'
 
-# run startx and shut it the fuck up
-alias startx='/usr/bin/startx "${XDG_CONFIG_HOME}/X11/xinitrc"'
-alias startxq='startx >/dev/null 2>&1'
+# start graphical env
+alias startx='command startx "$XINITRC" -- "$XSERVERRC" vt1 -keeptty'
 
 # display cheatsheets and bropages for commands from cheat.sh
 cheat() { curl -Ss cheat.sh/"$@" | $PAGER }
