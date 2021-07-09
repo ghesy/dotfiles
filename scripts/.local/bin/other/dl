@@ -1,6 +1,6 @@
 #!/bin/sh
-# download files in parralel using aria2c or curl, cache them, then open them.
-# if you give the same url again, it will open it from cache.
+# download files from given URLs in parallel using aria2c or curl, then open them.
+# if you give the same URL again, it will open the already downloaded file.
 # if the url is censored, it will download it through tor using torsocks.
 
 # config
@@ -19,8 +19,8 @@ main()
         print_summary
 
         [ $(donejobs) -eq $totaljobs ] && break
-        [ $# -le 0 ] && sleep 0.1 && continue
-        [ $(njobs) -ge $parallel ] && sleep 0.1 && continue
+        [ $# -le 0 ] && sleep 0.2 && continue
+        [ $(njobs) -ge $parallel ] && sleep 0.2 && continue
 
         download_and_open "$1" &
         shift
@@ -70,7 +70,7 @@ download()
 
 dlcmd()
 {
-    unset tor timeout
+ url   unset tor time ctime
     if [ "$1" = --tor ]; then
         shift
         tor="$torcmd"
@@ -85,10 +85,10 @@ dlcmd()
     if command -v aria2c >/dev/null; then
         $tor aria2c --no-conf -x8 -k1M -s16 -m1 --disable-ipv6=true \
             --connect-timeout=${ctime:-4} --timeout=${time:-6} \
-            --async-dns=false --auto-file-renaming=false \
+            ${tor:+--async-dns=false} --auto-file-renaming=false \
             -d "$(dirname "$file")" -o "$(basename "$file")" "$url" >/dev/null
     else
-        $tor curl --connect-timeout ${timeout:-4} --max-time 300 \
+        $tor curl --connect-timeout ${ctime:-4} --max-time 300 \
             --xattr -o "$file" "$url" >/dev/null
     fi
 }
