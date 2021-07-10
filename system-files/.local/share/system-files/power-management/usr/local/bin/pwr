@@ -1,153 +1,52 @@
 #!/bin/sh
 # this script runs on laptop charger connect/disconnect (udev rule).
 # it controls power-related settings and programs;
-# like cpu frequency, screen brightness, autosuspend, etc.
-
-# setvices that will get disabled/enabled upon entering/exiting
-# the verylow power mode
-verylow_sv='tor' # system services
-verylow_usv='picom syncthing transmission' # user services
-verylow_enabled=/var/run/pwr-verylow-enabled # status file
+# like cpu frequency, screen brightness, etc.
+# requires light(1) for changing backlight brightness.
 
 # sysfs files for controlling cpu parameters
-cpu=/sys/devices/system/cpu
-pstate=$cpu/intel_pstate
-cpufreq=$cpu/cpufreq
-pref=energy_performance_preference
-min=$pstate/min_perf_pct
-max=$pstate/max_perf_pct
-no_turbo=$pstate/no_turbo
+cpufreq=/sys/devices/system/cpu/cpufreq
+no_turbo=/sys/devices/system/cpu/intel_pstate/no_turbo
+
+# path to this script
+bin="$0"
 
 main()
 {
-    while true; do
-        case $1 in
-            wait) wait=true; shift ;;
-            high) cmd=high; break ;;
-            low) cmd=low; break ;;
-            verylow) cmd=verylow; break ;;
-            *) exit 1 ;;
-        esac
-    done
-    importenv $cmd USER PATH DISPLAY XAUTHORITY USVDIR || exit 1
-    dwmbarref battery
-    $cmd
-    if [ "$wait" = true ]; then
-        echo auto | tee \
-            /sys/class/ata_port/ata*/power/control \
-            /sys/block/sd*/device/power/control
-    fi
-}
-
-# set settings to high performance
-high()
-{
-    cpupwr high
-    bright
-    xset s 600 300
-    verylow no
-}
-
-# set settings to low power
-low()
-{
-    dim
-    xset s 120 300
-    rfkill block bluetooth
-    verylow no
-    cpupwr low
-}
-
-# do some more stuff to decrease power usage even more
-verylow()
-{
+    refresh_battery_module
     case $1 in
-    no)
-        [ ! -e "$verylow_enabled" ] && return
-        wall main.png || wall artix.png
-        rm -f "$verylow_enabled"
-        usv up $verylow_usv
-        sv up $verylow_sv
-        ;;
-    *)
-        low
-        wall blank.png
-        touch "$verylow_enabled"
-        action=down
-        usv down $verylow_usv
-        sv down $verylow_sv
-        xsetroot -name ' '
-        ;;
+        high) cpupwr high ;;
+        low) cpupwr low; sata_pwrsave ;;
     esac
 }
 
-# decrease display backlight
-dim()
+refresh_battery_module()
 {
-    b=$(light)
-    b=${b%.*}
-    [ $b -ge 20 ] && light -S 20
-}
-
-# increase display backlight
-bright()
-{
-    b=$(light)
-    b=${b%.*}
-    [ $b -ge 15 ] && [ $b -le 35 ] && light -S 50
+    /home/koonix/.local/bin/dwmbar/dwmbarref battery
 }
 
 # change cpu's frequency and turbo settings
 cpupwr()
 {
     case $1 in
-        low)  no_turbo_val=1; perf_val=balance_power ;;
-        high) no_turbo_val=0; perf_val=performance ;;
+        low)  no_turbo_val=1; energy_val=balance_power ;;
+        high) no_turbo_val=0; energy_val=performance ;;
     esac
+
     echo $no_turbo_val > $no_turbo
+
     for policy in $cpufreq/policy*; do
-        echo $perf_val > $policy/$pref
+        echo $energy_val > $policy/energy_performance_preference
     done
 }
 
-# change wallpaper
-wall()
+# apply sata powersaving settings
+sata_pwrsave()
 {
-    feh --no-fehbg --bg-fill /home/$USER/.local/share/wall/$1
-}
-
-# this function waits a little while until a graphical environment is started
-wait_till_x_starts()
-{
-    for i in {1..30}; do
-        pid=$(pgrep -xt $tty xinit) && sleep 3 && break
-        sleep 1
-    done
-}
-
-# import environment variables from the environment of
-# the X session that is started in the current TTY.
-importenv()
-{
-    cmd=$1
-    shift
-    tty=tty$(fgconsole) || exit 1
-
-    [ "$wait" != true ] && if ! pid=$(pgrep -xt $tty xinit); then
-        setsid -f /usr/local/bin/pwr wait $cmd >/dev/null 2>&1
-        exit
-    fi
-
-    [ "$wait" = true ] && wait_till_x_starts
-
-    pid=$(pgrep -nP $pid)
-    [ -z $pid ] && exit 1
-
-    for var; do
-        IFS='=' read key val < <(grep -zw ^"$var" /proc/$pid/environ | tr -d '\000')
-        printf -v "$key" %s "$val"
-        export "$key"
-    done
+    echo auto | tee \
+        /sys/class/ata_port/ata*/power/control \
+        /sys/block/sd*/device/power/control \
+        >/dev/null
 }
 
 main "$@"
