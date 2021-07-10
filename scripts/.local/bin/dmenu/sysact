@@ -10,18 +10,27 @@ items="
  Lock      : lock,
 鈴 Sleep    : nap,
 ⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A shutdown -h now',
- Reboot    : reboot_choices,
- Logout    : dmenu-prompt 'Logout?' 'pkill -x xinit',
+ Reboot    : reboot_fn,
+ Logout    : dmenu-prompt 'Logout?' 'command kill xinit',
 "
 
-reboot_items="
- Artix   : dmenu-prompt 'Reboot?' 'sudo -A shutdown -r now',
- Windows : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Windows; sudo -A shutdown -r now',
- Devuan  : dmenu-prompt 'Reboot?' 'sudo -A grub-reboot Devuan; sudo -A shutdown -r now',
-"
+reboot_fn() {
+    cmd=true
+    os="$(ask_reboot_os)"
+    case $? in
+        4) ;;
+        0) cmd="sudo -A grub-reboot" ;;
+        *) return 1 ;;
+    esac
+    dmenu-prompt 'Reboot?' || return 1
+    $cmd "$os" && sudo -A shutdown -r now
+}
 
-reboot_choices () {
-    eval "$(choices "$reboot_prompt" "$reboot_items")"
+ask_reboot_os () {
+    entries="$(sudo -A grub-entries -i)"
+    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 4
+    sel="$(echo "$entries" | dmenu -p "$reboot_prompt")" || return 1
+    echo "$sel" | cut -d' ' -f2-
 }
 
 eval "$(choices "$prompt" "$items" "$1")"
