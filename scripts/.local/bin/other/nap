@@ -20,8 +20,8 @@ main()
 
 suspend_then_hibernate()
 {
-    setsid -f $locker
     if installed susbernate; then
+        setsid -f $locker
         susbernate
     elif installed loginctl; then
         loginctl suspend-then-hibernate
