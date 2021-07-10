@@ -1,8 +1,7 @@
 #!/bin/sh
-# this script runs on laptop charger connect/disconnect (udev rule).
-# it controls power-related settings and programs;
-# like cpu frequency, screen brightness, etc.
-# requires light(1) for changing backlight brightness.
+# this script controls cpu's power and performance settings.
+# run this script when laptop charger
+# connects / disconnects via the provided udev rule.
 
 # sysfs files for controlling cpu parameters
 cpufreq=/sys/devices/system/cpu/cpufreq
@@ -22,15 +21,15 @@ main()
 
 refresh_battery_module()
 {
-    /home/koonix/.local/bin/dwmbar/dwmbarref battery
+    /home/*/.local/bin/dwmbar/dwmbarref battery
 }
 
 # change cpu's frequency and turbo settings
 cpupwr()
 {
     case $1 in
-        low)  no_turbo_val=1; energy_val=balance_power ;;
         high) no_turbo_val=0; energy_val=performance ;;
+        low)  no_turbo_val=1; energy_val=balance_power ;;
     esac
 
     echo $no_turbo_val > $no_turbo
