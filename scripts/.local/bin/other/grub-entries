@@ -8,8 +8,12 @@ grub_cfg=/boot/grub/grub.cfg
 
 main()
 {
+    action=cat
+    case "$1" in
+        -i) action=add_icon ;;
+    esac
     check_grub_cfg
-    print_important_entries
+    print_important_entries | $action
 }
 
 print_important_entries()
@@ -49,6 +53,28 @@ die()
 {
     printf '%s\n' "$@" >&2
     exit 1
+}
+
+add_icon()
+{
+    while IFS= read -r os; do
+        case "$(echo "$os" | tr A-Z a-z)" in
+            *artix*|*arch*|*void*) printf '' ;;
+            *gentoo*) printf '' ;;
+            *manjaro*) printf '' ;;
+            *debian*|*devuan*) printf '' ;;
+            *kali*) printf '' ;;
+            *buntu*) printf '' ;;
+            *mint*) printf '' ;;
+            *element*) printf '' ;;
+            *fedora*) printf '' ;;
+            *mac*) printf '' ;;
+            *windows*) printf '' ;;
+            *suse*) printf '' ;;
+            *bsd*) printf '' ;;
+        esac
+        printf ' %s\n' "$os"
+    done
 }
 
 main "$@"
