@@ -6,7 +6,7 @@ Defaults timestamp_timeout=60, passwd_timeout=0
 # command aliases
 Cmnd_Alias SV = /usr/bin/sv, /usr/bin/rsm
 Cmnd_Alias PROG = /usr/bin/protonvpn, /usr/bin/resolvconf, /usr/bin/nethogs, \
-                  /usr/bin/iotop
+                  /usr/bin/iotop, /usr/bin/rtcwake
 Cmnd_Alias REBOOT = /sbin/halt, /sbin/reboot, /sbin/poweroff, /sbin/shutdown, \
                     /usr/bin/grub-reboot, /usr/bin/zzz, \
                     /home/koonix/.local/bin/other/grub-entries
