@@ -1,0 +1,55 @@
+#!/bin/sh
+# list OSes available in grub's menu.
+# you can use these names to ask for
+# an OS to reboot to via grub-reboot.
+
+# config
+grub_cfg=/boot/grub/grub.cfg
+
+main()
+{
+    check_grub_cfg
+    print_important_entries
+}
+
+print_important_entries()
+{
+    all="$(get_menu_entries "$grub_cfg")"
+    unneeded="$(get_unneeded_entries "$grub_cfg")"
+    printf '%s\n%s\n' "$all" "$unneeded" | sort | uniq -u | grep -v '^$'
+}
+
+get_menu_entries()
+{
+    grep -a '^menuentry ' "$@" |
+        grep -E 'class +os' |
+        grep -Ev 'fallback|recovery|advanced' |
+        grep -Eo '".+"' |
+        tr -d "\"'"
+}
+
+get_unneeded_entries()
+{
+    get_submenus "$@" | get_menu_entries
+}
+
+get_submenus()
+{
+    sed 's/\${/VAR_BEGIN/g' "$@" |
+        grep -Ezo 'submenu[^{]+\{([^{]+\{[^{}]+\}\s+)+'
+}
+
+check_grub_cfg()
+{
+    [ -e "$grub_cfg" ] || die "file $grub_cfg doesn't exist."
+    [ -r "$grub_cfg" ] || die "not enough priviliges to read $grub_cfg."
+}
+
+die()
+{
+    printf '%s\n' "$@" >&2
+    exit 1
+}
+
+main "$@"
+exit
