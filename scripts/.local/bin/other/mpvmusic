@@ -1,9 +1,15 @@
-#!/bin/sh
-clear -x; tput civis # hide cursor
+#!/bin/bash
+# play music in terminal using mpv.
+
+# go to the alternative terminal buffer and hide the cursor
+revert() { printf '\033[?25h'; printf '\033[?1049l'; printf '\033[;r' ;}
+printf '\033[?25l'; printf '\033[?1049h'
+trap exit INT TERM HUP
+trap revert EXIT
+
 mpv \
     --audio-display=no --term-osd-bar --force-window=no \
     --keep-open=yes --display-tags-clr --term-title='mpv' \
     --msg-level=cplayer=error,ffmpeg=fatal,ffmpeg/demuxer=error \
     --term-status-msg='File: ${filename}\n\nTitle:  ${metadata/by-key/title}\nArtist: ${metadata/by-key/artist}\nAlbum:  ${metadata/by-key/album}\n\n${!playlist-count==1:Playing ${playlist-pos-1}/${playlist-count}\n}${?pause==yes:(Paused) }${time-pos} / ${duration}' \
     --term-osd-bar-chars='[-> ]' "$@"
-tput cnorm # cursor back to normal
