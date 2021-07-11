@@ -36,7 +36,7 @@ dl()
 {
     format="$(ask_format "$@")" || return 1
     tor="$(get_tor "$@")"
-    $tor youtube-dl ${format:+-f "$format"} "$format" -- "$@"
+    $tor youtube-dl ${format:+-f "$format"} -- "$@"
 }
 
 ask_format()
