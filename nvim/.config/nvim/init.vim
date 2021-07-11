@@ -190,8 +190,16 @@ let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
 let g:gruvbox_material_disable_italic_comment = 0
 colorscheme off
-set statusline=─
-set fillchars=stl:━,stlnc:─
+
+" set a constant horizontal line between splits
+let g:HorizLine1='─'
+let g:HorizLine2=''
+function FillStatus()
+    return repeat(g:HorizLine1, winwidth('%'))
+endf
+set statusline=%{FillStatus()}
+exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
+
 function FixColors()
     hi StatusLine guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
     hi StatusLineNC guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
