@@ -144,8 +144,7 @@ vno/remap <silent> // :<C-U>
   \ gVzv:call setreg('"', old_reg, old_regtype)<CR>
 
 " perform replace on visually-selected text
-vnoremap <C-r> "hy:%s/<C-r><C-r>=substitute(
-  \ escape(@h, '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR>
+vnoremap <C-r> "hy:%s/<C-r><C-r>=escape(@h, '/\.*$^~[')<CR>
   \//gc<left><left><left>
 
 " recognise double-slash cpp-style comments in json files
