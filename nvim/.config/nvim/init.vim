@@ -189,7 +189,7 @@ autocmd FocusGained,CursorHold,CursorHoldI *
 let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
 let g:gruvbox_material_disable_italic_comment = 0
-colorscheme off
+colorscheme gruvbox-material
 
 " set a constant horizontal line between splits
 let g:HorizLine1='─'
