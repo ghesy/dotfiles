@@ -24,6 +24,7 @@ Plug 'bling/vim-bufferline'
 Plug 'pbrisbin/vim-colors-off'
 Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
+Plug 'chriskempson/base16-vim'
 Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
