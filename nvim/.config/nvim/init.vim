@@ -181,10 +181,6 @@ function FixBufferNavigationMaps()
     endif
 endf
 
-" reload file if changed
-autocmd FocusGained,CursorHold,CursorHoldI *
-  \ if !bufexists("[Command Line]") | silent checktime | endif
-
 " colors and appearance
 let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
