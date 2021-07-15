@@ -11,7 +11,7 @@ items="
 鈴 Sleep    : nap,
 ⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A shutdown -h now',
  Reboot    : reboot_fn,
- Logout    : dmenu-prompt 'Logout?' 'command kill xinit',
+ Logout    : dmenu-prompt 'Logout?' 'command kill $(pidof xinit)',
 "
 
 reboot_fn() {
