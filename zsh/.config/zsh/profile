@@ -119,6 +119,10 @@ export MOZ_USE_XINPUT2="1" # Mozilla smooth scrolling/touchpads.
 export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 export QT_QPA_PLATFORMTHEME=gtk2 # have qt use gtk2 theme.
 
+# load a file containing machine-specific settings
+extra="$XDG_CONFIG_HOME/zsh/"
+test -r "$extra" && source "$extra"
+
 # run keychain (an ssh-agent manager)
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
