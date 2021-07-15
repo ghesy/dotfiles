@@ -35,8 +35,8 @@ pywal()
     wal -i "$1" -n ${backend:+--backend "$backend"} -a "$alpha"
 
     dunst-init &
-    pywalfox update &
     fix_term_bg_colors &
+    pywalfox update 2>/dev/null &
     other &
 
     wait
