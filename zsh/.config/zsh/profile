@@ -120,7 +120,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 export QT_QPA_PLATFORMTHEME=gtk2 # have qt use gtk2 theme.
 
 # load a file containing machine-specific settings
-extra="$XDG_CONFIG_HOME/zsh/"
+extra="$XDG_CONFIG_HOME/zsh/profile-extra"
 test -r "$extra" && source "$extra"
 
 # run keychain (an ssh-agent manager)

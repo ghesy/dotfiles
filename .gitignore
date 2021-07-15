@@ -3,3 +3,4 @@ pywal-colors
 services/**/supervise
 **/error.log
 zsh/**/*compdump
+zsh/**/profile-extra
