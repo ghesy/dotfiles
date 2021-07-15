@@ -32,7 +32,7 @@ pywal()
         backend="$(ask_backend)" || return 1
     fi
 
-    wal -i "$1" -n ${backend:+--backend "$backend"} -a "$alpha"
+    wal -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"}
 
     dunst-init &
     fix_term_bg_colors &
@@ -56,9 +56,8 @@ fix_term_bg_colors()
 
 other()
 {
-    # copy color files to where they belong
-    # so they can be included
-    cp ~/.cache/wal/zathura           ~/.config/zathura/pywal-colors
+    # copy color files to where they belong so they can be included
+    cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors
     cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
     # reload dwm colors from xresources by sending it the xrdb reload key
     xdotool key super+F12
