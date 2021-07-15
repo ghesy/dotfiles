@@ -133,3 +133,5 @@ trap reset EXIT
 # start X
 [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] &&
     startx "$XINITRC" -- "$XSERVERRC" vt1 -keeptty >/dev/null 2>&1
+
+# vim:ft=zsh
