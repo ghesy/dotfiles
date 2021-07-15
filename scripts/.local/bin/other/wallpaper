@@ -34,34 +34,12 @@ pywal()
 
     wal -i "$1" -n ${backend:+--backend "$backend"} -a "$alpha"
 
-    recompile &
     dunst-init &
     pywalfox update &
     fix_term_bg_colors &
     other &
 
     wait
-}
-
-recompile()
-{
-    sudo -A make -v >/dev/null 2>&1
-    printf "compiling: "
-    for prog in dmenu slock; do
-        printf "$prog "
-        (compile $prog >/dev/null 2>&1 && echo compiled $prog.) &
-    done
-    echo
-    wait
-}
-
-compile()
-{
-    cd ~/Repositories/branched/$1 || return 1
-    cp -f ~/.cache/wal/$1.h pywal.h
-    make clean
-    make
-    sudo -A make install
 }
 
 fix_term_bg_colors()
