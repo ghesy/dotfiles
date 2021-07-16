@@ -1,0 +1,52 @@
+#!/bin/sh
+# toggle the currently playing players.
+
+# file to save the playing players in
+save="${XDG_RUNTIME_DIR:-/tmp}/toggleall-save"
+
+main()
+{
+    case "$1" in
+        restore) restore ;;
+        *)
+            playing="$(get_playing)"
+            case "$1" in
+                pause) pause ;;
+                *) toggle ;;
+            esac
+        ;;
+    esac
+}
+
+toggle()
+{
+    if [ -z "$playing" ]; then
+        restore
+    else
+        pause
+    fi
+}
+
+pause()
+{
+    [ -z "$playing" ] && return 1
+    printf '%s\n' "$playing" > "$save"
+    playerctl -a pause
+}
+
+restore()
+{
+    [ -r "$save" ] || return 1
+    players="$(tr '\n' ',' < "$save" | rev | cut -c2- | rev)"
+    rm "$save"
+    playerctl -p "$players" play
+}
+
+get_playing()
+{
+    playerctl status -f '{{playerInstance}}	{{lc(status)}}' |
+            grep playing | cut -f1
+}
+
+main "$@"
+exit
