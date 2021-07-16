@@ -37,14 +37,13 @@ pause()
 restore()
 {
     [ -r "$save" ] || return 1
-    players="$(tr '\n' ',' < "$save" | rev | cut -c2- | rev)"
+    xargs -a "$save" -L1 playerctl play -p
     rm "$save"
-    playerctl -p "$players" play
 }
 
 get_playing()
 {
-    playerctl status -f '{{playerInstance}}	{{lc(status)}}' |
+    playerctl -a status -f '{{playerInstance}}	{{lc(status)}}' |
             grep playing | cut -f1
 }
 
