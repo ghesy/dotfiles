@@ -5,13 +5,13 @@ functions="$dir/functions"
 
 main ()
 {
-    for arg; do case "$arg" in
+    while true; do case "$1" in
         -l | --list ) list=true; shift ;;
         -t | --test ) test=true; shift ;;
         -h | --help ) err "this is a program runner script" ;;
         --) shift; break ;;
         *) break ;;
-    esac done
+    esac; done
 
     [ ! -r "$aliases" ] && err "not found: $aliases"
     [ -r "$functions" ] && . "$functions"
