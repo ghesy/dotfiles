@@ -49,6 +49,7 @@ barca, la liga : tui barca
 lsusb, devices : tui watchusb
 mixer : tui pulsemixer
 cava, visualizer : tui cava
+music, ncmpcpp : tui ncmpcpp
 
 autolock : xset s on
 no autolock : xset s off
@@ -65,8 +66,9 @@ line in : \
 no line in : \
     pactl set-source-port 1 analog-input-linein; pactl set-source-volume 1 0%
 
-dmount : dmount
-dvpn : dvpn
+mount : dmount
+screenshot : dshot
+vpn : dvpn
 games : dgames
 nm,wifi : networkmanager_dmenu
 history pop, last notification : dunstctl history-pop
