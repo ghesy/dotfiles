@@ -1,0 +1,34 @@
+#!/bin/sh
+# pause all the playing media when disconnecting the headphone jack.
+# requires my toggleall script.
+
+main()
+{
+    case "$1" in
+    -p)
+        sink_list="$(pacmd list-sinks)"
+        is_port_a_speaker_port "$(get_current_port)" && toggleall pause
+    ;;
+    *) pactl subscribe | grep --line-buffered card | xargs -I{} "$0" -p ;;
+    esac
+}
+
+is_port_a_speaker_port()
+{
+    port="$1"
+    printf '%s\n' "$sink_list" |
+        grep -Pzo '\t{2,}'"$port"'[^\t]*(\t{3,}[^\t]+)+' |
+        grep -qa speaker
+}
+
+get_current_port()
+{
+    printf '%s\n' "$sink_list" |
+        grep -Em1 -A1000 ' +\* +index' |
+        grep -m1 'active port:' |
+        cut -d: -f2 |
+        tr -d ' <:>'
+}
+
+main "$@"
+exit
