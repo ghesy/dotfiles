@@ -22,7 +22,7 @@ suspend_then_hibernate()
 {
     if installed susbernate; then
         setsid -f $locker
-        susbernate
+        sudo -A susbernate
     elif installed loginctl; then
         loginctl suspend-then-hibernate
     elif installed systemctl; then
@@ -43,12 +43,12 @@ sus()
 
 can_hibernate()
 {
-    grep 'resume=' /proc/cmdline
+    grep -q 'resume=' /proc/cmdline
 }
 
 disable_safeeyes()
 {
-    installed usv && usv check safeeyes &&
+    installed usv && q usv check safeeyes &&
         safeeyes_running=true && usv down safeeyes
 }
 
@@ -60,6 +60,11 @@ enable_safeeyes()
 installed()
 {
     command -v "$1" >/dev/null
+}
+
+q()
+{
+    "$@" >/dev/null 2>&1
 }
 
 main "$@"
