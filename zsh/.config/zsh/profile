@@ -117,7 +117,10 @@ export TIME_STYLE="+%F %T"
 export MPD_HOST=localhost
 export MOZ_USE_XINPUT2="1" # Mozilla smooth scrolling/touchpads.
 export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
-export QT_QPA_PLATFORMTHEME=gtk2 # have qt use gtk2 theme.
+
+# set qt style to qt5ct if it's installed, otherwise set to gtk2
+command -v qt5ct >/dev/null && qtenv=qt5ct || qtenv=gtk2
+export QT_QPA_PLATFORMTHEME="$qtenv"
 
 # load a file containing machine-specific settings
 extra="$XDG_CONFIG_HOME/zsh/profile-extra"
