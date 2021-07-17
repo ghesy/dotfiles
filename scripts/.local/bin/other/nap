@@ -16,6 +16,7 @@ main()
     fi
 
     enable_safeeyes
+    dwmbarref battery
 }
 
 suspend_then_hibernate()
