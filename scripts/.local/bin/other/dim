@@ -5,9 +5,9 @@
 # $ xss-lock -n dim slock
 # requires light(1).
 
-# how long to wait after dimming and before
+# how many seconds to wait after dimming and before
 # turning off the backlight (setting brightness to zero)
-off_time=30 # in seconds
+off_time=30
 
 # what percentage to drop brightness to
 dim_percentage=10

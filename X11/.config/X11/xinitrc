@@ -10,11 +10,11 @@ xrdb -merge ~/.config/X11/xresources
 # disable bell
 xset -b
 
-# set inactivity screensaver and lock times
-xset s ${X_DIM_TIME:-300} ${X_LOCK_TIME:-600}
-
 # disable the default screen blanking
 xset dpms 0 0 0
+
+# enable autolocking
+autolock
 
 # set keyboard/mouse remaps configurations
 remaps &
