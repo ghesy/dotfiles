@@ -32,20 +32,27 @@ cpupwr()
         low)  no_turbo_val=1; energy_val=balance_power ;;
     esac
 
-    echo $no_turbo_val > $no_turbo
-
-    for policy in $cpufreq/policy*; do
-        echo $energy_val > $policy/energy_performance_preference
-    done
+    write $no_turbo_val $no_turbo
+    write $energy_val $cpufreq/policy*/energy_performance_preference
 }
 
 # apply sata powersaving settings
 sata_pwrsave()
 {
-    echo auto | tee \
+    write auto \
         /sys/class/ata_port/ata*/power/control \
-        /sys/block/sd*/device/power/control \
-        >/dev/null
+        /sys/block/sd*/device/power/control
+}
+
+write()
+{
+    val="$1"
+    shift
+    for i in $(seq 1 10); do
+        printf '%s\n' "$val" | tee "$@" >/dev/null
+        [ $? -eq 0 ] && break
+        sleep 1
+    done
 }
 
 main "$@"
