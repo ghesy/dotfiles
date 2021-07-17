@@ -4,26 +4,22 @@
 
 main()
 {
-    case "$1" in
-    -p)
-        sink_list="$(pacmd list-sinks)"
-        is_port_a_speaker_port "$(get_current_port)" && toggleall pause
-    ;;
-    *) pactl subscribe | grep --line-buffered card | xargs -I{} "$0" -p ;;
-    esac
+    pactl subscribe | grep --line-buffered card | while IFS= read -r line; do
+        is_current_port_a_speaker_port && toggleall pause
+    done
 }
 
-is_port_a_speaker_port()
+is_current_port_a_speaker_port()
 {
-    port="$1"
-    printf '%s\n' "$sink_list" |
-        grep -Pzo '\t{2,}'"$port"'[^\t]*(\t{3,}[^\t]+)+' |
+    sink_info="$(pacmd list-sinks)"
+    printf '%s\n' "$sink_info" |
+        grep -Pzo '\t{2,}'"$(get_current_port)"'[^\t]*(\t{3,}[^\t]+)+' |
         grep -qa speaker
 }
 
 get_current_port()
 {
-    printf '%s\n' "$sink_list" |
+    printf '%s\n' "$sink_info" |
         grep -Em1 -A1000 ' +\* +index' |
         grep -m1 'active port:' |
         cut -d: -f2 |
