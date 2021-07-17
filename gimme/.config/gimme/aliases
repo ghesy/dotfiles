@@ -51,8 +51,8 @@ mixer : tui pulsemixer
 cava, visualizer : tui cava
 music, ncmpcpp : tui ncmpcpp
 
-autolock : autolock on
-no autolock : autolock off
+autolock : autolock
+no autolock : xset s off off
 
 spice, circuit sim, qucs : qucs
 avr sim, simulide : simulide
