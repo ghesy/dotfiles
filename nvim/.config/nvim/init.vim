@@ -66,8 +66,14 @@ set wildignore+=**/node_modules/**
 let g:clever_f_mark_direct = 1
 
 " on save, deletes all trailing whitespace and newlines at end of file.
-autocmd BufWritePre * %s/\s\+$//e
-autocmd BufWritePre * %s/\n\+\%$//e
+function s:NoTrailing()
+    let line = line(".")
+    let col = col(".")
+    %s/\s\+$//e
+    %s/\n\+\%$//e
+    call cursor(line, col)
+endf
+autocmd BufWritePre * call <SID>NoTrailing()
 
 " open terminal in vim's pwd
 nnoremap <silent>U :silent !termopen<CR>
