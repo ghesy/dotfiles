@@ -50,13 +50,14 @@ lsusb, devices : tui watchusb
 mixer : tui pulsemixer
 cava, visualizer : tui cava
 music, ncmpcpp : tui ncmpcpp
+date format : dwmbar-date -t
 
 autolock : autolock
 no autolock : xset s off off
 
 spice, circuit sim, qucs : qucs
 avr sim, simulide : simulide
-kicad, pcb, eda : kicad
+kicad, pcb : kicad
 symphytum : symphytum
 pavucontrol : pavucontrol
 
