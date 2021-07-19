@@ -1,3 +1,45 @@
 #!/bin/sh
-echo 
-date '+%a %b %Y-%m-%d %H:%M'
+
+# the file that represents the state of this widget
+persian="${XDG_RUNTIME_DIR:-/tmp}/dwmbar-date-persian"
+
+main()
+{
+    [ "$1" = -t ] && toggle_type && exit
+    echo 
+    type_is_persian && persian || georgian
+}
+
+georgian()
+{
+    date '+%a %b %Y-%m-%d %H:%M'
+}
+
+persian()
+{
+    date +%a
+    pcal -m | grep -Eom1 '[A-Za-z]{3,}' | cut -c-3
+    pcal -t
+    date +%H:%M
+}
+
+toggle_type()
+{
+    if ! command -v pcal >/dev/null; then
+        notify-send dwmbar-date \
+            'please install pcal (AUR: pcal-calendar-git) to get persian date.'
+        return 1
+    fi
+
+    test -e "$persian" && rm -f "$persian" || touch "$persian"
+    dwmbarref date
+    return 0
+}
+
+type_is_persian()
+{
+    test -e "$persian"
+}
+
+main "$@"
+exit
