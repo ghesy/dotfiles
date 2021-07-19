@@ -1,9 +1,10 @@
 #!/bin/sh
 echo 
-dev=$(echo /sys/class/power_supply/BAT*)
-s=$(grep -wiq charging $dev/status && echo +)
-p=$(cat $dev/capacity)
-case $p in
-    9[89]) echo 100%$s ;;
-    *) echo $p%$s ;;
-esac
+for battery in /sys/class/power_supply/BAT*; do
+    cat $battery/capacity | tr -d '\n'
+    echo %
+    case $(cat $battery/status) in
+        Charging) echo + ;;
+        Full) echo  ;;
+    esac
+done
