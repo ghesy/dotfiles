@@ -11,10 +11,15 @@ main()
 
 is_current_port_a_speaker_port()
 {
+    get_current_port_info | grep -q speaker
+}
+
+get_current_port_info()
+{
     sink_info="$(pacmd list-sinks)"
     printf '%s\n' "$sink_info" |
         grep -Pzo '\t{2,}'"$(get_current_port)"'[^\t]*(\t{3,}[^\t]+)+' |
-        grep -qa speaker
+        tr -d '\000'
 }
 
 get_current_port()

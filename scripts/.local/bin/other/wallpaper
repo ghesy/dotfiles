@@ -32,7 +32,7 @@ pywal()
         backend="$(ask_backend)" || return 1
     fi
 
-    wal -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"}
+    wal -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"} || return 1
 
     dunst-init &
     fix_term_bg_colors &
