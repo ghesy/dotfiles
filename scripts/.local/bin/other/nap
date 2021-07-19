@@ -22,6 +22,7 @@ main()
 suspend_then_hibernate()
 {
     if installed susbernate; then
+        sudo -A susbernate -h >/dev/null 2>&1
         setsid -f $locker
         sudo -A susbernate
     elif installed loginctl; then
