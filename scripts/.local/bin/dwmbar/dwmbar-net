@@ -14,7 +14,7 @@ case $conn/$count in
     bluetooth/* ) echo  ;;
 esac
 
-case "$(country --timeout 6 --maxtime 7)" in
+case "$(country -t6)" in
     ir) echo  ;;
     '') echo  ;;
      *) echo  ;;
