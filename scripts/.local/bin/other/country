@@ -4,36 +4,96 @@
 # otherwise returns country code of your public ip.
 # requires the $IPLOOUP and $PSOCKS variables from my .zprofile.
 
+# config
+proxy="${PSOCKS:-localhost:9050}"
+ip_source="${IPLOOKUP:-api.ipify.org}"
+
 # defaults
 tor=false
 quiet=false
-timeout=10
-maxtime=20
+timeout=20
 
-argcheck () {
-    [ -z "$2" ] &&
-        echo "$1 needs a parameter" >&2 &&
-        exit 1
+# gnu getopt settings.
+name='country'
+short_opts='hqTt:'
+long_opts='help,quiet,tor,timeout:'
+
+main()
+{
+    # process options and arguments.
+    opts="$(get_opts "$@")"
+    [ $? -ne 0 ] && die_bad_opt
+    eval set -- "$opts"
+
+    while true; do case "$1" in
+        -t | --timeout) timeout="$2"; shift 2 ;;
+        -q | --quiet) quiet=true; shift ;;
+        -T | --tor) tor=true; shift ;;
+        -h | --help) print_help; exit ;;
+        -- ) shift; break ;;
+        *) bad_option_exit ;;
+    esac; done
+
+    if [ "$quiet" = true ]; then
+        get_ip >/dev/null
+    else
+        get_ip_location
+    fi
 }
 
-while true; do
-    case "$1" in
-        -t | --timeout) argcheck "$@"; timeout="$2"; shift 2 ;;
-        -m | --maxtime) argcheck "$@"; maxtime="$2"; shift 2 ;;
-        -q | --quiet) quiet=true; shift ;;
-        -p | --tor) tor=true; shift ;;
-        '') break ;;
-    esac
-done
+get_ip_location()
+{
+    ip="$(get_ip)" || return 1
+    geoiplookup "$ip" | cut -d' ' -f4 | tr -d , | tr A-Z a-z
+}
 
-[ $tor = true ] && proxy_arg="--proxy socks5://$PSOCKS"
+get_ip()
+{
+    [ "$tor" = true ] && proxy_arg="--proxy socks5://$PSOCKS"
+    ip="$(
+        curl --silent $proxy_arg \
+            --max-time $timeout -- "$ip_source"
+    )"
+    exit_val=$?
+    printf '%s\n' "$ip" | grep -qi protonvpn && return 1
+    printf '%s\n' "$ip"
+    return $exit_val
+}
 
-ip="$(
-    curl --silent $proxy_arg \
-        --connect-timeout $timeout --max-time $maxtime "$IPLOOKUP"
-)"
+# format passed options and arguments via gnu getopt.
+get_opts()
+{
+    getopt -qssh -n "$name" -o "$short_opts" -l "$long_opts" -- "$@"
+}
 
-[ $? -ne 0 ] && exit 1
-[ $quiet = true ] && exit 0
+die_bad_opt()
+{
+    die "bad option(s). Try -h or --help."
+}
 
-geoiplookup "$ip" | cut -d' ' -f4 | tr -d ',' | tr A-Z a-z
+die()
+{
+    printf 'opener: %s\n' "$*" >&2
+    exit 1
+}
+
+print_help()
+{
+cat << 'eof'
+country is a script for testing the internet connection.
+
+usage:
+  country [OPTION...]
+
+options:
+  -t, --timeout     how many seconds to wait for a connection
+                        before giving up.
+  -q, --quiet       suppress the normal output.
+  -T, --tor         test the connection through tor proxy.
+  -h, --help        show this help message.
+
+eof
+}
+
+main "$@"
+exit
