@@ -1,16 +1,16 @@
 #!/bin/sh
-# run webui-aria2.
-# requires webui-aria2 package from aur, and node.
+# run a web user interface for aria2.
+# requires the webui-aria2 package from aur, and node.
 
 run () {
-    cd /usr/share/webapps/webui-aria2
-    setsid -f "$BROWSER" "http://localhost:8888" >/dev/null 2>&1
-    pgrep --exact --full 'node node-server.js' ||
-        node node-server.js
+    command -v node >/dev/null || exit 1
+    cd /usr/share/webapps/webui-aria2 || exit 1
+    setsid -f "${BROWSER:-xdg-open}" "http://localhost:8888" >/dev/null 2>&1
+    pgrep -xf 'node node-server.js' || node node-server.js
 }
 
 down () {
-    pkill --exact --full 'node node-server.js'
+    pkill -xf 'node node-server.js'
 }
 
 case $1 in
