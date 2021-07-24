@@ -2,7 +2,7 @@
 # this script is for connectivity and geoip testing.
 # exits with failure if no internet connection,
 # otherwise returns country code of your public ip.
-# requires the $IPLOOUP and $PSOCKS variables from my .zprofile.
+# requires curl, geoip, and also $IPLOOUP and $PSOCKS environment variables.
 
 # config
 proxy="${PSOCKS:-localhost:9050}"
@@ -44,7 +44,11 @@ main()
 get_ip_location()
 {
     ip="$(get_ip)" || return 1
-    geoiplookup "$ip" | cut -d' ' -f4 | tr -d , | tr A-Z a-z
+    if command -v geoiplookup >/dev/null; then
+        geoiplookup "$ip" | cut -d' ' -f4 | tr -d , | tr A-Z a-z
+    else
+        printf '%s\n' "$ip"
+    fi
 }
 
 get_ip()
@@ -55,9 +59,13 @@ get_ip()
             --max-time $timeout -- "$ip_source"
     )"
     exit_val=$?
-    printf '%s\n' "$ip" | grep -qi protonvpn && return 1
-    printf '%s\n' "$ip"
+    printf '%s\n' "$ip" | is_ip_address || return 1
     return $exit_val
+}
+
+is_ip_address()
+{
+    grep -Px '([0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(\d{1,3}\.){3}\d{1,3}'
 }
 
 # format passed options and arguments via gnu getopt.
