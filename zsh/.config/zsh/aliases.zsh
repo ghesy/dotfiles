@@ -63,7 +63,7 @@ alias pl='paclast -t | head'
 alias v='nvim'
 alias vi='nvim'
 alias vim='nvim'
-alias svi='sudoedit'
+svi() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
 # speed
 alias speed='speedtest-cli --bytes'
