@@ -4,8 +4,9 @@
 # connects / disconnects via the provided udev rule.
 
 # sysfs files for controlling cpu parameters
-cpufreq=/sys/devices/system/cpu/cpufreq
+cpu=/sys/devices/system/cpu/cpufreq
 no_turbo=/sys/devices/system/cpu/intel_pstate/no_turbo
+pid=/var/run/pwr.pid
 
 # path to this script
 bin="$0"
@@ -13,6 +14,7 @@ bin="$0"
 main()
 {
     refresh_battery_module
+    pid
     case $1 in
         high) cpupwr high ;;
         low) cpupwr low; sata_pwrsave ;;
@@ -33,7 +35,7 @@ cpupwr()
     esac
 
     write $no_turbo_val $no_turbo
-    write $energy_val $cpufreq/policy*/energy_performance_preference
+    write $energy_val $cpu/policy*/energy_performance_preference
 }
 
 # apply sata powersaving settings
@@ -46,13 +48,23 @@ sata_pwrsave()
 
 write()
 {
-    val="$1"
-    shift
-    for i in $(seq 1 10); do
-        printf '%s\n' "$val" | tee "$@" >/dev/null
-        [ $? -eq 0 ] && break
-        sleep 1
+    for i in $(seq 1 120); do
+        printf '%s\n' "$1" | tee "$@" >/dev/null && break
+        sleep 2
     done
+}
+
+pid()
+{
+    [ -r $pid ] && kill $(cat $pid)
+    trap cleanup EXIT
+    echo $$ > $pid
+}
+
+cleanup()
+{
+    rm $pid
+    kill 0
 }
 
 main "$@"
