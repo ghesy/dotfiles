@@ -8,9 +8,8 @@
 #   findtype: get type of the file using definitions in the types file.
 
 # these variables are provided as well:
-#   $lf_mode: true if opener is in lf mode (-l, --lf).
-#               false otherwise.
-#   $lf_id:   is equal to the argument passed to -l or --lf option.
+#   $lf_mode: true if opener is in lf mode. false otherwise.
+#   $id:      is equal to lf's id.
 
 # open() is called by opener.
 # it's arguments are the files that need to be opened.
@@ -38,7 +37,7 @@ open ()
 image ()
 {
     case $lf_mode in
-        true ) gui lfsxiv "$lf_id" "$@" ;;
+        true ) gui lfsxiv "$@" ;;
         false) gui sxiv -a -- "$@" ;;
     esac
 }
