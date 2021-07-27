@@ -23,7 +23,7 @@ main()
 
 refresh_battery_module()
 {
-    /home/*/.local/bin/dwmbar/dwmbarref battery
+    eval "$(printf '%s battery;' /home/*/.local/bin/dwmbar/dwmbarref)"
 }
 
 # change cpu's frequency and turbo settings
@@ -48,8 +48,14 @@ sata_pwrsave()
 
 write()
 {
+    value="$1"; shift
+
+    for file; do
+        [ ! -e "$file" ] && echo error: "$file" doesn\'t exist. >&2 && return 1
+    done
+
     for i in $(seq 1 120); do
-        printf '%s\n' "$1" | tee "$@" >/dev/null && break
+        printf '%s\n' "$value" | tee "$@" >/dev/null && break
         sleep 2
     done
 }
