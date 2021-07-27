@@ -1,80 +1,81 @@
-#!/bin/bash
+#!/bin/sh
 # this script downloads or streams internet videos.
 # if it's given a censored link and my vpn is off, it uses tor.
-# requires youtube-dl, mpv, and torsocks.
+# requires youtube-dl, mpv, fzf, dmenu and torsocks.
 
 # config
+ask_format_regex='youtube\.com/(watch|playlist)|youtu\.be/'
 blocked_urls_regex='youtube\.com/(watch|playlist)|youtu\.be/'
 default_format='best[height<=480]/bestvideo[height<=480]+bestaudio/best/bestvideo+bestaudio'
-home_country=ir
+home_country="${HOME_COUNTRY:-ir}"
 
 main()
 {
     case "$1" in
-        -s) shift; fn=stream ;;
-        *) fn=dl
-        ;;
+        -o|-s) shift; fn=open ;;
+        -d) shift; fn=download ;;
+        *) fn="$(ask_action)" || return 1 ;;
     esac
     [ -z "$*" ] && die no links given
     $fn "$@"
 }
 
-stream()
+ask_action()
 {
-    tor="$(get_tor "$@")"
-    $tor mpv --ytdl-format="$default_format" -- "$@"
+    printf 'open\ndownload\n' | menu
 }
 
-stream_format()
+open()
 {
-    format="$(ask_format "$@")" || return 1
+    format="$(get_format "$@")" || return 1
     tor="$(get_tor "$@")"
-    $tor mpv ${format:+--ytdl-format="$format"} -- "$@"
+    $tor mpv ${format:+--ytdl-format="$format"} -- "$@" ||
+        notify-send ytdl 'failed opening the video.'
 }
 
-dl()
+download()
 {
     format="$(ask_format "$@")" || return 1
     tor="$(get_tor "$@")"
     $tor youtube-dl ${format:+-f "$format"} -- "$@"
 }
 
+get_format()
+{
+    if should_ask_format "$@"; then
+        ask_format "$@"
+    else
+        prnt "$default_format"
+    fi
+
+}
+
 ask_format()
 {
-    [ -t 2 ] && cmd='fzf --prompt' || cmd='dmenu -p'
-    while true; do
-        sel="$(print_typical_formats | $cmd 'quality: ')" || return 1
-        if [ "$sel" = other ]; then
-            sel="$(get_formats "$1" | $cmd 'quality: ')" || return 1
-            [ "$sel" = back ] && continue || break
-        else
-            break
-        fi
-    done
-    printf '%s\n' "$sel/$default_format" |
-        cut -f1
+    res="$(print_res_list | menu 'quality: ')" || return 1
+    res_to_format "$res"
 }
 
-print_typical_formats()
+menu()
 {
-    echo 'bestvideo+bestaudio/best'
-    echo 'bestvideo[height=720]+bestaudio'
-    echo 'best[height=720]'
-    echo 'bestvideo[height=480]+bestaudio'
-    echo 'best[height=480]'
-    echo 'bestvideo[height=360]+bestaudio'
-    echo 'best[height=360]'
-    echo 'bestaudio'
-    echo 'other'
+    output_is_attached_to_terminal && cmd='fzf --prompt' || cmd='dmenu -p'
+    $cmd "$*"
 }
 
-get_formats()
+print_res_list()
 {
-    echo back
-    $tor youtube-dl -F "$1" 2>/dev/null |
-        grep -vE '^(\[|format)' |
-        sed 's/audio only\s\+tiny/audio-only audio/g' |
-        awk '{print $1"\t"$2"\t"$4}'
+    printf '1080p\n720p\n480p\n360p\nbest\naudio\n'
+}
+
+res_to_format()
+{
+    res="$(prnt $1 | tr -d p)"
+    if is_number "$res"; then
+        prnt "bestvideo[height<=$res]+bestaudio/best[height<=$res]"
+    else
+        prnt "$@" | sed -e 's/^best$/bestvideo+bestaudio\/best/' \
+                        -e 's/^audio$/bestaudio/'
+    fi
 }
 
 get_tor()
@@ -84,18 +85,38 @@ get_tor()
 
 vpn_off()
 {
-    [ "$(country)" = "$home_country" ]
+    command -v country >/dev/null && [ "$(country)" = "$home_country" ]
 }
 
 link_blocked()
 {
-    printf '%s\n' "$@" | grep -qE "$blocked_urls_regex"
+    prnt "$@" | grep -qE "$blocked_urls_regex"
+}
+
+should_ask_format()
+{
+    prnt "$1" | grep -qE "$ask_format_regex"
+}
+
+output_is_attached_to_terminal()
+{
+    [ -t 2 ]
+}
+
+is_number()
+{
+    [ "$1" -eq "$1" ] 2>/dev/null
 }
 
 die()
 {
-    printf '%s\n' "ytdl: $*" >&2
+    prnt "ytdl: $*" >&2
     exit 1
+}
+
+prnt()
+{
+    printf '%s\n' "$*"
 }
 
 main "$@"
