@@ -87,9 +87,9 @@ precmd () {
 stty stop undef # disable ctrl-s to freeze terminal.
 
 # enable fast-syntax-highlighting plugin
-source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
+# source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
 # unbold the red color in syntax highlighting
-FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
+# FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
 
 # fetch pywal colors
 source ~/.cache/wal/fzf 2>/dev/null
