@@ -18,7 +18,6 @@ Plug 'drmikehenry/vim-headerguard'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'justinmk/vim-sneak'
-Plug 'rhysd/clever-f.vim'
 Plug 'chaoren/vim-wordmotion'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
@@ -61,9 +60,6 @@ set undofile
 set path+=**
 set wildignore+=**/.git/**
 set wildignore+=**/node_modules/**
-
-" clever-f settings
-let g:clever_f_mark_direct = 1
 
 " on save, deletes all trailing whitespace and newlines at end of file.
 function s:NoTrailing()
