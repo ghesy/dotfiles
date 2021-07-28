@@ -95,3 +95,5 @@ stty stop undef # disable ctrl-s to freeze terminal.
 source ~/.cache/wal/fzf 2>/dev/null
 
 # clear terminal on graphical terminal initialization
+[ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
+export TERMINIT=true;
