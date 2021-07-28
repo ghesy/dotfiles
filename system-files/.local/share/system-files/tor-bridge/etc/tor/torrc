@@ -1,8 +1,17 @@
-# these settings make tor use bridges.
-# to get new bridges:
-# send an email to bridges@torproject.org with body
-# "get transport obfs4",
+# tor configuration for using bridges.
+# first, install obfs4proxy-bin(aur) and meek(community).
+# then, to get new bridges:
+# send an email (should be from gmail or riseup) to
+# bridges@torproject.org with body "get transport obfs4",
 # or visit "https://bridges.torproject.org/bridges?transport=obfs4".
+
+# enable bridges
 UseBridges 1
+# define plugins
 ClientTransportPlugin obfs4 exec /usr/bin/obfs4proxy managed
+ClientTransportPlugin meek exec  /usr/bin/meek-client -log /var/log/meek-client.log
+# define meek bridges (use these two)
+Bridge meek 0.0.2.0:1 url=https://d2zfqthxsdq309.cloudfront.net/ front=d19tqk5t6qcjac.cloudfront.net
+Bridge meek 0.0.2.0:3 url=https://az668014.vo.msecnd.net/ front=ajax.aspnetcdn.com
+# define obfs4 bridges (get them via email or the url mentioned above)
 Bridge obfs4 <ip:port> ...
