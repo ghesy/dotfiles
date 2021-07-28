@@ -14,13 +14,13 @@ main()
     case "$1" in
         -o|-s) shift; fn=open ;;
         -d) shift; fn=download ;;
-        *) fn="$(ask_action)" || return 1 ;;
+        *) fn="$(ask_fn)" || return 1 ;;
     esac
     [ -z "$*" ] && die no links given
     $fn "$@"
 }
 
-ask_action()
+ask_fn()
 {
     printf 'open\ndownload\n' | menu
 }
