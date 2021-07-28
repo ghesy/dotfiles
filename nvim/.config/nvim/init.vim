@@ -99,7 +99,7 @@ vnoremap <C-c> "+y
 map <C-v> "+P
 
 " clear search
-nnoremap <silent><Leader>cs :let @/=''<CR>
+nnoremap <silent><Leader>cs :nohlsearch<CR>
 
 " compile markdown
 autocmd FileType markdown
