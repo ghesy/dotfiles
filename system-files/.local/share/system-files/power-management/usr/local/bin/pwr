@@ -50,12 +50,12 @@ write()
 
     for file; do
         [ ! -e "$file" ] && echo error: "$file" doesn\'t exist. >&2 && return 1
+        for i in $(seq 1 120); do
+            printf '%s\n' "$value" | tee "$file" >/dev/null && break
+            sleep 2
+        done &
     done
-
-    for i in $(seq 1 120); do
-        printf '%s\n' "$value" | tee "$@" >/dev/null && break
-        sleep 2
-    done
+    wait
 }
 
 pid()
