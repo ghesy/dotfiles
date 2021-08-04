@@ -1,2 +1,2 @@
 #!/bin/sh
-nmcli monitor | grep -i --line-buffered 'con.*now' | xargs -Ix dwmbarref net tor
+nmcli monitor | grep -Ei --line-buffered 'con.*now|connected|disconnected' | xargs -I{} dwmbarref net
