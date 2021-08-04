@@ -1,2 +1,2 @@
 #!/bin/sh
-pulseaudio-subscribe | xargs -Ix dwmbarref audio
+pulseaudio-subscribe | xargs -I{} dwmbarref audio

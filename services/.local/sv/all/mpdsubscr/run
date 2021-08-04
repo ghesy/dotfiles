@@ -1,2 +1,2 @@
 #!/bin/sh
-mpc idleloop player | xargs -Ix dwmbarref audio
+mpc idleloop player | xargs -I{} dwmbarref audio

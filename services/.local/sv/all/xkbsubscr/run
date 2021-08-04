@@ -1,2 +1,2 @@
 #!/bin/sh
-xkblayout-subscribe | xargs -Ix sh -c 'notify-send $(xkblayout-state print %s)'
+xkblayout-subscribe | xargs -I{} sh -c 'notify-send $(xkblayout-state print %s)'
