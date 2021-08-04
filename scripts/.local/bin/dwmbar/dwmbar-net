@@ -4,20 +4,21 @@ echo 
 
 pidof -q NetworkManager || exit
 
-conns="$(nmcli -t -f type,device conn show --active)"
+conns="$(nmcli -g type,device conn show --active)"
 type="$(echo "$conns" | head -n1 | cut -d: -f1)"
 dev="$(echo "$conns"  | head -n1 | cut -d: -f2)"
 
 [ -z "$conns" ] && echo  && exit
+echo "$type" | grep -qE 'tun|vpn' && echo  && exit
 
 is_usb()
 {
-    nmcli -t -f general.udi dev show $dev | grep -q '\<usb'
+    nmcli -g general.udi dev show $dev | grep -q '\<usb'
 }
 
 is_metered()
 {
-    nmcli -t -f general.metered dev show $dev | grep -q yes
+    nmcli -g general.metered dev show $dev | grep -q yes
 }
 
 case $type in
@@ -28,10 +29,10 @@ case $type in
             [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
         }
     ;;
-    *) echo "$conns" | grep -v tun | grep -qv vpn && echo ? || echo  ;;
+    *) echo ? ;;
 esac
 
 is_metered && echo ﰒ
-! nmcli net conn | grep -q full && echo x && exit
+nmcli -g general.ip4-connectivity dev show $dev | grep -vq full && echo x && exit
 echo "$conns" | cut -d: -f1 | grep -qE 'tun|vpn' && echo  && exit
 echo 
