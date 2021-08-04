@@ -48,7 +48,7 @@ case $type in
     ;;
     *ethernet*)
         is_usb && echo 禍 || {
-            [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
+            is_laptop || [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
         }
     ;;
     *) echo ? ;;
