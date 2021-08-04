@@ -119,10 +119,6 @@ export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 command -v qt5ct >/dev/null && qtenv=qt5ct || qtenv=gtk2
 export QT_QPA_PLATFORMTHEME="$qtenv"
 
-# load a file containing machine-specific settings
-extra="$XDG_CONFIG_HOME/zsh/profile-extra"
-test -r "$extra" && source "$extra"
-
 # run keychain (an ssh-agent manager)
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
@@ -131,6 +127,10 @@ eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
 chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
 [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
     export LAPTOP=true
+
+# load a file containing machine-specific settings
+extra="$XDG_CONFIG_HOME/zsh/profile-extra"
+test -r "$extra" && source "$extra"
 
 # clear tty on exit
 trap reset EXIT
