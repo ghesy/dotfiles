@@ -16,6 +16,7 @@ setopt autocd # cd to paths typed in the shell, without the cd command
 setopt globdots # glob dotfiles as well
 setopt nullglob # make globs expand to nothing if they match nothing
 setopt interactivecomments # allow comments in interactive shell
+stty stop undef # disable ctrl-s freezing the shell
 
 # tab complete options
 autoload -U compinit
@@ -30,6 +31,11 @@ zstyle ':completion:*' matcher-list '' \
 zmodload zsh/complist
 compinit
 _comp_options+=(globdots)
+
+# edit current line in vim with ctrl-e:
+autoload edit-command-line
+zle -N edit-command-line
+bindkey '^e' edit-command-line
 
 # vi mode
 bindkey -v
@@ -65,17 +71,14 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
-# edit current line in vim with ctrl-e:
-autoload edit-command-line; zle -N edit-command-line
-bindkey '^e' edit-command-line
-
 # load aliases
-aliasesfile=~/.config/zsh/aliases.zsh
-[ -r "$aliasesfile" ] && source "$aliasesfile"
+al=~/.config/zsh/aliases.zsh
+[ -r "$al" ] && source "$al"
+unset al
 
 # shell prompt
 autoload -U colors && colors
-precmd () {
+precmd() {
     c() { printf %s "%{$fg[$1]%}" }
     local r="%{$reset_color%}"
     local wd="$(echo "${PWD/#$HOME/~}" | rev | cut -d'/' -f1-3 | rev)"
@@ -84,15 +87,18 @@ precmd () {
     PS1="$(c cyan)%n ${r}in $wd $git$r$(printf "\n➜ ")"
     unfunction c
 }
-stty stop undef # disable ctrl-s to freeze terminal.
 
 # enable fast-syntax-highlighting plugin
-# source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
+#source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
 # unbold the red color in syntax highlighting
-# FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
+#FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
 
-# fetch pywal colors
-source ~/.cache/wal/fzf 2>/dev/null
+# source pywal colors
+seq=~/.cache/wal/sequences
+fzf=~/.cache/wal/fzf
+[ -r "$seq" ] && ( sed 's/\[[0-9]\{1,3\}\]//g' ~/.cache/wal/sequences & )
+[ -r "$fzf" ] && source ~/.cache/wal/fzf 2>/dev/null
+unset seq fzf
 
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
