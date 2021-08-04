@@ -4,35 +4,55 @@ echo 
 
 pidof -q NetworkManager || exit
 
-conns="$(nmcli -g type,device conn show --active)"
+conns="$(nmcli -g type,device,name conn show --active)"
 type="$(echo "$conns" | head -n1 | cut -d: -f1)"
 dev="$(echo "$conns"  | head -n1 | cut -d: -f2)"
+name="$(echo "$conns" | head -n1 | cut -d: -f3- | sed 's/\\:/:/g')"
 
 [ -z "$conns" ] && echo  && exit
 echo "$type" | grep -qE 'tun|vpn' && echo  && exit
 
-is_usb()
-{
-    nmcli -g general.udi dev show $dev | grep -q '\<usb'
-}
+if nmcli -g general.ip4-connectivity dev show $dev | grep -vq full; then
+    echo x
+elif echo "$conns" | cut -d: -f1 | grep -qE 'tun|vpn'; then
+    echo 
+else
+    echo 
+fi
 
 is_metered()
 {
     nmcli -g general.metered dev show $dev | grep -q yes
 }
 
+is_usb()
+{
+    nmcli -g general.udi dev show $dev | grep -q '\<usb'
+}
+
+is_laptop()
+{
+    chassis=/sys/class/dmi/id/chassis_type
+    [ -r "$chassis" ] && chassis="$(cat "$chassis")" || return 1
+    [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] && return 0 || return 1
+}
+
 case $type in
-    *wireless*|*wifi*) echo 直;;
-    *bluetooth*) echo  ;;
+    *bluetooth*)
+        echo 
+    ;;
+    *wireless*|*wifi*)
+        is_laptop && ! is_metered && exit
+        wifi=true
+        echo 直
+    ;;
     *ethernet*)
         is_usb && echo 禍 || {
-            [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
+            is_laptop || [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
         }
     ;;
     *) echo ? ;;
 esac
 
 is_metered && echo ﰒ
-nmcli -g general.ip4-connectivity dev show $dev | grep -vq full && echo x && exit
-echo "$conns" | cut -d: -f1 | grep -qE 'tun|vpn' && echo  && exit
-echo 
+[ "$wifi" = true ] && printf '%s\n' "$name"
