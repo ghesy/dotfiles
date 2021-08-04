@@ -1,5 +1,6 @@
 #!/bin/sh
 echo 
-raw=$(free | awk 'FNR==2 {print $3}')
-[ $raw -lt ${DWMBAR_MEM_THRESHOLD:-3000000} ] && echo  && exit
-free -h | awk 'FNR==2 {print $3}'
+eval "$(head /proc/meminfo | tr : = | tr -d '( )' | rev | cut -c3- | rev)"
+percentage=$((100*(MemTotal-MemAvailable)/MemTotal))
+[ $percentage -lt 80 ] && echo  && exit
+echo $percentage%
