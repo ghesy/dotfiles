@@ -23,11 +23,15 @@ set_glyph () {
     conf=~/.config/dwmbar/audio-glyphs
     glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
     mkdir -p "$(dirname "$glyph")"
-    [ ! -r $conf ] && echo   > "$glyph" && exit
+    if [ ! -r "$conf" ]; then
+        mkdir -p "$conf"
+        printf '->hdmi\n->analog\n' > "$conf"
+        exit
+    fi
     sink="$next_sink_name"
     [ -z "$sink" ] &&
         sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-    awk -F'->' -v c="$sink" 'match(c,$2){print$1}' $conf > "$glyph"
+    awk -F'->' -v c="$sink" 'match(c,$2){print$1}' "$conf" > "$glyph"
 }
 
 vars () {
