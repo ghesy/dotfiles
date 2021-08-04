@@ -7,7 +7,7 @@ main()
 {
     [ "$1" = -t ] && toggle_type && exit
     echo 
-    type_is_persian && persian || georgian
+    is_type_persian && persian || georgian
 }
 
 georgian()
@@ -36,7 +36,7 @@ toggle_type()
     return 0
 }
 
-type_is_persian()
+is_type_persian()
 {
     test -e "$persian"
 }
