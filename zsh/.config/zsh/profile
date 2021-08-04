@@ -127,6 +127,11 @@ test -r "$extra" && source "$extra"
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
 
+# export the LAPTOP variable if the machine's chassis is a laptop
+chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
+[ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
+    export LAPTOP=true
+
 # clear tty on exit
 trap reset EXIT
 
