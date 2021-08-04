@@ -14,6 +14,7 @@ set termguicolors
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
 
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'drmikehenry/vim-headerguard'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
@@ -220,3 +221,7 @@ call FixColors()
 source ~/.config/nvim/killbuffer.vim
 source ~/.config/nvim/term.vim
 source ~/.config/nvim/cmdline.vim
+
+lua << EOF
+require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
+EOF
