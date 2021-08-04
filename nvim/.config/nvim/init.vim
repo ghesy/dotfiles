@@ -103,7 +103,7 @@ nnoremap <silent><Leader>cs :nohlsearch<CR>
 
 " compile markdown
 autocmd FileType markdown
-  \ nnoremap <Leader>md :silent !mdpdf %:p:S<CR> |
+  \ nnoremap <Leader>md :silent !mdpdf -O %:p:S<CR> |
   \ nnoremap <Leader>cc :silent !mdpdf -o %:p:S<CR>
 
 " fugitive
