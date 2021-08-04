@@ -1,6 +1,5 @@
 #!/bin/sh
 # restart the tor service, and notify when it reconnects successfully.
 sudo -A sv restart tor
-curl --silent --proxy socks5://127.0.0.1:9050 \
-    --connect-timeout 60 --max-time 90 "$IPLOOKUP" &&
+curl -sm60 --socks5 localhost:9050 icanhazip.com &&
     notify-send "Tor Connected." && dwmbarref tor
