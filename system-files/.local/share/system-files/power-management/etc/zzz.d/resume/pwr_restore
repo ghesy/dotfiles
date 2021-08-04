@@ -1,0 +1,2 @@
+#!/bin/sh
+grep -q 1 /sys/class/power_supply/*/online && pwr high || pwr low
