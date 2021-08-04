@@ -8,11 +8,9 @@ cpu=/sys/devices/system/cpu/cpufreq
 no_turbo=/sys/devices/system/cpu/intel_pstate/no_turbo
 pid=/var/run/pwr.pid
 
-# path to this script
-bin="$0"
-
 main()
 {
+    [ "$1" = -f ] && shift || fork "$@"
     refresh_battery_module
     pid
     case $1 in
@@ -65,6 +63,12 @@ pid()
     [ -r $pid ] && kill $(cat $pid)
     trap cleanup EXIT
     echo $$ > $pid
+}
+
+fork()
+{
+    setsid -f "$0" -f "$@" >/dev/null 2>&1
+    exit
 }
 
 cleanup()
