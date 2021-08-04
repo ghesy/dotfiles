@@ -2,20 +2,36 @@
 
 echo 
 
-allconns="$(nmcli c show --active | grep -owiE 'ethernet|wifi|bluetooth')"
-conn="$(echo "$allconns" | head -n1)"
-count="$(echo "$allconns" | wc -l)"
+pidof -q NetworkManager || exit
 
-case $conn/$count in
-    ''/* ) echo ; exit ;;
-    */1 ) ;;
-    ethernet/* ) echo  ;;
-    wifi/* ) echo 直 ;;
-    bluetooth/* ) echo  ;;
+conns="$(nmcli -t -f type,device conn show --active)"
+type="$(echo "$conns" | head -n1 | cut -d: -f1)"
+dev="$(echo "$conns"  | head -n1 | cut -d: -f2)"
+
+[ -z "$conns" ] && echo  && exit
+
+is_usb()
+{
+    nmcli -t -f general.udi dev show $dev | grep -q '\<usb'
+}
+
+is_metered()
+{
+    nmcli -t -f general.metered dev show $dev | grep -q yes
+}
+
+case $type in
+    *wireless*|*wifi*) echo 直;;
+    *bluetooth*) echo  ;;
+    *ethernet*)
+        is_usb && echo 禍 || {
+            [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
+        }
+    ;;
+    *) echo "$conns" | grep -v tun | grep -qv vpn && echo ? || echo  ;;
 esac
 
-case "$(country -t6)" in
-    ir) echo  ;;
-    '') echo  ;;
-     *) echo  ;;
-esac
+is_metered && echo ﰒ
+! nmcli net conn | grep -q full && echo x && exit
+echo "$conns" | cut -d: -f1 | grep -qE 'tun|vpn' && echo  && exit
+echo 
