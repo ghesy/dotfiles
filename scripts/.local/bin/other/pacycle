@@ -24,9 +24,8 @@ set_glyph () {
     glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
     mkdir -p "$(dirname "$glyph")"
     if [ ! -r "$conf" ]; then
-        mkdir -p "$conf"
+        mkdir -p "$(dirname "$conf")"
         printf '->hdmi\n->analog\n' > "$conf"
-        exit
     fi
     sink="$next_sink_name"
     [ -z "$sink" ] &&
