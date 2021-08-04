@@ -69,9 +69,6 @@ export SUDO_ASKPASS="$HOME/.local/bin/dmenu/dmenu-askpass"
 
 # stuff used in my scripts
 export USVDIR="$HOME/.local/sv/run" # user services
-export PSOCKS='localhost:9050' # tor's socks proxy
-export IPLOOKUP_FILE="$XDG_CONFIG_HOME/iplookup/site"
-export IPLOOKUP="$(head -n1 "$IPLOOKUP_FILE")"
 
 # aria2
 export ARIA2_CONF="$XDG_CONFIG_HOME/aria2/server.conf"
