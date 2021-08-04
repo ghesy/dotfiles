@@ -6,7 +6,7 @@
 
 # config
 proxy="${PSOCKS:-localhost:9050}"
-ip_source="${IPLOOKUP:-api.ipify.org}"
+ip_source="${IPLOOKUP:-icanhazip.com}"
 
 # defaults
 tor=false
