@@ -1,10 +1,21 @@
 #!/bin/sh
 # show FCBarcelona's matches and LaLiga's table.
-apikeyfile="$XDG_CONFIG_HOME/soccer3/apikey"
-apikey="$(cat "$apikeyfile")"
+
+command -v soccer3 >/dev/null || {
+    notify-send "please install pyton-soccer-cli."
+    exit
+}
+
+key="$(cat "$XDG_CONFIG_HOME/soccer3/apikey")" || {
+    notify-send "api key file not found."
+    exit
+}
+
+command -v unbuffer >/dev/null && unbuf=unbuffer || unbuf=
+
 (
     printf 'table:\n\n'
-    unbuffer soccer3 --apikey "$apikey" --standings --league=PD
+    $unbuf soccer3 --apikey "$apikey" --standings --league=PD
     printf '\nmatches:\n\n'
-    unbuffer soccer3 --apikey "$apikey" --team=FCB --upcoming
-) | $PAGER
+    $unbuf soccer3 --apikey "$apikey" --team=FCB --upcoming
+) | ${PAGER:-less}
