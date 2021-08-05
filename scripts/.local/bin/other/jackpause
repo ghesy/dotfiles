@@ -1,5 +1,5 @@
 #!/bin/sh
-# pause all the playing media when disconnecting the headphone jack.
+# a daemon that pauses all the playing media upon headphone jack disconnection.
 # requires my toggleall script.
 
 main()
