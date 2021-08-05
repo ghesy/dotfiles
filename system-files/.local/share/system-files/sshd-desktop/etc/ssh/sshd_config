@@ -32,7 +32,7 @@ PrintLastLog no
 Subsystem sftp /usr/lib/ssh/sftp-server
 
 # allow local connections without key
-Match Address 192.168.1.*
+Match Address 192.168.*
     AuthenticationMethods publickey password
     PasswordAuthentication yes
 
