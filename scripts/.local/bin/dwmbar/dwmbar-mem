@@ -1,6 +1,5 @@
 #!/bin/sh
 echo 
-eval "$(head /proc/meminfo | tr : = | tr -d '( )' | rev | cut -c3- | rev)"
-percentage=$((100*(MemTotal-MemAvailable)/MemTotal))
+percentage=$(free | awk '/Mem/ {printf "%u\n", ($2-$7)/$2*100}')
 [ $percentage -lt 80 ] && echo  && exit
 echo $percentage%
