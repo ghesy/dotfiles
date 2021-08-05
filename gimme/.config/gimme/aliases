@@ -64,17 +64,11 @@ kicad, pcb : kicad
 symphytum : symphytum
 pavucontrol : pavucontrol
 
-line in : \
-    pactl set-source-port 1 analog-input-linein; pactl set-source-volume 1 10%
-
-no line in : \
-    pactl set-source-port 1 analog-input-linein; pactl set-source-volume 1 0%
-
 mount : dmount
 screenshot : dshot
 vpn : dvpn
 games : dgames
-nm,wifi : networkmanager_dmenu
+Network Manager,wifi : networkmanager_dmenu
 history pop, last notification : dunstctl history-pop
 
 # vim:ft=conf
