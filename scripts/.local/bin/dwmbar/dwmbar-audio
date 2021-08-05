@@ -1,11 +1,6 @@
 #!/bin/sh
 glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
-
-if [ ! -r "$glyph" ] || [ -z "$(cat "$glyph")" ]; then
-    sleep 2
-    pacycle -g
-fi
-
+[ ! -r "$glyph" ] || [ -z "$(cat "$glyph")" ] && sleep 2 && pacycle -g
 cat "$glyph"
 pamixer --get-volume-human
 mpc | grep -qi '^\[playing' && echo 
