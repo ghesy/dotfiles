@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# config
+timeout_min=8 # system idle time needed to do the idle action
+afk_timeout_sec=60 # minimum idle time to consider as afk
+check_interval_sec=30 # system idle checking interval
+cpu_load_threshold=22 # cpu load threshold to consider the cpu idle
+
+idle_action()
+{
+    sysact sleep
+}
+
+main()
+{
+    check_deps || return 1
+    trap 'kill 0' EXIT
+    last_activity=$(now)
+    while true; do
+        sleep $check_interval_sec
+        if is_system_idle; then
+            has_timeout_reached && last_activity=$(now) && idle_action
+        else
+            last_activity=$(now)
+        fi
+    done
+}
+
+now()
+{
+    date +%s
+}
+
+has_timeout_reached()
+{
+    [ $(( $(now) - last_activity )) -gt $(( timeout_min * 60 )) ]
+}
+
+is_system_idle()
+{
+    is_user_idle || { echo user activity detected.; return 1 ;} &&
+    is_nothing_playing || { echo playing media detected.; return 1 ;} &&
+    is_ssh_inactive || { echo active ssh connection detected.; return 1 ;} &&
+    is_cpu_idle || { echo high cpu activity detected.; return 1 ;} &&
+    is_user_idle || { echo user activity detected.; return 1 ;} &&
+    echo system is idle.
+}
+
+is_ssh_inactive()
+{
+    ! pgrep -P "$(pgrep -o sshd)" >/dev/null 2>&1
+}
+
+is_cpu_idle()
+{
+    load="$(top -bn3 | awk '/%Cpu/ {sum+=100-$8; count++} END{printf "%u\n", sum/count}')"
+    prog="$(top -bn1 | awk 'FNR==8 {print $NF" ("$9"%)"}')"
+    echo cpu load: "$load"
+    echo top prog: "$prog"
+    [ "$load" -lt "$cpu_load_threshold" ]
+}
+
+is_nothing_playing()
+{
+    ! playerctl -a status | grep -iq playing
+}
+
+is_user_idle()
+{
+    [ "$(xprintidle)" -gt $((afk_timeout_sec * 1000)) ]
+}
+
+check_deps()
+{
+    for prog in playerctl xprintidle; do
+        command -v $prog >/dev/null || {
+            echo dependency not installed: $prog >&2
+            return 1
+        }
+    done
+}
+
+main "$@"
+exit
