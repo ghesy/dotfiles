@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # config
-show_new_connection_time=120
+new_connection_display_time=200
 
 main()
 {
@@ -59,7 +59,7 @@ is_metered()
 
 net_recently_changed()
 {
-    state_file="${XDG_RUNTIME_DIR:-/tmp}/dwmbar-net-state"
+    state_file="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/network-state"
     state="$(prnt "$conns" | head -n1 | sha256sum)"
     old_state="$(cat "$state_file" 2>/dev/null)"
 
@@ -67,6 +67,7 @@ net_recently_changed()
     then
         state_recently_changed && return 0 || return 1
     else
+        mkdir -p "$(dirname "$state_file")"
         prnt "$state" > "$state_file"
         return 0
     fi
@@ -74,7 +75,7 @@ net_recently_changed()
 
 state_recently_changed()
 {
-    [ $(state_file_age) -lt "$show_new_connection_time" ]
+    [ $(state_file_age) -lt "$new_connection_display_time" ]
 }
 
 state_file_age()
