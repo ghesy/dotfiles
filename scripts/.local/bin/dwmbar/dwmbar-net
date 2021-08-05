@@ -1,28 +1,50 @@
 #!/bin/sh
 
-echo 
+# config
+show_new_connection_time=120
 
-pidof -q NetworkManager || exit
-
-conns="$(nmcli -g type,device,name conn show --active)"
-type="$(echo "$conns" | head -n1 | cut -d: -f1)"
-dev="$(echo "$conns"  | head -n1 | cut -d: -f2)"
-name="$(echo "$conns" | head -n1 | cut -d: -f3- | sed 's/\\:/:/g')"
-
-[ -z "$conns" ] && echo  && exit
-echo "$type" | grep -qE 'tun|vpn' && echo  && exit
-
-if nmcli -g general.ip4-connectivity dev show $dev | grep -vq full; then
-    echo x
-elif echo "$conns" | cut -d: -f1 | grep -qE 'tun|vpn'; then
-    echo 
-else
-    echo 
-fi
-
-is_metered()
+main()
 {
-    nmcli -g general.metered dev show $dev | grep -q yes
+    echo 
+
+    pidof -q NetworkManager || return 1
+    get_vars
+    no_connections && echo  && return
+
+    if no_internet; then
+        echo x
+    elif is_vpn_on; then
+        echo 
+    else
+        echo 
+    fi
+
+    net_recently_changed || return
+
+    is_metered && echo ﰒ
+    case $type in
+        *bluetooth*) echo  ;;
+        *wireless*|*wifi*) echo 直; printf '%s\n' "$ssid" ;;
+        *ethernet*) is_usb && echo 禍 || echo  ;;
+        *) echo ? ;;
+    esac
+}
+
+no_connections()
+{
+    [ -z "$conns" ] && return 0
+    prnt "$type" | grep -qE 'tun|vpn' && return 0
+    return 1
+}
+
+no_internet()
+{
+    nmcli -g general.ip4-connectivity dev show $dev | grep -vq full
+}
+
+is_vpn_on()
+{
+    prnt "$conns" | cut -d: -f1 | grep -qE 'tun|vpn'
 }
 
 is_usb()
@@ -30,28 +52,48 @@ is_usb()
     nmcli -g general.udi dev show $dev | grep -q '\<usb'
 }
 
-is_laptop()
+is_metered()
 {
-    chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
-    [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] && return 0 || return 1
+    nmcli -g general.metered dev show $dev | grep -q yes
 }
 
-case $type in
-    *bluetooth*)
-        echo 
-    ;;
-    *wireless*|*wifi*)
-        is_laptop && ! is_metered && exit
-        wifi=true
-        echo 直
-    ;;
-    *ethernet*)
-        is_usb && echo 禍 || {
-            is_laptop || [ "$(echo "$conns" | wc -l)" -gt 1 ] && echo 
-        }
-    ;;
-    *) echo ? ;;
-esac
+net_recently_changed()
+{
+    state_file="${XDG_RUNTIME_DIR:-/tmp}/dwmbar-net-state"
+    state="$(prnt "$conns" | head -n1 | sha256sum)"
+    old_state="$(cat "$state_file" 2>/dev/null)"
 
-is_metered && echo ﰒ
-[ "$wifi" = true ] && printf '%s\n' "$name"
+    if [ "$state" = "$old_state" ]
+    then
+        state_recently_changed && return 0 || return 1
+    else
+        prnt "$state" > "$state_file"
+        return 0
+    fi
+}
+
+state_recently_changed()
+{
+    [ $(state_file_age) -lt "$show_new_connection_time" ]
+}
+
+state_file_age()
+{
+    echo $(( $(date +%s) - $(stat -c%Y "$state_file") ))
+}
+
+get_vars()
+{
+    conns="$(nmcli -g type,device,name conn show --active)"
+    type="$(prnt "$conns" | head -n1 | cut -d: -f1)"
+    dev="$(prnt "$conns"  | head -n1 | cut -d: -f2)"
+    ssid="$(prnt "$conns" | head -n1 | cut -d: -f3- | sed 's/\\:/:/g')"
+}
+
+prnt()
+{
+    printf '%s\n' "$*"
+}
+
+main "$@"
+exit
