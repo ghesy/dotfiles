@@ -8,11 +8,29 @@ reboot_prompt="Reboot to:"
 
 items="
  Lock      : lock,
-鈴 Sleep    : nap,
+鈴 Sleep    : sleep_fn,
+鈴 Hibernate : hibernate_fn,
 ⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A shutdown -h now',
  Reboot    : reboot_fn,
  Logout    : dmenu-prompt 'Logout?' 'command kill $(pidof xinit)',
 "
+
+sleep_nf() {
+    if can_hibernate; then
+        loginctl suspend-then-hibernate
+    else
+        loginctl suspend
+    fi
+    dwmbarref battery
+}
+
+hibernate_fn() {
+    if can_hibernate; then
+        loginctl hibernate
+    else
+        notify-send 'hibernation is not enabled on this machine.'
+    fi
+}
 
 reboot_fn() {
     cmd=true
@@ -26,11 +44,15 @@ reboot_fn() {
     $cmd "$os" && sudo -A shutdown -r now
 }
 
-ask_reboot_os () {
+ask_reboot_os() {
     entries="$(sudo -A grub-entries -i)"
     [ "$(echo "$entries" | wc -l)" -le 1 ] && return 4
     sel="$(echo "$entries" | dmenu -p "$reboot_prompt")" || return 1
     echo "$sel" | cut -d' ' -f2-
+}
+
+can_hibernate() {
+    grep -q 'resume=' /proc/cmdline
 }
 
 eval "$(choices "$prompt" "$items" "$1")"
