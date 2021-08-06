@@ -5,10 +5,7 @@
 # ==========
 
 # perform the idle action after this much time of system being idle
-timeout_min=8
-
-# keyboard and mouse inactive time to consider user AFK
-afk_timeout_sec=60
+timeout_min=10
 
 # collective network bandwidth usage threshold
 net_threshold_kbps=20
@@ -53,12 +50,10 @@ has_timeout_reached()
 
 is_system_idle()
 {
-    is_user_idle		|| { echo user activity detected.;		return 1 ;} &&
     is_nothing_playing	|| { echo playing media detected.;		return 1 ;} &&
     is_net_idle			|| { echo network activity detected.;	return 1 ;} &&
     is_ssh_inactive		|| { echo ssh activity detected.;		return 1 ;} &&
     is_cpu_idle			|| { echo high cpu activity detected.;	return 1 ;} &&
-    is_user_idle		|| { echo user activity detected.;		return 1 ;} &&
     echo system is idle.
 }
 
@@ -97,11 +92,6 @@ net_sample()
 is_nothing_playing()
 {
     ! playerctl -a status | grep -iq playing
-}
-
-is_user_idle()
-{
-    [ "$(xprintidle)" -gt $((afk_timeout_sec * 1000)) ]
 }
 
 check_deps()
