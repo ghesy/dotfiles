@@ -71,11 +71,6 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
-# load aliases
-al=~/.config/zsh/aliases.zsh
-[ -r "$al" ] && source "$al"
-unset al
-
 # shell prompt
 autoload -U colors && colors
 precmd() {
@@ -88,17 +83,21 @@ precmd() {
     unfunction c
 }
 
-# enable fast-syntax-highlighting plugin
-#source /usr/share/zsh/plugins/fast-syntax-highlighting/*.zsh
-# unbold the red color in syntax highlighting
-#FAST_HIGHLIGHT_STYLES[${FAST_THEME_NAME}unknown-token]='fg=red'
-
 # source pywal colors
-seq=~/.cache/wal/sequences
 fzf=~/.cache/wal/fzf
-[ -r "$seq" ] && ( sed 's/\[[0-9]\{1,3\}\]//g' ~/.cache/wal/sequences & )
 [ -r "$fzf" ] && source ~/.cache/wal/fzf 2>/dev/null
-unset seq fzf
+unset fzf
+
+if [[ $TERM != *kitty* ]]; then
+    seq=~/.cache/wal/sequences
+    [ -r "$seq" ] && ( sed 's/\[[0-9]\{1,3\}\]//g' ~/.cache/wal/sequences & )
+    unset seq
+fi
+
+# load aliases
+al=~/.config/zsh/aliases.zsh
+[ -r "$al" ] && source "$al"
+unset al
 
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
