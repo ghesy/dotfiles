@@ -2,3 +2,8 @@
 HandleLidSwitch=ignore
 HandleLidSwitchExternalPower=ignore
 HandleLidSwitchDocked=ignore
+
+[Sleep]
+HandleNvidiaSleep=no
+HibernateMode=platform shutdown suspend
+HibernateDelaySec=60s

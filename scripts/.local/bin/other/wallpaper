@@ -32,21 +32,21 @@ pywal()
         backend="$(ask_backend)" || return 1
     fi
 
-    wal -s -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"} || return 1
+    wal -s -t -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"} || return 1
 
     dunst-init &
-    fix_term_bg_colors &
+    reload_kitty_colors &
     pywalfox update 2>/dev/null &
     other &
 
     wait
 }
 
-fix_term_bg_colors()
+reload_kitty_colors()
 {
-    for term in /dev/pts/*; do
-        echo "$term" | grep -Exq '.*/[0-9]+' || continue
-        sed 's/\[[0-9]\{1,3\}\]//g' ~/.cache/wal/sequences > "$term"
+    command -v kitty >/dev/null || return 1
+    for pid in $(pgrep -xO1 kitty); do
+        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1
     done
 }
 

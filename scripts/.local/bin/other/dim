@@ -5,34 +5,28 @@
 # $ xss-lock -n dim slock
 # requires light(1).
 
-# how many seconds to wait after dimming and before
-# turning off the backlight (setting brightness to zero)
-off_time=30
-
-# what percentage to drop brightness to
-dim_percentage=10
+# seconds before turning off the backlight completely
+off_time=60
 
 # sleep forever
 pause() { while true; do sleep 1000000000; done }
 
 # check wether changing the backlight is supported
-command -v light >/dev/null || pause
-light 2>&1 | grep -q found && pause
+command -v light >/dev/null || { echo "light" is not installed. >&2; pause ;}
+light 2>&1 | grep -q found && { echo no backlight device found. >&2; pause ;}
 
 # save current brightness
 b=$(light)
-b=${b%.*}
 
 # restore brightness upon exit
 trap exit HUP
 trap "light -S $b" EXIT
 
 # dim the backlight
-[ $b -le 20 ] && b=$((b/3)) || b=$dim_percentage
-light -S $b
+light -S $((${b%.*}/3))
 
-# turn off the backlight after some time
-sleep ${1:-$off_time}
+# set the backlight to zero after the specified time
+sleep $off_time
 light -S 0
 
 # sleep forever

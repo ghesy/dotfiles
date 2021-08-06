@@ -1,0 +1,3 @@
+#!/bin/sh
+[ "$1" != post ] && exit
+grep -q 0 /sys/class/power_supply/*/online && pwr low || pwr high
