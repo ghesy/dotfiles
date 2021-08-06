@@ -17,14 +17,13 @@ light 2>&1 | grep -q found && { echo no backlight device found. >&2; pause ;}
 
 # save current brightness
 b=$(light)
-b=${b%.*}
 
 # restore brightness upon exit
 trap exit HUP
 trap "light -S $b" EXIT
 
 # dim the backlight
-light -S $((b/3))
+light -S $((${b%.*}/3))
 
 # set the backlight to zero after the specified time
 sleep $off_time
