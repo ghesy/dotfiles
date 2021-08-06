@@ -133,7 +133,7 @@ extra="$XDG_CONFIG_HOME/zsh/profile-extra"
 test -r "$extra" && source "$extra"
 
 # clear tty on exit
-trap reset EXIT
+[ -z "$SSH_CLIENT" ] && trap reset EXIT
 
 # start X
 [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] &&
