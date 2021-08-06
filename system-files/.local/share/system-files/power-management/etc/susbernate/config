@@ -1,5 +1,5 @@
 # this config works on my lenovo laptop.
-delay_min=240
+delay_min=120
 wakeup_delay_sec=5
 suspend_fn() { zzz ;}
 hibernate_fn()

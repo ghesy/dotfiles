@@ -36,6 +36,7 @@ sus()
 {
     if installed zzz; then
         sudo -A zzz
+        setsid -f $locker
     elif installed loginctl; then
         loginctl suspend
     elif installed systemctl; then
