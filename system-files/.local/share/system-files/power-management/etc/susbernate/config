@@ -1,0 +1,10 @@
+# this config works on my lenovo laptop.
+delay_min=240
+wakeup_delay_sec=5
+suspend_fn() { zzz ;}
+hibernate_fn()
+{
+    loginctl hibernate
+    sleep 15
+    eval "$(printf '%s;' /etc/zzz.d/resume/*)"
+}
