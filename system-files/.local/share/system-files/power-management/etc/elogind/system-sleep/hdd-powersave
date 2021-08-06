@@ -1,4 +1,5 @@
 #!/bin/sh
+[ "$1" != post ] && exit
 for disk in /sys/block/*; do
     [ "$(cat $disk/queue/rotational)" -eq 1 ] &&
         hdparm -B 127 "/dev/$(basename $disk)"
