@@ -1,54 +1,21 @@
 #!/bin/sh
-# show current upload/download bandwidth usage.
+# show current bandwidth usage.
 
-# duration of sampling and averaging of transferred packets, in seconds.
-sample_duration=0.5
+# config
+duration=0.5
 
-case "$1" in
-    -c | --compact) compact=true; shift ;;
-    -h | --help) echo "Show current upload-download bandwidth usage."; exit ;;
-esac
-
-# print everything
-main ()
-{
-    if [ "$compact" = true ]; then
-        echo "$dlraw"
-        echo "$ulraw"
-    else
-        printf "In: %2i KB | Out: %2i KB\n" $dlraw $ulraw;
-    fi
+sample() {
+    awk -v n=$1 '/:/ && !/lo/ && !/tun/ {d+=$2; u+=$10} END{print "d"n"="d";u"n"="u}' /proc/net/dev
 }
 
-# check net interface
-DEVICE=$1
-IS_GOOD=0
-for GOOD_DEVICE in `grep \: /proc/net/dev | awk -F: '{print $1}'`; do
-  if [ "$DEVICE" = $GOOD_DEVICE ]; then
-    IS_GOOD=1
-    break
-  fi
-done
-if [ $IS_GOOD -eq 0 ]; then
-  echo "Device not found. Should be one of these:"
-  grep ":" /proc/net/dev | awk -F: '{print $1}' | sed s@\ @@g
-  exit 1
-fi
+speed() {
+    echo "($2 - $1) / $duration / 1024" | bc | tr -d '\n'
+    echo ' KB'
+}
 
-# set variables
-LINE=`grep $1 /proc/net/dev | sed s/.*://`;
-RECEIVED1=`echo $LINE | awk '{print $1}'`
-TRANSMITTED1=`echo $LINE | awk '{print $9}'`
-TOTAL=$(($RECEIVED1+$TRANSMITTED1))
-sleep "$sample_duration"
-LINE=`grep $1 /proc/net/dev | sed s/.*://`;
-RECEIVED2=`echo $LINE | awk '{print $1}'`
-TRANSMITTED2=`echo $LINE | awk '{print $9}'`
+eval $(sample 1); sleep $duration; eval $(sample 2)
 
-INSPEED=$(echo "( $RECEIVED2 - $RECEIVED1 ) / $sample_duration " | bc)
-OUTSPEED=$(echo "( $TRANSMITTED2 - $TRANSMITTED1 ) / $sample_duration " | bc)
-dlraw=$(( INSPEED / 1024 ))
-ulraw=$(( OUTSPEED / 1024 ))
-
-main "$@"
-exit
+printf 'D: '
+speed $d1 $d2
+printf 'U: '
+speed $u1 $u2
