@@ -12,63 +12,62 @@
 # as this one, and then include them from this file:
 # include <file>
 
-firefox, browser : firefox
-grub : su grub-customizer
-claws mail, email : claws-mail
-gparted, partition : su gparted
-book : foliate
+Firefox, Browser : firefox
+Grub : su grub-customizer
+Claws Mail, Email : claws-mail
+GParted, partition : su gparted
+Book : foliate
 
-ts3 : teamspeak
-discord : discord
-ripcord : ripcord
-telegram : telegram-desktop
+TS3 : teamspeak
+Discord : discord
+Ripcord : ripcord
+Telegram : telegram-desktop
 
-whatsapp : web https://web.whatsapp.com
-cups : web localhost:631
-router : web http://192.168.1.1/system.htm
-port forwarding : web http://192.168.1.1/virtualSrv.htm
-transmission web : web localhost:9091
-github : web https://github.com/soystemd
-syncthing : web localhost:8384
+Whatsapp : web https://web.whatsapp.com
+CUPS : web localhost:631
+Router : web http://192.168.1.1/system.htm
+Port Forwarding : web http://192.168.1.1/virtualSrv.htm
+Transmission Web : web localhost:9091
+Github : web https://github.com/soystemd
+Syncthing : web localhost:8384
 
-gimp : gimp
-mspaint, pinta : pinta
-print gui : gtklp -c "$XDG_CONFIG_HOME/gtklp"
-what's printing : gtklpq
-obs, recorder : obs
-laptop : vncviewer 192.168.1.35:0
-re tor : restor
+Gimp : gimp
+MSPaint, Pinta : pinta
+Print GUI : gtklp -c "$XDG_CONFIG_HOME/gtklp"
+Whats Printing : gtklpq
+OBS, Recorder : obs
+Re Tor : restor
 
-reddit : tui tuir
-gotop : tui gotop
-cpu, htop : tui htop
-nettop : tuisu nethogs
-disktop, iotop : tuisu iotop
-res router : tui resrouter
-barca, la liga : tui barca
-lsusb, devices : tui watchusb
-mixer : tui pulsemixer
-cava, visualizer : tui cava
-music, ncmpcpp : tui ncmpcpp
-date format, persian date : dwmbar-date -t
+Reddit : tui tuir
+GoTop : tui gotop
+CPU, htop : tui htop
+NetTop : tuisu nethogs
+DiskTop, IOTop : tuisu iotop
+Res Router : tui resrouter
+Barca, La Liga : tui barca
+lsusb, Devices : tui watchusb
+Mixer : tui pulsemixer
+Cava, Visualizer : tui cava
+Music, ncmpcpp : tui ncmpcpp
+Date Format, Persian Date : dwmbar-date -t
 
-autolock : autolock
-no autolock : xset s off off
+Autolock : autolock
+No Autolock : xset s off off
 
-toggle bar : xdotool key super+shift+b
-toggle statusbar : togglebar
+Toggle Statusbar : xdotool key super+shift+b
+Toggle dwmBar : togglebar
 
-spice, circuit sim, qucs : qucs
-avr sim, simulide : simulide
-kicad, pcb : kicad
-symphytum : symphytum
-pavucontrol : pavucontrol
+SPICE, Circuit Sim, qucs : qucs
+AVR Sim, Simulide : simulide
+KiCad, PCB : kicad
+Symphytum : symphytum
+Pavucontrol : pavucontrol
 
-mount : dmount
-screenshot : dshot
-vpn : dvpn
-games : dgames
-Network Manager,wifi : networkmanager_dmenu
-history pop, last notification : dunstctl history-pop
+Mount : dmount
+Screenshot : dshot
+VPN : dvpn
+Games : dgames
+Network Manager, Wi-Fi : networkmanager_dmenu
+History Pop, Last Notification : dunstctl history-pop
 
 # vim:ft=conf
