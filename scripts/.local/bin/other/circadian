@@ -1,15 +1,30 @@
 #!/bin/sh
 
-# config
-timeout_min=8 # system idle time needed to do the idle action
-afk_timeout_sec=60 # minimum idle time to consider as afk
-check_interval_sec=30 # system idle checking interval
-cpu_load_threshold=22 # cpu load threshold to consider the cpu idle
+# ==========
+# = Config
+# ==========
 
-idle_action()
-{
-    sysact sleep
-}
+# perform the idle action after this much time of system being idle
+timeout_min=8
+
+# keyboard and mouse inactive time to consider user AFK
+afk_timeout_sec=60
+
+# collective network bandwidth usage threshold
+net_threshold_kbps=20
+
+# cpu usage threshold
+cpu_usage_threshold=22
+
+# system idle checking interval
+check_interval_sec=30
+
+# actions to perform when system is deemed idle
+idle_action() { sysact sleep ;}
+
+# =================
+# = End of Config
+# =================
 
 main()
 {
@@ -38,11 +53,12 @@ has_timeout_reached()
 
 is_system_idle()
 {
-    is_user_idle || { echo user activity detected.; return 1 ;} &&
-    is_nothing_playing || { echo playing media detected.; return 1 ;} &&
-    is_ssh_inactive || { echo active ssh connection detected.; return 1 ;} &&
-    is_cpu_idle || { echo high cpu activity detected.; return 1 ;} &&
-    is_user_idle || { echo user activity detected.; return 1 ;} &&
+    is_user_idle		|| { echo user activity detected.;		return 1 ;} &&
+    is_nothing_playing	|| { echo playing media detected.;		return 1 ;} &&
+    is_net_idle			|| { echo network activity detected.;	return 1 ;} &&
+    is_ssh_inactive		|| { echo ssh activity detected.;		return 1 ;} &&
+    is_cpu_idle			|| { echo high cpu activity detected.;	return 1 ;} &&
+    is_user_idle		|| { echo user activity detected.;		return 1 ;} &&
     echo system is idle.
 }
 
@@ -57,7 +73,25 @@ is_cpu_idle()
     prog="$(top -bn1 | awk 'FNR==8 {print $NF" ("$9"%)"}')"
     echo cpu load: "$load"
     echo top prog: "$prog"
-    [ "$load" -lt "$cpu_load_threshold" ]
+    [ "$load" -le "$cpu_usage_threshold" ]
+}
+
+is_net_idle()
+{
+    [ "$(net_speed)" -le "$net_threshold_kbps" ]
+}
+
+net_speed()
+{
+    s1=$(net_sample 1)
+    sleep 1
+    s2=$(net_sample 2)
+    echo $(( (s2 - s1) / 1024 ))
+}
+
+net_sample()
+{
+    awk -v n=$1 '/:/ && !/lo/ && !/tun/ {s+=$2+$10} END{print s}' /proc/net/dev
 }
 
 is_nothing_playing()
