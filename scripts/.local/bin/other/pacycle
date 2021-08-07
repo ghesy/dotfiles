@@ -25,7 +25,7 @@ set_glyph () {
     mkdir -p "$(dirname "$glyph")"
     if [ ! -r "$conf" ]; then
         mkdir -p "$(dirname "$conf")"
-        [ -z "$LAPTOP" ] &&
+        [ "$LAPTOP" = true ] &&
             printf '->hdmi\n->analog\n' > "$conf" ||
             printf '->hdmi\n->analog\n' > "$conf"
     fi
