@@ -6,4 +6,4 @@ HandleLidSwitchDocked=ignore
 [Sleep]
 HandleNvidiaSleep=no
 HibernateMode=platform shutdown suspend
-HibernateDelaySec=60s
+HibernateDelaySec=3600s
