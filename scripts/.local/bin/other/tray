@@ -1,4 +1,4 @@
-#!/bin/dash
+#!/bin/sh
 # run this with -i and it will start stalonetray
 # and then hide it.
 # run it with no arguments and it will show
