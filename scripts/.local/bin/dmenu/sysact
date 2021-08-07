@@ -28,7 +28,7 @@ hibernate_fn() {
     if can_hibernate; then
         loginctl hibernate
     else
-        notify-send 'hibernation is not enabled on this machine.'
+        notify-send 'Hibernation is not enabled on this machine.'
     fi
 }
 
