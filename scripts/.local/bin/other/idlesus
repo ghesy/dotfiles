@@ -1,4 +1,6 @@
 #!/bin/sh
+# check system's media players, network activity, ssh connections
+# and cpu usage to determine if the system is idle, then suspend it.
 
 # ==========
 # = Config
@@ -10,11 +12,14 @@ timeout_min=10
 # collective network bandwidth usage threshold
 net_threshold_kbps=20
 
-# cpu usage threshold
-cpu_usage_threshold=22
+# percentage of cpu cycles used threshold
+cpu_usage_threshold=15
 
 # system idle checking interval
 check_interval_sec=30
+
+# specify your locker program
+locker=slock
 
 # actions to perform when system is deemed idle
 idle_action() { sysact sleep ;}
@@ -25,9 +30,24 @@ idle_action() { sysact sleep ;}
 
 main()
 {
+    unset lock setsid
+    while getopts sl opt; do
+        case $opt in
+            l) lock=true ;;
+            s) export OPT_SILENT=true ;;
+            ?) exit 1 ;;
+        esac
+    done
+
+    [ "$CHPGRP" != true ] && export CHPGRP=true && exec setsid -w "$0" "$@"
+    [ "$OPT_SILENT" = true ] && exec >/dev/null 2>&1
+    [ "$lock" = true ] && run_with_locker
+
     check_deps || return 1
+    trap exit HUP
     trap 'kill 0' EXIT
     last_activity=$(now)
+
     while true; do
         sleep $check_interval_sec
         if is_system_idle; then
@@ -36,6 +56,16 @@ main()
             last_activity=$(now)
         fi
     done
+}
+
+run_with_locker()
+{
+    exec sh -c "
+        trap exit HUP
+        trap 'kill 0' EXIT
+        "$0" &
+        $locker
+    "
 }
 
 now()
@@ -51,8 +81,8 @@ has_timeout_reached()
 is_system_idle()
 {
     is_nothing_playing	|| { echo playing media detected.;		return 1 ;} &&
-    is_net_idle			|| { echo network activity detected.;	return 1 ;} &&
-    is_ssh_inactive		|| { echo ssh activity detected.;		return 1 ;} &&
+    is_ssh_inactive		|| { echo ssh connections detected.;	return 1 ;} &&
+    is_network_idle		|| { echo network activity detected.;	return 1 ;} &&
     is_cpu_idle			|| { echo high cpu activity detected.;	return 1 ;} &&
     echo system is idle.
 }
@@ -64,14 +94,26 @@ is_ssh_inactive()
 
 is_cpu_idle()
 {
-    load="$(top -bn3 | awk '/%Cpu/ {sum+=100-$8; count++} END{printf "%u\n", sum/count}')"
-    prog="$(top -bn1 | awk 'FNR==8 {print $NF" ("$9"%)"}')"
-    echo cpu load: "$load"
-    echo top prog: "$prog"
-    [ "$load" -le "$cpu_usage_threshold" ]
+    [ "$(cpu_usage)" -le "$cpu_usage_threshold" ]
 }
 
-is_net_idle()
+cpu_usage()
+{
+    eval $(cpu_sample 1)
+    sleep 5
+    eval $(cpu_sample 2)
+    idle=$((idle2-idle1))
+    total=$((total2-total1))
+    echo "100-100*$idle/$total" | bc
+}
+
+cpu_sample()
+{
+    awk -v n=$1 '{ idle=$5; for (i=1; i<=NF; i++) total+=$i; exit }
+        END { print "idle"n"="idle";total"n"="total }' /proc/stat
+}
+
+is_network_idle()
 {
     [ "$(net_speed)" -le "$net_threshold_kbps" ]
 }
@@ -96,7 +138,7 @@ is_nothing_playing()
 
 check_deps()
 {
-    for prog in playerctl xprintidle; do
+    for prog in playerctl xprintidle $locker; do
         command -v $prog >/dev/null || {
             echo dependency not installed: $prog >&2
             return 1
