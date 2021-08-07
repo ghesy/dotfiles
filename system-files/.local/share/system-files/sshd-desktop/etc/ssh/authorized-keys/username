@@ -1,2 +1,0 @@
-ssh-ed25519 <public-key-string> <key-name-1>
-ssh-ed25519 <public-key-string> <key-name-2>

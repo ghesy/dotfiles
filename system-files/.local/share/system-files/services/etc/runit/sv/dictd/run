@@ -2,4 +2,4 @@
 pkill -x dictd
 [ -r /etc/conf.d/dictd ] && . /etc/conf.d/dictd
 /usr/bin/dictd $DICTD_ARGS -- $DICTD_EARGS
-exec pause
+exec pwait dictd
