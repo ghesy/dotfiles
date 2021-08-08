@@ -1,50 +1,80 @@
 #!/bin/sh
-# run this with -i and it will start stalonetray
-# and then hide it.
-# run it with no arguments and it will show
-# the tray momentarily, or as I've recently
-# taken to calling it, glance.
+# Run with the -i option to start stalonetray and hide it,
+# Then run without any options to show and hide stalonetray.
 
 # config
-glance_time=60
-tray_cmd="stalonetray --config $STALONETRAYRC"
+winid="${XDG_RUNTIME_DIR:-/tmp}/tray/winid"
 
-# paths
-cache="${XDG_RUNTIME_DIR:-/tmp}/tray"
-winid="$cache/winid"
-mapped="$cache/map"
-
-main() {
+main()
+{
     case "$1" in
         -i) init ;;
         *) toggle ;;
     esac
 }
 
-toggle() {
-    pgrep -x stalonetray || {
-        echo tray not running, start with -i >&2; exit 1
-    }
-
-    [ -f "$mapped" ] &&
-        xdotool windowunmap $(cat $winid) &&
-        rm "$mapped" &&
-        exit
-
-    touch "$mapped"
-    xdotool windowmap $(cat $winid)
+toggle()
+{
+    is_running || die 'Tray is not running, start with the -i option.'
+    is_visible && hide || show
 }
 
-init() {
-    pgrep -x stalonetray && echo already running >&2 && exit 1
-    mkdir -p $cache
-    $tray_cmd &
-    sleep 0.2
-    xdotool search --name stalonetray > $winid
-    xdotool set_window --overrideredirect 1 $(cat $winid)
-    xdotool windowunmap $(cat $winid)
+init()
+{
+    is_running && die Already running.
+    stalonetray ${STALONETRAYRC:+--config "$STALONETRAYRC"} &
+    sleep 0.3
+    save_winid
+    make_wm_ignore_tray
+    hide
     wait
 }
 
+is_running()
+{
+    pidof -q stalonetray
+}
+
+is_visible()
+{
+    xwininfo -id "$(cat "$winid")" | grep -q IsViewable
+}
+
+hide()
+{
+    xdotool windowunmap "$(cat "$winid")"; return 0
+}
+
+show()
+{
+    xdotool windowmap "$(cat "$winid")"; return 0
+}
+
+save_winid()
+{
+    mkdir -p "$(dirname "$winid")" || die Could not make temporary directory.
+    xdotool search --name stalonetray > "$winid"
+}
+
+make_wm_ignore_tray()
+{
+    xdotool set_window --overrideredirect 1 "$(cat "$winid")"
+}
+
+check_deps()
+{
+    for prog in stalonetray xdotool xwininfo; do
+        command -v $prog >/dev/null || die dependency not installed: $prog
+    done
+}
+
+die()
+{
+    printf '%s\n' "tray: $*" >&2
+    exit 1
+}
+
+trap exit HUP
+trap "pkill -P $$" EXIT
+
 main "$@"
-exit
