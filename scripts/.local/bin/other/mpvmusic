@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # play music in terminal using mpv.
 
 # go to the alternative terminal buffer and hide the cursor
