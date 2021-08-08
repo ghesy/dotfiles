@@ -45,8 +45,8 @@ get_submenus()
 
 check_grub_cfg()
 {
-    [ -e "$grub_cfg" ] || die "file $grub_cfg doesn't exist."
-    [ -r "$grub_cfg" ] || die "not enough priviliges to read $grub_cfg."
+    [ -e "$grub_cfg" ] || die "File $grub_cfg doesn't exist."
+    [ -r "$grub_cfg" ] || die "Not priviliged enough to read $grub_cfg."
 }
 
 die()
