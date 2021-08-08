@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # this script asks you for a system action.
 # requires my choices script.
 
