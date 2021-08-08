@@ -33,15 +33,15 @@ main()
     check_deps || return 1
 
     unset lock
-    while getopts sl opt; do
+    while getopts lq opt; do
         case $opt in
             l) lock=true ;;
-            s) export OPT_SILENT=true ;;
+            q) export OPT_QUIET=true ;;
             ?) exit 1 ;;
         esac
     done
 
-    [ "$OPT_SILENT" = true ] && exec >/dev/null 2>&1
+    [ "$OPT_QUIET" = true ] && exec >/dev/null 2>&1
     [ "$lock" = true ] && run_with_locker
 
     reset_timeout
@@ -58,9 +58,8 @@ main()
 run_with_locker()
 {
     exec sh -c "
-        trap exit HUP
-        trap 'pkill -P \$\$' EXIT
         "$0" &
+        trap 'kill \$!' EXIT
         $locker
     "
 }
@@ -91,7 +90,7 @@ is_system_idle()
 
 is_ssh_inactive()
 {
-    ! pgrep -P "$(pgrep -o sshd)" >/dev/null 2>&1
+    ! pgrep -P "$(pidof sshd)" >/dev/null 2>&1
 }
 
 is_cpu_idle()
