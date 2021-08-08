@@ -15,7 +15,7 @@ items="
  Logout    : dmenu-prompt 'Logout?' 'command kill $(pidof xinit)',
 "
 
-sleep_nf() {
+sleep_fn() {
     if can_hibernate; then
         loginctl suspend-then-hibernate
     else
