@@ -2,8 +2,8 @@
 Cmnd_Alias SV = /usr/bin/sv, /usr/bin/rsm
 
 Cmnd_Alias PROG = \
-    /usr/bin/protonvpn, \
     /usr/bin/resolvconf, \
+    /usr/bin/protonvpn, \
     /usr/bin/nethogs, \
     /usr/bin/iotop
 
@@ -13,6 +13,6 @@ Cmnd_Alias POWER = \
     /sbin/poweroff, \
     /sbin/shutdown, \
     /usr/bin/grub-reboot, \
-    /home/koonix/.local/bin/other/grub-entries
+    /usr/bin/grub-entries
 
 %wheel ALL=(ALL) NOPASSWD: SV, PROG, POWER
