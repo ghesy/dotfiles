@@ -16,7 +16,7 @@ net_threshold_kbps=20
 cpu_usage_threshold=15
 
 # system idle checking interval
-check_interval_sec=30
+loop_interval_sec=30
 
 # specify your locker program
 locker=slock
@@ -30,7 +30,9 @@ idle_action() { sysact sleep ;}
 
 main()
 {
-    unset lock setsid
+    check_deps || return 1
+
+    unset lock
     while getopts sl opt; do
         case $opt in
             l) lock=true ;;
@@ -39,21 +41,16 @@ main()
         esac
     done
 
-    [ "$CHPGRP" != true ] && export CHPGRP=true && exec setsid -w "$0" "$@"
     [ "$OPT_SILENT" = true ] && exec >/dev/null 2>&1
     [ "$lock" = true ] && run_with_locker
 
-    check_deps || return 1
-    trap exit HUP
-    trap 'kill 0' EXIT
-    last_activity=$(now)
-
+    reset_timeout
     while true; do
-        sleep $check_interval_sec
+        sleep $loop_interval_sec
         if is_system_idle; then
-            has_timeout_reached && last_activity=$(now) && idle_action
+            has_timeout_reached && reset_timeout && idle_action
         else
-            last_activity=$(now)
+            reset_timeout
         fi
     done
 }
@@ -62,20 +59,25 @@ run_with_locker()
 {
     exec sh -c "
         trap exit HUP
-        trap 'kill 0' EXIT
+        trap 'pkill -P \$\$' EXIT
         "$0" &
         $locker
     "
 }
 
-now()
-{
-    date +%s
-}
-
 has_timeout_reached()
 {
     [ $(( $(now) - last_activity )) -gt $(( timeout_min * 60 )) ]
+}
+
+reset_timeout()
+{
+    last_activity=$(now)
+}
+
+now()
+{
+    date +%s
 }
 
 is_system_idle()
@@ -102,9 +104,9 @@ cpu_usage()
     eval $(cpu_sample 1)
     sleep 5
     eval $(cpu_sample 2)
-    idle=$((idle2-idle1))
-    total=$((total2-total1))
-    echo "100-100*$idle/$total" | bc
+    idle=$(( idle2 - idle1 ))
+    total=$(( total2 - total1 ))
+    echo "100 - 100 * $idle / $total" | bc
 }
 
 cpu_sample()
@@ -146,5 +148,7 @@ check_deps()
     done
 }
 
+trap exit HUP
+trap "pkill -P $$" EXIT
+
 main "$@"
-exit
