@@ -36,7 +36,7 @@ reboot_fn() {
     cmd=true
     os="$(ask_reboot_os)"
     case $? in
-        4) ;;
+        9) ;;
         0) cmd="sudo -A grub-reboot" ;;
         *) return 1 ;;
     esac
@@ -45,8 +45,8 @@ reboot_fn() {
 }
 
 ask_reboot_os() {
-    entries="$(sudo -A grub-entries -i)"
-    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 4
+    entries="$(sudo -A grub-entries -g)"
+    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
     sel="$(echo "$entries" | dmenu -p "$reboot_prompt")" || return 1
     echo "$sel" | cut -d' ' -f2-
 }
