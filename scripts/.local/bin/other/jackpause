@@ -31,5 +31,7 @@ get_current_port()
         tr -d ' <:>'
 }
 
+trap exit HUP
+trap "pkill -P $$" EXIT
+
 main "$@"
-exit
