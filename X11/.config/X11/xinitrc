@@ -15,11 +15,14 @@ xset dpms 0 0 0 &
 # enable autolocking
 autolock &
 
-# set keyboard/mouse remaps configurations
+# enable keyboard remaps / mouse settings
 remaps &
 
 # startup dunst
 dunst-init &
+
+# wait for tasks to finish
+wait
 
 # run and manage services and daemons via runsvdir (which is a runit tool).
 # stuff like pulseaudio, mpd, aria2, transmission, dwmbar, stalonetray, etc.
