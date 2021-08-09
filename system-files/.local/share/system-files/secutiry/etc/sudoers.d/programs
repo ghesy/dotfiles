@@ -2,6 +2,7 @@
 Cmnd_Alias SV = /usr/bin/sv, /usr/bin/rsm
 
 Cmnd_Alias PROG = \
+    /usr/bin/unbound-control, \
     /usr/bin/resolvconf, \
     /usr/bin/protonvpn, \
     /usr/bin/nethogs, \
