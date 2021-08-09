@@ -10,7 +10,7 @@ items="
  Lock      : lock,
 鈴 Sleep    : sleep_fn,
 鈴 Hibernate : hibernate_fn,
-⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'sudo -A shutdown -h now',
+⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'loginctl poweroff',
  Reboot    : reboot_fn,
  Logout    : dmenu-prompt 'Logout?' 'command kill $(pidof xinit)',
 "
@@ -33,15 +33,14 @@ hibernate_fn() {
 }
 
 reboot_fn() {
-    cmd=true
     os="$(ask_reboot_os)"
     case $? in
-        9) ;;
+        9) cmd=true ;;
         0) cmd="sudo -A grub-reboot" ;;
         *) return 1 ;;
     esac
     dmenu-prompt 'Reboot?' || return 1
-    $cmd "$os" && sudo -A shutdown -r now
+    $cmd "$os" && loginctl reboot
 }
 
 ask_reboot_os() {
