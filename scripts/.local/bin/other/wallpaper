@@ -46,8 +46,9 @@ reload_kitty_colors()
 {
     command -v kitty >/dev/null || return 1
     for pid in $(pgrep -xO1 kitty); do
-        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1
+        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
     done
+    wait
 }
 
 other()
