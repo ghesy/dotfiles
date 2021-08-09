@@ -43,7 +43,7 @@ install_file()
     are_identical "$src" "$dest" && return 0
     backup_file "$dest"
     sudo mkdir -p "$(dirname "$dest")"
-    sudo cp -v "$src" "$dest"
+    sudo cp "$src" "$dest" && echo "$dest" Installed.
 }
 
 backup_file()
@@ -51,7 +51,7 @@ backup_file()
     backup="$backup_dir$dest"
     if exists "$dest" && ! exists "$backup"; then
         sudo mkdir -p "$(dirname "$backup")"
-        sudo cp -v "$dest" "$backup"
+        sudo cp "$dest" "$backup" && echo "$dest" Backed up.
     fi
 }
 
