@@ -1,6 +1,7 @@
 #!/bin/sh
 # set wallpaper.
 # option -n : only set the wallpaper, no pywal, no themeing.
+# option -a : ask for a pywal backend.
 
 # config
 wall=~/.local/share/wall/main.png
@@ -34,11 +35,11 @@ pywal()
 
     wal -s -t -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"} || return 1
 
+    copy_files &
     dunst-init &
+    reload_dwm_colors &
     reload_kitty_colors &
     pywalfox update 2>/dev/null &
-    other &
-
     wait
 }
 
@@ -51,15 +52,16 @@ reload_kitty_colors()
     wait
 }
 
-other()
+reload_dwm_colors()
 {
-    # copy color files to where they belong so they can be included
+    xdotool key super+F12
+}
+
+# copy pywal color files to where they belong so they can be easily included.
+copy_files()
+{
     cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors
     cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
-    # reload dwm colors from xresources by sending it the xrdb reload key
-    xdotool key super+F12
-    # have dwmbar reload it's colors from xresources by restarting it
-    usv restart dwmbar >/dev/null
 }
 
 ask_backend()
