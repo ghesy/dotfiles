@@ -57,6 +57,7 @@ backup_file()
 
 are_identical()
 {
+    [ ! -r "$1" ] || [ ! -r "$2" ] && return 1
     [ "$(digest "$1")" = "$(digest "$2")" ]
 }
 
