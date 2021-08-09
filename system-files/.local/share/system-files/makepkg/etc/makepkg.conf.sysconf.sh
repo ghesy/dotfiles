@@ -3,9 +3,12 @@
 conf=/etc/makepkg.conf
 
 main() {
+    sum1=$(sha1sum $conf)
     grep -q aria2c $conf || dlagents
     grep -q nproc $conf || makeflags
     grep -q 'ZST.*0' $conf || zstdflags
+    sum2=$(sha1sum $conf)
+    [ "$sum1" != "$sum2" ] && echo Updated $conf.
 }
 
 dlagents() {
