@@ -39,7 +39,7 @@ install_file()
 {
     src="$1"
     dest="$2"
-    [ ! -r "$src" ] && return 1
+    exists "$src" || return 1
     are_identical "$src" "$dest" && return 0
     backup_file "$dest"
     sudo mkdir -p "$(dirname "$dest")"
@@ -49,15 +49,15 @@ install_file()
 backup_file()
 {
     backup="$backup_dir$dest"
-    if [ -r "$dest" ] && [ ! -r "$backup" ]; then
-        sudo mkdir -vp "$(dirname "$backup")"
+    if exists "$dest" && ! exists "$backup"; then
+        sudo mkdir -p "$(dirname "$backup")"
         sudo cp -v "$dest" "$backup"
     fi
 }
 
 are_identical()
 {
-    [ ! -r "$1" ] || [ ! -r "$2" ] && return 1
+    exists "$1" && exists "$2" || return 1
     [ "$(digest "$1")" = "$(digest "$2")" ]
 }
 
@@ -71,6 +71,11 @@ machine()
     chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
     [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
         echo laptop || echo desktop
+}
+
+exists()
+{
+    sudo [ -r "$1" ]
 }
 
 main "$@"

@@ -1,0 +1,13 @@
+#!/hint/bash
+# these are the bits in makepkg.conf that need to be changed.
+
+DLAGENTS=('file::/usr/bin/aria2c --no-conf --min-split-size=1M --summary-interval=0 --max-connection-per-server=2 -o %o %u'
+          'ftp::/usr/bin/aria2c --ftp-pasv --no-conf --min-split-size=1M --summary-interval=0 --max-connection-per-server=2 -o %o %u'
+          'http::/usr/bin/aria2c --no-conf --min-split-size=1M --summary-interval=0 --max-connection-per-server=2 -o %o %u'
+          'https::/usr/bin/aria2c --no-conf --min-split-size=1M --summary-interval=0 --max-connection-per-server=2 -o %o %u'
+          'rsync::/usr/bin/rsync --no-motd -z %u %o'
+          'scp::/usr/bin/scp -C %u %o')
+
+MAKEFLAGS=-j$(nproc)
+
+COMPRESSZST=(zstd -c -z -q -T0 -)
