@@ -50,7 +50,7 @@ backup_file()
 {
     backup="$backup_dir$dest"
     if exists "$dest" && ! exists "$backup"; then
-        sudo mkdir -vp "$(dirname "$backup")"
+        sudo mkdir -p "$(dirname "$backup")"
         sudo cp -v "$dest" "$backup"
     fi
 }
