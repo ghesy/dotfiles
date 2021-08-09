@@ -44,6 +44,8 @@ reboot_fn() {
 }
 
 ask_reboot_os() {
+    command -v grub-reboot >/dev/null || return 9
+    command -v grub-entries >/dev/null || return 9
     entries="$(sudo -A grub-entries -g)"
     [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
     sel="$(echo "$entries" | dmenu -p "$reboot_prompt")" || return 1
