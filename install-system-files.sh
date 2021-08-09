@@ -13,9 +13,13 @@ main()
 
 install_and_backup_system_files()
 {
+    case $(machine) in
+        laptop) exclude=desktop ;;
+        desktop) exclude=laptop ;;
+    esac
     for dir in "$path"/*/; do
         find -L "$dir" -type f \
-            -not -path "*/*.$(get_machine_type)/*"
+            -not -path "*/*.$exclude/*" \
             -not -path '*/OTHER/*'  \
             -not -path '*/MANUAL/*' \
             -not -name '*.ignore'   \
@@ -61,7 +65,7 @@ digest()
     sudo sha1sum "$1" | cut -d' ' -f1
 }
 
-get_machine_type()
+machine()
 {
     chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
     [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
