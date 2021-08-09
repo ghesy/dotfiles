@@ -1,11 +1,12 @@
 #!/bin/sh
 # (re)start dunst with pywal colors (if they exist).
-wal=~/.cache/wal/colors.sh
-[ ! -r $wal ] && exit
-. $wal || exit 1
+colors=~/.cache/wal/colors.sh
+[ ! -r $colors ] && exit
+. $colors || exit 1
 pkill -x -9 dunst
 setsid -f dunst \
     -frame_color "$color2" \
     -lb "$color0"  -lf "$color14" -lh "$color9" \
     -nb "$color0"  -nf "$color14" -nh "$color9" \
-    -cb "$color0"  -cf "$color14" -ch "$color9" -cf "$color9"
+    -cb "$color0"  -cf "$color14" -ch "$color9" -cf "$color9" \
+    >/dev/null 2>&1
