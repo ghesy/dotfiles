@@ -13,11 +13,9 @@ main()
 
 install_and_backup_system_files()
 {
-    is_laptop && laptop=true || unset laptop
-
     for dir in "$path"/*/; do
         find -L "$dir" -type f \
-            ${laptop:--not -path '*/*.laptop/*'} \
+            -not -path "*/*.$(get_machine_type)/*"
             -not -path '*/OTHER/*'  \
             -not -path '*/MANUAL/*' \
             -not -name '*.ignore'   \
@@ -63,11 +61,11 @@ digest()
     sudo sha1sum "$1" | cut -d' ' -f1
 }
 
-is_laptop()
+get_machine_type()
 {
-    chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
+    chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
     [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
-        return 0 || return 1
+        echo laptop || echo desktop
 }
 
 main "$@"
