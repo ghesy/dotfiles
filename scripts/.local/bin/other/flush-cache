@@ -1,0 +1,11 @@
+#!/bin/sh
+# flush the DNS cache.
+dir=/etc/unbound
+pidof -q unbound || exit 1
+die() { notify-send flush-cache "$*"; exit 1 ;}
+[ -e $dir/unbound_control.key ] || die "Run unbound-control-setup."
+grep -q 'control-enable.*yes' $dir/unbound.conf || die "Enable remote control in unbound.conf."
+export SUDO_ASKPASS=/usr/bin/true
+sudo -A unbound-control -h >/dev/null 2>&1 || die "Add unbound-control to sudo's NOPASSWD."
+sudo -A unbound-control flush_negative
+sudo -A unbound-control flush_bogus
