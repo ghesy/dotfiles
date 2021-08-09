@@ -26,12 +26,12 @@ dunst-init &
 # stuff like pulseaudio, mpd, aria2, transmission, dwmbar, stalonetray, etc.
 runsvdir -P "$USVDIR" &
 
+# lock the screen
+sleep 0.2; lock & sleep 0.2
+
 # set wallpaper
 wall() { feh --no-fehbg --bg-fill ~/.local/share/wall/$1 ;}
 wall main.png || wall artix.png
-
-# lock the screen
-(sleep 0.2; lock) &
 
 # loop to launch dwm and relaunch if killed
 while true; do
