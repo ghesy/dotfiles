@@ -67,10 +67,16 @@ net_recently_changed()
     then
         state_recently_changed && return 0 || return 1
     else
-        mkdir -p "$(dirname "$state_file")"
-        prnt "$state" > "$state_file"
+        update_state
+        setsid -f flush-cache >/dev/null 2>&1
         return 0
     fi
+}
+
+update_state()
+{
+    mkdir -p "$(dirname "$state_file")"
+    prnt "$state" > "$state_file"
 }
 
 state_recently_changed()
