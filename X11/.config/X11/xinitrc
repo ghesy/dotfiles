@@ -1,20 +1,19 @@
 #!/bin/sh
 
 # source xinitrc.d scripts
-for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done
-unset f
+for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done; unset f
 
 # merge xresources
-xrdb -merge ~/.config/X11/xresources
+xrdb -merge ~/.config/X11/xresources &
 
 # disable bell
-xset -b
+xset -b &
 
 # disable the default screen blanking
-xset dpms 0 0 0
+xset dpms 0 0 0 &
 
 # enable autolocking
-autolock
+autolock &
 
 # set keyboard/mouse remaps configurations
 remaps &
@@ -22,7 +21,7 @@ remaps &
 # startup dunst
 dunst-init &
 
-# run some programs and services via runit's runsvdir
+# run and manage services and daemons via runsvdir (which is a runit tool).
 # stuff like pulseaudio, mpd, aria2, transmission, dwmbar, stalonetray, etc.
 runsvdir -P "$USVDIR" &
 
@@ -30,8 +29,7 @@ runsvdir -P "$USVDIR" &
 sleep 0.2; lock & sleep 0.2
 
 # set wallpaper
-wall() { feh --no-fehbg --bg-fill ~/.local/share/wall/$1 ;}
-wall main.png || wall artix.png
+~/.fehbg &
 
 # loop to launch dwm and relaunch if killed
 while true; do

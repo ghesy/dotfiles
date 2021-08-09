@@ -1,54 +1,37 @@
 #!/bin/sh
 # set wallpaper.
 # option -n : only set the wallpaper, no pywal, no themeing.
-# option -a : ask for a pywal backend.
-
-# config
-wall=~/.local/share/wall/main.png
-alpha="$(cat ~/.config/wal/alpha)"
 
 main()
 {
-    case "$1" in
-        -n) shift; no_pywal=true ;;
-        -a) shift; ask_backend=true ;;
-        --) shift; break ;;
-         *) break ;;
-    esac
-    img="$1"
-    [ ! -e "$img" ] && echo wallpaper: no image given >&2 && return 1
+    while getopts n opt; do case $opt in
+        n) nopywal=true ;;
+        ?) exit 1 ;;
+    esac; done; shift $((OPTIND-1))
 
-    feh --no-fehbg --bg-fill "$img"
-    ln -sf "$(readlink -f "$img")" "$wall"
-    [ "$no_pywal" != true ] && pywal "$img"
+    [ -z "$1" ] &&
+        echo no image given. >&2 &&
+        return 1
 
-    wait
+    if [ "$nopywal" = true ]; then
+        feh --bg-fill -- "$1"
+    else
+        pywal "$1"
+    fi
 }
 
 pywal()
 {
     command -v wal >/dev/null || return 1
 
-    if [ "$ask_backend" = true ]; then
-        backend="$(ask_backend)" || return 1
-    fi
-
-    wal -s -t -i "$1" -a "$alpha" -n ${backend:+--backend "$backend"} || return 1
+    alpha="$(cat ~/.config/wal/alpha 2>/dev/null)"
+    wal -s -t -i "$1" ${alpha:+-a $alpha} || return 1
 
     copy_files &
     dunst-init &
     reload_dwm_colors &
     reload_kitty_colors &
     pywalfox update 2>/dev/null &
-    wait
-}
-
-reload_kitty_colors()
-{
-    command -v kitty >/dev/null || return 1
-    for pid in $(pgrep -xO1 kitty); do
-        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
-    done
     wait
 }
 
@@ -64,12 +47,14 @@ copy_files()
     cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
 }
 
-ask_backend()
+reload_kitty_colors()
 {
-    [ -t 2 ] && cmd='fzf --prompt' || cmd='dmenu -p'
-    printf '%s\n' wal colorthief haishoku colorz |
-        $cmd 'pywal backend: '
+    command -v kitty >/dev/null || return 1
+    pidof -q kitty || return 1
+    for pid in $(pgrep -xO1 kitty); do
+        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
+    done
+    wait
 }
 
 main "$@"
-exit
