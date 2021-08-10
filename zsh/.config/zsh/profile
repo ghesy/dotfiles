@@ -129,8 +129,8 @@ chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
     export LAPTOP=true
 
 # load machine-specific configs
-for f in ~/.config/zsh/profile.d/*; do
-    [ -r "$f" ] && source "$f"
+for f in $(find ~/.config/zsh/profile.d -type f 2>/dev/null); do
+    source "$f"
 done
 
 # clear tty on exit
