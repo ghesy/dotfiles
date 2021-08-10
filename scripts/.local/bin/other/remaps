@@ -4,21 +4,20 @@
 # exit if not in X.
 [ -z "$DISPLAY" ] && exit 1
 
+# disable mouse acceleration.
+noaccel &
+
+# set key repeat rate
+xset r off &
+
 # set keyboard layouts.
 setxkbmap -layout us,ir -option grp:ctrls_toggle
 
-# remap capslock to escape, and menu (compose) key to right super.
-xmodmap \
-    -e 'remove Lock = Caps_Lock'    \
-    -e 'keysym Caps_Lock = Super_L' \
-    -e 'keycode 135 = Super_R'
+# remap caps lock to escape, and menu/compose key to right super.
+xmodmap -e 'remove Lock = Caps_Lock' -e 'keysym Caps_Lock = Super_L' -e 'keycode 135 = Super_R'
 
-# left super (which is now caps lock) acts as escape if pressed and released.
+# make left super (caps lock) be escape if short-pressed.
 pkill -x xcape
 xcape -e Super_L=Escape
 
-# set key repeat rate
-xset r off
-
-# disable mouse acceleration.
-noaccel
+wait
