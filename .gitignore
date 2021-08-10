@@ -3,4 +3,5 @@ pywal-colors
 services/**/supervise
 **/error.log
 zsh/**/*compdump
-zsh/**/profile-extra
+zsh/**/profile.d/
+X11/**/xinitrc.d/

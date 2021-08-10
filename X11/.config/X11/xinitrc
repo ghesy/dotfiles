@@ -1,7 +1,10 @@
 #!/bin/sh
 
-# source xinitrc.d scripts
-for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done; unset f
+# run xinitrc.d scripts
+for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && "$f"; done; unset f
+
+# source machine-specific configs
+for f in ~/.config/X11/xinitrc.d/*; do [ -r "$f" ] && . $f; done; unset f
 
 # merge xresources
 xrdb -merge ~/.config/X11/xresources &

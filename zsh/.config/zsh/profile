@@ -107,7 +107,7 @@ export LESSOPEN='| bat -fppn -- %s 2>/dev/null' # colorize less using bat
 
 # ls settings
 ls_colors="$XDG_CONFIG_HOME/lscolors/lscolors"
-test -r "$ls_colors" && source "$ls_colors"
+[ -r "$ls_colors" ] && source "$ls_colors"
 export TIME_STYLE="+%F %T"
 
 # other stuff
@@ -128,9 +128,10 @@ chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
 [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
     export LAPTOP=true
 
-# load a file containing machine-specific settings
-extra="$XDG_CONFIG_HOME/zsh/profile-extra"
-test -r "$extra" && source "$extra"
+# load machine-specific configs
+for f in ~/.config/zsh/profile.d/*; do
+    [ -r "$f" ] && source "$f"
+done
 
 # clear tty on exit
 [ -z "$SSH_CLIENT" ] && trap reset EXIT
