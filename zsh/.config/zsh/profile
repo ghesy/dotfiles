@@ -35,7 +35,6 @@ export WINEPREFIX="$XDG_DATA_HOME/wineprefixes/default"
 export NUGET_PACKAGES="$XDG_CACHE_HOME/NuGetPackages"
 export GTK_RC_FILES="$XDG_CONFIG_HOME/gtk-1.0/gtkrc"
 export ANDROID_SDK_HOME="$XDG_CONFIG_HOME/android"
-export XSERVERRC="$XDG_CONFIG_HOME/X11/xserverrc"
 export TS3_CONFIG_DIR="$XDG_DATA_HOME/ts3client"
 export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 export KEYCHAIN_DIR="$XDG_DATA_HOME/keychain"
@@ -123,10 +122,9 @@ export QT_QPA_PLATFORMTHEME="$qtenv"
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
 eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
 
-# export the LAPTOP variable if the machine's chassis is a laptop
-chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)" || return 1
-[ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
-    export LAPTOP=true
+# set LAPTOP to true if the machine is a laptop
+chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
+[ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] && export LAPTOP=true
 
 # load machine-specific configs
 for f in $(find ~/.config/zsh/profile.d -type f 2>/dev/null); do
@@ -137,7 +135,6 @@ done
 [ -z "$SSH_CLIENT" ] && trap reset EXIT
 
 # start X
-[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] &&
-    startx "$XINITRC" -- "$XSERVERRC" vt1 -keeptty >/dev/null 2>&1
+[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && exec startx "$XINITRC" >/dev/null 2>&1
 
 # vim:ft=zsh
