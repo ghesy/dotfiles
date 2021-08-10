@@ -16,19 +16,23 @@ disable_acceleration()
 
 get_mice()
 {
-    for info in /sys/class/input/mouse*/device/uevent; do
-        [ -r "$info" ] || continue
-        device="$(grep NAME= "$info" | cut -d= -f2 | tr -d '"')"
-        ! is_touchpad "$device" && prnt "$device"
+    for device in /sys/class/input/mouse*; do
+        [ ! -e "$device" ] && continue
+        ! is_touchpad "$device" && get_name "$device"
     done
 }
 
 is_touchpad()
 {
-    prnt "$1" | grep -Eiq 'touchpad|trackpad' && return 0
-    xinput list-props "pointer:$1" |
-        grep -Eiq 'tapping|natural.*\s+1|dis.*while' && return 0
+    readlink -f "$1" | grep -q '/usb' || return 0
+    get_name "$1" | grep -Eiq 'touchpad|trackpad' && return 0
+    xinput list-props "pointer:$(get_name "$1")" | grep -Eiq 'tapping|natural.*\s+1|dis.*while' && return 0
     return 1
+}
+
+get_name()
+{
+    grep NAME= "$1/device/uevent" | cut -d= -f2 | tr -d '"'
 }
 
 prnt()
