@@ -94,4 +94,4 @@ done
 [ -z "$SSH_CLIENT" ] && trap reset EXIT
 
 # start X
-[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && exec startx "$XINITRC" >/dev/null 2>&1
+[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && startx "$XINITRC" >/dev/null 2>&1
