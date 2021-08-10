@@ -1,0 +1,39 @@
+#!/bin/sh
+# disable the acceleration for connected mice, but not touchpads.
+
+main()
+{
+    get_mice | while IFS= read -r mouse; do
+        disable_acceleration "$mouse"
+    done
+}
+
+disable_acceleration()
+{
+    xinput --set-prop "pointer:$1" 'libinput Accel Profile Enabled' 0, 1 &&
+        echo Disabled acceleration for: "$1"
+}
+
+get_mice()
+{
+    for info in /sys/class/input/mouse*/device/uevent; do
+        [ -r "$info" ] || continue
+        device="$(grep NAME= "$info" | cut -d= -f2 | tr -d '"')"
+        ! is_touchpad "$device" && prnt "$device"
+    done
+}
+
+is_touchpad()
+{
+    prnt "$1" | grep -Eiq 'touchpad|trackpad' && return 0
+    xinput list-props "pointer:$1" |
+        grep -Eiq 'tapping|natural.*\s+1|dis.*while' && return 0
+    return 1
+}
+
+prnt()
+{
+    printf '%s\n' "$*"
+}
+
+main "$@"
