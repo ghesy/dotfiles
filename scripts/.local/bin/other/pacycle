@@ -1,41 +1,23 @@
 #!/bin/sh
 # cycle audio output devices.
 
-main () {
-    case "$1" in
-       -g) set_glyph; exit ;;
-        *)
-            vars
-            pactl set-default-sink "$next_sink_id"
-            set_glyph
-            dwmbarref audio
-            switch_programs "$next_sink_id" ;;
-    esac
+main()
+{
+    vars
+    pactl set-default-sink "$next_sink_id"
+    dwmbarref audio
+    switch_programs
 }
 
-switch_programs () {
+switch_programs()
+{
     pactl list short sink-inputs | cut -f1 | while IFS= read -r program; do
-        pactl move-sink-input "$program" "$1"
+        pactl move-sink-input "$program" "$next_sink_id"
     done
 }
 
-set_glyph () {
-    conf=~/.config/dwmbar/audio-glyphs
-    glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
-    mkdir -p "$(dirname "$glyph")"
-    if [ ! -r "$conf" ]; then
-        mkdir -p "$(dirname "$conf")"
-        [ "$LAPTOP" = true ] &&
-            printf '->hdmi\n->analog\n' > "$conf" ||
-            printf '->hdmi\n->analog\n' > "$conf"
-    fi
-    sink="$next_sink_name"
-    [ -z "$sink" ] &&
-        sink="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-    awk -F'->' -v c="$sink" 'match(c,$2){print$1}' "$conf" > "$glyph"
-}
-
-vars () {
+vars()
+{
     list="$(pactl list short sinks)"
     current_sink_name="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
     list_of_ids="$(echo "$list" | cut -f1)"
@@ -46,7 +28,8 @@ vars () {
     next_sink_name="$(echo "$list" | grep -w "^$next_sink_id" | cut -f2)"
 }
 
-get_next_sink () {
+get_next_sink()
+{
     echo "$id_loop" | while IFS= read -r id; do
         [ "$id" = "$current_sink_id" ] && read -r id && echo "$id"
     done

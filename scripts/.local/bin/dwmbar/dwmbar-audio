@@ -1,6 +1,7 @@
 #!/bin/sh
-glyph="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/audio_glyph"
-[ ! -r "$glyph" ] || [ -z "$(cat "$glyph")" ] && sleep 2 && pacycle -g
-cat "$glyph"
+case "$(pactl info | grep 'Default Sink')" in
+    *analog*) echo  ;;
+    *hdmi*) echo  ;;
+esac
 pamixer --get-volume-human
 mpc | grep -qi '^\[playing' && echo 
