@@ -2,6 +2,7 @@
 case "$(pactl info | grep 'Default Sink')" in
     *analog*) echo  ;;
     *hdmi*) echo  ;;
+    *) echo 蓼 ;;
 esac
 pamixer --get-volume-human
 mpc | grep -qi '^\[playing' && echo 
