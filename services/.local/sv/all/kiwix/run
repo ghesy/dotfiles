@@ -1,2 +1,2 @@
 #!/bin/sh
-authbind kiwix-serve /media/zim/*.zim
+exec authbind kiwix-serve /media/zim/*.zim
