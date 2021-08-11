@@ -18,7 +18,7 @@ switch_programs()
 
 vars()
 {
-    list="$(pactl list short sinks)"
+    list="$(pactl list short sinks | grep -v loop)"
     current_sink_name="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
     list_of_ids="$(echo "$list" | cut -f1)"
     first_id="$(echo "$list_of_ids" | head -n1)"
