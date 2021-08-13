@@ -68,7 +68,6 @@ net_recently_changed()
         state_recently_changed && return 0 || return 1
     else
         update_state
-        setsid -f flush-cache >/dev/null 2>&1
         return 0
     fi
 }
