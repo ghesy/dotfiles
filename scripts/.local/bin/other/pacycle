@@ -4,9 +4,14 @@
 main()
 {
     vars
-    pactl set-default-sink "$next_sink_id"
+    switch_sink
     dwmbarref audio
     switch_programs
+}
+
+switch_sink()
+{
+    pactl set-default-sink "$next_sink_id"
 }
 
 switch_programs()
