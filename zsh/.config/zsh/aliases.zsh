@@ -24,8 +24,23 @@ lf() {
 }
 
 search() { f="$(finder "$@")" && lf "$f"; unset f }
-b()  { p="$(command bm "$@")" && cd "$p" || echo "$p"; unset p }
-_b() { compadd $(command bm -l) }
+
+b() {
+    case "$1" in
+        --) shift ;;
+        -*) command bm "$@"; return ;;
+    esac
+
+    p="$(command bm "$@")"
+    [ -z "$p" ] && return
+    cd "$p"
+    unset p
+}
+
+_b() {
+    compadd $(command bm -l)
+}
+
 compdef _b b
 alias bm=b
 
