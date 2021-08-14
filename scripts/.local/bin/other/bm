@@ -1,115 +1,51 @@
 #!/bin/sh
-# a script for bookmarking directories
-# and accessing them.
+# bookmark paths.
+# requires moreutils.
 
 # config
-bookmarks="$XDG_DATA_HOME/bm/bookmarks"
-fs='[ \\t]*\\|[ \\t]*'
+list=~/.local/share/bm/bookmarks
 
 main ()
 {
-    opts="$(getopt -odlarfh -- "$@")" && eval set -- "$opts" || { echo; help; return 1; }
+    fn=resolve
+    while getopts arl opt; do
+        case $opt in
+            a) fn=add ;;
+            r) fn=remove ;;
+            l) fn=list ;;
+            ?) exit 1 ;;
+        esac
+    done
+    shift $((OPTIND-1))
 
-    while true; do case "$1" in
-        -d) bmrun; return ;;
-        -f) height='--height=100%'; shift ;;
-        -a) add "$2"; return 1 ;;
-        -r) shift; remove "$@"; return 1 ;;
-        -l) list; return 1 ;;
-        -h) help; return 1 ;;
-        --) shift; break ;;
-         *) help; return 1 ;;
-    esac; done
+    [ -z "$*" ] && set -- "$(basename "$PWD")"
 
-    case "$1" in
-        '') get_path "$(selector)" ;;
-         *) get_path "$@" ;;
-    esac
-}
-
-bmrun ()
-{
-    sel="$(list | dmenu -p 'go where?')"
-    [ -n "$sel" ] && ${FILE:-xdg-open} "$(get_path "$sel")"
-}
-
-get_path ()
-{
-    local bm_name="$1"
-    [ -z "$bm_name" ] && return 1
-
-    singular="${bm_name%s}"
-    plural="${singular}s"
-
-    local found_path="$(
-        awkfn -v bm="$bm_name" -v si="$singular" -v pl="$plural" \
-            '$1==bm || $1==si || $1==pl {print $2; exit}' "$bookmarks"
-    )"
-
-    if [ $? -ne 0 ] || [ -z "$found_path" ]; then
-        return 1
-    fi
-
-    eval echo "$found_path/"
-}
-
-selector ()
-{
-    awkfn 'NF {print $1}' "$bookmarks" | fzf --prompt=goto: $height
-    return $?
-}
-
-add ()
-{
-    [ -n "$1" ] &&
-        local bm_name="$1" ||
-        local bm_name="$(basename "$PWD")"
-
-    local current_path="$(echo "$PWD" | sed "s/\/home\/$USER/~/")"
-    get_path "$bm_name" >/dev/null ||
-        echo "$bm_name | $current_path" >> "$bookmarks"
-}
-
-remove ()
-{
-    for arg; do
-        local bm_name="$arg"
-        local new="$(
-            awkfn -v bm="$bm_name" '$1 != bm {print $0}' "$bookmarks"
-        )"
-        [ $? -ne 0 ] && return 1
-        echo "$new" > "$bookmarks"
+    for bm; do
+        bm="$(printf '%s\n' "$bm" | tr ' \t' '_')"
+        $fn
     done
 }
 
-list ()
+list()
 {
-    awkfn '{print $1}' "$bookmarks"
+    awk '{print $1}' "$list"
 }
 
-awkfn ()
+add()
 {
-    awk -v FS="$fs" "$@"
+    resolve "$bm" >/dev/null && return
+    mkdir -p "$(dirname "$list")"
+    printf '%s\n%s\t%s\n' "$(cat "$list")" "$bm" "$PWD" | column -t | sponge "$list"
 }
 
-help() {
-    print_help >&2
+remove()
+{
+    awk -v bm="$bm" 'tolower($1) != tolower(bm)' "$list" | sponge "$list"
 }
 
-print_help() {
-cat << 'eof'
-bm: a script for bookmarking directories.
-Usage: bm [-dlarf] [bookmark-name]
-Options:
-  -d            ask a bookmark via dmenu and open it.
-  -l            list bookmark names, one per line.
-  -a name       bookmark the current working directory
-                  with the given name.
-  -r name...    remove the given bookmark(s).
-  -f            set fzf's height to 100%.
-  -h            show this help message.
-eof
+resolve()
+{
+    awk -v bm="$bm" 'tolower($1) == tolower(bm) {print $2}' "$list"
 }
 
 main "$@"
-exit
