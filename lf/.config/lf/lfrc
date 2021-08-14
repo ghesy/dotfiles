@@ -36,17 +36,8 @@ cmd suedit $suedit -- $f
 cmd jumpback push :mark-load<enter>'
 cmd open        &opener -l -- $f
 cmd openall     &opener -l -- $fx
+cmd openfork    &opener -fl -- $f
 cmd openallfork &opener -fl -- $fx
-
-# if it's a symlink, go to where it's pointing;
-# if it's a file, open it with opener and fork it.
-cmd openfork &{{
-    if [ -d $f ]; then
-        lfselect $(readlink -f $f)
-    else
-        opener -fl -- $f
-    fi
-}}
 
 cmd paste ${{
     printf '\e[?1049h'
@@ -75,9 +66,11 @@ cmd mkexec &{{
 }}
 
 cmd delete ${{
+    printf '\e[?1049h'
     echo '  permanently deleting files:'; echo
     echo "$fx"; echo
     confirm '  delete?' && rm -rf -- $fx
+    printf '\e[?1049l'
 }}
 
 cmd bulkrename ${{
@@ -101,7 +94,9 @@ cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lfreload;lfs
 
 # bookmarkig
 cmd bookmarks ${{
-    p="$(bm)" || exit
+    p="$(bm -l | fzf)" || exit
+    p="$(bm "$p")"
+    [ ! -r "$p" ] && exit
     lf -remote "send $id select '$p'"
     lf -remote "send $id open"
 }}
