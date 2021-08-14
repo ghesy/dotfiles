@@ -1,0 +1,32 @@
+#!/bin/sh
+# read text from stdin and extract and open web URLs from it.
+
+# config
+url_regex="(((http|https|gopher|gemini|ftp|ftps|git)://|www\\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./@$&%?$\#=_~-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)"
+
+main()
+{
+    exec >/dev/null 2>&1
+
+    url_list="$(get_urls)"
+    [ -z "$url_list" ] && exit 1
+    url="$(printf '%s\n' "$url_list" | dmenu -p 'Choose a URL')" || exit
+
+    case "$(action)" in
+        copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
+        open) xdg-open "$url" ;;
+    esac
+}
+
+action()
+{
+    printf 'copy\nopen' | dmenu -p 'do what?'
+}
+
+get_urls()
+{
+    grep -Eoa "$url_regex" | sort -u |
+        sed -e 's/\(\.\|,\|;\|\!\|\?\/\)$//g' -e 's/^www./http:\/\//'
+}
+
+main "$@"
