@@ -151,3 +151,6 @@ alias pvpn='sudo protonvpn'
 
 # edit aliases and such
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
+
+alias cp='cpg -ag --backup=numbered'
+alias mv='mvg -g --backup=numbered'
