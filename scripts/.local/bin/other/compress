@@ -1,0 +1,57 @@
+#!/bin/sh
+# get files and ask how to compress them.
+
+# set some zstd options
+export ZSTD_CLEVEL=18
+export ZSTD_NBTHREADS=0
+
+main()
+{
+    [ -z "$*" ] && return 1
+
+    for arg; do
+        set -- "$@" "$(realpath -s --relative-base="$PWD" -- "$1")"
+        shift
+    done
+
+    format="$(ask_format)" || return 1
+
+    if [ $# -gt 1 ]; then
+        cmd="$(ask_cmd)" || return 1
+    else
+        cmd=apack
+    fi
+
+    $cmd -F "$format" -- "${1}$format" "$@"
+}
+
+ask_format()
+{
+    line="$(printf '%s\t%s\n' Zstandard .tar.zst Zip .zip 7z .7z | ask Format:)" || return 1
+    prnt "$line" | cut -f2
+}
+
+ask_cmd()
+{
+    line="$(printf '%s\t%s\n' 'Compress All' 'apack' \
+        'Compress each folder Separately' 'apack -e' \
+        'Repack' 'arepack -e' | ask Mode:)" || return 1
+    prnt "$line" | cut -f2
+}
+
+ask()
+{
+    fzf -d'\t' --with-nth=1 --info=hidden --border=none --height=1% --prompt="$*"
+}
+
+prnt()
+{
+    printf '%s\n' "$*"
+}
+
+trap "printf '\e[?1049l'; printf '\e[?25h'" EXIT
+printf '\e[?1049h'
+printf '\e[?25l'
+printf '\e[H'
+
+main "$@"
