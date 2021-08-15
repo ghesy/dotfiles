@@ -18,8 +18,8 @@ set previewer lfpreviewer
 set cleaner   lfcleaner
 
 set timefmt   "2006-01-02 15:04"
-set promptfmt "\033[2m%d"
 set errorfmt  "\033[31m%s\033[0m"
+set promptfmt "\033[2m%d"
 
 set nohidden
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
@@ -41,6 +41,7 @@ cmd openallfork &opener -fl -- $fx
 
 cmd paste ${{
     printf '\e[?1049h'
+    printf '\e[H'
     list=~/.local/share/lf/files
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
@@ -161,12 +162,7 @@ cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop -a -x $fx
 cmd drag-separate &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect
-
-cmd wallpaper ${{
-    printf '\e[?1049h'
-    wallpaper -- "$f"
-    printf '\e[?1049l'
-}}
+cmd wallpaper &wallpaper -- $f
 
 # ==============
 # = Bindings
