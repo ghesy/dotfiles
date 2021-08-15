@@ -162,7 +162,7 @@ cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop -a -x $fx
 cmd drag-separate &dragon-drag-and-drop $fx
 cmd finder $finder -f | lfselect
-cmd wallpaper &wallpaper -- $f
+cmd wallpaper &wallpaper $f
 
 # ==============
 # = Bindings
