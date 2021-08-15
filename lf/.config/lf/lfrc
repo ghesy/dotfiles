@@ -67,9 +67,11 @@ cmd mkexec &{{
 
 cmd delete ${{
     printf '\e[?1049h'
-    echo '  permanently deleting files:'; echo
-    echo "$fx"; echo
-    confirm '  delete?' && rm -rf -- $fx
+    printf '\e[H'
+    echo 'Permanently Deleting Files:'; echo
+    printf '  %s\n' $fx ""
+    read -p 'Delete? [y/N] ' ans
+    case "$ans" in y|Y) rm -rf -- $fx ;; esac
     printf '\e[?1049l'
 }}
 
