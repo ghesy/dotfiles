@@ -1,3 +1,7 @@
 #!/bin/sh
 # enable auto locking by setting inactivity and lock times of X.
-xset s ${X_DIM_TIME:-300} ${X_LOCK_TIME:-600}
+case $LAPTOP in
+    true) tdim=150; tlock=300 ;;
+       *) tdim=300; tlock=600 ;;
+esac
+xset s $tdim $tlock
