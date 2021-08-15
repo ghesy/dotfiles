@@ -21,7 +21,6 @@ sleep_fn() {
     else
         loginctl suspend
     fi
-    dwmbarref battery
 }
 
 hibernate_fn() {
