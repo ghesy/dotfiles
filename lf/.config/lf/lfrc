@@ -134,29 +134,16 @@ cmd sized1  $du -hd1 2>/dev/null | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
 cmd ncdu    $ncdu
 
 # archive stuff
-cmd extract $echo '  extracting:'; echo "$fx"; aunpack -De -- $fx
-
-cmd zstd ${{
-    export ZSTD_CLEVEL=18
-    export ZSTD_NBTHREADS=0
-    apack -F.tar.zst -- $f.tar.zst $(realpath --relative-base=$PWD -- $fx) 2>&1 | grep -v ^Wide
+cmd extract ${{
+    printf '\e[?1049h'
+    printf '\e[H'
+    printf '%s\n\n' 'extracting:'
+    printf '  %s\n' $fx ""
+    aunpack -De -- $fx
+    printf '\e[?1049l'
 }}
 
-cmd zstd-each ${{
-    export ZSTD_CLEVEL=18
-    export ZSTD_NBTHREADS=0
-    apack -e -F.tar.zst -- $(realpath --relative-base=$PWD -- $fx) 2>&1 | grep -v ^Wide
-}}
-
-cmd zstd-repack ${{
-    export ZSTD_CLEVEL=18
-    export ZSTD_NBTHREADS=0
-    arepack -e -F.tar.zst -- $fx 2>&1 | grep -v ^Wide
-}}
-
-cmd zip $ apack -F.zip -- $f.zip $(realpath --relative-base=$PWD -- $fx) 2>&1
-cmd zip-each $ apack -e -F.zip -- $(realpath --relative-base=$PWD -- $fx) 2>&1
-cmd zip-repack $ arepack -e -F.zip -- $fx
+cmd compress $compress $fx
 
 cmd archive-mount &lfmount $f
 cmd archive-mount-password $lfmount -p $f
@@ -228,12 +215,7 @@ map dr drag
 map dR drag-separate
 
 map ex extract
-map zz zstd
-map zZ zstd-each
-map zr zstd-repack
-map Zz zip
-map ZZ zip-each
-map Zr zip-repack
+map co compress
 map mm archive-mount
 map mM archive-mount-password
 map uu archive-unmount
