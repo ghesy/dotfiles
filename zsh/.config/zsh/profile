@@ -5,7 +5,7 @@ localpaths="$(find "$HOME/.local/bin" -mindepth 1 -maxdepth 1 -printf ":%p")"
 export PATH="${PATH}${localpaths}"
 
 # default programs
-export TERMINAL=kitty
+export TERMINAL=st
 export EDITOR=nvim
 export VISUAL=nvim
 export PAGER=less
