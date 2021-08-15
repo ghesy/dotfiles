@@ -29,6 +29,7 @@ pywal()
 
     copy_files &
     dunst-init &
+    reload_st_colors &
     reload_dwm_colors &
     reload_kitty_colors &
     pywalfox update 2>/dev/null &
@@ -40,21 +41,24 @@ reload_dwm_colors()
     xdotool key super+F12
 }
 
+reload_st_colors()
+{
+    killall -USR1 st
+}
+
+reload_kitty_colors()
+{
+    for pid in $(pidof kitty); do
+        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
+    done
+    wait
+}
+
 # copy pywal color files to where they belong so they can be easily included.
 copy_files()
 {
     cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors
     cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
-}
-
-reload_kitty_colors()
-{
-    command -v kitty >/dev/null || return 1
-    pidof -q kitty || return 1
-    for pid in $(pgrep -xO1 kitty); do
-        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
-    done
-    wait
 }
 
 main "$@"
