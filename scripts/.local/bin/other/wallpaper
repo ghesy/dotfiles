@@ -4,26 +4,14 @@
 
 main()
 {
-    while getopts n opt; do case $opt in
-        n) nopywal=true ;;
-        ?) exit 1 ;;
-    esac; done; shift $((OPTIND-1))
-
-    [ -z "$1" ] &&
-        echo no image given. >&2 &&
-        return 1
-
-    if [ "$nopywal" = true ]; then
-        feh --bg-fill -- "$1"
-    else
-        pywal "$1"
-    fi
+    case "$1" in
+        -n) feh --bg-fill -- "$2"; return ;;
+         *) pywal "$1" ;;
+    esac
 }
 
 pywal()
 {
-    command -v wal >/dev/null || return 1
-
     alpha="$(cat ~/.config/wal/alpha 2>/dev/null)"
     wal -s -t -i "$1" ${alpha:+-a $alpha} || return 1
 
@@ -31,26 +19,7 @@ pywal()
     dunst-init &
     reload_st_colors &
     reload_dwm_colors &
-    reload_kitty_colors &
     pywalfox update 2>/dev/null &
-    wait
-}
-
-reload_dwm_colors()
-{
-    xdotool key super+F12
-}
-
-reload_st_colors()
-{
-    killall -USR1 st
-}
-
-reload_kitty_colors()
-{
-    for pid in $(pidof kitty); do
-        kitty @ --to unix:@kitty-$pid set-colors -a ~/.cache/wal/kitty >/dev/null 2>&1 &
-    done
     wait
 }
 
@@ -60,5 +29,8 @@ copy_files()
     cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors
     cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
 }
+
+reload_dwm_colors() { xdotool key super+F12 ;}
+reload_st_colors()  { setsid -f sh -c "sleep 0.1; killall -USR1 st" >/dev/null 2>&1 ;}
 
 main "$@"
