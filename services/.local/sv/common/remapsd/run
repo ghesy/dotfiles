@@ -1,7 +1,7 @@
 #!/bin/sh
 trap "pkill -P $$" EXIT
 udevadm monitor -usinput | xargs -I{} sh -c "
-    pgrep -af "remapsd-$$" | grep -qv xargs && exit
+    pgrep -af remapsd-$$ | grep -qv xargs && exit
     setsid -f sh -c 'sleep 1; echo remapsd-$$' >/dev/null 2>&1
     remaps
 "
