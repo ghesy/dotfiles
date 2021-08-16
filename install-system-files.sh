@@ -68,9 +68,10 @@ digest()
 
 machine()
 {
-    chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
-    [ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] &&
-        echo laptop || echo desktop
+    case $(</sys/class/dmi/id/chassis_type) in
+        9|10|11|14) echo laptop  ;;
+                 *) echo desktop ;;
+    esac
 }
 
 exists()
