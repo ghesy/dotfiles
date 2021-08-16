@@ -33,7 +33,7 @@ list()
 
 add()
 {
-    resolve "$bm" >/dev/null && return
+    remove
     mkdir -p "$(dirname "$list")"
     printf '%s\n%s\t%s\n' "$(cat "$list")" "$bm" "$PWD" | column -t | sponge "$list"
 }
