@@ -1,5 +1,0 @@
-#!/bin/sh
-# turn off the monitor.
-xset dpms force off
-sleep 1
-xset dpms force off
