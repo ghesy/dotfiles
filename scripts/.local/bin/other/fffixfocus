@@ -1,20 +1,13 @@
 #!/bin/sh
-
 # if you use a vi-like extention for firefox (ex. trydactyl),
 # and the addressbar is focused, there is no way to focus on the
 # webpage again without using the mouse or typing something in the
 # addressbar and pressing enter.
-#
 # but this script gives the focus back to the main page, by
 # right and then left clicking in the center of currently active
 # window.
-#
-# you can combine this script with my isfocused script (to
-# make sure this script only runs on a firefox window) like this:
-# $ isfocused firefox && fffixfocus
-# now bind this command to a hotkey using sxhkd.
 
-unset x y w h
+[ "$(xdotool getactivewindow getwindowclassname)" != firefox ] && exit
 
 eval $(
     xwininfo -id $(xdotool getactivewindow) |
