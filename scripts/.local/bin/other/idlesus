@@ -19,9 +19,9 @@ loop_interval_sec=30
 locker=slock
 
 # perform the idle action after this much time of system being idle
-case $LAPTOP in
-    true) timeout_min=5  ;;
-       *) timeout_min=10 ;;
+case $CHASSIS in
+    desktop) timeout_min=10 ;;
+     laptop) timeout_min=5  ;;
 esac
 
 # actions to perform when system is deemed idle

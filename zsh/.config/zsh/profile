@@ -23,7 +23,7 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 
 # home clean-up
-. ~/.config/zsh/xdg
+source ~/.config/zsh/xdg
 
 # have sudo ask for a password via dmenu
 export SUDO_ASKPASS="$HOME/.local/bin/dmenu/dmenu-askpass"
@@ -79,11 +79,13 @@ export QT_QPA_PLATFORMTHEME="$qtenv"
 
 # run keychain (an ssh-agent manager)
 keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
-eval "$(cat "$KEYCHAIN_DIR"/*-sh)" >/dev/null 2>&1
+source "$KEYCHAIN_DIR/$(uname -n)-sh"
 
-# set LAPTOP to true if the machine is a laptop
-chassis="$(cat /sys/class/dmi/id/chassis_type 2>/dev/null)"
-[ -n "$chassis" ] && [ "$chassis" -ge 8 ] && [ "$chassis" -le 14 ] && export LAPTOP=true
+# set machine's chassis type
+case $(</sys/class/dmi/id/chassis_type) in
+    9|10|11|14) export CHASSIS=laptop  ;;
+             *) export CHASSIS=desktop ;;
+esac
 
 # load machine-specific configs
 for f in $(find ~/.config/zsh/profile.d -type f 2>/dev/null); do
