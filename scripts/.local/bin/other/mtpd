@@ -1,0 +1,89 @@
+#!/bin/sh
+# this script mounts and opens any connected mtp devices while it's running.
+
+# config
+cache="${XDG_CACHE_HOME:-$HOME/.cache}/mtpd"
+tmp="${XDG_RUNTIME_DIR:-/tmp}/mtpd"
+table="$tmp/mtab"
+mnt="$tmp/mount"
+
+main()
+{
+    mkdir -p "$tmp"
+    touch "$table"
+
+    udevadm monitor -ususb |
+        grep --line-buffered -E 'add|remove' |
+        grep --line-buffered -Eo '/devices/\S+' |
+            while IFS= read -r dev; do
+                handle "$dev" &
+            done
+}
+
+handle()
+{
+    if is_connected "$1"; then
+        mount "$1" &
+    else
+        is_mounted "$1" && unmount_and_cleanup "$1"
+    fi
+    cleanup
+}
+
+mount()
+{
+    m="$(generate_mountpoint "$1")"
+    c="$(generate_cachedir "$1")"
+
+    mkdir -p "$m" "$c"
+
+    (
+        TMPDIR="$c" go-mtpfs -dev="$(get_serial "$1")" "$m" 2>&1 |
+            grep --line-buffered 'mounted' | xargs -d'\n' -I{} xdg-open "$m"
+    ) &
+
+    set_mounted "$1" "$m" "$c" $!
+    wait
+    unmount_and_cleanup "$1"
+}
+
+unmount_and_cleanup()
+{
+    kill_if_exists "$(get_pid "$1")"
+    until unmount "$1"; do sleep 1m; done
+    rmdir "$(get_mountpoint "$1")" 2>/dev/null
+    rm -rf "$(get_cachedir "$1")"
+    awk -v dev="$1" '$1 != dev' "$table" | sponge "$table"
+}
+
+unmount()
+{
+    case "$(fusermount -u "$(get_mountpoint "$1")" 2>&1)" in
+        *busy*) return 1 ;;
+    esac
+    return 0
+}
+
+is_connected()          { [ -r "/sys/$1/serial" ] ;}
+is_mounted()            { cut -f1 "$table" | grep -qx "$1" ;}
+set_mounted()           { printf '%s\n%s\t%s\t%s\t%s\n' "$(cat "$table")" "$1" "$2" "$3" "$4" | sponge "$table" ;}
+
+cleanup()               { rmdir "$mnt"/* "$cache"/* 2>/dev/null ;}
+kill_if_exists()        { is_integer "$1" && pgrep -aP "$1" | grep -q go-mtpfs && pkill -P "$1" ;}
+
+get_serial()            { cat "/sys/$1/serial" ;}
+get_product_name()      { tr ' \t' '_' < "/sys/$1/product" ;}
+get_vendor_name()       { tr ' \t' '_' < "/sys/$1/manufacturer" ;}
+get_mountpoint()        { awk -v dev="$1" '$1 == dev {print $2; exit}' "$table" ;}
+get_cachedir()          { awk -v dev="$1" '$1 == dev {print $3; exit}' "$table" ;}
+get_pid()               { awk -v dev="$1" '$1 == dev {print $4; exit}' "$table" ;}
+
+rand()                  { shuf -n1 -i100000-999999 ;}
+is_integer()            { [ "$1" -eq "$1" ] 2>/dev/null ;}
+generate_cachedir()     { printf '%s\n' "$cache/$(mktemp -u XXXXXXXX)" ;}
+generate_mountpoint()   { printf '%s\n' "$mnt/$(get_product_name "$1")-$(get_vendor_name "$1")-$(rand)" ;}
+
+trap exit HUP
+trap "pkill -P $$" EXIT
+
+main "$@"
