@@ -9,6 +9,7 @@ mnt="$tmp/mount"
 
 main()
 {
+    check_dependencies
     mkdir -p "$tmp"
     touch "$table"
 
@@ -82,6 +83,18 @@ rand()                  { shuf -n1 -i100000-999999 ;}
 is_integer()            { [ "$1" -eq "$1" ] 2>/dev/null ;}
 generate_cachedir()     { printf '%s\n' "$cache/$(mktemp -u XXXXXXXX)" ;}
 generate_mountpoint()   { printf '%s\n' "$mnt/$(get_product_name "$1")-$(get_vendor_name "$1")-$(rand)" ;}
+
+check_dependencies()
+{
+    for prog in go-mtpfs fusermount udevadm sponge; do
+        command -v $prog >/dev/null ||
+            die go-mtpfs, fuse, udev and moreutils are \
+                required for mtpd.
+    done
+    pidof -q udevd || die udevd is not running.
+}
+
+die() { printf '%s\n' "mtpd: Error: $*"; exit 1 ;}
 
 trap exit HUP
 trap "pkill -P $$" EXIT
