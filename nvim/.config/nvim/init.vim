@@ -193,7 +193,7 @@ endf
 let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
 let g:gruvbox_material_disable_italic_comment = 0
-colorscheme gruvbox-material
+colorscheme off
 
 " set a constant horizontal line between splits
 let g:HorizLine1='─'
