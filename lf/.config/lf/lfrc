@@ -7,6 +7,7 @@ set shellopts "-u"
 set ifs "\n"
 set period 1
 set nopreview
+set drawbox
 set ratios 1
 set dircounts
 set info "size"
