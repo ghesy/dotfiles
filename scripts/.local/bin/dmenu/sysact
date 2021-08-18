@@ -6,14 +6,14 @@
 prompt="System action:"
 reboot_prompt="Reboot to:"
 
-items="
- Lock      : lock,
-鈴 Sleep    : sleep_fn,
+items='
+ Lock       : lock,
+鈴 Sleep     : sleep_fn,
 鈴 Hibernate : hibernate_fn,
-⏻ Poweroff  : dmenu-prompt 'Poweroff?' 'loginctl poweroff',
- Reboot    : reboot_fn,
- Logout    : dmenu-prompt 'Logout?' 'command kill $(pidof xinit)',
-"
+⏻ Poweroff   : dmenu-prompt Poweroff? && loginctl poweroff,
+ Reboot     : reboot_fn,
+ Logout     : dmenu-prompt Logout? && killall xinit,
+'
 
 sleep_fn() {
     if can_hibernate; then
