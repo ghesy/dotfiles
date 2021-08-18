@@ -63,7 +63,7 @@ are_identical()
 
 digest()
 {
-    sudo sha1sum "$1" | cut -d' ' -f1
+    sudo sha256sum "$1" | cut -d' ' -f1
 }
 
 machine()
