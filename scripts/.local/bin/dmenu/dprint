@@ -1,4 +1,7 @@
 #!/bin/sh
+# print files via dmenu.
+# requires cups and system-config-printer.
+
 pidof -q cupsd || notify-send dprint "cups isn't running."
 
 while true; do
@@ -14,6 +17,10 @@ while true; do
     case "$choice" in
         Back) exec "$0" "$@" ;;
         Jobs) system-config-printer --show-jobs "$printer" ;;
-        Print) lp -d "$printer" -- "$@" 2>&1 | xargs -r0 notify-send dprint ;;
+        Print)
+            lp -d "$printer" -- "$@" 2>&1 | xargs -r0 notify-send dprint
+            system-config-printer --show-jobs "$printer"
+            exit 0
+        ;;
     esac
 done
