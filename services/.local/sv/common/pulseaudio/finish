@@ -1,2 +1,2 @@
 #!/bin/sh
-pkill -x pulseaudio
+killall -q pulseaudio
