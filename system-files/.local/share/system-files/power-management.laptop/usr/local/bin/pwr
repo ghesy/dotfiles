@@ -15,7 +15,7 @@ main()
     pid
     case $1 in
         high) cpupwr high ;;
-        low) cpupwr low; sata_pwrsave ;;
+        low) cpupwr low & sata_pwrsave; wait ;;
     esac
 }
 
