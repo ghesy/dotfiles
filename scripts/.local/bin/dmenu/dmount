@@ -5,10 +5,9 @@
 prompt='Mount What?'
 
 actions="
- Flash : $TERMINAL -e bashmount,
- MTP   : mmtp,
- ADB   : $TERMINAL -e madb,
-ﴓ FTP   : $TERMINAL -e mftp
+ Bashmount : $TERMINAL -e bashmount,
+ﴓ FTP : $TERMINAL -e mftp,
+ ADB : $TERMINAL -e madb,
 "
 
 eval "$(choices "$prompt" "$actions")"
