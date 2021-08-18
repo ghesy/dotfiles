@@ -17,7 +17,7 @@ setxkbmap -layout us,ir -option grp:ctrls_toggle
 xmodmap -e 'remove Lock = Caps_Lock' -e 'keysym Caps_Lock = Super_L' -e 'keycode 135 = Super_R'
 
 # make left super (caps lock) be escape if short-pressed.
-pkill -x xcape
+killall -q xcape
 xcape -e Super_L=Escape
 
 wait

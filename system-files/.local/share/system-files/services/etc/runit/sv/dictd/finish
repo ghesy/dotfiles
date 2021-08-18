@@ -1,2 +1,2 @@
 #!/bin/sh
-pkill -x dictd
+killall -q dictd

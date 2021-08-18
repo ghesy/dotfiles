@@ -3,7 +3,7 @@
 colors=~/.cache/wal/colors.sh
 [ ! -r $colors ] && exit
 . $colors || exit 1
-pkill -x -9 dunst
+killall -q -9 dunst
 setsid -f dunst \
     -frame_color "$color2" \
     -lb "$color0"  -lf "$color14" -lh "$color9" \
