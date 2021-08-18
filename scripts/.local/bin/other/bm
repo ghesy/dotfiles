@@ -8,11 +8,12 @@ list=~/.local/share/bm/bookmarks
 main ()
 {
     fn=resolve
-    while getopts arl opt; do
+    while getopts arlm opt; do
         case $opt in
             a) fn=add ;;
             r) fn=remove ;;
             l) fn=list ;;
+            m) fn=menu ;;
             ?) exit 1 ;;
         esac
     done
@@ -24,6 +25,12 @@ main ()
         bm="$(printf '%s\n' "$bm" | tr ' \t' '_')"
         $fn
     done
+}
+
+menu()
+{
+    bm="$(list | dmenu -p 'Go Where?')" || return 1
+    xdg-open "$(resolve)"
 }
 
 list()
