@@ -1,11 +1,19 @@
 #!/bin/sh
 pidof -q cupsd || notify-send dprint "cups isn't running."
-printer="$(lpstat -e | dmenu -p 'Choose Printer:')" || return 1
+
 while true; do
-    choice="$(printf '%s\n' ${1:+Print} Configure Jobs | dmenu -p Action:)" || return 1
-    case "$choice" in
-        Print) lp -d "$printer" -- "$@" 2>&1 | xargs -r0 notify-send dprint ;;
+    printer="$({ echo Configure; lpstat -e ;} | dmenu -p 'Choose Printer:')" || exit 1
+    case "$printer" in
         Configure) system-config-printer >/dev/null 2>&1 ;;
+        *) break ;;
+    esac
+done
+
+while true; do
+    choice="$(printf '%s\n' ${1:+Print} Jobs Back | dmenu -p Action:)" || exit 1
+    case "$choice" in
+        Back) exec "$0" "$@" ;;
         Jobs) system-config-printer --show-jobs "$printer" ;;
+        Print) lp -d "$printer" -- "$@" 2>&1 | xargs -r0 notify-send dprint ;;
     esac
 done
