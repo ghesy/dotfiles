@@ -87,7 +87,7 @@ fzf=~/.cache/wal/fzf
 [ -r "$fzf" ] && source ~/.cache/wal/fzf 2>/dev/null
 unset fzf
 
-if [[ $TERM != *kitty* ]]; then
+if [[ $TERM != *$TERMINAL* ]]; then
     seq=~/.cache/wal/sequences
     [ -r "$seq" ] && ( sed 's/\[[0-9]\{1,3\}\]//g' ~/.cache/wal/sequences & )
     unset seq
