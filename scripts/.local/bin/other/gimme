@@ -1,61 +1,51 @@
 #!/bin/sh
-dir="$XDG_CONFIG_HOME/gimme"
-aliases="$dir/aliases"
-functions="$dir/functions"
+# with this script you can run arbitrary commands and programs using aliases.
 
-main ()
+# config
+conf=~/.config/gimme
+
+main()
 {
-    while true; do case "$1" in
-        -l | --list ) list=true; shift ;;
-        -t | --test ) test=true; shift ;;
-        -h | --help ) err "this is a program runner script" ;;
-        --) shift; break ;;
-        *) break ;;
-    esac; done
-
-    [ ! -r "$aliases" ] && err "not found: $aliases"
-    [ -r "$functions" ] && . "$functions"
-    cd "$dir" || err "no dir: $dir"
-
-    [ "$list" = true ] && list_aliases_exit
-    [ -z "$1" ] && exit 1
-    if [ "$test" = true ]; then get_command "$@"; exit; fi
-    eval "$(get_command "$@")"
+    source_functions
+    case "$1" in
+        -l) list_aliases; return ;;
+        -m) menu; return ;;
+        '') return 1 ;;
+    esac
+    eval "$(get_cmd "$1")"
 }
 
-list_aliases_exit ()
+menu()
 {
-    format "$aliases" |
-        sed -e 's/[ \t]*:.*//g' -e 's/[ \t]*,[ \t]*/\n/g'
-    exit 0
+    a="$(list_aliases | dmenu -p 'Choose Your Poison')" || return 1
+    eval "$(get_cmd "$a")"
 }
 
-get_command ()
+list_aliases()
 {
-    format "$aliases" | grep -Em1 "^(.*,[ \t]*)?$*[ \t]*[,:]" | cut -d: -f2-
+    get_entries | sed -e 's/[ \t]*:.*//g' -e 's/[ \t]*,[ \t]*/\n/g'
 }
 
-format ()
+get_cmd()
 {
-    handle_line_breaks "$@" | add_includes | awk 'NF && !/^#/'
+    get_entries | grep -Pm1 "^(.*,[ \t]*)?\Q$1\E[ \t]*[,:]" | cut -d: -f2-
 }
 
-add_includes ()
+get_entries()
 {
-    awk ' ! /^include\s+\S+/ { print $0; next }
-        { while (getline line<$2) { print line } } ' "$@"
+    for f in $conf/aliases $conf/aliases.d/*; do
+        [ -r "$f" ] && set -- "$@" "$f"
+    done
+
+    # handle line breaks and comments
+    sed ':a;N;$!ba;s/\\\n//g' "$@" | awk 'NF && !/^#/'
 }
 
-handle_line_breaks ()
+source_functions()
 {
-    sed ':a;N;$!ba;s/\\\n//g' "$@"
-}
-
-err ()
-{
-    echo "gimme: $*" >&2
-    exit 1
+    for f in $conf/functions $conf/functions.d/*; do
+        [ -r "$f" ] && . "$f"
+    done
 }
 
 main "$@"
-exit
