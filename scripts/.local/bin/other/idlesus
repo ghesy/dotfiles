@@ -93,7 +93,7 @@ is_system_idle()
 
 is_ssh_inactive()
 {
-    ! pgrep -P "$(pidof sshd)" >/dev/null 2>&1
+    ! pgrep -P "$(pgrep -ox sshd)" >/dev/null 2>&1
 }
 
 is_cpu_idle()
