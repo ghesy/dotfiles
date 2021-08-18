@@ -1,22 +1,13 @@
 # this file contains aliases for gimme.
-# lines starting with a pound sign are comments.
-
-# aliases are separated by commas, and command
-# is separated from aliases by a colon.
-
-# you can break long lines with a backslash
-# followed by a newline.
-
-# you can also divide your aliases into multiple
-# files, put them in the same directory
-# as this one, and then include them from this file:
-# include <file>
+# aliases are separated by commas,
+# and the command is separated from the aliases by a colon.
+# long lines can be broken with a backslash at the end of the line.
 
 Firefox, Browser : firefox
 Grub : su grub-customizer
 Claws Mail, Email : claws-mail
-GParted, partition : su gparted
-Book : foliate
+GParted, Partitioning : su gparted
+Book Reader, Foliate : foliate
 
 TS3 : teamspeak3
 Discord : discord
@@ -34,7 +25,7 @@ Syncthing : web localhost:8384
 Gimp : gimp
 MSPaint, Pinta : pinta
 Print GUI : gtklp -c "$XDG_CONFIG_HOME/gtklp"
-Whats Printing : gtklpq
+What's Printing : gtklpq
 OBS, Recorder : obs
 Re Tor : restor
 
