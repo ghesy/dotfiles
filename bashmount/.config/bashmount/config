@@ -6,5 +6,5 @@ colourize=0
 pretty=1
 
 filemanager() {
-   $TERMFILE "$1"
+   ${TFM:-xdg-open} "$1"
 }
