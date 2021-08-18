@@ -1,36 +1,32 @@
 # vim:ft=zsh
 
 # add all of ~/.local/bin's immediate subdirectories to PATH.
-localpaths="$(find "$HOME/.local/bin" -mindepth 1 -maxdepth 1 -printf ":%p")"
+localpaths="$(find ~/.local/bin -mindepth 1 -maxdepth 1 -printf ":%p")"
 export PATH="${PATH}${localpaths}"
 
 # default programs
 export TERMINAL=st
 export EDITOR=nvim
 export VISUAL=nvim
-export PAGER=less
 export BROWSER=firefox
-export READER=zathura
-export FILE=termopen
-export TERMFILE=lfrun
 export OPENER=opener
-export TERMCMD="$TERMINAL"
+export TFM=lfrun
 
 # xdg dirs
-export XDG_STATE_HOME="$HOME/.local/state"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_STATE_HOME=~/.local/state
+export XDG_DATA_HOME=~/.local/share
+export XDG_CONFIG_HOME=~/.config
+export XDG_CACHE_HOME=~/.cache
 
 # home clean-up
 source ~/.config/zsh/xdg
 
 # have sudo ask for a password via dmenu
-export SUDO_ASKPASS="$HOME/.local/bin/dmenu/dmenu-askpass"
+export SUDO_ASKPASS=~/.local/bin/dmenu/dmenu-askpass
 
 # stuff used in my scripts
-export USVDIR="$HOME/.local/sv/run" # user services
-export ARIA2_CONF="$XDG_CONFIG_HOME/aria2/server.conf"
+export USVDIR=~/.local/sv/run # user services
+export ARIA2_CONF=~/.config/aria2/server.conf
 
 # tuir settings
 export TUIR_EDITOR="$EDITOR"
@@ -38,12 +34,13 @@ export TUIR_BROWSER="$BROWSER"
 export TUIR_URLVIEWER="urlscan"
 
 # bat theme
-export BAT_THEME='Nord'
+export BAT_THEME=Nord
 export LF_BAT_OPTS='-p'
 export LF_IMG_REGEX='.*\.(jpe?g|png|gif|bmp|ico|svg|webp)$'
 
 # less colors
 export LESS='-RSmci'
+export LESSHISTFILE=- # disable less's history
 export LESS_TERMCAP_so=$'\E[01;44;33m' # begin reverse video
 export LESS_TERMCAP_us=$'\E[1;32m' # begin underline
 export LESS_TERMCAP_mb=$'\E[1;31m' # begin blink
@@ -54,9 +51,9 @@ export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 export LESSOPEN='| bat -fppn -- %s 2>/dev/null' # colorize less using bat
 
 # ls settings
-ls_colors="$XDG_CONFIG_HOME/lscolors/lscolors"
+ls_colors=~/.config/lscolors/lscolors
 [ -r "$ls_colors" ] && source "$ls_colors"
-export TIME_STYLE="+%F %T"
+export TIME_STYLE='+%F %T'
 
 # other stuff
 export MPD_HOST=localhost
@@ -64,14 +61,14 @@ export MOZ_USE_XINPUT2=1 # Mozilla smooth scrolling/touchpads.
 export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 
 # fzf settings
-export FZF_DEFAULT_OPTS="
+export FZF_DEFAULT_OPTS='
 --layout=reverse --height=40% --border=sharp
 --bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top
 --color=dark
 --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
 --color=info:#83a598,prompt:#bdae93,spinner:#fabd2f
 --color=pointer:#83a598,marker:#fe8019,header:#665c54
-"
+'
 
 # set qt style to qt5ct if it's installed, otherwise set to gtk2
 command -v qt5ct >/dev/null && qtenv=qt5ct || qtenv=gtk2
@@ -92,8 +89,8 @@ for f in $(find ~/.config/zsh/profile.d -type f 2>/dev/null); do
     source "$f"
 done
 
-# clear tty on exit
-[ -z "$SSH_CLIENT" ] && trap reset EXIT
-
-# start X
-[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && startx "$XINITRC" >/dev/null 2>&1
+# start X if we're on tty1
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    [ -z "$SSH_CLIENT" ] && trap reset EXIT
+    startx "$XINITRC" >/dev/null 2>&1
+fi
