@@ -47,7 +47,7 @@ l () {
 
 o () {
     m
-    is_mounted && $TERMFILE "$mnt"
+    is_mounted && ${TFM:-xdg-open} "$mnt"
 }
 
 cleanup () {

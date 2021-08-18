@@ -16,9 +16,7 @@ main ()
 
         fhosts="$(grep -vE '^$|^#' "$hosts")"
         clear
-        echo "choose server"
-        echo "q: quit"
-        echo "e: edit server list"
+        printf '%s\n' 'Choose Server to Mount' '' 'q: Quit' 'e: Edit server list' ''
         echo "$fhosts" | cut -d, -f1 | nl -w1 -s': '
 
         read -s -n 1 char
@@ -69,7 +67,7 @@ unmnt ()
 
 open ()
 {
-    $TERMFILE "$mnt"
+    ${TFM:-xdg-open} "$mnt"
 }
 
 cleanup ()
