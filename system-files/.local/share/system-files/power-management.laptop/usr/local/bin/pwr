@@ -77,5 +77,5 @@ cleanup()
     kill 0
 }
 
+trap 'pkill -P $$' EXIT
 main "$@"
-exit
