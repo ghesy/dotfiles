@@ -2,16 +2,15 @@
 # run a web user interface for aria2.
 # requires the webui-aria2 package from aur, and node.
 
-run () {
-    command -v node >/dev/null || exit 1
-    cd /usr/share/webapps/webui-aria2 || exit 1
+run() {
+    command -v node >/dev/null || die node is not installed.
+    cd /usr/share/webapps/webui-aria2 2>/dev/null || die webui-aria2 is not installed.
     setsid -f "${BROWSER:-xdg-open}" "http://localhost:8888" >/dev/null 2>&1
     pgrep -xf 'node node-server.js' || node node-server.js
 }
 
-down () {
-    pkill -xf 'node node-server.js'
-}
+down() { pkill -xf 'node node-server.js' ;}
+die()  { printf '%s\n' "a2web: Error: $*"; exit 1 ;}
 
 case $1 in
     d | down) down;;
