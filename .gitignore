@@ -5,3 +5,5 @@ services/**/supervise
 zsh/**/*compdump
 zsh/**/profile.d/
 X11/**/xinitrc.d/
+transmission/**/history.json
+safeeyes/**/style/
