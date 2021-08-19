@@ -1,5 +1,5 @@
 # vim:ft=sh
 su()    { exec sudo -A "$@" ;}
 tui()   { exec $TERMINAL -e sh -c "$@" ;}
-tuisu() { exec $TERMINAL -e sudo -A sh -c "$@" ;}
+tuisu() { exec $TERMINAL -e sudo -A "$@" ;}
 web()   { exec firefox --new-window "$@" ;}
