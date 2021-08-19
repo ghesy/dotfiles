@@ -28,13 +28,11 @@ export UNISON=~/.local/share/unison
 export GEM_HOME=~/.local/share/gem
 export NVM_DIR=~/.local/share/nvm
 export GOPATH=~/.local/share/go
+export GOBIN="$GOPATH/bin"
 
 export NUGET_PACKAGES=~/.cache/NuGetPackages
 export GEM_SPEC_CACHE=~/.cache/gem
 
-export NVIM_COC_LOG_FILE="$XDG_RUNTIME_DIR/coc-nvim-log/coc-nvim.log
-export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority
-export TMUX_TMPDIR="$XDG_RUNTIME_DIR
-export GOBIN="$GOPATH/bin
-
-export LESSHISTFILE=-
+export NVIM_COC_LOG_FILE="$XDG_RUNTIME_DIR/coc-nvim-log/coc-nvim.log"
+export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
+export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
