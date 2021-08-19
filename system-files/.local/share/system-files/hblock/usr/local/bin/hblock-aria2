@@ -6,8 +6,12 @@ tmp="${XDG_RUNTIME_DIR:-/var/run}/hblock"
 sources=/etc/hblock/sources.list
 state=/var/tmp/hblock-state
 
-# function to print error and exit
-die() { printf '%s\n' "hblock-aria2: $*" >&2; exit 1 ;}
+# function to print and log error and exit
+die() {
+    printf '%s\n' "hblock-aria2: $*" >&2
+    [ "$log" = true ] && logger -t hblock-aria2 "$*"
+    exit 1
+}
 
 # check dependencies
 for prog in aria2c hblock nmcli; do
@@ -15,9 +19,9 @@ for prog in aria2c hblock nmcli; do
 done
 
 # process options
-unset verbose force
-while getopts vf opt; do case $opt in
-    v) verbose=true ;; f) force=true ;; ?) exit 1 ;;
+unset verbose force log
+while getopts vfl opt; do case $opt in
+    v) verbose=true ;; f) force=true ;; l) log=true ;; ?) exit 1 ;;
 esac; done
 
 # exit if this script was last run less than 24 hours ago
@@ -27,14 +31,18 @@ esac; done
 nmcli -g general.ip4-connectivity dev show | grep -q full ||
     die no internet connectivity.
 
-# cleanup tmp upon exit
+# cleanup tmp now and upon exit
+rm -rf $tmp
 trap 'rm -rf $tmp' EXIT
 
 # download the hosts files
 aria2c \
     ${verbose:---quiet} --no-conf --dir=$tmp --input-file=$sources \
     --min-split-size=1M --max-concurrent-downloads=10  \
-    --max-connection-per-server=5 || die failed downloading the files.
+    --max-connection-per-server=5 ||
+    die failed downloading the files.
+
+# remove aria2 state files
 rm -f $tmp/*.aria2
 
 # install the hosts files using hblock
@@ -43,3 +51,4 @@ printf 'file://%s\n' $tmp/* | hblock ${verbose:---quiet} --sources - ||
 
 # update the state file
 date -Isec > $state
+chmod -f 666 $state
