@@ -1,15 +1,13 @@
 # vim:ft=sudoers
-Cmnd_Alias RUNIT = /usr/bin/sv, /usr/bin/rsm
 
-Cmnd_Alias GRUB = \
+Cmnd_Alias PROGRAMS = \
+    /usr/bin/grub-entries, \
     /usr/bin/grub-reboot, \
-    /usr/bin/grub-entries
-
-Cmnd_Alias PROG = \
-    /usr/bin/unbound-control, \
     /usr/bin/resolvconf, \
     /usr/bin/protonvpn, \
     /usr/bin/nethogs, \
-    /usr/bin/iotop
+    /usr/bin/iotop, \
+    /usr/bin/rsm, \
+    /usr/bin/sv
 
-%wheel ALL=(ALL) NOPASSWD: RUNIT, GRUB, PROG
+%wheel ALL=(ALL) NOPASSWD: PROGRAMS
