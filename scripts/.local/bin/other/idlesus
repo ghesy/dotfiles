@@ -60,11 +60,11 @@ main()
 
 run_with_locker()
 {
-    exec sh -c "
-        "$0" &
-        trap 'kill \$!' EXIT
-        $locker
-    "
+    exec sh -c '
+        "$1" &
+        trap "kill $!" EXIT
+        $2
+    ' '' "$0" "$locker"
 }
 
 has_timeout_reached()
