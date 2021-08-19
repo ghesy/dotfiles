@@ -1,2 +1,2 @@
 #!/bin/sh
-/usr/local/bin/hblock-aria2
+exec /usr/local/bin/hblock-aria2 -l
