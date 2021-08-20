@@ -50,6 +50,7 @@ set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
+set mouse=a
 
 " other
 let g:netrw_dirhistmax = 0
