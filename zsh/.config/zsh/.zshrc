@@ -98,6 +98,9 @@ al=~/.config/zsh/aliases.zsh
 [ -r "$al" ] && source "$al"
 unset al
 
+# start tmux
+source ~/.config/zsh/tmux
+
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
 export TERMINIT=true;
