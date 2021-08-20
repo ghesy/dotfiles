@@ -1,18 +1,18 @@
 # vim:ft=zsh
-
-_rand()  { tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w10 | head -n1 }
-_tkill() { tmux kill-session -t $1 \; killw -t $2 }
-
-_tstart()
+# start a new tmux session and window per terminal window,
+# and kill the session and window when the terminal window closes.
+[ -z "$TMUX" ] && [ -n "$DISPLAY" ] &&
 {
-    _tsesh=$(_rand)
-    _twndw=$(_rand)
-    trap "_tkill $_tsesh $_twndw" EXIT
+    rand() { tr -dc 'a-z0-9' </dev/urandom | head -c20 }
+    tsesh=$(rand)
+    twndw=$(rand)
+
+    kill() { tmux kill-session -t $1 \; killw -t $2 }
+    trap "kill $tsesh $twndw" EXIT
+
     if [ "$(tmux ls 2>/dev/null | wc -l)" -lt 1 ]; then
-        tmux new -s $_tsesh -t main \; renamew $_twndw
+        tmux new -s $tsesh -t main \; renamew $twndw
     else
-        tmux new -s $_tsesh -t main \; neww -n $_twndw
+        tmux new -s $tsesh -t main \; neww -n $twndw
     fi
 }
-
-[ -z "$TMUX" ] && _tstart
