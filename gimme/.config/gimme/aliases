@@ -23,7 +23,6 @@ Github : web https://github.com/soystemd
 Syncthing : web localhost:8384
 
 Gimp : gimp
-MSPaint, Pinta : pinta
 Print GUI : gtklp -c "$XDG_CONFIG_HOME/gtklp"
 What's Printing : gtklpq
 OBS, Recorder : obs
