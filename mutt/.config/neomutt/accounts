@@ -12,16 +12,18 @@ command -v lynx >/dev/null  ||
 
 [ ! -d $acc ] && cat << 'eof' | { mkdir -p $acc; cat > $acc/EXAMPLE ;}
 # vim:ft=neomutt
-set realname  = "James Bond"
+set realname  = 'James Bond'
+set my_host   = host.com
 set imap_user = b007nd
-set from      = $imap_user@host
-set folder    = imap://$imap_user@host:1234
-set smtp_url  = smtp://$imap_user@host:5678
-set smtp_pass = password
-set imap_pass = password
+set from      = $imap_user@$my_host
+set folder    = imap://$imap_user@$my_host:1234
+set smtp_url  = smtp://$imap_user@$my_host:5678
+source 'gpg -dq ~/.local/share/pass/EXAMPLE.gpg|'
+set smtp_pass = $my_pass
+set imap_pass = $my_pass
 eof
 
-mkdir -p ~/.cache/neomutt $dir/abook
+mkdir -p ~/.cache/neomutt $dir/abook $dir/pass
 
 ! sel="$(
     for account in $acc/*; do basename $account; done |
