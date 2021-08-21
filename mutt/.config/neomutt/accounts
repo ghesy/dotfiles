@@ -12,8 +12,8 @@ command -v lynx >/dev/null  ||
 
 [ ! -d $acc ] && cat << 'eof' | { mkdir -p $acc; cat > $acc/EXAMPLE ;}
 # vim:ft=neomutt
-set realname  = "Rick Sanchez"
-set imap_user = rickydog
+set realname  = "James Bond"
+set imap_user = b007nd
 set from      = $imap_user@host
 set folder    = imap://$imap_user@host:1234
 set smtp_url  = smtp://$imap_user@host:5678
