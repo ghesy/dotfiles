@@ -1,4 +1,4 @@
 [Desktop Entry]
 Type=Application
 Name=Mail
-Exec=/usr/bin/env sh -c "$TERMINAL -e neomutt %u"
+Exec=st -e neomutt %u
