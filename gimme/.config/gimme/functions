@@ -2,4 +2,9 @@
 su()    { exec sudo -A "$@" ;}
 tui()   { exec $TERMINAL -e sh -c "$@" ;}
 tuisu() { exec $TERMINAL -e sudo -A "$@" ;}
-web()   { exec firefox --new-window "$@" ;}
+web() {
+    case "$BROWSER" in
+        *fox*|*wolf*) exec "$BROWSER" --new-window "$@" ;;
+        *) "$BROWSER" "$@" ;;
+    esac
+}

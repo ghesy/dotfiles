@@ -17,12 +17,12 @@ open ()
 {
     case "$(findtype "$1")" in
         image)  image "$@" ;;
+        html)   browser "$@" ;;
         audio)  fgd mpvmusic   -- "$@" ;;
         video)  gui mpv        -- "$@" ;;
         gimp)   gui gimp       -- "$@" ;;
         ebook)  gui foliate    -- "$@" ;;
         doc)    gui zathura    -- "$@" ;;
-        html)   gui "$BROWSER" -- "$@" ;;
         text)   fgd "$EDITOR"  -- "$@" ;;
         manual) fgd man        -- "$@" ;;
         office) gui libreoffice   "$@" ;;
@@ -39,5 +39,13 @@ image ()
     case $lf_mode in
         true ) gui lfsxiv "$@" ;;
         false) gui sxiv -a -- "$@" ;;
+    esac
+}
+
+browser ()
+{
+    case "$BROWSER" in
+        *fox*|*wolf*) gui "$BROWSER" --new-window -- "$@" ;;
+        *) gui "$BROWSER" "$@" ;;
     esac
 }
