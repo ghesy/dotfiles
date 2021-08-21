@@ -24,7 +24,7 @@ eof
 
 ! sel="$(
     for account in $acc/*; do basename $account; done |
-    dmenu -p 'Choose an Email Account'
+    dmenu -w $WINDOWID -p 'Choose an Email Account'
 )" && pkill -nx neomutt && exit
 
 echo source $acc/$sel
