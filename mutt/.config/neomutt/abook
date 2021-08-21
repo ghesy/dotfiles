@@ -1,0 +1,17 @@
+#!/bin/sh
+# run abook with changed config and addressbook paths
+
+# show everything in the alternate buffer
+trap exit INT TERM HUP
+trap "printf '\e[?1049l'" EXIT
+printf '\e[?1049h'
+printf '\e[H'
+
+# run abook
+abook \
+    --config ~/.config/neomutt/abookrc \
+    --datafile ~/.local/share/neomutt/abook/addressbook "$@" ||
+    notify-send NeoMutt 'Failed Adding Email to Addressbook'
+
+# send a key to exit out of neomutt's prompt
+xdotool key period

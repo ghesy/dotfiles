@@ -1,0 +1,26 @@
+source '~/.config/neomutt/accounts|'
+
+set spoolfile = +INBOX
+set postponed = +Draft
+set record    = +Sent
+set trash     = +Trash
+set imap_check_subscribed
+
+set header_cache = ~/.cache/neomutt
+set message_cachedir = ~/.cache/neomutt
+
+set mail_check = 120
+unset imap_passive
+
+set sort = reverse-date
+source ~/.config/neomutt/colors
+
+set mailcap_path = ~/.config/neomutt/mailcap
+set mime_type_query_command = "file --mime-type -b %s"
+set query_command = "~/.config/neomutt/abook --mutt-query '%s'"
+
+auto_view text/html
+auto_view application/pgp-encrypted
+alternative_order text/plain text/enriched text/html
+
+source ~/.config/neomutt/bindings
