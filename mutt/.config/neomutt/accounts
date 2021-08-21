@@ -3,7 +3,6 @@
 
 dir=~/.local/share/neomutt
 acc=$dir/accounts
-mkdir -p ~/.cache/neomutt $dir/abook $acc
 
 command -v abook >/dev/null ||
     notify-send NeoMutt 'Please install "abook" to get addressbook functionality'
@@ -11,16 +10,18 @@ command -v abook >/dev/null ||
 command -v lynx >/dev/null  ||
     notify-send NeoMutt 'Please install "lynx" to be able to read HTML mails'
 
-[ ! -d $acc ] && cat << 'eof' > $acc/EXAMPLE
+[ ! -d $acc ] && cat << 'eof' | { mkdir -p $acc; cat > $acc/EXAMPLE ;}
 # vim:ft=neomutt
-set realname  = Rick Sanchez
+set realname  = "Rick Sanchez"
 set imap_user = rickydog
-set from      = $imap_user@host.com
-set folder    = imap://$imap_user@host.com:1234
+set from      = $imap_user@host
+set folder    = imap://$imap_user@host:1234
 set smtp_url  = smtp://$imap_user@host:5678
 set smtp_pass = password
 set imap_pass = password
 eof
+
+mkdir -p ~/.cache/neomutt $dir/abook
 
 ! sel="$(
     for account in $acc/*; do basename $account; done |
