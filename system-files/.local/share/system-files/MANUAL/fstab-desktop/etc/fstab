@@ -12,6 +12,9 @@ UUID=033bcf2a-e8f5-4895-b407-8c31e1448767   /boot       ext4  rw,noatime        
 # swap
 UUID=7bf355f5-c1f3-440a-ba05-d1bfa343f51d   none        swap  defaults,pri=10    0 0
 
+# /tmp
+tmpfs /tmp tmpfs rw,nodev,nosuid,size=1G 0 0
+
 # spare
 UUID=a0c54aba-192d-48fa-a311-e4beff885176   /mnt/spare  ext4  rw,nofail,noatime  0 0
 
