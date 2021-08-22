@@ -1,14 +1,9 @@
 source '~/.config/neomutt/accounts|'
 
-set spoolfile = +INBOX
-set postponed = +Draft
-set record    = +Sent
-set trash     = +Trash
-set imap_check_subscribed
-
 set header_cache = ~/.cache/neomutt
 set message_cachedir = ~/.cache/neomutt
 
+set imap_check_subscribed
 set mail_check = 120
 unset imap_passive
 
