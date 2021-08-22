@@ -11,9 +11,9 @@ default_format='best[height<=480]/bestvideo[height<=480]+bestaudio/best/bestvide
 main()
 {
     unset fn
-    while getopts od opt; do
+    while getopts ods opt; do
         case $opt in
-            o) fn=open ;;
+            o|s) fn=open ;;
             d) fn=download ;;
             ?) exit 1 ;;
         esac
