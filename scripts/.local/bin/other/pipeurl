@@ -1,7 +1,7 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
 exec >/dev/null 2>&1
-url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -w $WINDOWID)"
+url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 -w $WINDOWID)"
 [ -n "$url" ] &&
     case "$(printf 'Copy\nOpen' | dmenu -w $WINDOWID -p 'Do What?')" in
         Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
