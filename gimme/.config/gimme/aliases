@@ -29,6 +29,7 @@ What's Printing : gtklpq
 OBS, Recorder : obs
 Re Tor : restor
 
+NewsBoat, RSS, Feed : tui newsboat
 Reddit : tui tuir
 GoTop : tui gotop
 CPU, htop : tui htop
