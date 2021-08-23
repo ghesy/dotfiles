@@ -1,5 +1,5 @@
+scrolloff 5
 auto-reload yes
-browser xdg-open
 external-url-viewer "pipeurl"
 
 bind-key k up
