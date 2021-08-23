@@ -28,7 +28,10 @@ while getopts vfl opt; do case $opt in
 esac; done
 
 # exit if this script was last run less than 24 hours ago
-[ "$force" != true ] && test -n "$(find $state -mtime -1 2>/dev/null)" && exit 0
+[ "$force" != true ] &&
+    test -n "$(find $state -mtime -1 2>/dev/null)" &&
+    [ $state -nt /etc/hosts ] &&
+    exit 0
 
 # exit if we don't have internet
 nmcli -g general.ip4-connectivity dev show | grep -q full ||
