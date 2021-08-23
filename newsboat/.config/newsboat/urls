@@ -1,4 +1,13 @@
-http://lukesmith.xyz/rss.xml "~Luke Smith's Blog"
-https://lukesmith.xyz/peertube "~Luke Smith's PeerTube"
-https://landchad.net/rss.xml
-https://news.ycombinator.com/rss
+https://reddit.com/r/soccer/.rss Sports "~/r/soccer"
+https://theathletic.com/international-soccer/?rss Sports
+
+https://irandaily.ir/News/Feed?id=3 News
+https://theepochtimes.com/c-international/feed News
+https://theepochtimes.com/c-middle-east/feed News
+https://theepochtimes.com/c-opinion/feed News
+https://theepochtimes.com/c-world/feed News
+
+http://lukesmith.xyz/rss.xml Luke "~Luke Smith's Blog"
+https://lukesmith.xyz/peertube Luke "~Luke Smith's PeerTube"
+
+https://news.ycombinator.com/rss Tech
