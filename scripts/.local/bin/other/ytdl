@@ -86,7 +86,8 @@ ask_format()
 
 menu()
 {
-    in_terminal && cmd='fzf --info=hidden --border=none --prompt' || cmd='dmenu -p'
+    in_terminal && cmd='fzf --info=hidden --border=none --prompt' ||
+        cmd="dmenu ${WINDOWID:+-w "$WINDOWID"} -p"
     dep "$(prnt "$cmd" | cut -d' ' -f1)"
     $cmd "$*"
 }
