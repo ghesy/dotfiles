@@ -5,6 +5,7 @@
 tmp="${XDG_RUNTIME_DIR:-/var/run}/hblock-aria2"
 sources=/etc/hblock/sources.list
 state=/var/tmp/hblock-state
+PATH="${PATH}:/usr/local/bin"
 
 # function to print and log error and exit
 die() {
@@ -53,6 +54,9 @@ rm -f $tmp/*.aria2
 # install the hosts files using hblock
 printf 'file://%s\n' $tmp/* | hblock ${verbose:---quiet} --sources - ||
     die failed applying the hosts.
+
+# flush the dns cache
+sudo sv restart unbound >/dev/null 2>&1
 
 # update the state file
 date -Isec > $state
