@@ -36,7 +36,6 @@ CPU, htop : tui htop
 NetTop : tuisu nethogs
 DiskTop, IOTop : tuisu iotop
 Res Router : tui resrouter
-Barca, La Liga : tui barca
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
 Cava, Visualizer : tui cava
