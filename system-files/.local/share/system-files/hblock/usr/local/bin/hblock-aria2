@@ -2,7 +2,7 @@
 # download hblock's sources in parallel using aria2, then apply them.
 
 # config
-tmp="${XDG_RUNTIME_DIR:-/var/run}/hblock"
+tmp="${XDG_RUNTIME_DIR:-/var/run}/hblock-aria2"
 sources=/etc/hblock/sources.list
 state=/var/tmp/hblock-state
 
@@ -12,6 +12,9 @@ die() {
     [ "$log" = true ] && logger -t hblock-aria2 "$*"
     exit 1
 }
+
+# only run one instance
+[ -d $tmp ] && die Another instance of hblock-aria2 is running.
 
 # check dependencies
 for prog in aria2c hblock nmcli; do
@@ -31,8 +34,7 @@ esac; done
 nmcli -g general.ip4-connectivity dev show | grep -q full ||
     die no internet connectivity.
 
-# cleanup tmp now and upon exit
-rm -rf $tmp
+# cleanup tmp upon exit
 trap 'rm -rf $tmp' EXIT
 
 # download the hosts files
