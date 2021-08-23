@@ -4,207 +4,55 @@
 # if the url is censored, it will download it through tor using torsocks.
 
 # config
-parallel=2 # how many files to download in parallel
+dir="${XDG_CACHE_DIR:-$HOME/.cache}/dl" # where to put the downloaded stuff
 opener="${OPENER:-xdg-open}" # opener program
-torcmd="torsocks" # program that routes traffic through tor
-dir="${XDG_RUNTIME_DIR:-$HOME/.cache}/dldir" # where to put the downloaded stuff
+table="$dir/cachetable"
 
 main()
 {
-    totaljobs=$#
-    [ $# -eq 1 ] && open_foreground=true
-
-    while true; do
-
-        print_summary
-
-        [ $(donejobs) -eq $totaljobs ] && break
-        [ $# -le 0 ] && sleep 0.2 && continue
-        [ $(njobs) -ge $parallel ] && sleep 0.2 && continue
-
-        download_and_open "$1" &
-        shift
-
+    mkdir -p "$dir" || return 1
+    for url; do
+        if file="$(download "$url")"; then
+            $opener "$file" &
+        fi
     done
-
-    echo
-    echo done.
-}
-
-download_and_open()
-{
-    j=$(newjob)
-
-    url="$1"
-
-    if ! file="$(get_file_from_cache "$url")"; then
-        file="$(download "$url")" || return 1
-    fi
-
-    if [ "$open_foreground" = true ]; then
-        $OPENER "$file"
-    else
-        nohup $OPENER "$file" >/dev/null 2>&1 &
-    fi
-
-    jobdone $j
+    wait
 }
 
 download()
 {
-    url="$1"
-    file="$dir/$(rand_date)"
+    get_cached "$1" && return 0
+    name="$(mktemp -u XXXXXXXXXXXXXXX)"
+    tor='' dlcmd "$1" "$name" || tor=torsocks dlcmd "$1" "$name" || return 1
+    record_cache "$1" "$name"
+    printf '%s\n' "$dir/$name"
+}
 
-    dlcmd "$file" "$url" ||
-        dlcmd --tor "$file" "$url" || {
-            notify-send dl "couldn't download file."
-            return 1
-        }
+get_cached()
+{
+    [ ! -e "$table" ] && return 1
+    cached="$(awk -F'\t' -v url="$1" '$2==url {print $1; exit}' "$table")"
+    [ -z "$cached" ] && return 1
+    printf '%s\n' "$dir/$cached"
+}
 
-    file="$(add_proper_extention_to_file "$file")"
-    add_to_cachetable "$file" "$url"
-
-    echo "$file"
-    return 0
+record_cache()
+{
+    printf '%s\t%s\n' "$2" "$1" >> "$table"
 }
 
 dlcmd()
 {
- url   unset tor time ctime
-    if [ "$1" = --tor ]; then
-        shift
-        tor="$torcmd"
-        command -v $torcmd >/dev/null || return 1
-        ctime=12
-        time=20
-    fi
-
-    file="$1"
-    url="$2"
-
+    [ -n "$tor" ] && ! torsocks timeout 8 curl -s icanhazip.com && return 1
     if command -v aria2c >/dev/null; then
-        $tor aria2c --no-conf -x8 -k1M -s16 -m1 --disable-ipv6=true \
-            --connect-timeout=${ctime:-4} --timeout=${time:-6} \
-            ${tor:+--async-dns=false} --auto-file-renaming=false \
-            -d "$(dirname "$file")" -o "$(basename "$file")" "$url" >/dev/null
+        $tor aria2c --quiet --no-conf ${tor:+--async-dns=false} \
+            --max-connection-per-server=8 --split=8 --min-split-size=1M \
+            --disable-ipv6=true --timeout=10 --connect-timeout=10 \
+            --dir="$dir" --out="$2" -- "$1"
     else
-        $tor curl --connect-timeout ${ctime:-4} --max-time 300 \
-            --xattr -o "$file" "$url" >/dev/null
+        $tor curl --silent --connect-timeout 10 --max-time 300 \
+            ---xattr --output-dir "$dir" --output "$2" -- "$1"
     fi
 }
-
-get_file_from_cache()
-{
-    [ -r "$cache_table" ] || return 1
-    url="$1"
-    file="$(awk -v url="$url" '$2==url {print $1; exit}' "$cache_table")"
-    [ -n "$file" ] || return 1
-    [ -r "$file" ] || return 1
-    printf '%s\n' "$file"
-    return 0
-}
-
-add_to_cachetable()
-{
-    filev="$1"
-    urlv="$2"
-    ct="$(printf '%s\t\t%s\n' "$filev" "$urlv"; cat "$cache_table" 2>/dev/null)"
-    printf '%s\n' "$ct" > "$cache_table"
-}
-
-add_proper_extention_to_file()
-{
-    oldfile="$1"
-    newfile="$oldfile$(get_extention_from_mime "$oldfile")"
-    mv -f -- "$oldfile" "$newfile"
-    echo "$newfile"
-}
-
-get_extention_from_mime()
-{
-    case "$(file --brief --mime-type -- "$1")" in
-        */gif)      echo .gif   ;;
-        */png)      echo .png   ;;
-        image/*)    echo .jpg   ;;
-        *matroska)  echo .mkv   ;;
-        video/*)    echo .mp4   ;;
-        audio/*)    echo .mp3   ;;
-        */pdf)      echo .pdf   ;;
-        *photoshop) echo .psd   ;;
-        *epub*)     echo .epub  ;;
-        */zip)      echo .zip   ;;
-        */x-rar*)   echo .rar   ;;
-        */x-7z*)    echo .7z    ;;
-        */html)     echo .html  ;;
-        text/*)     echo .txt   ;;
-    esac
-}
-
-newjob()
-{
-    jobname=job-$(rand)
-    touch "$tmp_dir/$jobname"
-    echo $jobname
-}
-
-njobs()
-{
-    ls -A1 "$tmp_dir" | grep job- | wc -l
-}
-
-jobdone()
-{
-    rm -f "$tmp_dir/$1"
-    n="$(donejobs)"
-    echo $(( n + 1 )) > "$done_jobs"
-}
-
-donejobs()
-{
-    ndone="$(cat "$done_jobs" 2>/dev/null)"
-    if [ -z "$ndone" ]; then
-        echo 0 > "$done_jobs"
-        echo 0
-    else
-        echo $ndone
-    fi
-}
-
-print_summary()
-{
-    printf '%s/%s complete, %s parallel downloads active\r' $(donejobs) $totaljobs $(njobs)
-}
-
-cleanup()
-{
-    rm -rf "$tmp_dir"
-    rmdir "$(dirname "$tmp_dir")"
-}
-
-rand()
-{
-    shuf -n1 -i1000000000-9999999999
-}
-
-rand_date()
-{
-    date +%s | rev | cut -c1-7 | rev | tr -d '\n'
-    shuf -n1 -i100-999
-}
-
-# set some paths and directories
-data_dir="$dir/data"
-tmp_dir="$dir/data/jobs/$(rand)"
-cache_table="$data_dir/cachetable"
-done_jobs="$tmp_dir/donejobs"
-
-# cleanup temp files from past runs,
-# set some traps
-cleanup 2>/dev/null
-mkdir -p "$tmp_dir" || exit 1
-trap exit HUP
-trap 'cleanup 2>/dev/null; tput cnorm' EXIT
-tput civis
 
 main "$@"
-exit
