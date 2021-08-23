@@ -4,7 +4,6 @@
 # requires youtube-dl, mpv, fzf, dmenu and torsocks.
 
 # config
-ask_format_regex='youtube\.com/|youtu\.be/'
 blocked_urls_regex='youtube\.com/|youtu\.be/'
 default_format='best[height<=480]/bestvideo[height<=480]+bestaudio/best/bestvideo+bestaudio'
 
@@ -67,7 +66,7 @@ ask_fn()
 open()
 {
     dep mpv
-    format="$(get_format "$@")" || return 1
+    format="$(ask_format "$@")" || return 1
     $TORSOCKS mpv ${format:+--ytdl-format="$format"} -- "$@" ||
         die Failed opening the video.
 }
@@ -77,16 +76,6 @@ download()
     dep youtube-dl
     format="$(ask_format "$@")" || return 1
     $TORSOCKS youtube-dl ${format:+-f "$format"} -- "$@"
-}
-
-get_format()
-{
-    if should_ask_format "$@"; then
-        ask_format "$@"
-    else
-        prnt "$default_format"
-    fi
-
 }
 
 ask_format()
@@ -136,11 +125,6 @@ url_blocked()
 {
     [ -z "$*" ] && return 0
     prnt "$@" | grep -qE "$blocked_urls_regex"
-}
-
-should_ask_format()
-{
-    prnt "$1" | grep -qE "$ask_format_regex"
 }
 
 dep()
