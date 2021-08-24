@@ -9,16 +9,16 @@
 [ -z "$url" ] && exit
 
 case "$url" in
-    *mkv|*webm|*mp4|*gifv|*youtube.com/watch*|*youtube.com/playlist*|\
+    *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
+        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl ;;
+
+    *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
     *streamwo.com*|*streamable.com*)
         mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
 
     *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
         dl "$url" ;;
-
-    *reddit.com/gallery*|*i.redd.it*)
-        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl ;;
 
     *reddit.com*|*redd.it*)
         setsid -f $TERMINAL -e tuir "$url" >/dev/null 2>&1 ;;
