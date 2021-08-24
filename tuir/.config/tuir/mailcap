@@ -1,2 +1,2 @@
-image/*; dl %s; test=test -n "$DISPLAY"
-video/*; ytdl -s %s; test=test -n "$DISPLAY"
+image/*; pipeurl '%s'; test=test -n "$DISPLAY"
+video/*; pipeurl '%s'; test=test -n "$DISPLAY"
