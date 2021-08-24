@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Music Player
+Exec=st -e mpvmusic %u
