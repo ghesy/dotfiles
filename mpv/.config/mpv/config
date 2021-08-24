@@ -1,3 +1,4 @@
+ytdl-format=best[height<=480]/bestvideo+bestaudio/best
 alang=jpn,eng,en,per,fa
 slang=eng,en,per,fa
 no-sub-visibility
