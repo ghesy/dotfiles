@@ -32,25 +32,25 @@ get_cached()
 {
     [ ! -e "$table" ] && return 1
     cached="$(awk -F'\t' -v url="$1" '$2==url {print $1; exit}' "$table")"
-    [ -z "$cached" ] && return 1
+    [ -z "$cached" ] || [ ! -r "$dir/$cached" ] && return 1
     printf '%s\n' "$dir/$cached"
 }
 
 record_cache()
 {
-    printf '%s\t%s\n' "$2" "$1" >> "$table"
+    printf '%s\t%s\n%s\n' "$2" "$1" "$(cat "$table" 2>/dev/null)" | sponge "$table"
 }
 
 dlcmd()
 {
-    [ -n "$tor" ] && ! torsocks timeout 8 curl -s icanhazip.com && return 1
+    [ -n "$tor" ] && ! torsocks timeout 8 curl -s icanhazip.com >/dev/null 2>&1 && return 1
     if command -v aria2c >/dev/null; then
         $tor aria2c --quiet --no-conf ${tor:+--async-dns=false} \
             --max-connection-per-server=8 --split=8 --min-split-size=1M \
-            --disable-ipv6=true --timeout=10 --connect-timeout=10 \
+            --disable-ipv6=true --timeout=5${tor:+0} --connect-timeout=5${tor:+0} \
             --dir="$dir" --out="$2" -- "$1"
     else
-        $tor curl --silent --connect-timeout 10 --max-time 300 \
+        $tor curl --silent --connect-timeout 5${tor:+0} --max-time 300 \
             ---xattr --output-dir "$dir" --output "$2" -- "$1"
     fi
 }
