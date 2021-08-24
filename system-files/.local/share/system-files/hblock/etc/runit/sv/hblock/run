@@ -1,0 +1,5 @@
+#!/bin/sh
+while true; do
+    sleep 1m
+    /usr/local/bin/hblock-aria2 -l
+done
