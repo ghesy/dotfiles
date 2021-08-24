@@ -26,16 +26,26 @@ case "$url" in
     *)
         if urls="$(gallery-dl -G "$url" 2>/dev/null)"; then
             printf '%s\n' "$urls" | xargs -d'\n' dl
-        else
-            action="$(
-                printf 'Open\nStream\nCopy\n' |
-                    dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
-            )" || exit 0
-            case "$action" in
-                Open) xdg-open "$url" ;;
-                Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
-                Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
-            esac
+            exit 0
         fi
+
+        action="$(
+            printf 'Open\nStream\nCopy\n' |
+                dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
+        )" || exit 0
+
+        case "$action" in
+            Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
+            Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
+            Open)
+                case "$url" in
+                    http*)
+                        case "$BROWSER" in
+                            *fox*|*wolf*) $BROWSER --new-window "$url" ;;
+                        esac
+                    ;;
+                    *) xdg-open "$url" ;;
+                esac
+        esac
     ;;
 esac
