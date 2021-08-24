@@ -13,20 +13,16 @@ case "$url" in
     *mkv|*webm|*mp4|*gifv|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
     *streamwo.com*|*streamable.com*|*videos.lukesmith*)
-        mpv -quiet "$url" || torsocks mpv -quiet "$url"
-    ;;
+        mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
 
     *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
         dl "$url" ;;
-    ;;
 
     *reddit.com/gallery*|*i.redd.it*)
-        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl
-    ;;
+        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl ;;
 
     *reddit.com*|*redd.it*)
-            $TERMINAL -e tuir "$url" >/dev/null 2>&1 &
-    ;;
+        $TERMINAL -e tuir "$url" >/dev/null 2>&1 & ;;
 
     *)
         if urls="$(gallery-dl -G "$url" 2>/dev/null)"; then
