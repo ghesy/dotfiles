@@ -1,6 +1,7 @@
 # Derived from Luke Smith's mutt-wizard
 # https://github.com/LukeSmithxyz/mutt-wizard/blob/master/share/mutt-wizard.muttrc
 
+bind index \Cr imap-fetch-mail
 bind index,pager i noop
 bind index,pager g noop
 bind index \Cf noop
@@ -41,7 +42,6 @@ bind pager \031 previous-line
 bind pager \005 next-line
 
 macro index,pager a "<enter-command>set my_pipe_decode=\$pipe_decode pipe_decode<return><pipe-message>~/.config/neomutt/abook --add-email<return><enter-command>set pipe_decode=\$my_pipe_decode; unset my_pipe_decode<return>" "add the sender address to abook"
-macro index \Cr "T~U<enter><tag-prefix><clear-flag>N<untag-pattern>.<enter>" "mark all messages as read"
 macro index O "<shell-escape>mw -Y<enter>" "run mw -Y to sync all mail"
 macro index A "<limit>all\n" "show all messages (undo limit)"
 
