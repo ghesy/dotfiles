@@ -1,13 +1,12 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
 # requires dmenu, mpv, youtube-dl, gallery-dl, xurls, tuir.
-exec >/dev/null 2>&1
 
 [ -n "$1" ] && url="$1" || url="$(
     xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
 )"
 
-[ -z "$url" ] && return 1
+[ -z "$url" ] && exit
 
 case "$url" in
     *mkv|*webm|*mp4|*gifv|*youtube.com/watch*|*youtube.com/playlist*|\
@@ -22,7 +21,7 @@ case "$url" in
         gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl ;;
 
     *reddit.com*|*redd.it*)
-        $TERMINAL -e tuir "$url" >/dev/null 2>&1 & ;;
+        setsid -f $TERMINAL -e tuir "$url" >/dev/null 2>&1 ;;
 
     *)
         if urls="$(gallery-dl -G "$url" 2>/dev/null)"; then
@@ -31,7 +30,7 @@ case "$url" in
             action="$(
                 printf 'Open\nStream\nCopy\n' |
                     dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
-            )" || exit 1
+            )" || exit 0
             case "$action" in
                 Open) xdg-open "$url" ;;
                 Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
