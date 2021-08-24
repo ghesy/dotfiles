@@ -1,12 +1,46 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
+# requires dmenu, mpv, youtube-dl, gallery-dl, xurls, tuir.
 exec >/dev/null 2>&1
-url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 -w $WINDOWID)"
-[ -n "$url" ] &&
-    case "$(printf 'Copy\nStream\nDownload\nxdg-open' | dmenu -w $WINDOWID -p 'Do What?')" in
-        Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
-        Stream) ytdl -s "$url" ;;
-        Download) dl "$url" ;;
-        xdg-open) xdg-open "$url" ;;
-    esac
-exit 0
+
+[ -n "$1" ] && url="$1" || url="$(
+    xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
+)"
+
+[ -z "$url" ] && return 1
+
+case "$url" in
+    *mkv|*webm|*mp4|*gifv|*youtube.com/watch*|*youtube.com/playlist*|\
+    *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
+    *streamwo.com*|*streamable.com*|*videos.lukesmith*)
+        mpv -quiet "$url" || torsocks mpv -quiet "$url"
+    ;;
+
+    *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
+        dl "$url" ;;
+    ;;
+
+    *reddit.com/gallery*|*i.redd.it*)
+        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl
+    ;;
+
+    *reddit.com*|*redd.it*)
+            $TERMINAL -e tuir "$url" >/dev/null 2>&1 &
+    ;;
+
+    *)
+        if urls="$(gallery-dl -G "$url" 2>/dev/null)"; then
+            printf '%s\n' "$urls" | xargs -d'\n' dl
+        else
+            action="$(
+                printf 'Open\nStream\nCopy\n' |
+                    dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
+            )" || exit 1
+            case "$action" in
+                Open) xdg-open "$url" ;;
+                Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
+                Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
+            esac
+        fi
+    ;;
+esac
