@@ -29,9 +29,8 @@ export USVDIR=~/.local/sv/run # user services
 export ARIA2_CONF=~/.config/aria2/server.conf
 
 # tuir settings
-export TUIR_EDITOR="$EDITOR"
-export TUIR_BROWSER="$BROWSER"
-export TUIR_URLVIEWER="urlscan"
+export TUIR_BROWSER=pipeurl
+export TUIR_URLVIEWER=pipeurl
 
 # bat theme
 export BAT_THEME=Nord
