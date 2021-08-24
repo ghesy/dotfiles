@@ -12,7 +12,7 @@ exec >/dev/null 2>&1
 case "$url" in
     *mkv|*webm|*mp4|*gifv|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
-    *streamwo.com*|*streamable.com*|*videos.lukesmith*)
+    *streamwo.com*|*streamable.com*|*videos.lukesmith*mp4)
         mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
 
     *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
