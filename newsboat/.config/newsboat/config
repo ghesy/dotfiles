@@ -1,5 +1,6 @@
 scrolloff 5
 auto-reload yes
+browser "pipeurl %u"
 external-url-viewer "pipeurl"
 
 bind-key k up
