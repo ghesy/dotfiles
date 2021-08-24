@@ -7,7 +7,13 @@ https://reddit.com/r/socialskills/.rss Improvement "~/r/SocialSkills"
 https://reddit.com/r/soccer/.rss Sports "~/r/Soccer"
 https://theathletic.com/international-soccer/?rss Sports
 
+https://reddit.com/r/news/.rss News "~/r/News"
+https://reddit.com/r/MiddleEast/.rss News "~/r/MiddleEast"
+https://reddit.com/r/iran/.rss News "~/r/Iran"
 https://irandaily.ir/News/Feed?id=3 News
+https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published&notcategories=No%20publish%7CArchived%7cAutoArchived%7cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews"
+https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published%7CIran&notcategories=No%20publish%7Cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews Middle East"
+https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published%7CMiddle_East&notcategories=No%20publish%7Cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews Iran"
 https://theepochtimes.com/c-international/feed News
 https://theepochtimes.com/c-middle-east/feed News
 https://theepochtimes.com/c-opinion/feed News
