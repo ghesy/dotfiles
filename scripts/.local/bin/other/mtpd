@@ -71,7 +71,7 @@ unmount()
 
 is_connected() { [ -r "/sys/$1/serial" ] ;}
 is_mounted()   { cut -f1 "$table" | grep -qx "$1" ;}
-set_mounted()  { printf '%s\n%s\t%s\t%s\t%s\n' "$(cat "$table")" "$1" "$2" "$3" "$4" | sponge "$table" ;}
+set_mounted()  { printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" "$(cat "$table")" | sponge "$table" ;}
 
 cleanup_empty_dirs() { rmdir "$mnt"/* "$cache"/* 2>/dev/null ;}
 cleanup_cache()      { find "$cache" -mindepth 1 -type d -mtime +1 -exec rm -rf {} \; ;}
