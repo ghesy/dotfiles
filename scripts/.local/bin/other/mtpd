@@ -1,5 +1,6 @@
 #!/bin/sh
 # this script mounts and opens any connected mtp devices while it's running.
+# requires go-mtpfs, moreutils , fuse and udev.
 
 # config
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/mtpd"
@@ -71,7 +72,7 @@ unmount()
 
 is_connected() { [ -r "/sys/$1/serial" ] ;}
 is_mounted()   { cut -f1 "$table" | grep -qx "$1" ;}
-set_mounted()  { printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4" "$(cat "$table")" | sponge "$table" ;}
+set_mounted()  { ( printf '%s\t%s\t%s\t%s' "$1" "$2" "$3" "$4"; cat "$table" ) | sponge "$table" ;}
 
 cleanup_empty_dirs() { rmdir "$mnt"/* "$cache"/* 2>/dev/null ;}
 cleanup_cache()      { find "$cache" -mindepth 1 -type d -mtime +1 -exec rm -rf {} \; ;}
