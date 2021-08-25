@@ -137,7 +137,7 @@ net_sample()
 
 is_nothing_playing()
 {
-    ! playerctl -a status | grep -iq playing
+    ! playerctl -a status | grep -iq playing && ! mpc | grep -qi '^\[playing'
 }
 
 check_deps()
