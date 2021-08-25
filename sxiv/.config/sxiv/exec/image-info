@@ -4,9 +4,10 @@
 # $1: image, $2: image width, $3: image height
 fs=' ][ '
 exec 2>/dev/null
-name=$(basename -- "$1")
-size=$(du -Hh -- "$1" | cut -f 1)
 geom="${2}x${3}"
-tags=$(exiv2 -q pr -pi "$1" | awk '$1~"Keywords" { printf("%s,", $4); }')
-tags=${tags%,}
-echo "[ ${size}${fs}${geom}${tags:+$fs}${tags}${fs}${name} ]"
+name=$(basename -- "$1")
+size=$(du -Hh -- "$1" | cut -f1)
+make="$(exiv2 -Pv -gImage.Make -- "$1")"
+model="$(exiv2 -Pv -gImage.Model -- "$1")"
+date="$(exiv2 -Pv -gPhoto.DateTimeOriginal -- "$1" || exiv2 -Pv -gImage.DateTime -- "$1")"
+echo "[ ${size}${fs}${geom}${fs}${date}${date:+$fs}${make}${make:+$fs}${model}${model:+$fs}${name} ]"
