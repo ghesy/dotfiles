@@ -15,7 +15,7 @@ main()
 
 pause()
 {
-    get_mpris > "$state"
+    get_players > "$state"
     mpc pause >/dev/null &
     playerctl -a pause &
     wait
@@ -24,7 +24,9 @@ pause()
 
 restore()
 {
-    [ -r "$state" ] && rm -f "$state" && xargs -a "$state" -L1 playerctl play -p
+    [ ! -r "$state" ] && return 1
+    xargs -a "$state" -L1 playerctl play -p
+    rm -f "$state"
 }
 
 toggle()
@@ -32,7 +34,7 @@ toggle()
     [ -s "$state" ] && restore || pause
 }
 
-get_mpris()
+get_players()
 {
     playerctl -a status -f '{{playerInstance}}	{{lc(status)}}' 2>/dev/null |
         grep playing | cut -f1
