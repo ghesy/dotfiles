@@ -2,50 +2,40 @@
 # toggle the currently playing players.
 
 # file to save the playing players in
-save="${XDG_RUNTIME_DIR:-/tmp}/toggleall-save"
+state="${XDG_RUNTIME_DIR:-/tmp}/toggleall"
 
 main()
 {
     case "$1" in
         restore) restore ;;
-        *)
-            playing="$(get_playing)"
-            case "$1" in
-                pause) pause ;;
-                *) toggle ;;
-            esac
-        ;;
+        pause) pause ;;
+        *) toggle ;;
     esac
-}
-
-toggle()
-{
-    if [ -z "$playing" ]; then
-        restore
-    else
-        pause
-    fi
 }
 
 pause()
 {
-    [ -z "$playing" ] && return 1
-    printf '%s\n' "$playing" > "$save"
-    playerctl -a pause
+    get_mpris > "$state"
+    mpc pause >/dev/null &
+    playerctl -a pause &
+    wait
+    return 0
 }
 
 restore()
 {
-    [ -r "$save" ] || return 1
-    xargs -a "$save" -L1 playerctl play -p
-    rm "$save"
+    [ -r "$state" ] && rm -f "$state" && xargs -a "$state" -L1 playerctl play -p
 }
 
-get_playing()
+toggle()
 {
-    playerctl -a status -f '{{playerInstance}}	{{lc(status)}}' |
-            grep playing | cut -f1
+    [ -s "$state" ] && restore || pause
+}
+
+get_mpris()
+{
+    playerctl -a status -f '{{playerInstance}}	{{lc(status)}}' 2>/dev/null |
+        grep playing | cut -f1
 }
 
 main "$@"
-exit
