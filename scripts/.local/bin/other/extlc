@@ -1,0 +1,40 @@
+#!/bin/sh
+# recursively convert extentions of files in a directory to lowercase letters.
+
+dir="${1:-$PWD}"
+list="$(
+    find "$dir" -type f \
+        -not -path '*/.*' -not -name '*.sync-conflict-*' \
+        -regextype egrep -regex '^/?(.+/)[^/]+\.[^/\.]*[A-Z]+[^/\.]*$'
+)"
+
+count="$(
+    [ -z "$list" ] && echo 0 && exit
+    printf '%s\n' "$list" | wc -l
+)"
+
+case "$count" in
+    0) echo No files will be affected.; exit ;;
+esac
+
+printf '\n%s\n\n' "$count files will be affected:"
+printf '%s\n' "$list" |
+    ifne xargs -d'\n' realpath -s --relative-base="$dir" -- 2>/dev/null |
+    head
+[ "$count" -gt 10 ] && echo ...
+
+printf '\n%s ' 'Continue? [y/N]'
+read ans
+echo
+case "$ans" in y|Y) ;; *) exit 1 ;; esac
+
+printf '%s\n' "$list" | while IFS= read -r file; do
+    dir="$(dirname "$file")"
+    base="$(basename "$file")"
+    ext="${base##*.}"
+    ext="$(printf '%s\n' "$ext" | tr A-Z a-z)"
+    name="${base%.*}"
+    mv -vn -- "$file" "$dir/$name.$ext"
+done
+
+printf '\n%s\n\n' Done.
