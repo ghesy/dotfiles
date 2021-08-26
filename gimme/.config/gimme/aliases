@@ -14,47 +14,41 @@ TS3 : teamspeak3
 Discord : discord
 Ripcord : ripcord
 Telegram : telegram-desktop
+Printers : system-config-printer
+Gimp : gimp
+OBS, Recorder : obs
+Re Tor : restor
 
 Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
 Router : web http://192.168.1.1/system.htm
 Port Forwarding : web http://192.168.1.1/virtualSrv.htm
-Transmission Web : web localhost:9091
 Github : web https://github.com/soystemd
 Syncthing : web localhost:8384
 
-Gimp : gimp
-Print GUI : gtklp -c "$XDG_CONFIG_HOME/gtklp"
-What's Printing : gtklpq
-OBS, Recorder : obs
-Re Tor : restor
-
-NewsBoat, RSS, Feed : tui newsboat
+News Boat, RSS : tui newsboat
 Reddit : tui tuir
-GoTop : tui gotop
 CPU, htop : tui htop
-NetTop : tuisu nethogs
-DiskTop, IOTop : tuisu iotop
+Net Top : tuisu nethogs
+Disk Top, IOTop : tuisu iotop
 Res Router : tui resrouter
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
 Cava, Visualizer : tui cava
 Music, ncmpcpp : tui ncmpcpp
+Bash Mount : tui bashmount
 
 Autolock : autolock
 No Autolock : xset s off off
 
-SPICE, Circuit Sim, qucs : qucs
-AVR Sim, Simulide : simulide
 KiCad, PCB : kicad
 Symphytum : symphytum
 Pavucontrol : pavucontrol
 
-Mount : dmount
 Screenshot : dshot
+Emojies : demoji
 VPN : dvpn
-Games : dgames
 Network Manager, Wi-Fi : networkmanager_dmenu
-History Pop, Last Notification : dunstctl history-pop
+Last Notification : dunstctl history-pop
 
 # vim:ft=conf
