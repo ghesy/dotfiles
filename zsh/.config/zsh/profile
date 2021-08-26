@@ -61,7 +61,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 
 # fzf settings
 export FZF_DEFAULT_OPTS='
---layout=reverse --height=40% --border=sharp
+--layout=reverse --height=40%
 --bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top
 --color=dark
 --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
