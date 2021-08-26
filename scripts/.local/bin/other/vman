@@ -1,5 +1,5 @@
 #!/bin/sh
 # view man-pages in vim.
 # exit if no args given
-[ -z "$*" ] && echo "what manual do you want bruv?" && exit
-man -w "$@" > /dev/null && $EDITOR -c "Man $*" -c 'bprev | bd'
+[ -z "$*" ] && echo 'What manual do you want bruv?' && exit
+man -w "$@" >/dev/null && $EDITOR -c "Man $*" -c 'bprev | bd'
