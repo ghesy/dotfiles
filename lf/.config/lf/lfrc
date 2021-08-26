@@ -93,7 +93,6 @@ cmd follow &lfselect $(readlink -f $f)
 # console stuff
 cmd editor push $$EDITOR<space>--<space>
 cmd trash  push &trash-put<space>$fx;lfreload
-cmd touch  push &touch<space><space>;lfreload<home><a-f><right>
 cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lfreload;lfselect<space>"$name"<home><a-f><right><right>
 
 # bookmarkig
@@ -202,10 +201,9 @@ map vi  editor
 map E   edit
 map svi suedit
 
-map D  trash
+map D trash
 map purge delete
 map mk mkdir
-map to touch
 map xx !$f
 map ax mkexec
 map dr drag
