@@ -28,16 +28,52 @@ set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
 # = Commands
 # ==============
 
-# basic stuff
-cmd q quit
-cmd wq quit
-cmd edit $$EDITOR -- $f
-cmd suedit $suedit -- $f
-cmd jumpback push :mark-load<enter>'
-cmd open        &opener -l -- $f
-cmd openall     &opener -l -- $fx
-cmd openfork    &opener -fl -- $f
-cmd openallfork &opener -fl -- $fx
+cmd open &{{
+
+    send() {
+        for arg; do
+            set -- "$@" "$(printf '%s\n' "$1" | sed 's/"/\\"/g')"
+            shift
+        done
+        lf -remote "send $id \$$(printf '"%s" ' "$@")"
+    }
+
+    case $(printf '%s\n' $f | tr A-Z a-z) in
+        *.pro) exec kicad $f ;;
+        *.kicad_pcb*) exec pcbnew $f ;;
+        *.sch|*.sch-bak) exec eeschema $f ;;
+        *.azw3|*.mobi|*.fb[23]) exec zathura -- $f ;;
+    esac
+
+    case $(file -b --mime-type $(readlink -f $f)) in
+        */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
+        */x-xcf) exec gimp -- $f ;;
+        video/*) exec mpv -- $f ;;
+        audio/*) exec send mpvmusic -- $f ;;
+        image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
+
+        */html)
+            case $BROWSER in
+                *fox*|*wolf*) exec $BROWSER --new-window -- $f ;;
+                *) exec $BROWSER $f ;;
+            esac
+        ;;
+
+        */troff) send man -- $f ;;
+        */x-sc) send sc-im -- $f ;;
+        text/*|*/json) send $EDITOR -- $f ;;
+
+        */vnd.ms*|*/msword|*/vnd.openxml*|*opendoc*|*officedoc*)
+            exec libreoffice $f
+        ;;
+
+        */x-archive|*/x-compress|*/x-cpio|*/x-tar|*/x-bzip2|*/gzip|*/x-lz*|\
+        */x-xz|*/zstd|*/x-7z*|*/x-ace*|*/x-rar*|*/x-gtar|*/zip)
+            send atool -lp -- $f
+        ;;
+    esac
+
+}}
 
 cmd paste ${{
     printf '\e[?1049h'
@@ -53,17 +89,7 @@ cmd paste ${{
     e=$?
     tput cnorm
     [ $e -eq 0 ] || exit
-    rm $list
-    lf -remote "send $id load"
-    lf -remote "send clear"
     printf '\e[?1049l'
-}}
-
-cmd mkexec &{{
-    [ ! -f $f ] && exit
-    if [ -x $f ]; then chmod a-x -- $f
-    else chmod a+x -- $f; fi
-    lfreload -f
 }}
 
 cmd delete ${{
@@ -84,36 +110,12 @@ cmd finder ${{
     lfselect $f
 }}
 
-# bulkrename
-cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
-
-# go to the next/previous parent directory
-cmd parent-up   push :cmd<space>open<enter>;hkl:cmd<space>open<space>&opener<space>--<space>$f<enter>
-cmd parent-down push :cmd<space>open<enter>;hjl:cmd<space>open<space>&opener<space>-l<space>--<space>$f<enter>
-
-# follow symlinks
-cmd follow &lfselect $(readlink -f $f)
-
-# console stuff
-cmd editor push $$EDITOR<space>--<space>
-cmd trash  push &trash-put<space>$fx;lfreload
-cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lfreload;lfselect<space>"$name"<home><a-f><right><right>
-
-# bookmarkig
-cmd bookmarks ${{
-    p="$(bm -l | fzf)" || exit
-    p="$(bm "$p")"
-    [ ! -r "$p" ] && exit
-    lf -remote "send $id select '$p'"
-    lf -remote "send $id open"
+cmd mkexec &{{
+    [ ! -f $f ] && exit
+    if [ -x $f ]; then chmod a-x -- $f
+    else chmod a+x -- $f; fi
+    lf -remote "send $id reload"
 }}
-
-cmd bookmark-add  push &<space>bm<space>-a<space>
-cmd bookmark-rm   push &<space>bm<space>-r<space>
-
-# get info about files
-cmd mediainfo     $mediainfo $f  | less
-cmd mediainfo-all $mediainfo $fx | less
 
 cmd filetype %{{
     file=$(readlink -f $f)
@@ -121,22 +123,6 @@ cmd filetype %{{
     printf '; '
     file -b -- $file
 }}
-
-cmd filetype-all ${{
-    for file in $fx; do
-        basename -- $file
-        printf '    '
-        file -b --mime-type -- $file
-        printf '    '
-        file -b -- $file
-        echo
-    done | less
-}}
-
-# size of files and dirs
-cmd sized0  %echo " calculating..."; du -sh 2>/dev/null
-cmd sized1  $du -hd1 2>/dev/null | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
-cmd ncdu    $ncdu
 
 # archive stuff
 cmd extract ${{
@@ -147,25 +133,30 @@ cmd extract ${{
     aunpack -De -- $fx
     printf '\e[?1049l'
 }}
-
-cmd compress $compress $fx
-
 cmd archive-mount &lfmount $f
 cmd archive-mount-password $lfmount -p $f
 cmd archive-unmount &lfmount -u
+
+# size of files and dirs
+cmd sized0  %echo " calculating..."; du -sh 2>/dev/null
+cmd sized1  $du -hd1 2>/dev/null | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
 
 # image stuff
 cmd img-rot-cw  &for img in $fx; do convert -rotate 90  $img $img; done
 cmd img-rot-ccw &for img in $fx; do convert -rotate -90 $img $img; done
 cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
-cmd gimp &gimp $fx
 
 # other stuff
+cmd q quit
+cmd jumpback push :mark-load<enter>'
 cmd toggle-preview &lftpw 1 1:1 off
-cmd yankpath &echo -n $f | xsel -i -p -b
-cmd drag &dragon-drag-and-drop -a -x $fx
-cmd drag-separate &dragon-drag-and-drop $fx
-cmd wallpaper &wallpaper $f
+cmd copypath &echo -n $f | xsel -i -p -b
+cmd parent-up   push hkl
+cmd parent-down push hjl
+cmd follow &lfselect $(readlink -f $f)
+cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
+cmd trash  push &trash-put<space>$fx;lf<space>-remote<space>"send<space>$id<space>load"
+cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lf<space>-remote<space>"send<space>$id<space>load";lfselect<space>"$name"<home><a-f><right><right>
 
 # ==============
 # = Bindings
@@ -178,9 +169,6 @@ map K  parent-up
 map J  parent-down
 map H  jumpback
 map U  &termopen
-map L  openfork
-map oa openall
-map oA openallfork
 map fo follow
 map rn rename
 map yy copy
@@ -191,60 +179,39 @@ map <c-a> invert
 map uc unselect
 map uv clear
 map pf toggle-preview
-map yp yankpath
+map cp copypath
 map ft filetype
-map fT filetype-all
-map mi mediainfo
-map mI mediainfo-all
 map si set reverse!
-map sr set reverse!
-map wa wallpaper
-
-map vi  editor
-map E   edit
-map svi suedit
-
+map wa &wallpaper $f
+map vi push $$EDITOR<space>--<space>
+map E  $$EDITOR -- $f
+map svi $suedit -- $f
 map D trash
 map purge delete
 map mk mkdir
 map xx !$f
 map ax mkexec
-map dr drag
-map dR drag-separate
-
+map dr &dragon-drag-and-drop -a -x $fx
 map ex extract
-map co compress
+map co $compress $fx
 map mm archive-mount
 map mM archive-mount-password
 map uu archive-unmount
 map du sized0
 map dU sized1
 map ds dust
-map dn ncdu
-
+map dn $ncdu
 map <c-f> finder
-map <c-n> bookmarks
-map ba bookmark-add
-map br bookmark-rm
-
 map rl img-rot-cw
 map rh img-rot-ccw
 map ar img-autorot
-map gi gimp
-
-map <c-r> reload
-map <c-e> down
-map <c-y> up
-
-map at argtest
+map gi &gimp $fx
 map <enter> shell-wait
-
 # renaming
 map A  rename # at the very end
 map cw push A<c-u> # new rename
 map I  push A<c-a> # at the very beginning
 map cW bulkrename
-
 # avoid unknown mapping error when pressing esc or tab.
 map <esc> :echo
 map <tab> :echo
