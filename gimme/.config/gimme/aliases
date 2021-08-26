@@ -40,7 +40,6 @@ lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
 Cava, Visualizer : tui cava
 Music, ncmpcpp : tui ncmpcpp
-Date Format, Persian Date : dwmbar-date -t
 
 Autolock : autolock
 No Autolock : xset s off off
