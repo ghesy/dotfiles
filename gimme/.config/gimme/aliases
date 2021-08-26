@@ -44,9 +44,6 @@ Music, ncmpcpp : tui ncmpcpp
 Autolock : autolock
 No Autolock : xset s off off
 
-Toggle Statusbar : xdotool key super+shift+b
-Toggle dwmBar : togglebar
-
 SPICE, Circuit Sim, qucs : qucs
 AVR Sim, Simulide : simulide
 KiCad, PCB : kicad
