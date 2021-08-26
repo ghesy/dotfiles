@@ -24,8 +24,8 @@ local opts = {
     unselected_and_active   = "▷ - ",
     unselected_and_inactive = "○ - ",
 
-	--font size scales by window, if false requires larger font and padding sizes
-	scale_playlist_by_window=false,
+    --font size scales by window, if false requires larger font and padding sizes
+    scale_playlist_by_window=false,
 
     --playlist ass style overrides inside curly brackets, \keyvalue is one field, extra \ for escape in lua
     --example {\\fnUbuntu\\fs10\\b0\\bord1} equals: font=Ubuntu, size=10, bold=no, border=1
@@ -129,9 +129,9 @@ function show_menu()
             ass:append(choose_prefix(i)..v.label.."\\N")
         end
 
-		local w, h = mp.get_osd_size()
-		if opts.scale_playlist_by_window then w,h = 0, 0 end
-		mp.set_osd_ass(w, h, ass.text)
+        local w, h = mp.get_osd_size()
+        if opts.scale_playlist_by_window then w,h = 0, 0 end
+        mp.set_osd_ass(w, h, ass.text)
     end
 
     function destroy()
