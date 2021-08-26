@@ -18,8 +18,8 @@ local command_template = {
 }
 local o = {
     ffmpeg_path = "ffmpeg",
-    target_dir = "~/Documents/cutfragments",
-    overwrite = false, -- whether to overwrite exist files
+    target_dir = "~/Documents/Fragments",
+    overwrite = false, -- whether to overwrite existing files
     vcodec = "copy",
     acodec = "copy",
 }
@@ -163,8 +163,7 @@ options.read_options(o)
 o.target_dir = o.target_dir:gsub('"', "")
 file, _ = utils.file_info(mp.command_native({ "expand-path", o.target_dir }))
 if not file then
-    osd("target_dir may not exist")
-    msg.warn(string.format("target_dir `%s` may not exist", o.target_dir))
+    os.execute("mkdir -p " .. o.target_dir)
 elseif not file.is_dir then
     osd("target_dir is a file")
     msg.warn(string.format("target_dir `%s` is a file", o.target_dir))
