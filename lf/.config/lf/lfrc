@@ -7,7 +7,6 @@ set shellopts "-u"
 set ifs "\n"
 set period 1
 set nopreview
-set drawbox
 set ratios 1
 set dircounts
 set info "size"
@@ -77,11 +76,16 @@ cmd delete ${{
     printf '\e[?1049l'
 }}
 
-cmd bulkrename ${{
-    for path in $fx; do
-        basename "$path"
-    done | vidir -
+cmd finder ${{
+    f=$(finder -f) || exit
+    case $(basename -- $f) in
+        .*) lf -remote "send $id set hidden" ;;
+    esac
+    lfselect $f
 }}
+
+# bulkrename
+cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
 
 # go to the next/previous parent directory
 cmd parent-up   push :cmd<space>open<enter>;hkl:cmd<space>open<space>&opener<space>--<space>$f<enter>
@@ -161,7 +165,6 @@ cmd toggle-preview &lftpw 1 1:1 off
 cmd yankpath &echo -n $f | xsel -i -p -b
 cmd drag &dragon-drag-and-drop -a -x $fx
 cmd drag-separate &dragon-drag-and-drop $fx
-cmd finder $finder -f | lfselect
 cmd wallpaper &wallpaper $f
 
 # ==============
