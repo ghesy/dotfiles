@@ -12,7 +12,7 @@ main()
 {
     check_dependencies
     mkdir -p "$tmp"
-    touch "$table"
+    :>"$table"
 
     cleanup_cache
     udevadm monitor -ususb |
