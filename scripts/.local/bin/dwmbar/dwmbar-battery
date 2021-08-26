@@ -1,7 +1,7 @@
 #!/bin/sh
 echo 
 for battery in /sys/class/power_supply/BAT*; do
-    cat $battery/capacity | tr -d '\n'
+    tr -d '\n' < $battery/capacity
     echo %
     case $(cat $battery/status) in
         Charging) echo + ;;
