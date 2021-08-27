@@ -30,7 +30,7 @@ main ()
 menu()
 {
     bm="$(list | dmenu -p 'Go Where?')" || return 1
-    xdg-open "$(resolve)"
+    exec xdg-open "$(resolve)"
 }
 
 list()

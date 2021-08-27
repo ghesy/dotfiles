@@ -41,7 +41,8 @@ mount()
 
     (
         TMPDIR="$c" go-mtpfs -dev="$(get_serial "$1")" "$m" 2>&1 |
-            grep --line-buffered 'mounted' | xargs -d'\n' -I{} xdg-open "$m"
+            grep --line-buffered 'mounted' |
+            xargs -d'\n' -I{} setsid -f xdg-open "$m" >/dev/null 2>&1
     ) &
 
     set_mounted "$1" "$m" "$c" $!
