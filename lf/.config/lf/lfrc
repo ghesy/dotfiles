@@ -149,7 +149,8 @@ cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
 # other stuff
 cmd q quit
 cmd jumpback push :mark-load<enter>'
-cmd toggle-preview &lftpw 1 1:1 off
+cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;<space>load<enter>
+cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;<space>&lfcleaner<enter>
 cmd copypath &echo -n $f | xsel -i -p -b
 cmd parent-up   push hkl
 cmd parent-down push hjl
@@ -178,7 +179,8 @@ map ua invert
 map <c-a> invert
 map uc unselect
 map uv clear
-map pf toggle-preview
+map t preview-on
+map T preview-off
 map cp copypath
 map ft filetype
 map si set reverse!
@@ -230,7 +232,6 @@ map c
 map e
 map i
 map w
-map t
 map m
 map f
 map F
