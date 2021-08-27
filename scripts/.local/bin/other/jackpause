@@ -1,37 +1,20 @@
 #!/bin/sh
-# a daemon that pauses all the playing media upon headphone jack disconnection.
-# requires my toggleall script.
+# pause whatever is playing upon headphone jack disconnection.
+# requires the JACKPAUSE environment variable to be set to the name of your headphone port.
 
-main()
-{
-    pactl subscribe | grep --line-buffered card | while IFS= read -r line; do
-        is_current_port_a_speaker_port && toggleall pause
-    done
+get_current_port() {
+    pacmd list-sinks |
+        awk -F'<|>' '/ +\* +index/ {a=1} a && /active port:/ {print $2; exit}'
 }
 
-is_current_port_a_speaker_port()
-{
-    get_current_port_info | grep -q speaker
-}
-
-get_current_port_info()
-{
-    sink_info="$(pacmd list-sinks)"
-    printf '%s\n' "$sink_info" |
-        grep -Pzo '\t{2,}'"$(get_current_port)"'[^\t]*(\t{3,}[^\t]+)+' |
-        tr -d '\000'
-}
-
-get_current_port()
-{
-    printf '%s\n' "$sink_info" |
-        grep -Em1 -A1000 ' +\* +index' |
-        grep -m1 'active port:' |
-        cut -d: -f2 |
-        tr -d ' <:>'
-}
+[ -z "$JACKPAUSE" ] && return 1
+p=$(get_current_port) || return 1
 
 trap exit HUP
-trap "pkill -P $$" EXIT
+trap 'pkill -P $$' EXIT
 
-main "$@"
+pactl subscribe | grep --line-buffered card |
+    while IFS= read -r line; do
+        n=$(get_current_port)
+        [ $p = $JACKPAUSE ] && [ $n != $p ] && p=$n && toggleall pause
+    done
