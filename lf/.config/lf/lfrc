@@ -47,7 +47,7 @@ cmd open &{{
 
     case $(file -b --mime-type $(readlink -f $f)) in
         */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
-        */x-xcf) exec gimp -- $f ;;
+        */x-xcf|*photoshop) exec gimp -- $f ;;
         video/*) exec mpv -- $f ;;
         audio/*) exec send mpvmusic -- $f ;;
         image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
