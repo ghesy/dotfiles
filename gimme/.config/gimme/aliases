@@ -4,10 +4,10 @@
 # long lines can be broken with a backslash at the end of the line.
 
 Firefox, Browser : firefox
-Grub : su grub-customizer
+Grub : root grub-customizer
 Email, Mutt : tui neomutt
 Claws Mail : claws-mail --alternate-config-dir ~/.local/share/claws-mail
-GParted, Partitioning : su gparted
+GParted, Partitioning : root gparted
 Book Reader, Foliate : foliate
 
 TS3 : teamspeak3
@@ -29,8 +29,8 @@ Syncthing : web localhost:8384
 News Boat, RSS : tui newsboat
 Reddit : tui tuir
 CPU, htop : tui htop
-Net Top : tuisu nethogs
-Disk Top, IOTop : tuisu iotop
+Net Top : tuiroot nethogs
+Disk Top, IOTop : tuiroot iotop
 Res Router : tui resrouter
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
