@@ -8,12 +8,9 @@
 # seconds before turning off the backlight completely
 off_time=60
 
-# sleep forever
-pause() { while true; do sleep 1000000000; done }
-
 # check wether changing the backlight is supported
-command -v light >/dev/null || { echo "light" is not installed. >&2; pause ;}
-light 2>&1 | grep -q found && { echo no backlight device found. >&2; pause ;}
+command -v light >/dev/null || { echo "light" is not installed. >&2; sleep inf ;}
+light 2>&1 | grep -q found && { echo no backlight device found. >&2; sleep inf ;}
 
 # save current brightness
 b=$(light)
@@ -30,4 +27,4 @@ sleep $off_time
 light -S 0
 
 # sleep forever
-pause
+sleep inf
