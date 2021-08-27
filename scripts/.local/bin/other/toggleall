@@ -3,6 +3,7 @@
 
 # file to save the playing players in
 state="${XDG_RUNTIME_DIR:-/tmp}/toggleall"
+mpd="${XDG_RUNTIME_DIR:-/tmp}/toggleall-mpc"
 
 main()
 {
@@ -15,23 +16,29 @@ main()
 
 pause()
 {
-    get_players > "$state"
-    mpc pause >/dev/null &
-    playerctl -a pause &
+    (get_players > "$state"; playerctl -a pause) &
+    mpc | grep -q '^\[playing' && :>"$mpd"
+    mpc pause >/dev/null
     wait
     return 0
 }
 
 restore()
 {
-    [ ! -r "$state" ] && return 1
-    xargs -a "$state" -L1 playerctl play -p
-    rm -f "$state"
+    if [ -r "$state" ]; then
+        xargs -ra "$state" -L1 playerctl play -p
+        rm -f "$state"
+    fi
+    if [ -r "$mpd" ]; then
+        mpc play >/dev/null
+        rm -f "$mpd"
+    fi
+    return 0
 }
 
 toggle()
 {
-    [ -s "$state" ] && restore || pause
+    [ -r "$state" ] && restore || pause
 }
 
 get_players()
