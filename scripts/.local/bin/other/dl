@@ -4,54 +4,41 @@
 # if the url is censored, it will download it through tor using torsocks.
 
 # config
-dir="${XDG_CACHE_DIR:-$HOME/.cache}/dl" # where to put the downloaded stuff
-opener="${OPENER:-xdg-open}" # opener program
-table="$dir/cachetable"
+cache=~/.cache/dl
 
 main()
 {
-    mkdir -p "$dir" || return 1
+    mkdir -p "$cache" || return 1
     for url; do
-        if file="$(download "$url")"; then
-            $opener "$file" &
-        fi
+        file="$(download "$url")" && xdg-open "$file" &
     done
     wait
 }
 
 download()
 {
-    get_cached "$1" && return 0
-    name="$(mktemp -u XXXXXXXXXXXXXXX)"
-    tor='' dlcmd "$1" "$name" || tor=torsocks dlcmd "$1" "$name" || return 1
-    record_cache "$1" "$name"
-    printf '%s\n' "$dir/$name"
-}
-
-get_cached()
-{
-    [ ! -e "$table" ] && return 1
-    cached="$(awk -F'\t' -v url="$1" '$2==url {print $1; exit}' "$table")"
-    [ -z "$cached" ] || [ ! -r "$dir/$cached" ] && return 1
-    printf '%s\n' "$dir/$cached"
-}
-
-record_cache()
-{
-    printf '%s\t%s\n%s\n' "$2" "$1" "$(cat "$table" 2>/dev/null)" | sponge "$table"
+    [ -z "$1" ] && return 1
+    file="$(echo "$1" | sha256sum | cut -d' ' -f1)"
+    if [ ! -r "$cache/$file" ]; then
+        tor='' dlcmd "$1" "$file" || tor=torsocks dlcmd "$1" "$file" || return 1
+    fi
+    printf '%s\n' "$cache/$file"
 }
 
 dlcmd()
 {
-    [ -n "$tor" ] && ! torsocks timeout 8 curl -s icanhazip.com >/dev/null 2>&1 && return 1
+    [ -n "$tor" ] &&
+        ! torsocks timeout 8 curl -s icanhazip.com >/dev/null 2>&1 &&
+        return 1
+
     if command -v aria2c >/dev/null; then
         $tor aria2c --quiet --no-conf ${tor:+--async-dns=false} \
             --max-connection-per-server=8 --split=8 --min-split-size=1M \
             --disable-ipv6=true --timeout=5${tor:+0} --connect-timeout=5${tor:+0} \
-            --dir="$dir" --out="$2" -- "$1"
+            --dir="$cache" --out="$2" -- "$1"
     else
         $tor curl --silent --connect-timeout 5${tor:+0} --max-time 300 \
-            ---xattr --output-dir "$dir" --output "$2" -- "$1"
+            ---xattr --output-dir "$cache" --output "$2" -- "$1"
     fi
 }
 
