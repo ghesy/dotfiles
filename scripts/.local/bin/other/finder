@@ -1,38 +1,30 @@
 #!/bin/sh
 # search for files and directories.
-#
-# instead of recursing, it increments the depth of search, which
-# is usually much faster at finding the files you want.
-#
-# so it searches files and dirs in the current dir, then
-# files and dirs that are one level deeprer, then those that are
-# two level deeper, and so on.
-#
+# instead of recursing, it increments the depth of search,
+# which on average finds the stuff you want much faster.
 # max search depth can be increased/decreased mid-run with ctrl-n and ctrl-p.
-#
-# requires find and fzf.
+# requires find(1) and fzf(1).
 
-# config
-# initial search depth
+# initial maximum depth
 max_depth=6
 
-main ()
+main()
 {
     # make fzf fullscreen if -f is supplied
     [ "$1" = -f ] && shift && height='--height=100%'
 
     while true; do
-          out="$( depth_find "$max_depth" "$@" | fzffn "$max_depth" "$query" )"
-        query="$( echo "$out" | head -n1   )" # the stuff that was typed into fzf
-          key="$( echo "$out" | sed '2q;d' )" # the key combination received by fzf
-         file="$( echo "$out" | tail -n1   )" # the selected file in fzf
+        out="$(dfind "${@:-.}" | fzffn)"
+        query="$(printf '%s\n' "$out" | head -n1)" # the searched string
+        file="$(printf '%s\n' "$out" | tail -n1)"  # the selected file in fzf
+        key="$(printf '%s\n' "$out" | sed '2q;d')" # the keypress received by fzf
 
-        [ -z "$out" ] && exit 1
+        [ -z "$out" ] && return 1
 
         case "$key" in
-            ctrl-n ) max_depth=$((max_depth + 1)) ;;
-            ctrl-p ) max_depth=$((max_depth - 1)) ;;
-            '') echo "$file"; exit ;;
+            ctrl-n) max_depth=$((max_depth + 1)) ;;
+            ctrl-p) max_depth=$((max_depth - 1)) ;;
+            '') echo "$file"; return ;;
         esac
 
         [ "$max_depth" -lt 1  ] && max_depth=1
@@ -40,40 +32,39 @@ main ()
     done
 }
 
-depth_find ()
+dfind()
 {
-    max_depth=$1
-    shift
-    for current_depth in $(seq 1 "$max_depth"); do
-        findfn "$current_depth" "$@"
+    for d in $(seq 1 $max_depth); do
+        findfn "$@" &
     done
+    wait
 }
 
-findfn ()
+findfn()
 {
-    current_depth=$1
-    shift
     find -L "$@" \
-        -mindepth $current_depth \
-        -maxdepth $current_depth \
-        -not -path '*vim/undo*' \
-        -not -path '*/Trash/*' \
-        -not -path '*/\.git/*' \
-        -not -name '.git' \
-        2>/dev/null
+      -mindepth $d \
+      -maxdepth $d \
+      -not -path '*vim/undo*' \
+      -not -path '*/Trash/*' \
+      -not -path '*/\.git/*' \
+      -not -name '.git' \
+      2>/dev/null
 }
 
-fzffn ()
+fzffn()
 {
-    depth=$1
-    query=$2
     fzf \
-        --header "Depth = $depth" \
-        --expect ctrl-n,ctrl-p \
-        --query "$query" \
-        --print-query \
-        $height
+      --header "Depth = $max_depth" \
+      --expect ctrl-n,ctrl-p \
+      --query "$query" \
+      --print-query \
+      $height
+}
+
+out()
+{
+    printf '%s\n' "$out"
 }
 
 main "$@"
-exit
