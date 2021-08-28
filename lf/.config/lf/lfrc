@@ -1,32 +1,18 @@
-# ==============
-# = Settings
-# ==============
-
+# don't set the to anything other than bash
 set shell bash
-set shellopts "-u"
+set shellopts '-u'
 set ifs "\n"
-set period 1
+set mouse
+set scrolloff 10
 set nopreview
 set ratios 1
 set dircounts
-set info "size"
-set scrolloff 10
-set incsearch 1
-set tabstop 4
-
 set previewer lfpreviewer
 set cleaner   lfcleaner
-
 set timefmt   "2006-01-02 15:04"
 set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
-
-set nohidden
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
-
-# ==============
-# = Commands
-# ==============
 
 cmd open &{{
 
@@ -102,19 +88,20 @@ cmd delete ${{
     printf '\e[?1049l'
 }}
 
+cmd mkdir %{{
+    printf ' '
+    read dir
+    mkdir -p $dir
+    lf -remote "send $id load"
+    printf '%s\n' $dir | lfselect
+}}
+
 cmd finder ${{
     f=$(finder -f) || exit
     case $(basename -- $f) in
         .*) lf -remote "send $id set hidden" ;;
     esac
-    lfselect $f
-}}
-
-cmd mkexec &{{
-    [ ! -f $f ] && exit
-    if [ -x $f ]; then chmod a-x -- $f
-    else chmod a+x -- $f; fi
-    lf -remote "send $id reload"
+    printf '%s\n' $f | lfselect
 }}
 
 cmd filetype %{{
@@ -124,27 +111,8 @@ cmd filetype %{{
     file -b -- $file
 }}
 
-# archive stuff
-cmd extract ${{
-    printf '\e[?1049h'
-    printf '\e[H'
-    printf '%s\n\n' 'extracting:'
-    printf '  %s\n' $fx ""
-    aunpack -De -- $fx
-    printf '\e[?1049l'
-}}
-cmd archive-mount &lfmount $f
-cmd archive-mount-password $lfmount -p $f
-cmd archive-unmount &lfmount -u
-
 # size of files and dirs
-cmd sized0  %echo " calculating..."; du -sh 2>/dev/null
-cmd sized1  $du -hd1 2>/dev/null | grep -xvE '\S+\s+\.' | sort -rh | $PAGER
-
-# image stuff
-cmd img-rot-cw  &for img in $fx; do convert -rotate 90  $img $img; done
-cmd img-rot-ccw &for img in $fx; do convert -rotate -90 $img $img; done
-cmd img-autorot %jhead -autorot $fx; echo 'finished autorotating images.'
+cmd size %echo " calculating... "; du -sh 2>/dev/null
 
 # other stuff
 cmd q quit
@@ -154,86 +122,45 @@ cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;<space>&lfcle
 cmd copypath &echo -n $f | xsel -i -p -b
 cmd parent-up   push hkl
 cmd parent-down push hjl
-cmd follow &lfselect $(readlink -f $f)
+cmd follow
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
-cmd trash  push &trash-put<space>$fx;lf<space>-remote<space>"send<space>$id<space>load"
-cmd mkdir  push &<space>name=''<space>;mkdir<space>-p<space>"$name";lf<space>-remote<space>"send<space>$id<space>load";lfselect<space>"$name"<home><a-f><right><right>
+cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>$id<space>load"
 
 # ==============
 # = Bindings
 # ==============
 
-map ~  cd ~
-map .  set hidden!
-map *  push :glob-select<space>
-map K  parent-up
-map J  parent-down
-map H  jumpback
-map U  &termopen
-map fo follow
-map rn rename
-map yy copy
-map dd cut
-map pp paste
-map ua invert
-map <c-a> invert
-map uc unselect
-map uv clear
+map ~ cd ~
+map . set hidden!
+map * push :glob-select<space>
+map gh
+map g top
+map E $aunpack -De -- $fx
 map t preview-on
 map T preview-off
-map cp copypath
-map ft filetype
-map si set reverse!
-map wa &wallpaper $f
-map vi push $$EDITOR<space>--<space>
-map E  $$EDITOR -- $f
-map svi $suedit -- $f
+map U &termopen
 map D trash
-map purge delete
-map mk mkdir
-map xx !$f
-map ax mkexec
-map dr &dragon-drag-and-drop -a -x $fx
-map ex extract
-map co $compress $fx
-map mm archive-mount
-map mM archive-mount-password
-map uu archive-unmount
-map du sized0
-map dU sized1
-map ds dust
-map dn $ncdu
+map x !$f
+map <c-n> mkdir
 map <c-f> finder
-map rl img-rot-cw
-map rh img-rot-ccw
-map ar img-autorot
-map gi &gimp $fx
-map <enter> shell-wait
-# renaming
-map A  rename # at the very end
-map cw push A<c-u> # new rename
-map I  push A<c-a> # at the very beginning
-map cW bulkrename
-# avoid unknown mapping error when pressing esc or tab.
+map A rename # at the very end
+map I push A<c-a> # at the very beginning
+map C push A<c-u> # new rename
+map B bulkrename
+map b &wallpaper $f
+map V push $$EDITOR<space>
+map R &dragon-drag-and-drop -a -x $fx
+map o &readlink -f $f | lfselect
+
+map m
+map "'"
+map '"'
+
 map <esc> :echo
 map <tab> :echo
 
-# ==================
-# = Remove Bindings
-# ==================
-
-map r
-map y
-map d
-map p
-map v
-map u
-map c
-map e
-map i
-map w
-map m
-map f
-map F
-map "'"
-map '"'
+# mouse
+map <m-down> down
+map <m-up> up
+map <m-1> preview-on
+map <m-2> preview-off
