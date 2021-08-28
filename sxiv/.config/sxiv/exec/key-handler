@@ -26,11 +26,11 @@ main()
             jhead -autorot &&
             notif Autorotated
             ;;
-        r) ask Rotate &&
+        r) ask CW Rotate &&
             conv -rotate  90 &&
             notif Rotated
             ;;
-        R) ask Rotate &&
+        R) ask CCW Rotate &&
             conv -rotate -90 &&
             notif Rotated
             ;;
