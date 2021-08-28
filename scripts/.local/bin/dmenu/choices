@@ -47,7 +47,7 @@ awkv () {
 
 operator='=='
 [ -n "$chosen" ] && operator='~' && case='-v IGNORECASE=1' || chosen="$(
-    printf "$items" | format | awkv '{print $1}' | awk NF | dmenu -p "$prompt"
+    printf "$items" | format | awkv '{print $1}' | awk NF | dmenu -p "$prompt" ${WINDOWID:+-w $WINDOWID}
 )"
 
 cmd="$(

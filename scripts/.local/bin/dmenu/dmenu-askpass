@@ -2,6 +2,6 @@
 # This script is the SUDO_ASKPASS variable,
 # meaning that it will be used as a password prompt if needed.
 
-pass="$(dmenu -P -p "$1" -nb darkgreen -sb darkgreen -sf white -nf white)"
+pass="$(dmenu -P -p "$1" ${WINDOWID:+-w $WINDOWID} -nb darkgreen -sb darkgreen -sf white -nf white)"
 [ -z "$pass" ] && exit 1
 echo "$pass"

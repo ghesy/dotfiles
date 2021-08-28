@@ -45,11 +45,21 @@ main()
     esac
 }
 
-ask() { dmenu-prompt "$* $count images?" ;}
+ask() { dmenu_prompt "$* $count image(s)?" ;}
 args() { imgs | xargs -d'\n' "$@" ;}
 conv() { imgs | xargs -I{} convert "$@" {} {} ;}
 help() { notify-send 'sxiv key-handler help' "$(print_help)" ;}
 imgs() { printf '%s\n' "$imgs" ;}
+
+dmenu_prompt() {
+    wid=$(xdotool getactivewindow)
+    ans="$(
+        printf "No\\nYes" |
+            dmenu -p "$1" ${wid:+-w $wid} \
+            -nb darkred -sb maroon -sf white -nf darkgray
+    )"
+    [ "$ans" = Yes ] && return 0 || return 1
+}
 
 notif() {
     if [ "$1" = -i ]; then

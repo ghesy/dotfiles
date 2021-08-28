@@ -1,6 +1,6 @@
 #!/bin/sh
 # Ask the user
-ans="$(printf "No\\nYes" | dmenu -p "$1" -nb darkred -sb red -sf white -nf gray)" || exit 1
+ans="$(printf "No\\nYes" | dmenu -p "$1" ${WINDOWID:+-w $WINDOWID} -nb darkred -sb maroon -sf white -nf darkgray)" || exit 1
 [ "$ans" != Yes ] && exit 1
 [ -z "$2" ] && exit 0
 exec sh -c "$2"
