@@ -47,7 +47,7 @@ main()
 
 ask() { dmenu_prompt "$* $count image(s)?" ;}
 args() { imgs | xargs -d'\n' "$@" ;}
-conv() { imgs | xargs -I{} convert "$@" {} {} ;}
+conv() { imgs | xargs -d'\n' -I{} convert "$@" {} {} ;}
 help() { notify-send 'sxiv key-handler help' "$(print_help)" ;}
 imgs() { printf '%s\n' "$imgs" ;}
 
@@ -86,4 +86,3 @@ eof
 }
 
 main "$@"
-exit

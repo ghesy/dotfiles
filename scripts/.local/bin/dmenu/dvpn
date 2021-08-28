@@ -43,7 +43,7 @@ wind ()
     unbuffer sh -c 'windscribe $@ | rmctrlchar' '' $@ |
         while IFS= read -r msg; do
             echo "$msg" | grep -Ev 'symlink|changed' |
-                xargs -I{} dunstify -u low -r $id Windscribe {}
+                xargs -d'\n' -I{} dunstify -u low -r $id Windscribe {}
         done
 
     # refresh net and tor widgets
