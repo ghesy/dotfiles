@@ -2,9 +2,8 @@
 # The famous "get a menu of emojis to copy" script.
 
 main() {
-    sel="$(emojies | cut -f1 | dmenu ${WINDOWID:+-w $WINDOWID} | cut -d' ' -f1 | tr -d '\n')"
-    [ -z "$sel" ] && return 1
-    echo "$sel" | xclip -selection clipboard
+    sel="$(emojies | cut -f1 | dmenu ${WINDOWID:+-w $WINDOWID})" || return 1
+    echo "$sel" | cut -d' ' -f1 | tr -d '\n' | xclip -selection clipboard
     notify-send "'$sel' Copied to Clipboard."
 }
 
