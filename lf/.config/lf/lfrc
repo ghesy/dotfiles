@@ -74,8 +74,9 @@ cmd paste ${{
     esac
     e=$?
     tput cnorm
-    [ $e -eq 0 ] || exit
-    printf '\e[?1049l'
+    [ $e -ne 0 ]  exit
+    rm $list
+    lf -remote 'send clear'
 }}
 
 cmd delete ${{
@@ -85,14 +86,13 @@ cmd delete ${{
     printf '  %s\n' $fx ""
     read -p 'Delete? [y/N] ' ans
     case "$ans" in y|Y) rm -rf -- $fx ;; esac
-    printf '\e[?1049l'
 }}
 
 cmd mkdir %{{
     printf ' '
     read dir
     mkdir -p $dir
-    lf -remote "send $id load"
+    lf -remote "send load"
     printf '%s\n' $dir | lfselect
 }}
 
@@ -104,31 +104,11 @@ cmd finder ${{
     printf '%s\n' $f | lfselect
 }}
 
-cmd filetype %{{
-    file=$(readlink -f $f)
-    file -b --mime-type -- $file | tr -d '\n'
-    printf '; '
-    file -b -- $file
-}}
-
-# size of files and dirs
-cmd size %echo " calculating... "; du -sh 2>/dev/null
-
-# other stuff
 cmd q quit
-cmd jumpback push :mark-load<enter>'
 cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;<space>load<enter>
 cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;<space>&lfcleaner<enter>
-cmd copypath &echo -n $f | xsel -i -p -b
-cmd parent-up   push hkl
-cmd parent-down push hjl
-cmd follow
+cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>load"
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
-cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>$id<space>load"
-
-# ==============
-# = Bindings
-# ==============
 
 map ~ cd ~
 map . set hidden!
@@ -136,6 +116,7 @@ map * push :glob-select<space>
 map gh
 map g top
 map E $aunpack -De -- $fx
+map P $compress $fx
 map t preview-on
 map T preview-off
 map U &termopen
@@ -143,19 +124,27 @@ map D trash
 map x !$f
 map <c-n> mkdir
 map <c-f> finder
-map A rename # at the very end
-map I push A<c-a> # at the very beginning
-map C push A<c-u> # new rename
 map B bulkrename
 map b &wallpaper $f
 map V push $$EDITOR<space>
 map R &dragon-drag-and-drop -a -x $fx
-map o &readlink -f $f | lfselect
+map S %echo " calculating... "; du -sh 2>/dev/null # get size of dir
+map Y &printf %s $f | xclip -selection clipboard # copy file's path
+map o &readlink -f $f | lfselect # follow symlinks
+map H push :mark-load<enter>' # jump back to previous dir
+map K push hkl # go to the previous parent dir
+map J push hjl # go to the next parent dir
+
+# renaming
+map A rename # at the very end
+map I push A<c-a> # at the very beginning
+map C push A<c-u> # new rename
 
 map m
 map "'"
 map '"'
 
+# avoid 'unknown mapping' error
 map <esc> :echo
 map <tab> :echo
 
