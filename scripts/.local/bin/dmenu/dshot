@@ -1,75 +1,47 @@
 #!/bin/sh
-# an improved version of luke smith's screenshot script.
+# an elaborated version of luke smith's screenshot script.
 # requires maim, and my 'choices' script.
 # it lets you choose the kind of screenshot to take,
 # including copying the image or even highlighting an area to copy.
 # scrotcucks on suicidewatch right now.
 
 # config
-save_to=/media/screenshots
-[ -w "$save_to" ] || save_to=~
-prompt='Screenshot'
-
-# delay between pressing enter and taking the shot.
-# 0.2 seconds works pretty well.
+dir=/media/screenshots
+mode=Save # initial mode (possible values: Save, Clipboard)
 delay=0.2
 
-# initial mode (possible values: save, clipboard)
-mode=save
-
-main ()
-{
-    while true; do
-
-        cmd="$(
-            choices "$prompt" "
-                mode=$mode     : toggle_mode,
-                Fullscreen     : fullscreen,
-                Select area    : select_area,
-                Current window : current_window
-            "
-        )" || return 1
-
-        case "$cmd" in
-            toggle_mode) [ $mode = save ] && mode=clipboard || mode=save ;;
-            *) break ;;
-        esac
-
-    done
-
-    case "$mode" in
-        save) msg='screenshot saved.' ;;
-        clipboard) msg='screenshot copied to clipboard.' ;;
+while true; do
+    fn="$(
+        printf '%s\n' \
+            "Mode = $mode" Fullscreen 'Select Area' 'Current Window' |
+            dmenu -p Screenshot ${WINDOWID:+-w $WINDOWID}
+    )"
+    case "$fn" in
+        Mode*) [ $mode = Save ] && mode=Clipboard || mode=Save ;;
+        *) break ;;
     esac
+done
 
-    sleep $delay
-    make_name
-    eval "${cmd}_${mode}" && notify-send -t 1000 "$msg"
-}
+mkdir -p "$dir" || dir=~
+case $mode in
+    Save)  a="$(date +"$dir"/%y%m%d-%H%M%S).png" ;;
+    Clip*) a="| xclip -selection clipboard -t image/png" ;;
+esac
 
-fullscreen_save() { maim -u "${name}_full.png" ;}
-select_area_save() { maim -u -s "${name}_sele.png" ;}
-current_window_save() { maim -u -i "$(current_wndw)" "${name}_wndw.png" ;}
-fullscreen_clipboard() { maim -u | clip ;}
-select_area_clipboard() { maim -u -s | clip ;}
-current_window_clipboard() { maim -u -i "$(current_wndw)" | clip ;}
+# disable picom
+case "$fn" in Full*) ;; *) usv down picom ;; esac
 
-make_name ()
-{
-    rand="$(shuf -n1 -i1000-9999)"
-    date="$(date +%Y-%m-%d_%H%M%S)"
-    name="$save_to/sc_${date}_${rand}"
-}
+sleep $delay
+case "$fn" in
+    Full*) eval maim -u "$a" ;;
+    Select*) eval maim -us "$a" ;;
+    Current*) eval maim -ui $(xdotool getactivewindow) "$a" ;;
+esac
 
-clip()
-{
-    xclip -selection clipboard -t image/png "$@"
-}
+[ $? -eq 0 ] && case "$mode" in
+    Save) notify-send 'Screenshot Saved.' ;;
+    Clip*) notify-send 'Screenshot Copied to Clipboard.' ;;
+esac
 
-current_wndw ()
-{
-    xdotool getactivewindow
-}
-
-main "$@"
-exit
+# re-enable picom
+case "$fn" in Full*) ;; *) usv up picom ;; esac
