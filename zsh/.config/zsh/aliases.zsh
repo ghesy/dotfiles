@@ -11,7 +11,7 @@ search() {
 }
 
 lf() {
-    pgrep -xs0 lf >/dev/null && exit
+    pgrep -xs0 lf >/dev/null && exit # don't run nested lf shells
     lfrun "$@"
     cd "$(lflast "$@")"
 }
@@ -86,7 +86,7 @@ alias loglive='tail -n 20 -f /var/log/everything.log'
 alias d=vimdict
 alias sdl='search /media/downloads'
 alias sf='search /mnt'
-alias fu='vim -c Git -c only'
+alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git/*"'
 alias pvpn='sudo protonvpn'
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
