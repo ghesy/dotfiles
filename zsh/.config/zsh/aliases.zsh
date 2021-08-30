@@ -64,7 +64,7 @@ svi() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
 # git
 # add my github ssh key to ssh agent, only if it isn't already added
-alias gssh='ssh-add -l | grep -q "$(ssh-keygen -lf ~/.ssh/id_github)" || ssh-add ~/.ssh/id_github'
+alias gssh='ssh-add -l | grep -q "$(ssh-keygen -lf ~/.ssh/github)" || ssh-add ~/.ssh/github'
 alias g='gssh; command git'
 alias git=g
 alias gs='g status'
