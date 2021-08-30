@@ -5,6 +5,7 @@ set ifs "\n"
 set mouse
 set scrolloff 10
 set nopreview
+set period 1
 set ratios 1
 set dircounts
 set previewer lfpreviewer
