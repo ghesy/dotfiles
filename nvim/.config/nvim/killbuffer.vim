@@ -5,9 +5,7 @@
 function KillBuffer()
     " if it's an unlisted buffer (fzf, nerdtree, undotree, ...),
     " or it's a coc diag window, wipe it.
-    if ( buflisted(bufnr('%')) == 0  ||
-       \ IsCurrentBufferCocDiag()    ||
-       \ IsCurrentBufferFugitive() )
+    if (buflisted(bufnr('%')) == 0  || &syntax == 'fugitive' || &syntax == 'qf')
         bw
     " if there are more than one listed buffers:
     elseif len(getbufinfo({'buflisted':1})) != 1
@@ -36,7 +34,7 @@ function OnlyBuffer()
     if (exists(':UndotreeHide') != 0)
         UndotreeHide
     endif
-    if (IsCurrentBufferFugitive())
+    if (&syntax == 'fugitive')
         edit _TemporaryBuffer
         silent! call OnlyBuffer()
         Git
@@ -50,22 +48,4 @@ function OnlyBuffer()
         exec "buffer" l:buffnum
         call KillBuffer()
     endfor
-endf
-
-
-function IsCurrentBufferCocDiag()
-    if ( buffer_name('%') == '' && &syntax == 'qf' )
-        return 1
-    else
-        return 0
-    endif
-endf
-
-
-function IsCurrentBufferFugitive()
-    if ( &syntax == 'fugitive' )
-        return 1
-    else
-        return 0
-    endif
 endf

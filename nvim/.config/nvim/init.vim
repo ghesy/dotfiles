@@ -13,7 +13,6 @@ set termguicolors
 
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
-
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'drmikehenry/vim-headerguard'
 Plug 'tpope/vim-fugitive'
@@ -26,7 +25,6 @@ Plug 'bling/vim-bufferline'
 Plug 'pbrisbin/vim-colors-off'
 Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
-Plug 'chriskempson/base16-vim'
 Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
 Plug 'junegunn/fzf.vim'
@@ -50,6 +48,9 @@ set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
+set laststatus=0
+set noshowmode
+set noruler
 set mouse=a
 
 " other
@@ -57,11 +58,6 @@ let g:netrw_dirhistmax = 0
 set shortmess+=ac
 set noswapfile
 set undofile
-
-" search for files natively in vim
-set path+=**
-set wildignore+=**/.git/**
-set wildignore+=**/node_modules/**
 
 " on save, deletes all trailing whitespace and newlines at end of file.
 function s:NoTrailing()
@@ -73,7 +69,7 @@ function s:NoTrailing()
 endf
 autocmd BufWritePre * call <SID>NoTrailing()
 
-" open terminal in vim's pwd
+" open a terminal in vim's pwd
 nnoremap <silent>U :silent !termopen<CR>
 
 " center the cursor horizontally
@@ -146,8 +142,8 @@ nnoremap <silent><Leader>bd :call KillBuffer()<CR>
 " equalize window sizes upon vim resize
 au VimResized * wincmd =
 
-" search for visually selected text.
-vno/remap <silent> // :<C-U>
+" search for the visually selected text
+vnoremap <silent> // :<C-U>
   \ let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
   \ gvy/<C-R>=&ic?'\c':'\C'<CR><C-R><C-R>=substitute(
   \ escape(@", '/\.*$^~['), '\_s\+', '\\_s\\+', 'g')<CR><CR>
@@ -160,17 +156,8 @@ vnoremap <C-r> "hy:%s/<C-r><C-r>=escape(@h, '/\.*$^~[')<CR>
 " recognise double-slash cpp-style comments in json files
 autocmd FileType json syntax match Comment +\/\/.\+$+
 
-" move between buffers
-function BufferNavigationMaps()
-    nnoremap <silent> <C-n>   :bnext<CR>
-    nnoremap <silent> <C-p>   :bprev<CR>
-endf
-call BufferNavigationMaps()
-
 " undotree
 nnoremap <silent><Leader>ut :call UndoTreeRun()<CR>
-autocmd BufEnter * call FixBufferNavigationMaps()
-
 function UndoTreeRun()
     if buflisted(bufnr('%'))
         UndotreeToggle
@@ -178,15 +165,17 @@ function UndoTreeRun()
     else
         UndotreeHide
     endif
-    call FixBufferNavigationMaps()
 endf
 
-function FixBufferNavigationMaps()
-    if ( bufname('%') =~# "undotree_" || bufname('%') =~# "diffpanel_" )
+autocmd VimEnter,BufEnter * call BufferMaps()
+function BufferMaps()
+    if ( bufname('%') =~# "undotree_" || bufname('%') =~# "diffpanel_" ||
+       \ bufname('%') =~# "fugitive://" || bufname('%') =~# ".git/index" || &diff )
         silent! nunmap <C-n>
         silent! nunmap <C-p>
     else
-        call BufferNavigationMaps()
+        nnoremap <silent> <C-n> :bnext<CR>
+        nnoremap <silent> <C-p> :bprev<CR>
     endif
 endf
 
@@ -205,7 +194,7 @@ endf
 set statusline=%{FillStatus()}
 exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
 
-function FixColors()
+function TransparentBg()
     hi StatusLine guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
     hi StatusLineNC guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
     hi VertSplit guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
@@ -215,13 +204,11 @@ function FixColors()
     hi CursorLineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
 endf
-autocmd ColorScheme * call FixColors()
-call FixColors()
+autocmd VimEnter,ColorScheme * call TransparentBg()
 
 " load other configs
 source ~/.config/nvim/killbuffer.vim
 source ~/.config/nvim/term.vim
-source ~/.config/nvim/cmdline.vim
 
 " treesitter
 "lua << EOF
