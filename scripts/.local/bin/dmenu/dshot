@@ -1,6 +1,6 @@
 #!/bin/sh
 # an elaborated version of luke smith's screenshot script.
-# requires maim, and my 'choices' script.
+# requires maim and dmenu.
 # it lets you choose the kind of screenshot to take,
 # including copying the image or even highlighting an area to copy.
 # scrotcucks on suicidewatch right now.
