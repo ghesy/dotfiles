@@ -93,7 +93,7 @@ al=~/.config/zsh/aliases.zsh
 unset al
 
 # start tmux
-source ~/.config/zsh/tmux
+source ~/.config/zsh/tmux.zsh
 
 # clear terminal on graphical terminal initialization
 [ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
