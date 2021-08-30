@@ -223,6 +223,7 @@ source ~/.config/nvim/killbuffer.vim
 source ~/.config/nvim/term.vim
 source ~/.config/nvim/cmdline.vim
 
-lua << EOF
-require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
-EOF
+" treesitter
+"lua << EOF
+"require'nvim-treesitter.configs'.setup { highlight = { enable = true } }
+"EOF
