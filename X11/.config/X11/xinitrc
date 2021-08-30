@@ -32,7 +32,7 @@ wait
 runsvdir -P "$USVDIR" &
 
 # lock the screen
-sleep 0.2; lock & sleep 0.2
+sleep 0.2; loginctl lock-session; sleep 0.2
 
 # set wallpaper
 ~/.fehbg &
