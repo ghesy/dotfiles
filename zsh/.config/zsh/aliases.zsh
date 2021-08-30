@@ -11,6 +11,7 @@ search() {
 }
 
 lf() {
+    pgrep -xs0 lf >/dev/null && exit
     lfrun "$@"
     cd "$(lflast "$@")"
 }
