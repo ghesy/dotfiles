@@ -35,7 +35,7 @@ cmd open &{{
         */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
         */x-xcf|*photoshop) exec gimp -- $f ;;
         video/*) exec mpv -- $f ;;
-        audio/*) exec send mpvmusic -- $f ;;
+        audio/*) send mpvmusic -- $f ;;
         image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
 
         */html)
