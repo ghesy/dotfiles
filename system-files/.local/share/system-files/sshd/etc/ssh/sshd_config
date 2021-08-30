@@ -1,42 +1,14 @@
-#	$OpenBSD: sshd_config,v 1.103 2018/04/09 20:41:22 tj Exp $
-
-# allowed users and path to keys
-AllowUsers koonix sftp_access
+Port PORT
+AllowUsers USER...
+ClientAliveInterval 100
 AuthorizedKeysFile /etc/ssh/authorized-keys/%u
-
-# connection
-Protocol 2 # use the newer, more secure protocol 2
-Port 6969
-LoginGraceTime 90
-PermitRootLogin no
-MaxAuthTries 6
-MaxSessions 20
-TCPKeepAlive no
-Compression yes
-ClientAliveInterval 300
-ClientAliveCountMax 5
-
-# security
 AuthenticationMethods publickey
-PubkeyAuthentication yes
 PermitEmptyPasswords no
-PasswordAuthentication no
-ChallengeResponseAuthentication no
-UsePAM no
 AllowTcpForwarding no
-X11Forwarding no
 PrintMotd no
-PrintLastLog no
 
 # enable sftp
-Subsystem sftp /usr/lib/ssh/sftp-server
-
-# allow local connections without key
-Match Address 192.168.*
-    AuthenticationMethods publickey password
-    PasswordAuthentication yes
-
-# set sftp for user sftp_access
-Match User sftp_access
+Subsystem sftp internal-sftp
+Match User sftp
     ChrootDirectory /mnt
     ForceCommand internal-sftp
