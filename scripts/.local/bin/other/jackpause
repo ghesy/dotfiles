@@ -1,13 +1,13 @@
 #!/bin/sh
 # pause whatever is playing upon headphone jack disconnection.
-# requires the JACKPAUSE environment variable to be set to the name of your headphone port.
+# requires the JACKPORT environment variable to be set to the name of your headphone port.
 
 get_current_port() {
     pacmd list-sinks |
         awk -F'<|>' '/ +\* +index/ {a=1} a && /active port:/ {print $2; exit}'
 }
 
-[ -z "$JACKPAUSE" ] && return 1
+[ -z "$JACKPORT" ] && return 1
 p=$(get_current_port) || return 1
 
 trap exit HUP
@@ -16,5 +16,6 @@ trap 'pkill -P $$' EXIT
 pactl subscribe | grep --line-buffered card |
     while IFS= read -r line; do
         n=$(get_current_port)
-        [ $p = $JACKPAUSE ] && [ $n != $p ] && p=$n && toggleall pause
+        [ $p = $JACKPORT ] && [ $n != $p ] && toggleall pause
+        p=$n
     done
