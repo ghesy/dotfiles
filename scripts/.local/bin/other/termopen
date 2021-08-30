@@ -1,6 +1,6 @@
 #!/bin/sh
 # open a terminal in the given path.
+exec >/dev/null 2>&1
 unset TMUX
-set -- "${1:-$PWD}"
-[ -d "$1" ] && path="$1" || path="$(dirname "$1")"
-setsid -f $TERMINAL -e sh -c "cd \"$path\"; exec $SHELL" >/dev/null 2>&1
+path="${1:-$PWD}"
+cd "$path" || cd "$(dirname "$path")" && setsid -f $TERMINAL
