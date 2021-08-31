@@ -17,7 +17,7 @@ main()
 pause()
 {
     (get_players > "$state"; playerctl -a pause) &
-    mpc | grep -q '^\[playing' && :>"$mpd"
+    mpc | grep -q '^\[playing' && touch "$mpd"
     mpc pause >/dev/null
     wait
     return 0

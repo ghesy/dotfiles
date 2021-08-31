@@ -12,6 +12,7 @@ main()
 {
     check_dependencies
     mkdir -p "$tmp"
+    rm -f "$table"
     :>"$table"
 
     cleanup_cache
