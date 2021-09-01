@@ -1,14 +1,8 @@
 #!/bin/sh
-
-siglist="
-date 1
-audio 2
-net 3
-battery 15
-"
-
-for module; do
-    signum="$(echo "$siglist" | grep "$module" | cut -d' ' -f2)"
-    [ -z "$signum" ] && echo "module $module doesn't exist" >&2 && exit 1
-    kill -$((signum+34)) $(pidof dwmbar)
-done
+# formula: kill -$((signal+34)) $pid
+p=$(pidof dwmbar) || exit 1
+case "$1" in
+    net)     kill -37 $p ;;
+    audio)   kill -36 $p ;;
+    battery) kill -49 $p ;;
+esac
