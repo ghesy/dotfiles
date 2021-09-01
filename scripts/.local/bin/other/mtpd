@@ -5,16 +5,11 @@
 # config
 cache="${XDG_CACHE_HOME:-$HOME/.cache}/mtpd"
 tmp="${XDG_RUNTIME_DIR:-/tmp}/mtpd"
-table="$tmp/mtab"
-mnt="$tmp/mount"
 
 main()
 {
     check_dependencies
-    mkdir -p "$tmp"
-    rm -f "$table"
-    :>"$table"
-
+    make_dirs
     cleanup_cache
     udevadm monitor -ususb |
         grep --line-buffered -E 'add|remove' |
@@ -35,10 +30,8 @@ handle()
 
 mount()
 {
-    m="$(generate_mountpoint "$1")"
-    c="$(generate_cachedir "$1")"
-
-    mkdir -p "$m" "$c"
+    m="$(generate_mountpoint "$1")" || return 1
+    c="$(generate_cachedir "$1")"   || return 1
 
     (
         TMPDIR="$c" go-mtpfs -dev="$(get_serial "$1")" "$m" 2>&1 |
@@ -66,7 +59,6 @@ unmount()
 {
     delay=2
     until fuse_unmount "$1"; do
-        echo $delay
         sleep $delay
         [ $delay -lt 120 ] && delay=$((delay+2))
     done
@@ -76,7 +68,7 @@ is_connected() { [ -r "/sys/$1/serial" ] ;}
 is_mounted()   { cut -f1 "$table" | grep -qx "$1" ;}
 set_mounted()  { ( printf '%s\t%s\t%s\t%s' "$1" "$2" "$3" "$4"; cat "$table" ) | sponge "$table" ;}
 
-cleanup_empty_dirs() { rmdir "$mnt"/* "$cache"/* 2>/dev/null ;}
+cleanup_empty_dirs() { rmdir "$tmp"/* "$cache"/* 2>/dev/null ;}
 cleanup_cache()      { find "$cache" -mindepth 1 -type d -mtime +1 -exec rm -rf {} \; ;}
 kill_if_exists()     { is_integer "$1" && pgrep -aP "$1" | grep -q go-mtpfs && pkill -P "$1" ;}
 fuse_unmount()       { fusermount -u "$(get_mountpoint "$1")" 2>&1 | grep -q busy && return 1 || return 0 ;}
@@ -88,23 +80,31 @@ get_mountpoint()   { awk -v dev="$1" '$1 == dev {print $2; exit}' "$table" ;}
 get_cachedir()     { awk -v dev="$1" '$1 == dev {print $3; exit}' "$table" ;}
 get_pid()          { awk -v dev="$1" '$1 == dev {print $4; exit}' "$table" ;}
 
-rand()                { shuf -n1 -i100000-999999 ;}
 is_integer()          { [ "$1" -eq "$1" ] 2>/dev/null ;}
-generate_cachedir()   { printf '%s\n' "$cache/$(mktemp -u XXXXXXXX)" ;}
-generate_mountpoint() { printf '%s\n' "$mnt/$(get_product_name "$1")-$(get_vendor_name "$1")-$(rand)" ;}
+generate_cachedir()   { mktemp -d "$cache/XXXXXXXXXX" ;}
+generate_mountpoint() { mktemp -d "$tmp/$(get_product_name "$1")-$(get_vendor_name "$1")-XXXXXX" ;}
+
+make_dirs()
+{
+    umask 077
+    mkdir -p "$cache" || die failed making dir "$cache".
+    mkdir -p "$tmp" || die failed making dir "$tmp".
+    table="$(mktemp "$tmp/mtab-XXXXXXXXXX")" || die failed making tmpfiles inside "$tmp".
+}
 
 check_dependencies()
 {
     for prog in go-mtpfs fusermount udevadm sponge; do
         command -v $prog >/dev/null ||
-            die $prog not found. go-mtpfs, fuse, udev and moreutils are required for mtpd.
+            die "$prog not found. go-mtpfs, fuse, udev and moreutils are required for mtpd."
     done
     pidof -q udevd || die udevd is not running.
 }
 
-die() { printf '%s\n' "mtpd: Error: $*"; exit 1 ;}
+die()     { printf '%s\n' "mtpd: Error: $*"; exit 1 ;}
+cleanup() { pkill -P $$; rm "$table" ;}
 
 trap exit HUP
-trap "pkill -P $$" EXIT
+trap cleanup EXIT
 
 main "$@"

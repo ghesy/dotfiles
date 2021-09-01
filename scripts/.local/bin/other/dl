@@ -8,7 +8,7 @@ cache=~/.cache/dl
 
 main()
 {
-    mkdir -p "$cache" || return 1
+    mkcachedir
     for url; do
         file="$(download "$url")" && xdg-open "$file" &
     done
@@ -39,6 +39,16 @@ dlcmd()
     else
         $tor curl --silent --connect-timeout 5${tor:+0} --max-time 300 \
             ---xattr --output-dir "$cache" --output "$2" -- "$1"
+    fi
+}
+
+mkcachedir()
+{
+    if [ ! -w "$cache" ]; then
+        mkdir -m700 "$cache" || {
+            echo Couldn\'t make directory "$cache". >&2
+            exit 1
+        }
     fi
 }
 
