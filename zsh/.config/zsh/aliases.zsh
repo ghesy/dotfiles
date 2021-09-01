@@ -5,15 +5,22 @@ source /usr/share/fzf/key-bindings.zsh
 
 alias ls='command ls -AF --color=always --group-directories-first'
 
-search() {
-    f="$(finder "$@")" && lf "$f"
-    unset f
+lf() {
+    local tmp="$(mktemp)"
+    lfrun -last-dir-path="$tmp" "$@"
+    [ ! -f "$tmp" ] && return
+    local dir="$(cat "$tmp")"
+    rm -f "$tmp"
+    [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
 }
 
-lf() {
-    pgrep -xs0 lf >/dev/null && exit # don't run nested lf shells
-    lfrun "$@"
-    cd "$(lflast "$@")"
+search() {
+    local f="$(finder "$@")" || return 1
+    if [[ "$(basename -- "$f")" == .* ]]; then
+        lf -command 'set hidden' -- "$f"
+    else
+        lf -- "$f"
+    fi
 }
 
 # bookmarks
@@ -23,10 +30,9 @@ b() {
         -*) command bm "$@"; return ;;
     esac
 
-    p="$(command bm "$@")"
+    local p="$(command bm "$@")"
     [ -z "$p" ] && return
     cd "$p"
-    unset p
 }
 _b() {
     compadd $(command bm -l)
@@ -43,10 +49,6 @@ bindctrl f search
 alias mk='mkdir -pv'
 alias cp='cp -iv'
 alias mv='mv -iv'
-
-# display cheatsheets and bropages for commands from cheat.sh
-cheat() { curl -Ss "cheat.sh/$1" | $PAGER }
-alias bro='cheat'
 
 # man-pages in vim
 alias man='vman'
