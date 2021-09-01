@@ -1,9 +1,9 @@
-image/*; opener %s ;
+image/*; sxiv -a %s ;
 audio/*; mpvmusic %s ;
-video/*; opener %s ;
-application/pdf; opener %s ;
+video/*; mpv %s ;
+application/pdf; zathura %s ;
 text/plain; $EDITOR %s ;
-text/html; opener %s ; nametemplate=%s.html;
+text/html; $BROWSER --new-window %s ; nametemplate=%s.html;
 text/html; lynx -assume_charset=%{charset} -display_charset=utf-8 -dump %s; nametemplate=%s.html; copiousoutput;
 application/pgp-keys; gpg --import '%s'; copiousoutput;
 application/pgp-encrypted; gpg -d '%s'; copiousoutput;
