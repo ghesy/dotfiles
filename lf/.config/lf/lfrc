@@ -32,7 +32,7 @@ cmd open &{{
         *.azw3|*.mobi|*.fb[23]) exec zathura -- $f ;;
     esac
 
-    case $(file -b --mime-type $(readlink -f $f)) in
+    case $(file -b --mime-type --dereference -- $f) in
         */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
         */x-xcf|*photoshop) exec gimp -- $f ;;
         video/*) exec mpv -- $f ;;
