@@ -1,7 +1,6 @@
 [global]
     geometry = "350x5-5+23"
     icon_position = left
-    max_icon_size = 40
     frame_width = 2
     opacity =
     separator_height = 1
