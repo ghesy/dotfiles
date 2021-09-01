@@ -204,7 +204,8 @@ function TransparentBg()
     hi CursorLineNr guibg=NONE ctermbg=NONE
     hi SignColumn guibg=NONE ctermbg=NONE
 endf
-autocmd VimEnter,ColorScheme * call TransparentBg()
+autocmd ColorScheme * call TransparentBg()
+call TransparentBg()
 
 " load other configs
 source ~/.config/nvim/killbuffer.vim
