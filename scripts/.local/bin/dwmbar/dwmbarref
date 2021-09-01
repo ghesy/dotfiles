@@ -2,10 +2,8 @@
 
 siglist="
 date 1
-mem 2
-tor 3
-net 4
-audio 5
+audio 2
+net 3
 battery 15
 "
 
