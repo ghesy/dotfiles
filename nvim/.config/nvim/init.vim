@@ -178,6 +178,9 @@ function BufferMaps()
     endif
 endf
 
+" vim-bufferline
+let g:bufferline_show_bufnr = 0
+
 " colors and appearance
 let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
