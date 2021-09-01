@@ -30,14 +30,15 @@ case "$url" in
         fi
 
         action="$(
-            printf 'Open\nStream\nCopy\n' |
+            printf 'Open\nStream\nCopy\nBrowse' |
                 dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
         )" || exit 0
 
         case "$action" in
+            Open) dl "$url" ;;
             Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
             Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
-            Open)
+            Browse)
                 case "$url" in
                     http*)
                         case "$BROWSER" in
