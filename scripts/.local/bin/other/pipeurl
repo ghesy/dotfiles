@@ -2,7 +2,7 @@
 # extract and open URLs from the contents of stdin.
 # requires dmenu, mpv, youtube-dl, gallery-dl, xurls, tuir.
 
-[ -n "$1" ] && url="$1" || url="$(
+[ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" || url="$(
     xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
 )"
 
