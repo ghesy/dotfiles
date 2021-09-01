@@ -1,5 +1,0 @@
-#!/bin/sh
-echo 旅
-have_internet() { nmcli -g general.ip4-connectivity dev show | grep -q full  ;}
-tor_connected() { timeout 6 curl -s --socks5 localhost:9050 icanhazip.com >/dev/null ;}
-have_internet && tor_connected && echo  || echo x

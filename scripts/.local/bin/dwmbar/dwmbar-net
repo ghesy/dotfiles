@@ -12,15 +12,19 @@ main()
     no_connections && echo  && return
 
     if no_internet; then
-        echo x
+        echo x; nonet=true
     elif is_vpn_on; then
         echo 
     else
         echo 
     fi
 
-    net_recently_changed || return
+    net_recently_changed && net_type
+    [ "$nonet" != true ] && tor
+}
 
+net_type()
+{
     is_metered && echo ﰒ
     case $type in
         *bluetooth*) echo  ;;
@@ -28,6 +32,15 @@ main()
         *ethernet*) is_usb && echo 禍 || echo  ;;
         *) echo ? ;;
     esac
+}
+
+tor()
+{
+    t="${XDG_RUNTIME_DIR:-/tmp}/tor"
+    cat $t 2>/dev/null
+    pgrep -f '10.*icanhazip' >/dev/null ||
+        sh -c "timeout 10 curl -s --socks5 localhost:9050 icanhazip.com &&
+               echo  > $t || :>$t" >/dev/null 2>&1 &
 }
 
 no_connections()
