@@ -15,12 +15,13 @@ lf() {
 }
 
 search() {
-    local f="$(finder "$@")" || return 1
-    if [[ "$(basename -- "$f")" == .* ]]; then
-        lf -command 'set hidden' -- "$f"
+    F="$(finder "$@")" || return 1
+    if [[ "$(basename -- "$F")" == .* ]]; then
+        lf -command 'set hidden' -- "$F"
     else
-        lf -- "$f"
+        lf -- "$F"
     fi
+    unset F
 }
 
 # bookmarks
