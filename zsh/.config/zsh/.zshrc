@@ -10,65 +10,15 @@ setopt histreduceblanks # remove superfluous blanks from history
 setopt histignorespace # don't put commands starting with space into history
 setopt histignoredups # don't put duplicate commands into history
 
+# start tmux
+source ~/.config/zsh/tmux.zsh
+
 # other settings
 setopt ignoreeof # don't exit by ctrl-d
 setopt autocd # cd to paths typed in the shell, without the cd command
 setopt nullglob # make globs expand to nothing if they match nothing
 setopt interactivecomments # allow comments in interactive shell
 stty stop undef # disable ctrl-s freezing the shell
-
-# tab complete options
-autoload -U compinit
-zstyle ':completion:*' completer _complete _ignored _correct _approximate
-zstyle ':completion:*' max-errors 2
-zstyle ':completion:*' menu select
-zstyle ':completion:*' hosts ''
-zstyle ':completion:*' matcher-list '' \
-'m:{[:lower:]}={[:upper:]}' \
-'m:{[:lower:][:upper:]}={[:upper:][:lower:]} r:|[._-]=** r:|=**' \
-'m:{[:lower:][:upper:]}={[:upper:][:lower:]} r:|[._-]=** r:|=** l:|=*'
-zmodload zsh/complist
-compinit
-_comp_options+=(globdots)
-
-# edit current line in vim with ctrl-e:
-autoload edit-command-line
-zle -N edit-command-line
-bindkey '^e' edit-command-line
-
-# vi mode
-bindkey -v
-export KEYTIMEOUT=1
-
-# use vim keys in tab complete menu
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -v '^?' backward-delete-char
-
-# change cursor shape for different vi modes
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
-}
-zle -N zle-keymap-select
-# initiate `vi insert` as keymap
-# (can be removed if `bindkey -V` has been set elsewhere)
-zle-line-init() {
-    zle -K viins
-    echo -ne "\e[5 q"
-}
-zle -N zle-line-init
-echo -ne '\e[5 q' # use beam shape cursor on startup.
-preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 # shell prompt
 autoload -U colors && colors
@@ -82,19 +32,49 @@ precmd() {
     unfunction c
 }
 
-# source pywal colors
-fzf=~/.cache/wal/fzf
-[ -r "$fzf" ] && source ~/.cache/wal/fzf 2>/dev/null
-unset fzf
+# tab complete options
+autoload -U compinit
+zstyle ':completion:*' completer _complete _ignored _correct _approximate
+zstyle ':completion:*' max-errors 2
+zstyle ':completion:*' menu select
+zstyle ':completion:*' hosts ''
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' \
+    'm:{a-zA-Z}={A-Za-z} r:|[._-]=** r:|=**' \
+    'm:{a-zA-Z}={A-Za-z} r:|[._-]=** r:|=** l:|=*'
+zmodload zsh/complist && compinit
+_comp_options+=(globdots)
 
-# load aliases
-al=~/.config/zsh/aliases.zsh
-[ -r "$al" ] && source "$al"
-unset al
+# edit current line in vim with ctrl-e:
+autoload edit-command-line
+zle -N edit-command-line
+bindkey '^e' edit-command-line
 
-# start tmux
-source ~/.config/zsh/tmux.zsh
+# vi mode
+bindkey -v
+export KEYTIMEOUT=1
 
-# clear terminal on graphical terminal initialization
-[ -z "$TERMINIT" ] && [ -n "$DISPLAY" ] && clear
-export TERMINIT=true;
+# use vim keys in tab complete menu:
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+bindkey -v '^?' backward-delete-char
+
+# change cursor shape for different vi modes.
+function zle-keymap-select () {
+    case $KEYMAP in
+        vicmd) echo -ne '\e[1 q';;      # block
+        viins|main) echo -ne '\e[5 q';; # beam
+    esac
+}
+zle -N zle-keymap-select
+zle-line-init() {
+    zle -K viins # initiate `vi insert` as keymap (can be removed if `bindkey -V` has been set elsewhere)
+    echo -ne "\e[5 q"
+}
+zle -N zle-line-init
+echo -ne '\e[5 q' # use beam shape cursor on startup.
+preexec() { echo -ne '\e[5 q' ;} # use beam shape cursor for each new prompt.
+
+source ~/.cache/wal/fzf 2>/dev/null
+source ~/.config/zsh/aliases.zsh
