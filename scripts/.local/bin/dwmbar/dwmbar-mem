@@ -1,5 +1,0 @@
-#!/bin/sh
-echo 
-percentage=$(free | awk '/Mem/ {printf "%u\n", ($2-$7)/$2*100}')
-[ $percentage -lt 80 ] && echo  && exit
-echo $percentage%
