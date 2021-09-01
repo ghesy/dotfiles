@@ -3,6 +3,7 @@
 
 dir=~/.local/share/neomutt
 acc=$dir/accounts
+umask 077
 
 command -v abook >/dev/null ||
     notify-send NeoMutt 'Please install "abook" to get addressbook functionality'
