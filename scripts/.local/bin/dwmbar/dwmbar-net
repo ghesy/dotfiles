@@ -66,7 +66,7 @@ is_tor_on()
 {
     t="${XDG_RUNTIME_DIR:-/tmp}/tor"
     pgrep -f '10.*icanhazip' >/dev/null ||
-        sh -c "timeout 10 curl -s --socks5 localhost:9050 icanhazip.com &&
+        sh -c "timeout 15 curl -s --socks5 localhost:9050 ping.archlinux.org &&
                echo > $t || : > $t" >/dev/null 2>&1 &
     [ -s $t ]
 }
