@@ -28,9 +28,6 @@ case $mode in
     Clip*) a="| xclip -selection clipboard -t image/png" ;;
 esac
 
-# disable picom
-case "$fn" in Full*) ;; *) usv down picom ;; esac
-
 sleep $delay
 case "$fn" in
     Full*) eval maim -u "$a" ;;
@@ -39,9 +36,6 @@ case "$fn" in
 esac
 
 [ $? -eq 0 ] && case "$mode" in
-    Save) notify-send 'Screenshot Saved.' ;;
+    Save) notify-send -i "$a" 'Screenshot Saved.' ;;
     Clip*) notify-send 'Screenshot Copied to Clipboard.' ;;
 esac
-
-# re-enable picom
-case "$fn" in Full*) ;; *) usv up picom ;; esac
