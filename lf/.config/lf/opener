@@ -1,0 +1,51 @@
+#!/bin/bash
+IFS=$'\n'
+
+[ -z $id ] || [ -z $f ] && exit 1
+
+case $1 in
+    -a) f=$fx ;;
+esac
+
+send() {
+    for arg; do
+        set -- "$@" "$(printf '%s\n' "$1" | sed 's/"/\\"/g')"
+        shift
+    done
+    lf -remote "send $id \$$(printf '"%s" ' "$@")"
+}
+
+case $(printf '%s\n' $f | tr A-Z a-z) in
+    *.pro) exec kicad $f ;;
+    *.kicad_pcb*) exec pcbnew $f ;;
+    *.sch|*.sch-bak) exec eeschema $f ;;
+    *.azw3|*.mobi|*.fb[23]) exec zathura -- $f ;;
+esac
+
+case $(file -b --mime-type --dereference -- $f) in
+    */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
+    */x-xcf|*photoshop) exec gimp -- $f ;;
+    video/*) exec mpv -- $f ;;
+    audio/*) send mpvmusic -- $f ;;
+    image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
+
+    */html)
+        case $BROWSER in
+            *fox*|*wolf*) exec $BROWSER --new-window -- $f ;;
+            *) exec $BROWSER $f ;;
+        esac
+    ;;
+
+    */troff) send man -- $f ;;
+    */x-sc) send sc-im -- $f ;;
+    text/*|*/json) send $EDITOR -- $f ;;
+
+    */vnd.ms*|*/msword|*/vnd.openxml*|*opendoc*|*officedoc*)
+        exec libreoffice $f
+    ;;
+
+    */x-archive|*/x-compress|*/x-cpio|*/x-tar|*/x-bzip2|*/gzip|*/x-lz*|\
+    */x-xz|*/zstd|*/x-7z*|*/x-ace*|*/x-rar*|*/x-gtar|*/zip)
+        send atool -lp -- $f
+    ;;
+esac
