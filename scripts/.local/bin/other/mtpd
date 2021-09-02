@@ -34,7 +34,7 @@ mount()
     c="$(generate_cachedir "$1")"   || return 1
 
     (
-        TMPDIR="$c" go-mtpfs -dev="$(get_serial "$1")" "$m" 2>&1 |
+        TMPDIR="$c" go-mtpfs -dev=" $(get_serial "$1")$" "$m" 2>&1 |
             grep --line-buffered 'mounted' |
             xargs -d'\n' -I{} setsid -f xdg-open "$m" >/dev/null 2>&1
     ) &
