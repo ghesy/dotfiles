@@ -34,6 +34,7 @@ cmd paste ${{
     [ $e -ne 0 ]  exit
     rm $list
     lf -remote 'send clear'
+    lf -remote 'send load'
 }}
 
 cmd delete ${{
