@@ -1,8 +1,7 @@
 # dotfiles
 
-![Screenshot](Screenshot.jpg)
-
-also check out these stuff:
+![Screenshot](Sc1.jpg)
+![Screenshot](Sc2.jpg)
 
 - my dwm build: [soystemd/dwm](https://github.com/soystemd/dwm)
 - my statusbar: [soystemd/dwmBar](https://github.com/soystemd/dwmbar)
