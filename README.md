@@ -1,7 +1,5 @@
 # dotfiles
 
-looks like this:
-
 ![screenshot](screenshot.png)
 
 also check out these stuff:
