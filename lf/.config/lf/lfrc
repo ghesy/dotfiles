@@ -8,8 +8,6 @@ set nopreview
 set period 1
 set ratios 1
 set dircounts
-set previewer lfpreviewer
-set cleaner   lfcleaner
 set timefmt   "2006-01-02 15:04"
 set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"

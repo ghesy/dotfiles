@@ -7,7 +7,7 @@ alias ls='command ls -AF --color=always --group-directories-first'
 
 lf() {
     local tmp="$(mktemp)"
-    lfrun -last-dir-path="$tmp" "$@"
+    command lf -last-dir-path="$tmp" "$@"
     [ ! -f "$tmp" ] && return
     local dir="$(cat "$tmp")"
     rm -f "$tmp"
