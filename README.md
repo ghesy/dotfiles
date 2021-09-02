@@ -1,6 +1,6 @@
 # dotfiles
 
-![screenshot](screenshot.png)
+![Screenshot](Screenshot.jpg)
 
 also check out these stuff:
 
