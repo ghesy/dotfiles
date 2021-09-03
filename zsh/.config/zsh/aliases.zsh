@@ -51,6 +51,7 @@ bindctrl f search
 alias mk='mkdir -pv'
 alias cp='cp -iv'
 alias mv='mv -iv'
+alias rm='rm -Iv --one-file-system'
 
 # man-pages in vim
 alias man='vman'
@@ -58,7 +59,6 @@ compdef vman=man
 
 # pacman
 alias p='sudo pacman'
-alias a='paru'
 alias pl='paclast -t | head'
 
 # vim
