@@ -13,7 +13,7 @@ auto_view application/pgp-encrypted
 alternative_order text/plain text/enriched text/html
 
 set date_format="%y-%m-%d %H:%M"
-set index_format="%2C %Z %?X?A& ? %D %-15.15F %s (%-4.4c)"
+set index_format="%2C %Z %D %-15.15F %s"
 set sort = reverse-date
 set imap_check_subscribed
 set mail_check = 120

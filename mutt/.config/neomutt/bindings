@@ -41,9 +41,9 @@ bind index \005 next-undeleted
 bind pager \031 previous-line
 bind pager \005 next-line
 
+macro index \Ca "T~U<enter><tag-prefix><clear-flag>N<untag-pattern>.<enter>" "mark all messages as read"
 macro pager U "<enter-command>set my_pipe_decode=\$pipe_decode pipe_decode<return><pipe-message>pipeurl<return><enter-command>set pipe_decode=\$my_pipe_decode; unset my_pipe_decode<return>" "Follow urls"
 macro index,pager a "<enter-command>set my_pipe_decode=\$pipe_decode pipe_decode<return><pipe-message>~/.config/neomutt/abook --add-email<return><enter-command>set pipe_decode=\$my_pipe_decode; unset my_pipe_decode<return>" "Add the sender address to abook"
-macro index O "<shell-escape>mw -Y<enter>" "run mw -Y to sync all mail"
 macro index A "<limit>all\n" "show all messages (undo limit)"
 
 # Sidebar mappings
