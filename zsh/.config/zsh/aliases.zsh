@@ -6,6 +6,7 @@ source /usr/share/fzf/key-bindings.zsh
 alias ls='command ls -AF --color=always --group-directories-first'
 
 lf() {
+    pgrep -xs0 lf >/dev/null && exit
     local tmp="$(mktemp)"
     command lf -last-dir-path="$tmp" "$@"
     [ ! -f "$tmp" ] && return
