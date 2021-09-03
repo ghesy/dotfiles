@@ -15,7 +15,7 @@ while true; do
         printf '%s\n' \
             "Mode = $mode" Fullscreen 'Select Area' 'Current Window' |
             dmenu -p Screenshot ${WINDOWID:+-w $WINDOWID}
-    )"
+    )" || exit 1
     case "$fn" in
         Mode*) [ $mode = Save ] && mode=Clipboard || mode=Save ;;
         *) break ;;
