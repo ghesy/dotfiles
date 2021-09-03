@@ -1,21 +1,31 @@
 source '~/.config/neomutt/accounts|'
+source ~/.config/neomutt/bindings
+source ~/.config/neomutt/colors
 
 set header_cache = ~/.cache/neomutt
 set message_cachedir = ~/.cache/neomutt
-
-set imap_check_subscribed
-set mail_check = 120
-unset imap_passive
-
-set sort = reverse-date
-source ~/.config/neomutt/colors
-
 set mailcap_path = ~/.config/neomutt/mailcap
-set mime_type_query_command = "file --mime-type -b %s"
 set query_command = "~/.config/neomutt/abook --mutt-query '%s'"
+set mime_type_query_command = "file --mime-type -b %s"
 
-auto_view text/html
+auto_view text/html # show html via lynx
 auto_view application/pgp-encrypted
 alternative_order text/plain text/enriched text/html
 
-source ~/.config/neomutt/bindings
+set date_format="%y-%m-%d %H:%M"
+set index_format="%2C %Z %?X?A& ? %D %-15.15F %s (%-4.4c)"
+set sort = reverse-date
+set imap_check_subscribed
+set mail_check = 120
+unset imap_passive
+set rfc2047_parameters = yes
+set sleep_time = 0 # don't pause for informational messages
+set markers = no # disable the '+' signs at line wraps
+set mark_old = no # unread mail stay unread until read
+set mime_forward = yes # attachments are forwarded with mail
+set fast_reply # skip to compose when replying
+set fcc_attach # save attachments with the body
+set forward_format = "Fwd: %s" # format of subject when forwarding
+set forward_quote # include message in forwards
+set reverse_name # reply as whomever it was to
+set include # include message in replies
