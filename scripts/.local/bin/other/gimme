@@ -3,6 +3,7 @@
 
 # config
 conf=~/.config/gimme
+local=~/.local/share/local/gimme
 
 main()
 {
@@ -33,7 +34,7 @@ get_cmd()
 
 get_entries()
 {
-    for f in $conf/aliases $conf/aliases.d/*; do
+    for f in $conf/aliases $local/aliases.d/*; do
         [ -r "$f" ] && set -- "$@" "$f"
     done
 
@@ -43,7 +44,7 @@ get_entries()
 
 source_functions()
 {
-    for f in $conf/functions $conf/functions.d/*; do
+    for f in $conf/functions $local/functions.d/*; do
         [ -r "$f" ] && . "$f"
     done
 }

@@ -4,7 +4,7 @@
 for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && "$f"; done; unset f
 
 # source machine-specific configs
-for f in ~/.config/X11/xinitrc.d/*; do [ -r "$f" ] && . $f; done; unset f
+for f in ~/.local/share/local/xinitrc.d/*; do [ -r "$f" ] && . $f; done; unset f
 
 # merge xresources
 xrdb -merge ~/.config/X11/xresources &

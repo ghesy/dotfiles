@@ -84,7 +84,7 @@ case $(</sys/class/dmi/id/chassis_type) in
 esac
 
 # load machine-specific configs
-for f in $(find ~/.config/zsh/profile.d -type f 2>/dev/null); do
+for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
     source "$f"
 done
 
