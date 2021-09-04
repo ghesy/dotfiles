@@ -8,9 +8,9 @@ pass="$(prnt "$f" | head -n1)"
 user="$(prnt "$f" | grep -Pio '^username:\s*\K.*')"
 if [ -n "$user" ]; then
     dunstify -t 1500 -r $$$$ 'Username copied to clipboard.'
-    prnt "$user" | timeout 45 xclip -quiet -loops 1 -selection clipboard || exit
+    prnt "$user" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard || exit
 fi
 if [ -n "$pass" ]; then
     dunstify -t 1500 -r $$$$ 'Password copied to clipboard.'
-    prnt "$pass" | timeout 45 xclip -quiet -loops 1 -selection clipboard
+    prnt "$pass" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
 fi
