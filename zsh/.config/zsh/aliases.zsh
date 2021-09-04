@@ -49,8 +49,8 @@ bindctrl f search
 
 # basic stuff
 alias mk='mkdir -pv'
-alias cp='cp -iv'
-alias mv='mv -iv'
+alias cp='cpg -ivg'
+alias mv='mvg -ivg'
 alias rm='rm -Iv --one-file-system'
 
 # man-pages in vim
