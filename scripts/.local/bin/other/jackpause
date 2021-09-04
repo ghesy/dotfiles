@@ -1,25 +1,7 @@
-#!/bin/sh
-# pause all players when headphone jack disconnects.
-# requires the JACKPORT environment variable to be set to the name of your headphone port.
-# get your ports and stuff by running `pacmd info`.
-
-get_current_port() {
-    pacmd list-sinks |
-        awk -F'<|>' '/ +\* +index/ {a=1} a && /active port:/ {print $2; exit}'
-}
-
-[ -z "$JACKPORT" ] && return 1
-p=$(get_current_port) || return 1
-
-trap exit HUP
-trap 'pkill -P $$' EXIT
-
-pactl subscribe | grep --line-buffered card |
-    while IFS= read -r line; do
-        n=$(get_current_port)
-        [ $p = $JACKPORT ] && [ $n != $p ] && {
-            mpc pause
-            playerctl -a pause
-        }
-        p=$n
-    done
+#!/bin/dash
+# pause all players when headphone jack disconnects. requires evtest.
+uevent=/sys/class/sound/card*/input*/uevent
+dev=$(grep -li 'name=.*headphone' $uevent | head -n1)
+sudo evtest /dev/input/$(basename $(dirname $dev)/event*) |
+    egrep --line-buffered -i 'insert.*value +0' |
+    xargs -d'\n' -I{} sh -c 'mpc pause & playerctl -a pause'

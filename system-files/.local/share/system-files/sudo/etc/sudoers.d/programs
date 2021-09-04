@@ -6,6 +6,7 @@ Cmnd_Alias PROGRAMS = \
     /usr/bin/resolvconf, \
     /usr/bin/protonvpn, \
     /usr/bin/nethogs, \
+    /usr/bin/evtest, \
     /usr/bin/iotop, \
     /usr/bin/rsm, \
     /usr/bin/sv
