@@ -39,7 +39,7 @@ main()
             notif Flopped
             ;;
         y) xclip -selection clipboard -t \
-            "$(file -b --mime-type "$first")" "$first" &&
+            "$(file -bL --mime-type "$first")" "$first" &&
             n -i "$first" "Copied to clipboard."
             ;;
     esac
