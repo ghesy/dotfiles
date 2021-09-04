@@ -3,8 +3,5 @@ pywal-colors
 services/**/supervise
 **/error.log
 zsh/**/*compdump
-zsh/**/profile.d/
-X11/**/xinitrc.d/
-gimme/**/aliases.d/
 transmission/**/history.json
 safeeyes/**/style/
