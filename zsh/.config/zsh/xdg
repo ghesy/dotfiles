@@ -18,7 +18,6 @@ export PASSWORD_STORE_DIR=~/.local/share/password-store
 export WINEPREFIX=~/.local/share/wineprefixes/default
 export TS3_CONFIG_DIR=~/.local/share/ts3client
 export KEYCHAIN_DIR=~/.local/share/keychain
-export PIPX_BIN_DIR=~/.local/share/bin/pipx
 export RUSTUP_HOME=~/.local/share/rustup
 export PYLINTHOME=~/.local/share/pylint
 export CARGO_HOME=~/.local/share/cargo
@@ -36,3 +35,5 @@ export GEM_SPEC_CACHE=~/.cache/gem
 export NVIM_COC_LOG_FILE="$XDG_RUNTIME_DIR/coc-nvim-log/coc-nvim.log"
 export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
 export TMUX_TMPDIR="$XDG_RUNTIME_DIR"
+
+export PIPX_BIN_DIR=~/.local/bin/pipx
