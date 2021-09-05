@@ -45,10 +45,6 @@ wind ()
             echo "$msg" | grep -Ev 'symlink|changed' |
                 xargs -d'\n' -I{} dunstify -u low -r $id Windscribe {}
         done
-
-    # refresh net and tor widgets
-    dwmbarref net tor
 }
 
 main "$@"
-exit
