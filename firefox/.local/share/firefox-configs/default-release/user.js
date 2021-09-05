@@ -9,6 +9,9 @@ user_pref("browser.cache.disk.parent_directory", "/run/user/1000/firefox");
  * default is 15000 milliseconds which is too short. */
 user_pref("browser.sessionstore.interval", 100000);
 
+/* link opening behaviour */
+user_pref("browser.link.open_newwindow.override.external", 2);
+
 /* scroll speed */
 user_pref("mousewheel.default.delta_multiplier_x", 150);
 user_pref("mousewheel.default.delta_multiplier_y", 150);

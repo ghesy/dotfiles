@@ -12,8 +12,5 @@ tuiroot() {
 }
 
 web() {
-    case "$BROWSER" in
-        *fox*|*wolf*) exec "$BROWSER" --new-window "$@" ;;
-        *) "$BROWSER" "$@" ;;
-    esac
+    exec $BROWSER "$@"
 }
