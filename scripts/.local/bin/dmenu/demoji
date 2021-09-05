@@ -3,7 +3,7 @@
 
 main() {
     sel="$(emojies | cut -f1 | dmenu ${WINDOWID:+-w $WINDOWID})" || return 1
-    echo "$sel" | cut -d' ' -f1 | tr -d '\n' | xclip -selection clipboard
+    echo "$sel" | cut -d' ' -f1 | xclip -r -selection clipboard
     notify-send "'$sel' Copied to Clipboard."
 }
 

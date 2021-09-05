@@ -37,7 +37,7 @@ case "$url" in
         case "$action" in
             Download) dl "$url" ;;
             Stream) mpv -quiet "$url" || torsocks mpv -quiet "$url" ;;
-            Copy) printf '%s\n' "$url" | xclip -selection clipboard ;;
+            Copy) printf %s "$url" | xclip -r -selection clipboard ;;
             Open) xdg-open "$url" ;;
         esac
     ;;
