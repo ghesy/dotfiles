@@ -14,7 +14,6 @@ pywal()
 {
     alpha="$(cat ~/.config/wal/alpha 2>/dev/null)"
     wal -s -t -i "$1" ${alpha:+-a $alpha} || return 1
-
     copy_files &
     dunst-init &
     reload_st_colors &
@@ -31,6 +30,6 @@ copy_files()
 }
 
 reload_dwm_colors() { xdotool key super+F12 ;}
-reload_st_colors()  { setsid -f sh -c "sleep 0.1; killall -USR1 st" >/dev/null 2>&1 ;}
+reload_st_colors()  { setsid -f sh -c 'sleep 0.1; killall -USR1 st' >/dev/null 2>&1 ;}
 
 main "$@"
