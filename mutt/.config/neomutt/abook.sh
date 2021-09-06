@@ -9,8 +9,8 @@ printf '\e[H'
 
 # run abook
 abook \
-    --config ~/.config/neomutt/abookrc \
-    --datafile ~/.local/share/neomutt/abook/addressbook "$@" ||
+    --config ~/.config/neomutt/abook.conf \
+    --datafile ~/.local/share/neomutt/mailbook/addressbook "$@" ||
     case "$1" in
         *query*) notify-send NeoMutt 'Failed fetching emails from the addressbook' ;;
         *add*) notify-send NeoMutt 'Failed adding the email to the addressbook' ;;

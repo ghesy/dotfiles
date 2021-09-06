@@ -1,11 +1,11 @@
-source '~/.config/neomutt/accounts|'
-source ~/.config/neomutt/bindings
-source ~/.config/neomutt/colors
+source '~/.config/neomutt/accounts.sh|'
+source ~/.config/neomutt/bindings.conf
+source ~/.config/neomutt/colors.conf
 
 set header_cache = ~/.cache/neomutt
 set message_cachedir = ~/.cache/neomutt
 set mailcap_path = ~/.config/neomutt/mailcap
-set query_command = "~/.config/neomutt/abook --mutt-query '%s'"
+set query_command = "~/.config/neomutt/abook.sh --mutt-query '%s'"
 set mime_type_query_command = "file --mime-type -b %s"
 
 auto_view text/html # show html via lynx

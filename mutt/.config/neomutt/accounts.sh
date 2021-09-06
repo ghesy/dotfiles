@@ -13,26 +13,21 @@ command -v lynx >/dev/null  ||
 
 [ ! -d $acc ] && cat << 'eof' | { mkdir -p $acc; cat > $acc/EXAMPLE ;}
 # vim:ft=neomuttrc
-set realname  = 'James Bond'
-set my_host   = host.com
-set imap_user = b007nd
-set from      = $imap_user@$my_host
-set folder    = imap://$imap_user@$my_host:1234
-set smtp_url  = smtp://$imap_user@$my_host:5678
-source 'gpg -dq ~/.local/share/neomutt/pass/EXAMPLE.gpg|'
+set realname  = 'Real Name'
+set imap_user = username
+set my_pass   = "`pass account`"
+set from      = $imap_user@host.com
+set folder    = imaps://$imap_user@host.com@imap.host.com:993
+set smtp_url  = smtps://$imap_user@host.com@smtp.host.com:465
 set smtp_pass = $my_pass
 set imap_pass = $my_pass
 set spoolfile = +INBOX
-set postponed = +Draft
-set record    = +Sent
-set trash     = +Trash
+set postponed = +Draft # "+[Gmail]/Drafts"
+set record    = +Sent  # "+[Gmail]/Sent Mail"
+set trash     = +Trash # "+[Gmail]/Trash"
 eof
 
-mkdir -p ~/.cache/neomutt $dir/abook $dir/pass
-
-! sel="$(
-    for account in $acc/*; do basename $account; done |
-    dmenu -w $WINDOWID -p 'Choose an Email Account'
-)" && pkill -nx neomutt && exit
-
+mkdir -p ~/.cache/neomutt $dir/mailbook
+! sel="$(basename $acc/* | dmenu -w $WINDOWID -p 'Choose an email account')" &&
+    pkill -nx neomutt && exit
 echo source $acc/$sel
