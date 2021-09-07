@@ -18,4 +18,5 @@
     else
         tmux -f $conf new -s $tsesh -t main \; neww -n $twndw
     fi
+    exit
 }
