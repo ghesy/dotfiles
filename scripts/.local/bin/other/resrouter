@@ -1,20 +1,22 @@
 #!/bin/sh
-# this script connects to my router via telnet and reboots it.
-
-# config
-conf=~/.config/resrouter
-host=$conf/host # ip address of router
-cmds=$conf/cmds # sequence of text/commands to send to router for rebooting
-
-host="$(cat $host)"
-cmds="$(awk NF $cmds)"
-
-# connect to router via telnet and send the commands
+# this script connects to a telnet server (ex. a router)
+# and sends it a bunch of prespecified commands.
+umask 077
+c=~/.config/resrouter/resrouter.conf
+mkdir -p $(dirname $c)
+if [ ! -r $c ]; then
+    printf 'host=192.168.1.1\ncmds="admin\npass\nreboot"\n' > $c
+    echo default config created: $c
+    echo edit it and run again.
+    exit
+fi
+. $c || exit 1
 (
     sleep 0.2
-    printf "$cmds" | awk NF | while IFS= read -r cmd; do
-        sleep 0.1
-        printf "${cmd}\r"
-    done
+    printf '%s\n' "$cmds" |
+        while IFS= read -r cmd; do
+            sleep 0.1
+            printf "${cmd}\r"
+        done
     sleep 0.2
 ) | telnet $host
