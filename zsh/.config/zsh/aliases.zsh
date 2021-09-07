@@ -49,8 +49,8 @@ bindctrl f search
 
 # basic stuff
 alias mk='mkdir -pv'
-alias cp='cpg -ivg'
-alias mv='mvg -ivg'
+alias cp='advcp -ig'
+alias mv='advmv -ig'
 alias rm='rm -Iv --one-file-system'
 
 # man-pages in vim
@@ -94,5 +94,3 @@ alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git/*"'
 alias pvpn='sudo protonvpn'
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
-alias cp='cpg -ag --backup=numbered'
-alias mv='mvg -g --backup=numbered'
