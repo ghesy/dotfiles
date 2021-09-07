@@ -23,8 +23,8 @@ cmd paste ${{
     srcs=$(sed 1d $list)
     tput civis
     case $mode in
-        copy) cpg -ag --backup=numbered $srcs . ;;
-        move) mvg  -g --backup=numbered $srcs . 2>/dev/null ;;
+        copy) advcp -ag --backup=numbered $srcs . ;;
+        move) advmv  -g --backup=numbered $srcs . 2>/dev/null ;;
     esac
     e=$?
     tput cnorm
