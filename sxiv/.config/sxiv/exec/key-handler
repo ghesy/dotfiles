@@ -55,7 +55,7 @@ x() { printf '%s\n' "$imgs" | xargs -d'\n' "$@" ;}
 notif() { notify-send sxiv "$* $count image(s)." ;}
 
 help() {
-cat << 'eof'
+notify-send sxiv "$(cat << 'eof'
 y)   copy image to clipboard
 a)   auto rotate based on metadata
 r,R) rotate cw/ccw
@@ -68,6 +68,7 @@ t)   trash
 d)   permanently delete
 h)   show this help message
 eof
+)"
 }
 
 main "$@"
