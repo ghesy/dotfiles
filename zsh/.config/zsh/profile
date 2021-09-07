@@ -24,10 +24,6 @@ source ~/.config/zsh/xdg
 # have sudo ask for a password via dmenu
 export SUDO_ASKPASS=~/.local/bin/dmenu/dmenu-askpass
 
-# stuff used in my scripts
-export USVDIR=~/.local/sv/run # user services
-export ARIA2_CONF=~/.config/aria2/server.conf
-
 # tuir settings
 export TUIR_BROWSER=pipeurl
 export TUIR_URLVIEWER=pipeurl
