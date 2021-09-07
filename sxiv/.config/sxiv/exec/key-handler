@@ -1,75 +1,60 @@
 #!/bin/sh
 # sxiv's key handler script.
-exec >/dev/null 2>&1
-
 main()
 {
-    imgs="$(cat)" # get list of images from stdin
-    first="$(imgs | head -n1)"
-    count="$(imgs | wc -l)"
+    exec >/dev/null 2>&1
+    imgs=$(cat) # get list of images from stdin
+    first=$(printf '%s\n' "$imgs" | head -n1)
+    count=$(printf '%s\n' "$imgs" | wc -l)
 
     case "$1" in
         h) help ;;
         w) wallpaper "$first" ;;
         W) wallpaper -n "$first" ;;
-        g) args setsid -f gimp -- ;;
-        p) args dprint ;;
+        g) x setsid -f gimp -- ;;
+        p) x dprint ;;
         t) ask Trash &&
-            args trash-put -- &&
+            x trash-put -- &&
             notif Trashed
-            ;;
+        ;;
         d) ask Permanently Delete &&
-            args rm -- &&
+            x rm -- &&
             notif Deleted
-            ;;
+        ;;
         a) ask Autorotate &&
-            jhead -autorot &&
+            x jhead -autorot &&
             notif Autorotated
-            ;;
+        ;;
         r) ask CW Rotate &&
-            conv -rotate  90 &&
+            x -I{} convert -rotate 90 {} {} &&
             notif Rotated
-            ;;
+        ;;
         R) ask CCW Rotate &&
-            conv -rotate -90 &&
+            x -i{} convert -rotate -90 {} {} &&
             notif Rotated
-            ;;
+        ;;
         f) ask Flop &&
-            conv -flop &&
+            x -I{} convert -flop {} {} &&
             notif Flopped
-            ;;
+        ;;
         y) xclip -selection clipboard -t \
-            "$(file -bL --mime-type "$first")" "$first" &&
-            n -i "$first" "Copied to clipboard."
-            ;;
+            "$(file -bL --mime-type -- "$first")" "$first" &&
+            notif 'Copied to clipboard'
+        ;;
     esac
 }
 
-ask() { dmenu_prompt "$* $count image(s)?" ;}
-args() { imgs | xargs -d'\n' "$@" ;}
-conv() { imgs | xargs -d'\n' -I{} convert "$@" {} {} ;}
-help() { notify-send 'sxiv key-handler help' "$(print_help)" ;}
-imgs() { printf '%s\n' "$imgs" ;}
-
-dmenu_prompt() {
+ask() {
     wid=$(xdotool getactivewindow)
-    ans="$(
-        printf "No\\nYes" |
-            dmenu -p "$1" ${wid:+-w $wid} \
-            -nb darkred -sb maroon -sf white -nf darkgray
-    )"
+    ans=$(printf "No\\nYes" | dmenu -p "$* $count image(s)?" ${wid:+-w $wid} \
+        -nb darkred -sb maroon -sf white -nf darkgray)
     [ "$ans" = Yes ] && return 0 || return 1
 }
 
-notif() {
-    if [ "$1" = -i ]; then
-        icon="$PWD/$(basename "$2")"
-        shift 2
-    fi
-    notify-send -i "${icon:-none}" sxiv "$* $count images."
-}
+x() { printf '%s\n' "$imgs" | xargs -d'\n' "$@" ;}
+notif() { notify-send sxiv "$* $count image(s)." ;}
 
-print_help() {
+help() {
 cat << 'eof'
 y)   copy image to clipboard
 a)   auto rotate based on metadata
