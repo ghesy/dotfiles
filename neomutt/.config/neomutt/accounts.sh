@@ -27,7 +27,7 @@ set record    = +Sent  # "+[Gmail]/Sent Mail"
 set trash     = +Trash # "+[Gmail]/Trash"
 eof
 
-mkdir -p ~/.cache/neomutt $dir/mailbook
-! sel="$(basename $acc/* | dmenu -w $WINDOWID -p 'Choose an email account')" &&
-    pkill -nx neomutt && exit
+mkdir -p ~/.cache/neomutt $dir/mailbook 2>/dev/null
+! sel=$(basename -a $acc/* | dmenu -w $WINDOWID -p 'Choose an email account') ||
+    [ ! -r $acc/$sel ] && { pkill -xg0 neomutt && exit ;}
 echo source $acc/$sel
