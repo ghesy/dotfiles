@@ -1,2 +1,2 @@
 #!/bin/sh
-exec aria2c --conf-path=~/.config/aria2/server.conf
+exec aria2c --conf-path ~/.config/aria2/server.conf
