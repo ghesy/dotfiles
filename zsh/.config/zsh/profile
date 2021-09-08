@@ -80,8 +80,8 @@ case $(</sys/class/dmi/id/chassis_type) in
 esac
 
 # load machine-specific configs
-for f in ~/.local/share/local/profile.d/*; do
-    [ -f "$f" ] && source "$f"
+for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
+    source "$f"
 done
 
 # start X if we're on tty1
