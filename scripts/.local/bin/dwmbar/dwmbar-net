@@ -1,16 +1,13 @@
 #!/bin/sh
 
 # config
-new_connection_display_time=200
+new_connection_display_minutes=5
 
-main()
-{
+main() {
     echo 
-
-    pidof -q NetworkManager || return 1
+    pidof -q NetworkManager || return
     get_vars
     no_connections && echo  && return
-
     if no_internet; then
         echo x
     elif is_vpn_on; then
@@ -20,12 +17,10 @@ main()
     else
         echo 
     fi
-
-    net_recently_changed && net_type
+    net_recently_changed && print_net_type
 }
 
-net_type()
-{
+print_net_type() {
     is_metered && echo ﰒ
     case $type in
         *bluetooth*) echo  ;;
@@ -35,85 +30,62 @@ net_type()
     esac
 }
 
-no_connections()
-{
+no_connections() {
     [ -z "$conns" ] && return 0
     prnt "$type" | grep -qE 'tun|vpn' && return 0
     return 1
 }
 
-no_internet()
-{
+no_internet() {
     nmcli -g general.ip4-connectivity dev show $dev | grep -vq full
 }
 
-is_vpn_on()
-{
+is_vpn_on() {
     prnt "$conns" | cut -d: -f1 | grep -qE 'tun|vpn'
 }
 
-is_usb()
-{
+is_usb() {
     nmcli -g general.udi dev show $dev | grep -q '\<usb'
 }
 
-is_metered()
-{
+is_metered() {
     nmcli -g general.metered dev show $dev | grep -q yes
 }
 
-is_tor_on()
-{
-    t="${XDG_RUNTIME_DIR:-/tmp}/tor"
+is_tor_on() {
+    t=${XDG_RUNTIME_DIR:-/tmp}/dwmbar-tor
     pgrep -f '10.*icanhazip' >/dev/null ||
         sh -c "timeout 15 curl -s --socks5 localhost:9050 ping.archlinux.org &&
-               echo > $t || : > $t" >/dev/null 2>&1 &
+               echo >$t || :>$t" >/dev/null 2>&1 &
     [ -s $t ]
 }
 
-net_recently_changed()
-{
-    state_file="${XDG_RUNTIME_DIR:-/tmp}/dwmbar/network-state"
-    state="$(prnt "$conns" | head -n1 | sha256sum)"
-    old_state="$(cat "$state_file" 2>/dev/null)"
+net_recently_changed() {
+    state=$(prnt "$conns" | head -n1 | sha256sum)
+    state_file=${XDG_RUNTIME_DIR:-/tmp}/dwmbar-net
+    old_state=$(cat "$state_file" 2>/dev/null)
 
-    if [ "$state" = "$old_state" ]
-    then
+    if [ "$state" = "$old_state" ]; then
         state_recently_changed && return 0 || return 1
     else
-        update_state
+        prnt "$state" >"$state_file"
         return 0
     fi
 }
 
-update_state()
-{
-    mkdir -p "$(dirname "$state_file")"
-    prnt "$state" > "$state_file"
+state_recently_changed() {
+    [ -n "$(find "$state_file" -mmin -"$new_connection_display_minutes")" ]
 }
 
-state_recently_changed()
-{
-    [ $(state_file_age) -lt "$new_connection_display_time" ]
+get_vars() {
+    conns=$(nmcli -g type,device,name conn show --active)
+    type=$(prnt "$conns" | head -n1 | cut -d: -f1)
+    dev=$(prnt "$conns"  | head -n1 | cut -d: -f2)
+    ssid=$(prnt "$conns" | head -n1 | cut -d: -f3- | sed 's/\\:/:/g')
 }
 
-state_file_age()
-{
-    echo $(( $(date +%s) - $(stat -c%Y "$state_file") ))
-}
-
-get_vars()
-{
-    conns="$(nmcli -g type,device,name conn show --active)"
-    type="$(prnt "$conns" | head -n1 | cut -d: -f1)"
-    dev="$(prnt "$conns"  | head -n1 | cut -d: -f2)"
-    ssid="$(prnt "$conns" | head -n1 | cut -d: -f3- | sed 's/\\:/:/g')"
-}
-
-prnt()
-{
+prnt() {
     printf '%s\n' "$*"
 }
 
 main "$@"
-exit
