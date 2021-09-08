@@ -22,7 +22,7 @@ Re Tor : restor
 
 Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
-Router : web http://192.168.1.1/system.htm
+Router : web $(ip route | head -n1 | cut -d' ' -f3)
 Port Forwarding : web http://192.168.1.1/virtualSrv.htm
 Github : web https://github.com/soystemd
 Syncthing : web localhost:8384
