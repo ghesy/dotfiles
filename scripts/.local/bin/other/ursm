@@ -1,4 +1,3 @@
 #!/bin/sh
 # rsm, but for user services.
-export SVDIR="$USVDIR"
-rsm "$@"
+SVDIR="$USVDIR" rsm "$@"
