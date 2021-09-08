@@ -1,3 +1,3 @@
 #!/bin/sh
 # runit's sv, but controls my user services.
-SVDIR="$USVDIR" sv "$@"
+SVDIR=~/.local/sv/run sv "$@"

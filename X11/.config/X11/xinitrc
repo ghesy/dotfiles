@@ -29,7 +29,7 @@ wait
 
 # run and manage services and daemons via runsvdir (which is a runit tool).
 # stuff like pulseaudio, mpd, aria2, transmission, dwmbar, stalonetray, etc.
-runsvdir -P "$USVDIR" &
+runsvdir -P ~/.local/sv/run &
 
 # lock the screen
 sleep 0.2; loginctl lock-session; sleep 0.2
