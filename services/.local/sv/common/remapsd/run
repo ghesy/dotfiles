@@ -1,9 +1,2 @@
 #!/bin/sh
-# run "remaps" when new input devices are connected.
-pidof -q udevd || exit 1
-trap 'pkill -P $$' EXIT
-udevadm monitor -usinput | xargs -d'\n' -I{} sh -c "
-    pgrep -af 'sleep 1\.00$$' | grep -qv xargs && exit
-    setsid -f sh -c 'sleep 1.00$$' >/dev/null 2>&1
-    remaps
-"
+exec remapsd
