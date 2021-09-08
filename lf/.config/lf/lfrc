@@ -73,8 +73,7 @@ map gh
 map g top
 map L openall
 map E $aunpack -De -- $fx
-map X push :archive<space>
-map P $compress $fx
+map a push :archive<space>
 map t preview-on
 map T preview-off
 map U &termopen
