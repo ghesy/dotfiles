@@ -25,7 +25,7 @@ main() {
         ;;
         *reboot) rebootfn ;;
         *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
-        *logout) ask 'Logout?' && killall startx ;;
+        *logout) ask 'Logout?' && killall xinit ;;
     esac
 }
 
