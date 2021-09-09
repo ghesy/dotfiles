@@ -18,6 +18,7 @@ case "$script_type" in
     ;;
     down)
         resolvconf -d windscribe
+        resolvconf -u
         resolvconf -r unbound
     ;;
 esac
