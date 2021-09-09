@@ -1,7 +1,19 @@
-#!/bin/dash
+#!/bin/sh
 # pause all players when headphone jack disconnects. requires evtest.
-uevent=/sys/class/sound/card*/input*/uevent
-dev=$(grep -li 'name=.*headphone' $uevent | head -n1)
-sudo -A evtest /dev/input/$(basename $(dirname $dev)/event*) |
-    egrep --line-buffered -i 'insert.*value +0' |
-    xargs -d'\n' -I{} sh -c 'mpc pause & playerctl -a pause'
+trap 'pkill -P$$' HUP INT TERM
+port() {
+    pacmd list-sinks | tr -d '\n' | grep -Po '  \* .*active port: <\K[^>]+'
+}
+previous=$(port)
+pactl subscribe | while IFS= read -r line; do
+    case $line in
+        *'card '*)
+            current=$(port)
+            [ "$previous" != "$current" ] && case $previous in
+                *headphone*) mpc pause & playerctl -a pause ;;
+            esac
+            previous=$current
+        ;;
+    esac
+done &
+wait
