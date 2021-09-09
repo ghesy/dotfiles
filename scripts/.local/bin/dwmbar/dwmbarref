@@ -1,8 +1,7 @@
 #!/bin/sh
-# formula: kill -$((signal+34)) $pid
-p=$(pidof dwmbar) || exit 1
-case "$1" in
-    net)     kill -37 $p ;;
-    audio)   kill -36 $p ;;
-    battery) kill -49 $p ;;
+case $1 in
+    net) sig=3 ;;
+    audio) sig=2 ;;
+    bat*) sig=15 ;;
 esac
+/bin/kill -$((sig+34)) dwmbar
