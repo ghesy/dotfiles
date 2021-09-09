@@ -69,17 +69,12 @@ run_with_locker()
 
 has_timeout_reached()
 {
-    [ $(( $(now) - last_activity )) -gt $(( timeout_min * 60 )) ]
+    [ $(( $(date +%s) - last_activity )) -gt $(( timeout_min * 60 )) ]
 }
 
 reset_timeout()
 {
-    last_activity=$(now)
-}
-
-now()
-{
-    date +%s
+    last_activity=$(date +%s)
 }
 
 is_system_idle()
@@ -151,6 +146,5 @@ check_deps()
 }
 
 trap exit HUP
-trap "pkill -P $$" EXIT
-
+trap 'pkill -P$$' EXIT
 main "$@"
