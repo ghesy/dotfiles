@@ -47,7 +47,6 @@ sata_pwrsave()
 write()
 {
     value="$1"; shift
-
     for file; do
         [ ! -e "$file" ] && echo error: "$file" doesn\'t exist. >&2 && return 1
         for i in $(seq 1 120); do
@@ -77,5 +76,5 @@ cleanup()
     kill 0
 }
 
-trap 'pkill -P $$' EXIT
+trap 'pkill -P$$' HUP INT TERM
 main "$@"
