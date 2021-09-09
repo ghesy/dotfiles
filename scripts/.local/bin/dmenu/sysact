@@ -1,57 +1,62 @@
 #!/bin/sh
-# this script asks you for a system action.
-# requires my choices script.
+# ask for a system action.
 
-# config
-prompt="System action:"
-reboot_prompt="Reboot to:"
+actions='鈴 Sleep
+鈴 Hibernate
+⏻ Poweroff
+ Reboot
+ Logout'
 
-items='
-鈴 Sleep     : sleep_fn,
-鈴 Hibernate : hibernate_fn,
-⏻ Poweroff   : dmenu-prompt Poweroff? && loginctl poweroff,
- Reboot     : reboot_fn,
- Logout     : dmenu-prompt Logout? && killall xinit,
-'
-
-sleep_fn() {
-    if can_hibernate; then
-        loginctl suspend-then-hibernate
-    else
-        loginctl suspend
-    fi
-}
-
-hibernate_fn() {
-    if can_hibernate; then
-        dmenu-prompt 'Hibernate?' 'loginctl hibernate'
-    else
-        notify-send 'Hibernation is not enabled on this machine.'
-    fi
-}
-
-reboot_fn() {
-    os="$(ask_reboot_os)"
-    case $? in
-        9) cmd=true ;;
-        0) cmd="sudo -A grub-reboot" ;;
-        *) return 1 ;;
+main() {
+    action=$1
+    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'Do what?')
+    case $(echo $action | tr A-Z a-z) in
+        *sleep)
+            can_hibernate &&
+                loginctl suspend-then-hibernate ||
+                loginctl suspend
+        ;;
+        *hiber)
+            if can_hibernate; then
+                ask 'Hibernate?' && loginctl hibernate
+            else
+                notify-send 'Hibernation is not enabled on this machine.'
+            fi
+        ;;
+        *reboot) rebootfn ;;
+        *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
+        *logout) ask 'Logout?' && killall startx ;;
     esac
-    dmenu-prompt 'Reboot?' || return 1
-    $cmd "$os" && loginctl reboot
 }
 
-ask_reboot_os() {
-    command -v grub-reboot >/dev/null || return 9
-    command -v grub-entries >/dev/null || return 9
-    entries="$(sudo -A grub-entries -g)"
-    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
-    sel="$(echo "$entries" | dmenu -p "$reboot_prompt")" || return 1
-    echo "$sel" | cut -d' ' -f2-
+ask() {
+    ans=$(printf "No\\nYes" | dmenu -p "$*" \
+        -nb darkred -sb maroon -sf white -nf darkgray)
+    [ "$ans" = Yes ] && return 0 || return 1
 }
 
 can_hibernate() {
     grep -q 'resume=' /proc/cmdline
 }
 
-eval "$(choices "$prompt" "$items" "$1")"
+rebootfn() {
+    os="$(ask_reboot_os)"
+    case $? in
+        9) cmd=true ;;
+        0) cmd='sudo -A grub-reboot' ;;
+        *) return 1 ;;
+    esac
+    ask 'Reboot?' || return 1
+    $cmd "$os" && loginctl reboot
+}
+
+ask_reboot_os() {
+    command -v grub-reboot >/dev/null || return 9
+    command -v grub-entries >/dev/null || return 9
+    entries=$(sudo -A grub-entries -g)
+    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
+    sel=$(echo "$entries" | dmenu -p 'Reboot to:') || return 1
+    echo "$sel" | cut -d' ' -f2-
+}
+
+main "$@"
