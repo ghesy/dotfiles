@@ -1,7 +1,8 @@
 #!/bin/bash
 # toggle the currently playing players.
+mpc pause &
 f=${XDG_RUNTIME_DIR:-/tmp}/toggleall
-p="$(playerctl -a status -f '{{playerInstance}}	{{status}}' | grep Playing)"
+p=$(playerctl -a status -f '{{playerInstance}}	{{status}}' | grep Playing)
 if [ -n "$p" ]; then
     printf %s "$p" >$f
     playerctl -a pause
