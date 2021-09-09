@@ -1,2 +1,2 @@
 #!/bin/sh
-exec xss-lock -n dim -- idlesus -lq
+exec xss-lock -- idlesus -lq
