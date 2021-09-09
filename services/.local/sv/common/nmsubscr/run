@@ -1,5 +1,9 @@
 #!/bin/sh
-trap "pkill -P $$" EXIT
-nmcli monitor |
-    grep -E --line-buffered 'connected|disconn|primary|y is now' |
-    xargs -d'\n' -I{} dwmbarref net
+trap 'pkill -P$$' HUP INT TERM
+nmcli monitor | while IFS= read -r line; do
+    case $line in
+        *connected*|*disconn*|*primary*|*'y is now'*)
+            dwmbarref net
+    esac
+done &
+wait

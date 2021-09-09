@@ -11,12 +11,15 @@ main()
     check_dependencies
     make_dirs
     cleanup_cache
-    udevadm monitor -ususb |
-        grep --line-buffered -E 'add|remove' |
-        grep --line-buffered -Eo '/devices/\S+' |
-            while IFS= read -r dev; do
-                handle "$dev" &
-            done
+    udevadm monitor -ususb | while IFS= read -r dev; do
+        case $dev in
+            *' add '*|*' remove '*)
+                set -- $dev
+                handle $4
+            ;;
+        esac
+    done &
+    wait
 }
 
 handle()
@@ -35,8 +38,11 @@ mount()
 
     (
         TMPDIR="$c" go-mtpfs -dev=" $(get_serial "$1")$" "$m" 2>&1 |
-            grep --line-buffered 'mounted' |
-            xargs -d'\n' -I{} setsid -f xdg-open "$m" >/dev/null 2>&1
+            while IFS= read -r line; do
+                case $line in
+                    *mounted*) setsid -f xdg-open "$m" >/dev/null 2>&1 ;;
+                esac
+            done
     ) &
 
     set_mounted "$1" "$m" "$c" $!
@@ -102,9 +108,7 @@ check_dependencies()
 }
 
 die()     { printf '%s\n' "mtpd: Error: $*"; exit 1 ;}
-cleanup() { pkill -P $$; rm "$table" ;}
+cleanup() { pkill -P$$; rm "$table" ;}
 
-trap exit HUP
-trap cleanup EXIT
-
+trap cleanup HUP INT TERM
 main "$@"

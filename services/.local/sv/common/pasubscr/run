@@ -1,3 +1,3 @@
 #!/bin/sh
-trap "pkill -P $$" EXIT
-pulseaudio-subscribe | xargs -I{} dwmbarref audio
+trap 'pkill -P$$' HUP INT TERM
+pulseaudio-subscribe | while IFS= read -r line; do dwmbarref audio; done & wait
