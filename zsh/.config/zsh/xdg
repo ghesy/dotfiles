@@ -17,7 +17,6 @@ export ZDOTDIR=~/.config/zsh
 export PASSWORD_STORE_DIR=~/.local/share/password-store
 export WINEPREFIX=~/.local/share/wineprefixes/default
 export TS3_CONFIG_DIR=~/.local/share/ts3client
-export KEYCHAIN_DIR=~/.local/share/keychain
 export RUSTUP_HOME=~/.local/share/rustup
 export PYLINTHOME=~/.local/share/pylint
 export CARGO_HOME=~/.local/share/cargo

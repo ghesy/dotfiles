@@ -24,14 +24,19 @@ source ~/.config/zsh/xdg
 # have sudo ask for a password via dmenu
 export SUDO_ASKPASS=~/.local/bin/dmenu/dmenu-askpass
 
-# tuir settings
+# other stuff
+export BAT_THEME=base16
+export MPD_HOST=localhost
+export TIME_STYLE='+%F %T'
 export TUIR_BROWSER=pipeurl
 export TUIR_URLVIEWER=pipeurl
+export MOZ_USE_XINPUT2=1 # mozilla smooth scrolling/touchpads
+export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 
-# bat theme
-export BAT_THEME=Nord
-export LF_BAT_OPTS='-p'
-export LF_IMG_REGEX='.*\.(jpe?g|png|gif|bmp|ico|svg|webp)$'
+# ls colors
+export LS_COLORS="no=38;5;250:fi=38;5;250:di=38;5;30:\
+ln=38;5;29:ex=38;5;64;3:or=38;5;124:pi=38;5;142:so=38;5;172:\
+do=38;5;208:bd=38;5;207:cd=38;5;207:su=38;5;63:sg=38;5;63:ca=38;5;82:"
 
 # less colors
 export LESS='-RSmci'
@@ -45,33 +50,20 @@ export LESS_TERMCAP_se=$'\E[0m' # reset reverse video
 export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 export LESSOPEN='| bat -fppn -- %s 2>/dev/null' # colorize less using bat
 
-# ls settings
-export TIME_STYLE='+%F %T'
-export LS_COLORS="no=38;5;252:fi=38;5;252:rs=00;38;5;172:di=38;5;73:\
-    ln=38;5;72:ex=38;5;64;3:or=40;31;01:pi=40;33:so=38;5;211:do=38;5;211:\
-    bd=40;33;01:cd=40;33;01:su=37;41:sg=30;43:ca=30;41:"
-
-# other stuff
-export MPD_HOST=localhost
-export MOZ_USE_XINPUT2=1 # Mozilla smooth scrolling/touchpads.
-export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
-
 # fzf settings
-export FZF_DEFAULT_OPTS='
---layout=reverse --height=40%
+export FZF_DEFAULT_OPTS='--layout=reverse --height=40%
 --bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top --color=dark
 --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
 --color=info:#83a598,prompt:#bdae93,spinner:#fabd2f
---color=pointer:#83a598,marker:#fe8019,header:#665c54
-'
+--color=pointer:#83a598,marker:#fe8019,header:#665c54'
 
 # set qt style to qt5ct if it's installed, otherwise set to gtk2
 command -v qt5ct >/dev/null && qtenv=qt5ct || qtenv=gtk2
-export QT_QPA_PLATFORMTHEME="$qtenv"
+export QT_QPA_PLATFORMTHEME=$qtenv
 
 # run keychain (an ssh-agent manager)
-keychain --dir "$KEYCHAIN_DIR" >/dev/null 2>&1
-source "$KEYCHAIN_DIR/$(uname -n)-sh"
+keychain --dir ~/.local/share/keychain >/dev/null 2>&1
+source ~/.local/share/keychain/"$(uname -n)"-sh
 
 # set machine's chassis type
 case $(</sys/class/dmi/id/chassis_type) in
