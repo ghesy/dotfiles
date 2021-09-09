@@ -1,50 +1,25 @@
 #!/bin/sh
-# a simple dmenu interface for windscribe vpn.
-# uses dunstify, which comes with dunst.
+# a simple dmenu interface for the windscribe vpn.
 
-main () {
-    eval "$( choices vpn Connect,Disconnect )"
+locations='best
+crumpets
+custard
+ranch
+seine
+castle
+canal'
+
+wind() {
+    windscribe "$@" | stdbuf -o0 tr -d '\b/|\\-' |
+        stdbuf -o0 egrep -v 'symlink|changed' |
+        xargs -d'\n' -L1 dunstify -r $$ Windscribe
 }
 
-Connect ()
-{
-    eval "loc=$(
-        choices location '
-            best,
-            crumpets,
-            custard,
-            ranch,
-            france:seine,
-            castle,
-            amsterdam:canal
-        '
-    )"
-    [ -z $loc ] && return
-    [ $loc = best ] && loc=
-    wind connect $loc
-}
-
-Disconnect ()
-{
-    wind disconnect
-    sudo -A resolvconf -d windscribe
-    sudo -A resolvconf -u
-    sudo -A resolvconf -r unbound
-}
-
-# this function is a wrapper for windscribe, which
-# shows the output messages of windscribe as system notifications.
-wind ()
-{
-    # get random number as msgid of dunstify
-    # which lets us replace/update a previous notification
-    id=$(shuf -n1 -i10000-99999)
-
-    unbuffer sh -c 'windscribe $@ | rmctrlchar' '' $@ |
-        while IFS= read -r msg; do
-            echo "$msg" | grep -Ev 'symlink|changed' |
-                xargs -d'\n' -I{} dunstify -u low -r $id Windscribe {}
-        done
-}
-
-main "$@"
+case $(printf 'Connect\nDisconnect' | dmenu -p VPN) in
+    Con*)
+        location=$(echo "$locations" | dmenu -p Location)
+        [ ${location:?} = best ] && location=
+        wind connect $location
+    ;;
+    Dis*) wind disconnect ;;
+esac
