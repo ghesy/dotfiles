@@ -46,9 +46,10 @@ export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 export LESSOPEN='| bat -fppn -- %s 2>/dev/null' # colorize less using bat
 
 # ls settings
-ls_colors=~/.config/lscolors/lscolors
-[ -r "$ls_colors" ] && source "$ls_colors"
 export TIME_STYLE='+%F %T'
+export LS_COLORS="no=38;5;252:fi=38;5;252:rs=00;38;5;172:di=38;5;73:\
+    ln=38;5;72:ex=38;5;64;3:or=40;31;01:pi=40;33:so=38;5;211:do=38;5;211:\
+    bd=40;33;01:cd=40;33;01:su=37;41:sg=30;43:ca=30;41:"
 
 # other stuff
 export MPD_HOST=localhost
@@ -58,8 +59,7 @@ export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
 # fzf settings
 export FZF_DEFAULT_OPTS='
 --layout=reverse --height=40%
---bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top
---color=dark
+--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top --color=dark
 --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
 --color=info:#83a598,prompt:#bdae93,spinner:#fabd2f
 --color=pointer:#83a598,marker:#fe8019,header:#665c54
