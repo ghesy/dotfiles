@@ -1,35 +1,28 @@
 #!/bin/sh
 # set wallpaper.
-# option -n : only set the wallpaper, no pywal, no themeing.
+# option -n : only set the wallpaper, no pywal.
 
-main()
-{
-    case "$1" in
-        -n) feh --bg-fill -- "$2"; return ;;
-         *) pywal "$1" ;;
-    esac
-}
+case "$1" in
+    -n) feh --bg-fill -- "$2"; return ;;
+    *)
+        wal -s -t -i "$1" -a 88 || return 1
 
-pywal()
-{
-    alpha="$(cat ~/.config/wal/alpha 2>/dev/null)"
-    wal -s -t -i "$1" ${alpha:+-a $alpha} || return 1
-    copy_files &
-    dunst-init &
-    reload_st_colors &
-    reload_dwm_colors &
-    pywalfox update 2>/dev/null &
-    wait
-}
+        # run my dunst-init script to reset dunst
+        dunst-init &
 
-# copy pywal color files to where they belong so they can be easily included.
-copy_files()
-{
-    cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors
-    cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
-}
+        # reload firefox colors
+        pywalfox update 2>/dev/null &
 
-reload_dwm_colors() { xdotool key super+F12 ;}
-reload_st_colors()  { setsid -f sh -c 'sleep 0.1; killall -USR1 st' >/dev/null 2>&1 ;}
+        # reload dwm colors
+        xdotool key super+F12 &
 
-main "$@"
+        # reload st colors
+        setsid -f sh -c 'sleep 0.1; killall -USR1 st' >/dev/null 2>&1 &
+
+        # copy zathura and xresources pywal colors to their place
+        cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors &
+        cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors &
+
+        wait
+    ;;
+esac
