@@ -65,7 +65,9 @@ unmount()
 
 is_connected() { [ -r "/sys/$1/serial" ] ;}
 is_mounted()   { cut -f1 "$table" | grep -qx "$1" ;}
-set_mounted()  { ( printf '%s\t%s\t%s\n' "$1" "$2" "$3"; cat "$table" ) | sponge "$table" ;}
+set_mounted() {
+    ( printf '%s\t%s\t%s\n' "$1" "$2" "$3"; cat "$table" ) | sponge "$table"
+}
 
 get_serial()       { cat "/sys/$1/serial" ;}
 get_product_name() { tr ' \t' '_' < "/sys/$1/product" ;}
@@ -75,21 +77,25 @@ get_cachedir()     { awk -v dev="$1" '$1 == dev {print $3; exit}' "$table" ;}
 
 is_integer()          { [ "$1" -eq "$1" ] 2>/dev/null ;}
 generate_cachedir()   { mktemp -d "$cache/XXXXXXXXXX" ;}
-generate_mountpoint() { mktemp -d "$tmp/$(get_product_name "$1")-$(get_vendor_name "$1")-XXXXXX" ;}
+generate_mountpoint() {
+    mktemp -d "$tmp/$(get_product_name "$1")-$(get_vendor_name "$1")-XXXXXX"
+}
 
 make_dirs()
 {
     umask 077
     mkdir -p "$cache" || die failed making dir "$cache".
     mkdir -p "$tmp" || die failed making dir "$tmp".
-    table="$(mktemp "$tmp/mtab-XXXXXXXXXX")" || die failed making tmpfiles inside "$tmp".
+    table="$(mktemp "$tmp/mtab-XXXXXXXXXX")" ||
+        die failed making tmpfiles inside "$tmp".
 }
 
 check_deps()
 {
     for prog in go-mtpfs fusermount udevadm sponge; do
         command -v $prog >/dev/null ||
-            die "$prog not found. go-mtpfs, fuse, udev and moreutils are required for mtpd."
+            die "$prog not found. \
+go-mtpfs, fuse, udev and moreutils are required for mtpd."
     done
     pidof -q udevd || die udevd is not running.
 }
