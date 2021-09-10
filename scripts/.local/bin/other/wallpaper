@@ -7,8 +7,8 @@ case "$1" in
     *)
         wal -s -t -i "$1" -a 88 || return 1
 
-        # run my dunst-init script to reset dunst
-        dunst-init &
+        # run my dunstinit script to reset dunst
+        dunstinit &
 
         # reload firefox colors
         pywalfox update 2>/dev/null &

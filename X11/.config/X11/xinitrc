@@ -22,7 +22,7 @@ autolock &
 remaps &
 
 # startup dunst
-dunst-init &
+dunstinit &
 
 # wait for tasks to finish
 wait
