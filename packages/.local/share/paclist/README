@@ -1,4 +1,0 @@
-lists of installed packages.
-to install these packages, run:
-$ pacman -S --needed - < official
-$ paru -S --needed - < aur
