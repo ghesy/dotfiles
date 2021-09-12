@@ -1,0 +1,21 @@
+#!/bin/sh
+# this script installs a cool /etc/issue file.
+write() {
+    t=$(mktemp) || return 1
+    cat >"${t:?}" || return 1
+    [ -e "$1" ] && [ "$(sha256sum < "$t")" = "$(sha256sum < "$1")" ] || {
+        cp "$t" "$1" && echo Updated "$1".
+    }
+    rm "$t"
+}
+
+cat << 'eof' | write /etc/issue
+[0m[36m[1m        /\\
+       /  \\
+      /`'.,\\    [0m[37m[1m\n at \l[0m[36m[1m
+     /• w • \\    [0m[37m[1m\d, \t[0m[36m[1m
+    /      ,`\\    [0m[37m[1m\s \r[0m[36m[1m
+   /   ,.'`.  \\
+  /.,'`     `'.\\
+[0m
+eof

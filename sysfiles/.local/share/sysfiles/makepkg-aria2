@@ -1,0 +1,27 @@
+#!/bin/sh
+# this script configures makepkg to use aria2 for downloading files.
+write() {
+    t=$(mktemp) || return 1
+    cat >"${t:?}" || return 1
+    [ -e "$1" ] && [ "$(sha256sum < "$t")" = "$(sha256sum < "$1")" ] || {
+        cp "$t" "$1" && echo Updated "$1".
+    }
+    rm "$t"
+}
+
+conf=/etc/makepkg.conf
+[ -e $conf ] && ! fgrep -q '. /etc/makepkg.extra.conf' $conf &&
+    printf '\n%s\n%s\n' '# include custom configs' '. /etc/makepkg.extra.conf' >> $conf &&
+    echo Updated $conf.
+
+cat << 'eof' | write /etc/makepkg.extra.conf
+DLAGENTS=(
+  'file::/usr/bin/aria2c --no-conf -k1M -x5 -o %o %u'
+  'ftp::/usr/bin/aria2c --no-conf -k1M -x5 -o %o %u'
+  'http::/usr/bin/aria2c --no-conf -k1M -x5 -o %o %u'
+  'https::/usr/bin/aria2c --no-conf -k1M -x5 -o %o %u'
+  'rsync::/usr/bin/rsync --no-motd -z %u %o'
+  'scp::/usr/bin/scp -C %u %o')
+MAKEFLAGS=-j$(nproc)
+COMPRESSZST=(zstd -c -z -q -T0 -)
+eof

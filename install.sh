@@ -10,4 +10,12 @@ mkdir -p $l/bin $l/sv/run $s/applications $s/gnupg $c/kicad \
     $s/local/profile.d $s/local/xinitrc.d $s/local/gimme/aliases.d
 
 # install the dotfiles
-stow -v */
+stow -v */ || exit 1
+
+# install system configurations
+printf 'Install sysfiles? [y/N] '
+read ans
+case "$ans" in y|Y) ;; *) exit ;; esac
+for f in ~/.local/share/sysfiles/*; do
+    [ -f "$f" ] && [ -x "$f" ] && sudo "$f"
+done

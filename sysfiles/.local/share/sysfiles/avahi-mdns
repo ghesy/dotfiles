@@ -1,0 +1,23 @@
+#!/bin/sh
+# this script enables local hostname resolution:
+# https://wiki.archlinux.org/title/avahi#Hostname_resolution
+
+# install nss-mdns
+[ -e /etc/runit/sv/avahi-daemon -a -e /usr/lib/libnss_mdns4_minimal.* ] ||
+    pacman -S --needed nss-mdns avahi-runit || {
+    echo Failed installing packages.
+    exit 1
+}
+
+# enable avahi's service
+e=/etc/runit/sv; r=/run/runit/service
+[ -e $r/avahi-daemon ] || ln -vs $e/avahi-daemon $r || {
+    echo "Failed installing avahi's service."
+    exit 1
+}
+
+# add mdns4_minimal to /etc/nsswitch.conf
+f=/etc/nsswitch.conf
+grep -q 'hosts:.*mdns4' $f && exit
+sed -i '/hosts:/ s/resolve/mdns4_minimal [NOTFOUND=return] resolve/' $f &&
+    echo Successfully enabled mdns.
