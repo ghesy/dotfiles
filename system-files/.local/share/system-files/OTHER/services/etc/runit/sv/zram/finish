@@ -1,4 +1,0 @@
-#!/bin/sh
-swapoff /dev/zram0
-rmmod zram
-exec sleep 0.1

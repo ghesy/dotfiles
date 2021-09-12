@@ -1,6 +1,0 @@
-#!/bin/sh
-[ ! -e /etc/chtty ] && exit
-case "$1" in
-     pre) chvt 6 ;;
-     post) setsid -f sh -c 'sleep 3; chvt 1' ;;
-esac

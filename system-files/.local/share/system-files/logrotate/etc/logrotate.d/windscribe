@@ -1,4 +1,0 @@
-/var/log/windscribe/windscribe.log {
-    missingok
-    nocreate
-}

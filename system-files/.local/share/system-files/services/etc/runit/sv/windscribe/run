@@ -1,4 +1,0 @@
-#!/bin/sh
-sv check NetworkManager > /dev/null || exit 1
-windscribe start
-exec pwait -f 'windscribe start'

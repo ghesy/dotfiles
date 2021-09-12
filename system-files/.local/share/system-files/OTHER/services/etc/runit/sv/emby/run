@@ -1,4 +1,0 @@
-#!/bin/sh
-emby_conf=/etc/conf.d/emby-server
-export $(grep -v '^#' "$emby_conf" | xargs)
-exec chpst -u emby:emby /usr/bin/emby-server
