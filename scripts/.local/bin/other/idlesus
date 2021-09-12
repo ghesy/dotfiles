@@ -6,26 +6,22 @@
 # = Config
 # =================
 
-# collective network bandwidth usage threshold
-net_threshold_kbps=20
+# system idle time in minutes
+timeout=10
+[ "$CHASSIS" = laptop ] && timeout=5
 
-# percentage of cpu cycles used threshold
+# thresholds
+net_threshold_kbps=10
 cpu_usage_threshold=15
-
-# system idle checking interval
-loop_interval_sec=30
 
 # specify your locker program
 locker=slock
 
-# perform the idle action after this much time of system being idle
-case $CHASSIS in
-    desktop) timeout_min=10 ;;
-     laptop) timeout_min=5  ;;
-esac
-
 # actions to perform when system is deemed idle
 idle_action() { sysact sleep ;}
+
+# system idle checking interval
+loop_interval_sec=30
 
 # =================
 # = End of Config
@@ -69,7 +65,7 @@ run_with_locker()
 
 has_timeout_reached()
 {
-    [ $(( $(date +%s) - last_activity )) -gt $(( timeout_min * 60 )) ]
+    [ $(( $(date +%s) - last_activity )) -gt $(( timeout * 60 )) ]
 }
 
 reset_timeout()
@@ -120,7 +116,7 @@ is_network_idle()
 net_speed()
 {
     s1=$(net_sample 1)
-    sleep 1
+    sleep 5
     s2=$(net_sample 2)
     echo $(( (s2 - s1) / 1024 ))
 }
@@ -145,6 +141,4 @@ check_deps()
     done
 }
 
-trap exit HUP
-trap 'pkill -P$$' EXIT
 main "$@"
