@@ -13,8 +13,8 @@ write() {
 command -v hblock >/dev/null || paru -S --needed hblock || exit 1
 
 # install hblock-aria2's cron file
-echo "#!/bin/sh
-exec /usr/local/bin/hblock-aria2" | write /etc/cron.daily/hblock
+f=/etc/cron.daily/hblock
+printf '#!/bin/sh\nexec /usr/local/bin/hblock-aria2\n' | write $f && chmod 755 $f
 
 # install the hblock-aria2 script
 f=/usr/local/bin/hblock-aria2
