@@ -1,2 +1,4 @@
 #!/bin/sh
+mkdir -p ~/.local/share/aria2
+touch ~/.local/share/aria2/session
 exec aria2c --conf-path ~/.config/aria2/server.conf
