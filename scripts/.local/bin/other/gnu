@@ -1,9 +1,5 @@
 #!/bin/sh
-
-# T H E   I N T E R J E C T I O N
-
-cat << 'eof' | cowsay -f /usr/share/cows/sodomized.cow
-
+cowsay -f /usr/share/cows/sodomized.cow << 'eof'
 I'd just like to interject for a moment.  What you're referring to as Linux,
 is in fact, GNU/Linux, or as I've recently taken to calling it, GNU plus Linux.
 Linux is not an operating system unto itself, but rather another free component
@@ -23,5 +19,4 @@ it can only function in the context of a complete operating system.  Linux is
 normally used in combination with the GNU operating system: the whole system
 is basically GNU with Linux added, or GNU/Linux.  All the so-called "Linux"
 distributions are really distributions of GNU/Linux.
-
 eof
