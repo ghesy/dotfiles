@@ -1,0 +1,12 @@
+# /etc/sudoers.d/programs
+Cmnd_Alias PROGRAMS = \
+  /usr/bin/grub-entries, \
+  /usr/bin/grub-reboot, \
+  /usr/bin/resolvconf, \
+  /usr/bin/protonvpn, \
+  /usr/bin/nethogs, \
+  /usr/bin/iotop, \
+  /usr/bin/rsm, \
+  /usr/bin/sv
+%wheel ALL=(ALL) NOPASSWD: PROGRAMS
+# vim:ft=sudoers

@@ -1,47 +1,4 @@
-#!/bin/sh
-# this script installs hblock-related scripts, files and cron jobs.
-write() {
-    t=$(mktemp) || return 1
-    cat >"${t:?}" || return 1
-    [ -e "$1" ] && [ "$(sha256sum < "$t")" = "$(sha256sum < "$1")" ] || {
-        cp "$t" "$1" && echo Updated "$1".
-    }
-    rm "$t"
-}
-
-# install hblock
-command -v hblock >/dev/null || paru -S --needed hblock || exit 1
-
-# install hblock-aria2's cron file
-f=/etc/cron.daily/hblock
-printf '#!/bin/sh\nexec /usr/local/bin/hblock-aria2\n' | write $f && chmod 755 $f
-
-# install the hblock-aria2 script
-f=/usr/local/bin/hblock-aria2
-cat << 'eof' | write $f && chmod 755 $f
-#!/bin/sh
-# download hblock's sources in parallel using aria2, then apply them using hblock.
-dir=$(mktemp -d) || exit 1
-trap 'rm -r "$dir"' EXIT
-aria2c --no-conf -d"${dir:?}" -i/etc/hblock/sources.list -k1M -x5 &&
-    printf 'file://%s\n' "${dir:?}"/* | hblock -S - &&
-    date '+# %F %T' >> /etc/hosts
-eof
-
-# install hblock's sources
-cat << 'eof' | write /etc/hblock/sources.list
-https://raw.githubusercontent.com/4skinSkywalker/Anti-Porn-HOSTS-File/master/HOSTS.txt
-https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts
-https://raw.githubusercontent.com/soystemd/hosts/master/hosts
-eof
-
-# install hblock's header
-cat << 'eof' | write /etc/hblock/header
-::1 localhost
-127.0.0.1 localhost
-127.0.1.1 $hostname.localdomain $hostname
-
-# Force Google SafeSearch
+# /etc/hblock/header
 216.239.38.120 google.com
 216.239.38.120 google.ad
 216.239.38.120 google.ae
@@ -802,4 +759,3 @@ cat << 'eof' | write /etc/hblock/header
 216.239.38.120 www.images.google.co.zm
 216.239.38.120 www.images.google.co.zw
 216.239.38.120 www.images.google.cat
-eof

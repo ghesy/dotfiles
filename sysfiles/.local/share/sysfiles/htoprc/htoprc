@@ -1,15 +1,4 @@
-#!/bin/sh
-# this script installs a system-wide htop config (/etc/htoprc).
-write() {
-    t=$(mktemp) || return 1
-    cat >"${t:?}" || return 1
-    [ -e "$1" ] && [ "$(sha256sum < "$t")" = "$(sha256sum < "$1")" ] || {
-        cp "$t" "$1" && echo Updated "$1".
-    }
-    rm "$t"
-}
-
-cat << 'eof' | write /etc/htoprc
+# /etc/htoprc
 fields=0 48 46 47 1
 sort_key=46
 sort_direction=-1
@@ -49,4 +38,3 @@ left_meter_modes=1 1 1
 right_meters=Uptime DiskIO Battery
 right_meter_modes=2 2 2
 hide_function_bar=1
-eof

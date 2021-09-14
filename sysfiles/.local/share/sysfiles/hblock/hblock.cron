@@ -1,0 +1,3 @@
+#!/bin/sh
+# /etc/cron.daily/hblock
+exec /usr/local/bin/hblock-aria2
