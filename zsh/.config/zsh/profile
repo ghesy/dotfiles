@@ -77,7 +77,4 @@ for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
 done
 
 # start X if we're on tty1
-if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    [ -z "$SSH_CLIENT" ] && trap reset EXIT
-    startx "$XINITRC" >/dev/null 2>&1
-fi
+[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && startx "$XINITRC" >/dev/null 2>&1
