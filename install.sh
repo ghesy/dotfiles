@@ -16,6 +16,6 @@ stow -v */ || exit 1
 printf 'Install sysfiles? [y/N] '
 read ans
 case "$ans" in y|Y) ;; *) exit ;; esac
-for f in ~/.local/share/sysfiles/*; do
-    [ -f "$f" ] && [ -x "$f" ] && sudo "$f"
+for d in ~/.local/share/sysfiles/*/; do
+    cd "$d" && sudo ./install.sh
 done
