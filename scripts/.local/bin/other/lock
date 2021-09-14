@@ -1,3 +1,0 @@
-#!/bin/sh
-# lock the screen.
-notify-send -u critical LOCK CALLED!
