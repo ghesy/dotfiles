@@ -2,7 +2,7 @@
 # this script enables local hostname resolution:
 # https://wiki.archlinux.org/title/avahi#Hostname_resolution
 
-# install nss-mdns
+# install nss-mdns (avahi is a dependency of nss-mdns)
 pkg() { pacman -Q "$@" >/dev/null 2>&1 || pacman -S --needed "$@" || exit 1 ;}
 pkg nss-mdns avahi-runit
 
