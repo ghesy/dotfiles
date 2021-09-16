@@ -1,10 +1,13 @@
 #!/bin/sh
 echo 
-for battery in /sys/class/power_supply/BAT*; do
-    tr -d '\n' < $battery/capacity
+p=/sys/class/power_supply
+for b in $p/BAT*; do
+    tr -d '\n' < $b/capacity
     echo %
-    case $(cat $battery/status) in
+    case $(cat $b/status) in
         Charging) echo + ;;
         Full) echo  ;;
+        Unknown) for o in $p/ADP*/online; do
+            [ $(cat $o) -eq 1 ] && echo ﮣ; done ;;
     esac
 done
