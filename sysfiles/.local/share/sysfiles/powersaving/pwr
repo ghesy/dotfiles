@@ -10,10 +10,14 @@ pid=/var/run/pwr.pid
 echo $$ > $pid || exit 1
 trap 'rm "$pid"' EXIT HUP INT TERM
 
+# update dwmbar's battery module
+killall -49 dwmbar
+
 write() {
     val="$1"; shift
     for f; do for i in $(seq 1 120); do
         [ -w "$f" ] && echo "$val" > "$f" && break
+        sleep 2
     done; done
 }
 
