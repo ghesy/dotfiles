@@ -115,10 +115,11 @@ is_network_idle()
 
 net_speed()
 {
+    sec=5
     s1=$(net_sample 1)
-    sleep 5
+    sleep $sec
     s2=$(net_sample 2)
-    echo $(( (s2 - s1) / 1024 ))
+    echo $(( (s2 - s1) / (1024 * sec) ))
 }
 
 net_sample()
