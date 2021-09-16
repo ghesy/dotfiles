@@ -1,7 +1,6 @@
 #!/bin/sh
 # enable auto locking by setting inactivity and lock times of X.
 case $CHASSIS in
-    desktop) tdim=300; tlock=600 ;;
-     laptop) tdim=150; tlock=300 ;;
+    laptop) xset s 300 ;;
+    *) xset s 600 ;;
 esac
-xset s $tdim $tlock
