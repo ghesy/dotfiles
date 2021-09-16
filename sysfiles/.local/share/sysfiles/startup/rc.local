@@ -1,3 +1,4 @@
+#!/bin/sh
 # /etc/rc.local
 # rc.local for Artix Linux
 # This file will be executed on stage 2 before running services.
