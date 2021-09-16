@@ -1,0 +1,35 @@
+#!/bin/sh
+# /usr/local/bin/pwr
+
+# fork
+[ "$1" = -f ] && shift || exec setsid -f "$0" -f "$@" >/dev/null 2>&1
+
+# make sure only one instance is running
+pid=/var/run/pwr.pid
+[ -s $pid ] && kill $(cat $pid)
+echo $$ > $pid || exit 1
+trap 'rm "$pid"' EXIT HUP INT TERM
+
+write() {
+    val="$1"; shift
+    for f; do for i in $(seq 1 120); do
+        [ -w "$f" ] && echo "$val" > "$f" && break
+    done; done
+}
+
+cpu=/sys/devices/system/cpu
+energy=$cpu/cpufreq/policy*/energy_performance_preference
+noturbo=$cpu/intel_pstate/no_turbo
+
+case $1 in
+    high)
+        write 0 $noturbo
+        write performance $energy
+    ;;
+    low)
+        write 1 $noturbo
+        write balance_power $energy
+        write auto /sys/class/ata_port/ata*/power/control \
+            /sys/block/sd*/device/power/control
+    ;;
+esac
