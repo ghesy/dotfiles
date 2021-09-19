@@ -1,5 +1,5 @@
 #!/bin/sh
-# add torrent to transmission.
+# add a torrent to transmission.
 pidof -q transmission-daemon &&
     transmission-remote --add "$@" &&
     notify-send -t 1500 Transmission Torrent\ added.

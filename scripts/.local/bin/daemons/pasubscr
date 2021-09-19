@@ -1,4 +1,5 @@
 #!/bin/sh
+# subscribe to pulseaudio events and update dwmbar's audio module.
 trap 'pkill -P$$' HUP INT TERM
 pactl subscribe | while IFS= read -r line; do
     case $line in

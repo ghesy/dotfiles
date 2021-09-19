@@ -1,4 +1,5 @@
 #!/bin/sh
+# subscribe to NetworkManager events and update dwmbar's network module.
 trap 'pkill -P$$' HUP INT TERM
 nmcli monitor | while IFS= read -r line; do
     case $line in

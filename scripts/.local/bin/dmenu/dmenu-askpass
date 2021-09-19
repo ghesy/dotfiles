@@ -1,5 +1,5 @@
 #!/bin/sh
 # ask for a password using dmenu.
-# requires dmenu's password patch.
+# requires dmenu's password patch (which enabled the -P option).
 dmenu -P -p "$1" ${WINDOWID:+-w $WINDOWID} \
     -nb darkgreen -sb darkgreen -sf white -nf white
