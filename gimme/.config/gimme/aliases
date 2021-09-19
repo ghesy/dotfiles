@@ -49,6 +49,7 @@ Pavucontrol : pavucontrol
 Screenshot : dshot
 Emojies : demoji
 VPN : dvpn
+Sound Card Profiles, dPaProfile: dpaprofile
 dRandr: drandr
 Network Manager, Wi-Fi : networkmanager_dmenu
 Last Notification : dunstctl history-pop
