@@ -1,8 +1,3 @@
-# /etc/hblock/header
-::1 localhost
-127.0.0.1 localhost
-127.0.1.1 $hostname.localdomain $hostname
-
 # Redirect all google domains to their safesearch ip address
 216.239.38.120 google.com
 216.239.38.120 google.ad
