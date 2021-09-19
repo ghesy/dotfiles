@@ -1,0 +1,11 @@
+#!/bin/sh
+trap 'pkill -P$$' HUP INT TERM
+pactl subscribe | while IFS= read -r line; do
+    case $line in
+        *server*) sleep 0.05; dwmbarref audio ;;
+    esac &
+    kill -0 $p >/dev/null 2>&1 && continue
+    sleep 0.1 & p=$!
+    dwmbarref audio
+done &
+wait

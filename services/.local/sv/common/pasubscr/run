@@ -1,3 +1,2 @@
 #!/bin/sh
-trap 'pkill -P$$' HUP INT TERM
-pulseaudio-subscribe | while IFS= read -r line; do dwmbarref audio; done & wait
+exec pasubscr
