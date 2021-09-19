@@ -1,7 +1,8 @@
 #!/bin/sh
 # /usr/local/bin/pwr
+# this scrip is for setting the frequency and energy levels of the cpu.
 
-# fork
+# get forked to background
 [ "$1" = -f ] && shift || exec setsid -f "$0" -f "$@" >/dev/null 2>&1
 
 # make sure only one instance is running
@@ -17,7 +18,7 @@ write() {
     val="$1"; shift
     for f; do for i in $(seq 1 120); do
         [ -w "$f" ] && echo "$val" > "$f" && break
-        sleep 2
+        sleep 2 & wait
     done; done
 }
 
