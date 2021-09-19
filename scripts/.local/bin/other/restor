@@ -1,5 +1,5 @@
 #!/bin/sh
 # restart the tor service, and notify when it reconnects successfully.
 sudo -A sv restart tor
-curl -sm60 --socks5 localhost:9050 icanhazip.com &&
+curl -sm60 --socks5 localhost:9050 ping.archlinux.org &&
     notify-send "Tor Connected." && dwmbarref tor
