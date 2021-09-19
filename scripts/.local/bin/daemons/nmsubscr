@@ -3,7 +3,7 @@
 trap 'pkill -P$$' HUP INT TERM
 nmcli monitor | while IFS= read -r line; do
     case $line in
-        *connected*|*disconn*|*primary*|*'y is now'*)
+        *connected*|*disconn*|*removed*|*primary*|*'y is now'*)
             dwmbarref net
     esac
 done &
