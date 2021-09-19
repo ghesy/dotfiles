@@ -1,11 +1,15 @@
 #!/bin/sh
 # change pulseaudio's sound card profiles via dmenu.
-card=$(pactl list short cards | cut -f2 | dmenu -p 'Choose a sound card') || exit
+card=$(
+    pacmd list-cards | grep -Po 'index: \K\d+|\.card_name = "\K.+' |
+        tr '\n' ' ' | tr '"' '\n'| sed 's/^\s\+//g' |
+        ifne dmenu -p 'Choose a sound card' | cut -d' ' -f1
+)
 profile=$(
-    pacmd list-cards | fgrep -A99 "${card:?}" | grep -A99 profiles | tac |
+    pacmd list-cards | grep -A99 "index: ${card:?}\$" | grep -A99 profiles | tac |
         grep -A99 'active profile' | sed 1d | tac | sed 1d | cut -d'	' -f3- |
         sed -e 's/\s*(prio.*//' -e 's/^/	/' -e 's/\(\s\+\S\+\): \(.*\)/\2\1/' |
-        column -s'	' -t | ifne dmenu -l 10 | rev | cut -d' ' -f1 | rev
+        column -s'	' -t | ifne dmenu -l 10 | awk '{print $NF}'
 )
 pacmd set-card-profile "${card:?}" "${profile:?}" &&
     notify-send 'Card profile changed successfully.' ||
