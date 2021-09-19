@@ -1,5 +1,5 @@
 #!/bin/sh
-# only install if the machine is a laptop
+# only install these files if the machine is a laptop
 case $(cat /sys/class/dmi/id/chassis_type) in
     9|10|11|14) ;;
     *) exit ;;
