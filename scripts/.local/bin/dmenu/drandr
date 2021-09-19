@@ -3,7 +3,7 @@
 # requires xrandr, xev and dmenu.
 
 # ask which monitor to connect
-mon=$(xrandr | grep ' connected' | egrep -v 'primary|VIRTUAL' | cut -d' ' -f1)
+mon=$(xrandr | grep ' connected' | grep -v primary | cut -d' ' -f1)
 [ -z "$mon" ] && { notify-send 'No other monitors detected.'; exit ;}
 [ $(echo "$mon" | wc -l) -gt 1 ] && { mon=$(echo "$mon" | dmenu -p 'Choose a Display') || exit ;}
 
