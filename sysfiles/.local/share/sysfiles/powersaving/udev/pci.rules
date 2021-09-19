@@ -1,1 +1,3 @@
+# /etc/udev/rules.d/pci.rules
+# enable pci powersaving.
 SUBSYSTEM=="pci", ATTR{power/control}="auto"
