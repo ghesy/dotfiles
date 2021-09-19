@@ -1,44 +1,15 @@
 #!/bin/sh
-# cycle audio output devices.
+# cycle the audio output device of pulseaudio.
 
-main()
-{
-    vars
-    switch_sink
-    dwmbarref audio
-    switch_programs
-}
+# get the index of the next device
+next="$(pacmd list-sinks | grep index: -A1 | tr -d '\n' | tr '>' '\n' |
+    grep -v aloop | sed '$aindex: 0' | grep -A1 ' \* ' |
+    sed '1d' | grep -Po 'index: \K\d+')"
 
-switch_sink()
-{
-    pactl set-default-sink "$next_sink_id"
-}
+# set the default sink to the next device
+pactl set-default-sink "$next"
 
-switch_programs()
-{
-    pactl list short sink-inputs | cut -f1 | while IFS= read -r program; do
-        pactl move-sink-input "$program" "$next_sink_id"
-    done
-}
-
-vars()
-{
-    list="$(pactl list short sinks | grep -v loop)"
-    current_sink_name="$(pactl info | grep -i '^default sink' | cut -d: -f2- | tr -d ' ')"
-    list_of_ids="$(echo "$list" | cut -f1)"
-    first_id="$(echo "$list_of_ids" | head -n1)"
-    current_sink_id=$(echo "$list" | grep "$current_sink_name" | cut -f1)
-    id_loop="$(echo "$list_of_ids"; echo "$first_id")"
-    next_sink_id="$(get_next_sink)"
-    next_sink_name="$(echo "$list" | grep -w "^$next_sink_id" | cut -f2)"
-}
-
-get_next_sink()
-{
-    echo "$id_loop" | while IFS= read -r id; do
-        [ "$id" = "$current_sink_id" ] && read -r id && echo "$id"
-    done
-}
-
-main "$@"
-exit
+# move programs that are currently playing audio to the next device
+# pactl list short sink-inputs | cut -f1 | while IFS= read -r program; do
+#     pactl move-sink-input "$program" "$"
+# done
