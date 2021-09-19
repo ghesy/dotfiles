@@ -1,0 +1,30 @@
+#!/bin/sh
+# a simple dmenu interface for xrandr.
+# requires xrandr, xev and dmenu.
+
+# ask which monitor to connect and it's position
+mon=$(xrandr | grep ' connected' | egrep -v 'primary|VIRTUAL' | cut -d' ' -f1)
+[ -z "$mon" ] && { notify-send 'No other monitors detected.'; exit ;} || mon=$(echo "$mon" | dmenu -p 'Choose a Display') || exit
+pos=$(printf 'same-as\nright-of\nleft-of\nabove\nbelow\n' | dmenu -p "Choose it's Position") || exit
+type=$(printf 'regular\nprimary\noff\n' | dmenu -p "Choose it's Type") || exit
+[ "$type" = regular ] && type=''
+
+# if the monitor was already enabled, don't wait for it again
+xrandr --listmonitors | fgrep -q "$mon" && wait=false || wait=true
+
+primary=$(xrandr | grep primary | cut -d' ' -f1)
+xrandr --output "${mon:?}" --auto ${type:+--"$type"} ${primary:+--"${pos:?}" "${primary:?}"} || exit
+
+# wait for the monitor to disconnect in the background, then disable it
+[ "$wait" != true ] && exit
+( xev -event randr -root | while IFS= read -r l1; do
+    case $l1 in *"${mon:?}"*)
+        while IFS= read -r l2; do
+            [ -z "$l2" ] && break
+            case $l2 in *Disconnected*)
+                xrandr --output "${mon:?}" --auto
+                exit ;;
+            esac
+        done ;;
+    esac
+done &) >/dev/null 2>&1
