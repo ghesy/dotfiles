@@ -2,29 +2,34 @@
 # a simple dmenu interface for xrandr.
 # requires xrandr, xev and dmenu.
 
-# ask which monitor to connect and it's position
+# ask which monitor to connect
 mon=$(xrandr | grep ' connected' | egrep -v 'primary|VIRTUAL' | cut -d' ' -f1)
-[ -z "$mon" ] && { notify-send 'No other monitors detected.'; exit ;} || mon=$(echo "$mon" | dmenu -p 'Choose a Display') || exit
-pos=$(printf 'same-as\nright-of\nleft-of\nabove\nbelow\n' | dmenu -p "Choose it's Position") || exit
-type=$(printf 'regular\nprimary\noff\n' | dmenu -p "Choose it's Type") || exit
-[ "$type" = regular ] && type=''
+[ -z "$mon" ] && { notify-send 'No other monitors detected.'; exit ;}
+[ $(echo "$mon" | wc -l) -gt 1 ] && { mon=$(echo "$mon" | dmenu -p 'Choose a Display') || exit ;}
+
+# ask type
+type=$(printf 'regular\nprimary\noff\n' | dmenu -p "Choose $mon's Type") || exit
+case $type in
+    regular) type='' ;;
+    off) xrandr --output "${mon:?}" --off; exit ;;
+esac
+
+# ask position
+pos=$(printf 'same-as\nright-of\nleft-of\nabove\nbelow\n' | dmenu -p "Choose $mon's Position") || exit
+rel=$(xrandr | grep ' connected' | cut -d' ' -f1 | fgrep -v "$mon")
+[ $(echo "$rel" | wc -l) -gt 1 ] && { rel=$(echo "$rel" | dmenu -p "Put $mon $pos which monitor?") || exit ;}
 
 # if the monitor was already enabled, don't wait for it again
 xrandr --listmonitors | fgrep -q "$mon" && wait=false || wait=true
 
-primary=$(xrandr | grep primary | cut -d' ' -f1)
-xrandr --output "${mon:?}" --auto ${type:+--"$type"} ${primary:+--"${pos:?}" "${primary:?}"} || exit
+# apply the selected settings
+xrandr --output "${mon:?}" --auto ${type:+--"$type"} ${rel:+--"$pos" "$rel"} || exit
 
-# wait for the monitor to disconnect in the background, then disable it
+# disable the monitor upon disconnection
 [ "$wait" != true ] && exit
-( xev -event randr -root | while IFS= read -r l1; do
-    case $l1 in *"${mon:?}"*)
-        while IFS= read -r l2; do
-            [ -z "$l2" ] && break
-            case $l2 in *Disconnected*)
-                xrandr --output "${mon:?}" --auto
-                exit ;;
-            esac
-        done ;;
+( xev -event randr -root -1 | while IFS= read -r line; do
+    case $line in *"${mon:?}"*'Disconnected'*)
+        xrandr --output "${mon:?}" --auto
+        exit ;;
     esac
 done &) >/dev/null 2>&1
