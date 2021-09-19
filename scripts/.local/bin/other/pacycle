@@ -1,15 +1,5 @@
 #!/bin/sh
 # cycle the audio output device of pulseaudio.
-
-# get the index of the next device
-next="$(pacmd list-sinks | grep index: -A1 | tr -d '\n' | tr '>' '\n' |
-    grep -v aloop | sed '$aindex: 0' | grep -A1 ' \* ' |
+pactl set-default-sink "$(pacmd list-sinks | grep index: -A1 | tr -d '\n' |
+    tr '>' '\n' | grep -v aloop | sed '$aindex: 0' | grep -A1 ' \* ' |
     sed '1d' | grep -Po 'index: \K\d+')"
-
-# set the default sink to the next device
-pactl set-default-sink "$next"
-
-# move programs that are currently playing audio to the next device
-# pactl list short sink-inputs | cut -f1 | while IFS= read -r program; do
-#     pactl move-sink-input "$program" "$"
-# done
