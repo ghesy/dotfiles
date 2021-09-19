@@ -1,19 +1,17 @@
 #!/bin/sh
-# pause all players when headphone jack disconnects. requires evtest.
+# pause all players upon headphone plug disconnection.
 trap 'pkill -P$$' HUP INT TERM
 port() {
     pacmd list-sinks | tr -d '\n' | grep -Po '  \* .*active port: <\K[^>]+'
 }
 previous=$(port)
 pactl subscribe | while IFS= read -r line; do
-    case $line in
-        *'card '*)
-            current=$(port)
-            [ "$previous" != "$current" ] && case $previous in
-                *headphone*) mpc pause & playerctl -a pause ;;
-            esac
-            previous=$current
-        ;;
+    case $line in *'card '*)
+        current=$(port)
+        [ "$previous" != "$current" ] && case $previous in
+            *headphone*) mpc pause & playerctl -a pause ;;
+        esac
+        previous=$current ;;
     esac
 done &
 wait
