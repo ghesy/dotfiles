@@ -1,8 +1,10 @@
 #!/bin/sh
-case "$(pactl info | grep 'Default Sink')" in
+case "$(pacmd stat | grep 'Default sink')" in
     *analog*) echo  ;;
     *hdmi*) echo  ;;
     *) echo 蓼 ;;
 esac
 pamixer --get-volume-human
-mpc | grep -qi '^\[playing' && echo 
+pacmd list-sink-inputs | tac |
+    grep -A99 'Music Player Daemon' |
+    grep -m1 state | grep -q RUNNING && echo 
