@@ -2,6 +2,6 @@
 case $1 in
     net) sig=3 ;;
     audio) sig=2 ;;
-    bat*) sig=15 ;;
+    battery) sig=15 ;;
 esac
 /bin/kill -$((sig+34)) dwmbar
