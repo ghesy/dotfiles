@@ -1,7 +1,7 @@
 #!/bin/sh
 # download files from given URLs in parallel using aria2c or curl, then open them.
 # if you give the same URL again, it will open the already downloaded file.
-# if the url is censored, it will download it through tor using torsocks.
+# if the url is censored, it will download it via proxychains.
 
 # config
 cache=~/.cache/dl
@@ -20,24 +20,24 @@ download()
     [ -z "$1" ] && return 1
     file="$(echo "$1" | sha256sum | cut -d' ' -f1)"
     if [ ! -r "$cache/$file" ]; then
-        tor='' dlcmd "$1" "$file" || tor=torsocks dlcmd "$1" "$file" || return 1
+        proxy='' dlcmd "$1" "$file" || proxy='proxychains -q' dlcmd "$1" "$file" || return 1
     fi
     printf '%s\n' "$cache/$file"
 }
 
 dlcmd()
 {
-    [ -n "$tor" ] &&
-        ! torsocks timeout 8 curl -s icanhazip.com >/dev/null 2>&1 &&
+    [ -n "$proxy" ] &&
+        ! $proxy timeout 8 curl -s ping.archlinux.org >/dev/null 2>&1 &&
         return 1
 
     if command -v aria2c >/dev/null; then
-        $tor aria2c --quiet --no-conf ${tor:+--async-dns=false} \
+        $proxy aria2c --quiet --no-conf ${proxy:+--async-dns=false} \
             --max-connection-per-server=8 --split=8 --min-split-size=1M \
-            --disable-ipv6=true --timeout=5${tor:+0} --connect-timeout=5${tor:+0} \
+            --disable-ipv6=true --timeout=5${proxy:+0} --connect-timeout=5${proxy:+0} \
             --dir="$cache" --out="$2" -- "$1"
     else
-        $tor curl --silent --connect-timeout 5${tor:+0} --max-time 300 \
+        $proxy curl --silent --connect-timeout 5${proxy:+0} --max-time 300 \
             ---xattr --output-dir "$cache" --output "$2" -- "$1"
     fi
 }
