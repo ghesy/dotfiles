@@ -8,9 +8,13 @@
 
 [ -z "$url" ] && exit
 
+gdl() {
+    gallery-dl -G "$@" || proxychains -q gallery-dl -G "$@"
+}
+
 case "$url" in
     *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
-        gallery-dl -G "$url" 2>/dev/null | xargs -d'\n' dl ;;
+        gdl "$url" | xargs -d'\n' dl ;;
 
     *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
@@ -24,7 +28,7 @@ case "$url" in
         setsid -f $TERMINAL -e tuir "$url" >/dev/null 2>&1 ;;
 
     *)
-        if urls="$(gallery-dl -G "$url" 2>/dev/null)"; then
+        if urls="$(gdl "$url")"; then
             printf '%s\n' "$urls" | xargs -d'\n' dl
             exit 0
         fi
