@@ -1,0 +1,10 @@
+#!/bin/sh
+f=$(mktemp)
+trap 'rm "$f"' EXIT
+(timeout 5 curl -sI https://www.youtube.com && echo>$f) &
+s=$(dmenu -p Search: <&-) || exit 1
+wait
+p='proxychains -q'
+[ -s "${f:?}" ] && unset p
+rm -f "$f"
+exec $TERMINAL -e $p ytfzf -tl "${s:?}"
