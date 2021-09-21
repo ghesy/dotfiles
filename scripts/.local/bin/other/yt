@@ -2,7 +2,7 @@
 f=$(mktemp)
 trap 'rm "$f"' EXIT
 (timeout 5 curl -sI https://www.youtube.com && echo>$f) &
-s=$(dmenu -p Search: <&-) || exit 1
+s=$(dmenu -p 'Search YouTube:' <&-) || exit 1
 wait
 p='proxychains -q'
 [ -s "${f:?}" ] && unset p
