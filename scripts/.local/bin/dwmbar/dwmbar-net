@@ -12,29 +12,17 @@ main() {
         echo x
     elif is_vpn_on; then
         echo 
-    elif is_proxy_on; then
-        echo 
     else
         echo 
     fi
     net_recently_changed && print_net_type
-    downloading && echo  || { seeding && echo  ;}
-}
-
-downloading() {
-    test $(transmission-remote -l | grep Downloading | wc -l) -gt 0 ||
-    test $(xmlrpc http://localhost:6800/rpc aria2.tellActive | sed '1,3d' | wc -l) -gt 0
-}
-
-seeding() {
-    test $(transmission-remote -l | grep Seeding | wc -l) -gt 0
 }
 
 print_net_type() {
     is_metered && echo ﰒ
     case $type in
         *bluetooth*) echo  ;;
-        *wireless*|*wifi*) echo 直; printf '%s\n' "$ssid" ;;
+        *wireless*|*wifi*) echo 直; prnt "$ssid" ;;
         *ethernet*) is_usb && echo 禍 || echo  ;;
         *) echo ? ;;
     esac
@@ -62,25 +50,20 @@ is_metered() {
     nmcli -g general.metered dev show $dev | grep -q yes
 }
 
-is_proxy_on() {
-    [ -s ${XDG_RUNTIME_DIR:-/tmp}/dwmbar-proxy ]
-}
-
 net_recently_changed() {
-    state=$(prnt "$conns" | head -n1 | sha256sum)
-    state_file=${XDG_RUNTIME_DIR:-/tmp}/dwmbar-net
-    old_state=$(cat "$state_file" 2>/dev/null)
-
-    if [ "$state" = "$old_state" ]; then
+    f=${XDG_RUNTIME_DIR:-/tmp}/dwmbar-net
+    prev=$(cat "$f" 2>/dev/null)
+    current=$(prnt "$conns" | head -n1 | sha1sum)
+    if [ "$prev" = "$current" ]; then
         state_recently_changed && return 0 || return 1
     else
-        prnt "$state" >"$state_file"
+        prnt "$current" >"$f"
         return 0
     fi
 }
 
 state_recently_changed() {
-    [ -n "$(find "$state_file" -mmin -"$new_connection_display_minutes")" ]
+    [ -n "$(find "$f" -mmin -"$new_connection_display_minutes")" ]
 }
 
 get_vars() {
