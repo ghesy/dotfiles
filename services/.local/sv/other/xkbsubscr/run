@@ -1,6 +1,2 @@
 #!/bin/sh
-trap 'pkill -P$$' HUP INT TERM
-xkblayout-subscribe | while IFS= read -r line; do
-    dunstify -t 1000 -r $$ $(xkblayout-state print %s)
-done &
-wait
+exec xkbsubscr
