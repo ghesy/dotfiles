@@ -1,0 +1,63 @@
+#!/bin/sh
+# sxiv image previews.
+# requires sxiv, xdotool, xorg-xwininfo, exiv2, bc, procps-ng(pwait), ncurses(tput).
+
+img=${1:?}
+w=${2:?}
+h=${3:?}
+x=${4:?}
+y=${5:?}
+ID=${6:-${id:?}}
+
+# if pid is given, check wether it's an integer
+pid=${7:-$id}
+[ -z "$pid" ] || [ "$pid" -eq "$pid" ] || exit 1
+
+# calculate the width and height of each terminal cell in pixels
+eval "$(
+    xwininfo -id "${WINDOWID:?}" | sed -n \
+        -e "s/^ \+Width: \+\([0-9]\+\).*/tw=\1/p" \
+        -e "s/^ \+Height: \+\([0-9]\+\).*/th=\1/p"
+)"
+hp=$((${th:?}/$(tput lines)))
+wp=$((${tw:?}/$(tput cols)))
+[ $? -ne 0 ] && exit 1
+
+# calculate the geometry of the sxiv window
+eval "$(
+    exiv2 "$img" 2>/dev/null |
+        sed -n -e 's/^Image size \+: \+\([0-9]\+\) \+x \+\([0-9]\+\)/sw=\1;sh=\2/p'
+)"
+hh=$((h*hp))
+ww=$((w*wp))
+[ "${sh:?}" -gt "$hh" ] && { sw=$(echo "scale=5; $sw*($hh/$sh)" | bc); sw=${sw%.*}; sh=$hh ;}
+[ "${sw:?}" -gt "$ww" ] && { sh=$(echo "scale=5; $sh*($ww/$sw)" | bc); sh=${sh%.*}; sw=$ww ;}
+sx=$((x*wp))
+sy=$((y*hp))
+
+# if the mouse is in the area of sxiv, move it
+eval "$(xdotool getmouselocation --shell)"
+[ "${X:?}" -ge "$sx" ] && [ "$X" -le "$((sx+sw))" ] &&
+[ "${Y:?}" -ge "$sy" ] && [ "$Y" -le "$((sy+sh))" ] &&
+xdotool mousemove $((sx-10)) $((sy-10))
+
+# launch the preview
+rand=$(shuf -n1 -i10000-99999)
+tmp=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}
+sxivpidfile=$tmp/sxip.sxiv.$ID.$rand
+pidfile=$tmp/sxip.pid.$ID.$rand
+( (
+    sxiv -ab -e "${WINDOWID:?}" -g "${sw}x${sh}+${sx}+${sy}" "$img" &
+    echo $! > "$sxivpidfile"
+    sxivpid=$!
+    if [ -n "$pid" ]; then
+        echo "$pid" > "$pidfile"
+        pwait -F "$pidfile" &
+        echo $! >> "$sxivpidfile"
+        wait $!
+        kill $sxivpid
+    else
+        wait
+    fi
+    rm -f "$sxivpidfile" "$pidfile"
+) & ) >/dev/null 2>&1
