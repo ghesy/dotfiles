@@ -1,5 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 # cycle the audio output device of pulseaudio.
-pactl set-default-sink "$(pacmd list-sinks | grep index: -A1 | tr -d '\n' |
-    tr '>' '\n' | grep -v aloop | sed '$aindex: 0' | grep -A1 ' \* ' |
-    sed '1d' | grep -Po 'index: \K\d+')"
+unset first current next
+while IFS= read -r i; do case $i in *index:*)
+    read -r name; case $name in *aloop*) continue ;; esac
+    [ -z "$first" ] && first=$i
+    if [ -z "$current" ]; then
+        case $i in *' * '*) current=$i ;; esac
+    else
+        next=$i
+    fi
+esac; done <<< "$(pacmd list-sinks)"
+next="${next:-$first}"
+pactl set-default-sink "${next##* }"
