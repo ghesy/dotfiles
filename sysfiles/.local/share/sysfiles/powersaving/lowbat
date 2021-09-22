@@ -1,0 +1,7 @@
+#!/bin/sh
+while :; do
+    sleep 1m
+    for c in /sys/class/power_supply/BAT*/capacity; do
+        case $(cat "$c") in [0-5]) loginctl hibernate ;; esac
+    done
+done

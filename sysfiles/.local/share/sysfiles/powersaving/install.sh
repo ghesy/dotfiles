@@ -14,3 +14,8 @@ install -DCvm644 sysctl.d/* -t /etc/sysctl.d
 install -DCvm644 modprobe.d/* -t /etc/modprobe.d
 install -DCvm755 elogind/* -t /etc/elogind/system-sleep
 install -DCvm755 pwr /usr/local/bin/pwr
+
+# install the "lowbat" script as a runit service
+sv=/etc/runit/sv/lowbat
+install -DCvm755 lowbat $sv/run
+ln -vs $sv /run/runit/service/ 2>/dev/null
