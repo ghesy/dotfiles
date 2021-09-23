@@ -1,0 +1,43 @@
+#!/bin/sh
+# a dmenu interface to discover and mount ftp servers on the local network.
+# requires avahi, curlftpfs and dmenu.
+
+# mountpoints directory
+d=${XDG_RUNTIME_DIR:-/tmp}/dftp
+
+case $(printf 'Discover and Mount\nUnmount\n' | dmenu -p 'Do what?') in Unmount)
+    cd "$d" || exit 1
+    dir=$(
+        for dir in */; do
+            [ -d "$dir" ] && mountpoint -q "$dir" && echo "$dir"
+        done | ifne dmenu -p 'Unmount which one?'
+    )
+    [ -z "$dir" ] && exit 1
+    msg=$(fusermount -u ./"${dir:?}" 2>&1) && notify-send dftp Unmounted. || notify-send dftp "$msg"
+    exit ;;
+    Discover*) ;;
+    *) exit 1 ;;
+esac
+
+# get host, user and password via dmenu
+host=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 |
+    tr \; : | ifne -n notify-send dftp 'No local FTP servers found.' |
+    ifne dmenu -p 'Choose an FTP server')
+
+# if it's already mounted, open it
+mp=${d:?}/${host:?}
+if mountpoint -q "$mp"; then
+    (xdg-open "$mp" &) >/dev/null 2>&1
+    exit
+fi
+
+# get user and password
+user=$(dmenu -p User: <&-) && [ -n "$user" ] && pass=$(dmenu -P -p Password: <&-)
+
+# mount
+mkdir -p "$mp" || exit 1
+msg=$(curlftpfs -o ${user:+user="$user"${pass:+:"$pass"}},transform_symlinks "${host#*:}" "${mp:?}" 2>&1) || {
+    notify-send dftp "$msg"
+    exit 1
+}
+(xdg-open "$mp" &) >/dev/null 2>&1
