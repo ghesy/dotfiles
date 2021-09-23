@@ -17,7 +17,7 @@ case "$1" in
         xdotool key super+F12 &
 
         # reload st colors
-        setsid -f sh -c 'sleep 0.1; killall -USR1 st' >/dev/null 2>&1 &
+        ( ( sleep 0.1; killall -USR1 st ) & ) >/dev/null 2>&1
 
         # copy zathura and xresources pywal colors to their place
         cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors &
