@@ -91,6 +91,6 @@ alias d=vimdict
 alias sdl='search /media/downloads'
 alias sf='search /media /mnt'
 alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
-alias rg='rg -.Lg "!.git/*"'
+alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
