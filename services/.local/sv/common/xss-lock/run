@@ -1,2 +1,2 @@
 #!/bin/sh
-exec xss-lock -- idlesus
+exec xss-lock slock
