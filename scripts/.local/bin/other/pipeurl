@@ -25,7 +25,7 @@ case "$url" in
         dl "$url" ;;
 
     *reddit.com*|*redd.it*)
-        setsid -f $TERMINAL -e tuir "$url" >/dev/null 2>&1 ;;
+        ($TERMINAL -e tuir "$url" &) >/dev/null 2>&1 ;;
 
     *)
         if urls="$(gdl "$url")"; then

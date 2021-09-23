@@ -1,6 +1,7 @@
 #!/bin/sh
-# check system's media players, network activity, ssh connections
-# and cpu usage to determine if the system is idle, then suspend it.
+# a linux script to lock the system and check system's media players,
+# network activity, ssh connections and cpu usage to suspend the system
+# if it's been idle for a while.  requires playerctl.
 
 # =================
 # = Config
@@ -8,14 +9,13 @@
 
 # system idle time in minutes
 timeout=10
-[ "$CHASSIS" = laptop ] && timeout=5
 
 # thresholds
 net_threshold_kbps=10
 cpu_usage_threshold=15
 
 # specify your locker program
-locker=slock
+locker() { slock ;}
 
 # actions to perform when system is deemed idle
 idle_action() { sysact sleep ;}
@@ -27,54 +27,30 @@ loop_interval_sec=30
 # = End of Config
 # =================
 
-main()
-{
+main() {
     check_deps || return 1
-
-    unset lock
-    while getopts lq opt; do
-        case $opt in
-            l) lock=true ;;
-            q) export OPT_QUIET=true ;;
-            ?) exit 1 ;;
-        esac
-    done
-
-    [ "$OPT_QUIET" = true ] && exec >/dev/null 2>&1
-    [ "$lock" = true ] && run_with_locker
-
     reset_timeout
-    while true; do
+    while :; do
         sleep $loop_interval_sec
         if is_system_idle; then
             has_timeout_reached && reset_timeout && idle_action
         else
             reset_timeout
         fi
-    done
+    done &
+    locker &
+    wait $!
 }
 
-run_with_locker()
-{
-    exec sh -c '
-        "$1" &
-        trap "kill $!" EXIT
-        $2
-    ' '' "$0" "$locker"
-}
-
-has_timeout_reached()
-{
+has_timeout_reached() {
     [ $(( $(date +%s) - last_activity )) -gt $(( timeout * 60 )) ]
 }
 
-reset_timeout()
-{
+reset_timeout() {
     last_activity=$(date +%s)
 }
 
-is_system_idle()
-{
+is_system_idle() {
     is_nothing_playing  || { echo playing media detected.;      return 1 ;} &&
     is_ssh_inactive     || { echo ssh connections detected.;    return 1 ;} &&
     is_network_idle     || { echo network activity detected.;   return 1 ;} &&
@@ -82,18 +58,15 @@ is_system_idle()
     echo system is idle.
 }
 
-is_ssh_inactive()
-{
+is_ssh_inactive() {
     ! pgrep -P "$(pgrep -ox sshd)" >/dev/null 2>&1
 }
 
-is_cpu_idle()
-{
+is_cpu_idle() {
     [ "$(cpu_usage)" -le "$cpu_usage_threshold" ]
 }
 
-cpu_usage()
-{
+cpu_usage() {
     eval $(cpu_sample 1)
     sleep 5
     eval $(cpu_sample 2)
@@ -102,19 +75,16 @@ cpu_usage()
     echo "100 - 100 * $idle / $total" | bc
 }
 
-cpu_sample()
-{
+cpu_sample() {
     awk -v n=$1 '{ idle=$5; for (i=1; i<=NF; i++) total+=$i; exit }
         END { print "idle"n"="idle";total"n"="total }' /proc/stat
 }
 
-is_network_idle()
-{
+is_network_idle() {
     [ "$(net_speed)" -le "$net_threshold_kbps" ]
 }
 
-net_speed()
-{
+net_speed() {
     sec=5
     s1=$(net_sample 1)
     sleep $sec
@@ -122,19 +92,16 @@ net_speed()
     echo $(( (s2 - s1) / (1024 * sec) ))
 }
 
-net_sample()
-{
+net_sample() {
     awk -v n=$1 '/:/ && !/lo/ && !/tun/ {s+=$2+$10} END{print s}' /proc/net/dev
 }
 
-is_nothing_playing()
-{
+is_nothing_playing() {
     ! playerctl -a status | grep -iq playing && ! mpc | grep -qi '^\[playing'
 }
 
-check_deps()
-{
-    for prog in playerctl xprintidle $locker; do
+check_deps() {
+    for prog in setsid pkill playerctl; do
         command -v $prog >/dev/null || {
             echo dependency not installed: $prog >&2
             return 1
@@ -142,4 +109,7 @@ check_deps()
     done
 }
 
+# run the scrip in a new session
+[ "$1" != -w ] && exec setsid -w "$0" -w "$@"
+trap 'pkill -s0' EXIT HUP INT TERM
 main "$@"
