@@ -1,8 +1,26 @@
-#!/bin/sh
+#!/bin/bash
+# hibernate the system on low battery, send warning notifcations beforehand.
+notif() {
+    for pid in $(pstree -Tlp | grep -A2 Xorg | grep -Po "(?<=\()\d+(?=\))"); do
+        unset DISPLAY XAUTHORITY
+        while IFS= read -r -d $'\0' env; do
+            case ${env%%=*} in
+                DISPLAY|XAUTHORITY) eval "$env" ;;
+            esac
+        done < /proc/$pid/environ
+        [ -z "$DISPLAY" ] && continue
+        export DISPLAY XAUTHORITY
+        read user group < <(ps -o user=,group= -p ${pid:?})
+        runuser -u "${user:?}" -g "${group:?}" -- notify-send -u critical 'Battery Low!' 'System will hibernate on 5% battery.'
+    done
+}
 while :; do
     sleep 1m
     for b in /sys/class/power_supply/BAT*; do
         [ -d "$b" ] && [ "$(cat "$b/status")" != Charging ] &&
-            case $(cat "$b/capacity") in [0-5]) loginctl hibernate ;; esac
+            case $(cat "$b/capacity") in
+                [9-6]) notif ;;
+                [0-5]) loginctl hibernate ;;
+            esac
     done
 done
