@@ -109,7 +109,5 @@ check_deps() {
     done
 }
 
-# run the scrip in a new session
-[ "$1" != -w ] && exec setsid -w "$0" -w "$@"
-trap 'pkill -s0' EXIT HUP INT TERM
+trap 'pkill -P$$' EXIT HUP INT TERM
 main "$@"
