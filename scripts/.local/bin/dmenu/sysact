@@ -16,7 +16,7 @@ main() {
                 loginctl suspend-then-hibernate ||
                 loginctl suspend
         ;;
-        *hiber)
+        *hiber*)
             if can_hibernate; then
                 ask 'Hibernate?' && loginctl hibernate
             else
