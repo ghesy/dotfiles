@@ -1,8 +1,7 @@
 #!/bin/sh
-# this script which is called by sxiv,
-# shows info about the image in sxiv.
+# this script is called by sxiv to show info about the displayed image. requires exiv2.
 # $1: image, $2: image width, $3: image height
-fs=' ][ '
+fs=' | '
 exec 2>/dev/null
 geom="${2}x${3}"
 name=$(basename -- "$1")
@@ -10,4 +9,4 @@ size=$(du -Hh -- "$1" | cut -f1)
 make="$(exiv2 -Pv -gImage.Make -- "$1")"
 model="$(exiv2 -Pv -gImage.Model -- "$1")"
 date="$(exiv2 -Pv -gPhoto.DateTimeOriginal -- "$1" || exiv2 -Pv -gImage.DateTime -- "$1")"
-echo "[ ${size}${fs}${geom}${fs}${date}${date:+$fs}${make}${make:+$fs}${model}${model:+$fs}${name} ]"
+echo "${size}${fs}${geom}${fs}${date}${date:+$fs}${make}${make:+$fs}${model}${model:+$fs}${name}"
