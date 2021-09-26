@@ -23,6 +23,7 @@ source ~/.config/zsh/xdg
 
 # have sudo ask for a password via dmenu
 export SUDO_ASKPASS=~/.local/bin/dmenu/dmenu-askpass
+export SSH_ASKPASS=$SUDO_ASKPASS
 
 # other stuff
 export BAT_THEME=base16
