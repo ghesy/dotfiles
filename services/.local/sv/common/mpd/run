@@ -1,6 +1,3 @@
-#!/bin/bash
+#!/bin/sh
 mkdir -p ~/.local/share/mpd/data
-trap 'kill $(jobs -p)' EXIT HUP INT TERM
-mpd --no-daemon & pid=$!
-mpDris2 &
-wait $pid
+exec mpd --no-daemon
