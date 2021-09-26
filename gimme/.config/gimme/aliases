@@ -40,7 +40,7 @@ Music, ncmpcpp : tui ncmpcpp
 Bash Mount : tui bashmount
 
 Autolock : autolock
-No Autolock : xset s off off
+No Autolock : autolock -p
 
 KiCad, PCB : kicad
 Symphytum : symphytum

@@ -1,3 +1,11 @@
 #!/bin/sh
 # enable auto locking by setting inactivity and lock times of X.
-xset s 600
+# option -p: postpone autolocking for 4 hours.
+exec >/dev/null 2>&1
+pkill -g $(ps -o pgid= -p $(pgrep -f 'sh -c.*sleep.*xset s')) && pkill=success
+case $1 in
+    -p) xset s off off
+        t=$(printf '30m\n1h\n2h\n4h\n8h\n1d\n' | dmenu -p 'Postpone autolocking for:')
+        (sh -c 'sleep "$0"; xset s 600' "${t:-2h}" &) ;;
+    *) xset s 600 ;;
+esac
