@@ -7,7 +7,7 @@ user_pref("browser.cache.disk.parent_directory", "/run/user/1000/firefox");
 
 /* interval for saving session data to restore if firefox crashes.
  * default is 15000 milliseconds which is too short. */
-user_pref("browser.sessionstore.interval", 100000);
+user_pref("browser.sessionstore.interval", 120000);
 
 /* link opening behaviour */
 user_pref("browser.link.open_newwindow.override.external", 2);
@@ -205,7 +205,8 @@ user_pref("dom.disable_window_move_resize", true);
 user_pref("dom.push.enabled", false);
 
 /* disable clipboard commands (cut/copy) from "non-privileged" content */
-user_pref("dom.allow_cut_copy", false);
+/* this is set to "true" because it breaks "click to copy" buttons */
+user_pref("dom.allow_cut_copy", true);
 
 /* disable insecure asm.js */
 user_pref("javascript.options.asmjs", false);
