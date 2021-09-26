@@ -1,28 +1,31 @@
 #!/bin/sh
 # a dmenu interface to discover and mount ftp servers on the local network.
-# requires avahi, curlftpfs and dmenu.
+# requires avahi, curlftpfs, dmenu and moreutils.
 
 # mountpoints directory
 d=${XDG_RUNTIME_DIR:-/tmp}/dftp
 
-case $(printf 'Discover and Mount\nUnmount\n' | dmenu -p 'Do what?') in Unmount)
-    cd "$d" || exit 1
-    dir=$(
-        for dir in */; do
-            [ -d "$dir" ] && mountpoint -q "$dir" && echo "$dir"
-        done | ifne dmenu -p 'Unmount which one?'
-    )
-    [ -z "$dir" ] && exit 1
-    msg=$(fusermount -u ./"${dir:?}" 2>&1) && notify-send dftp Unmounted. || notify-send dftp "$msg"
-    exit ;;
-    Discover*) ;;
+case $(printf "Discover\nEnter Host\nUnmount\n" | dmenu -p 'dftp') in
+    Unmount)
+        cd "$d" || exit 1
+        dir=$(
+            for dir in */; do
+                [ -d "$dir" ] && mountpoint -q "$dir" && echo "$dir"
+            done | ifne dmenu -p 'Unmount which one?'
+        )
+        [ -z "$dir" ] && exit 1
+        msg=$(fusermount -u ./"${dir:?}" 2>&1) && notify-send dftp Unmounted. || notify-send dftp "$msg"
+        exit
+    ;;
+    Discover*)
+        # discover ftp servers using avahi-browse and choose one via dmenu
+        host=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 |
+            tr \; : | ifne -n notify-send dftp 'No local FTP servers found.' |
+            ifne dmenu -p 'Choose a server')
+    ;;
+    Enter*) host=$(dmenu -p 'Enter host[:port] >' <&-) ;;
     *) exit 1 ;;
 esac
-
-# get host, user and password via dmenu
-host=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 |
-    tr \; : | ifne -n notify-send dftp 'No local FTP servers found.' |
-    ifne dmenu -p 'Choose an FTP server')
 
 # if it's already mounted, open it
 mp=${d:?}/${host:?}
@@ -32,7 +35,7 @@ if mountpoint -q "$mp"; then
 fi
 
 # get user and password
-user=$(dmenu -p User: <&-) && [ -n "$user" ] && pass=$(dmenu -P -p Password: <&-)
+user=$(dmenu -p 'Enter user:password >' <&-)
 
 # mount
 mkdir -p "$mp" || exit 1
