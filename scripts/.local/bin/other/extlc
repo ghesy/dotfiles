@@ -1,5 +1,6 @@
 #!/bin/sh
 # recursively convert extentions of files in a directory to lowercase letters.
+# requires moreutils.
 
 dir="${1:-$PWD}"
 list="$(

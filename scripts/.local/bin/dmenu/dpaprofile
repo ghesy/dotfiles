@@ -1,5 +1,6 @@
 #!/bin/sh
 # change pulseaudio's sound card profiles via dmenu.
+# requires dmenu and moreutils.
 card=$(
     pacmd list-cards | grep -Po 'index: \K\d+|\.card_name = "\K.+' |
         tr '\n' ' ' | tr '"' '\n'| sed 's/^\s\+//g' |
