@@ -3,6 +3,10 @@ auto-reload yes
 browser "pipeurl %u"
 external-url-viewer "pipeurl"
 
+use-proxy yes
+proxy-type socks5
+proxy localhost:9050
+
 bind-key k up
 bind-key j down
 bind-key J next-feed articlelist
