@@ -2,7 +2,7 @@
 [ -n "$TMUX" ] || [[ $- != *i* ]] || ! which tmux >/dev/null && return
 
 # else, if we're on an ssh connection, start a vanilla tmux session
-[ -n "$SSH_CONNECTION" ] && exec tmux new -Asssh
+[ -n "$SSH_CONNECTION" ] && exec tmux -L ssh new -t "${SSH_CONNECTION%% *}"
 
 # else if we're on a tty, return
 [ -z "$DISPLAY" ] && return
