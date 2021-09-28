@@ -10,8 +10,8 @@ HOME=$(getent passwd ${SUDO_USER:?} | cut -d: -f6)
 
 # install the user.js file
 printf '%s\n' $HOME/.mozilla/firefox/*.*/ |
-    xargs -d'\n' -L1 install -DCvm644 -o $SUDO_USER -g $SUDO_USER user.js -t
+    xargs -d'\n' -L1 install -DCvm644 -o $SUDO_USER -g nogroup user.js -t
 
 # install pywalfox
 [ ! -e ${HOME:?}/.mozilla/native-messaging-hosts/pywalfox.json ] &&
-    chmod -v 755 $(runuser -u $SUDO_USER -g $SUDO_USER pywalfox install | grep -Eom1 '\S+main.sh')
+    chmod -v 755 $(runuser -u $SUDO_USER -g nogroup pywalfox install | grep -Eom1 '\S+main.sh')
