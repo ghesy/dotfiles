@@ -8,11 +8,11 @@ filters="fps=$fps,scale=320:-1:flags=lanczos"
 palette_gen="palettegen=stats_mode=diff"
 palette_use="paletteuse=diff_mode=rectangle:dither=floyd_steinberg"
 palette=$(mktemp XXXXXX.png) || exit 1
+trap 'rm -f "$palette"' EXIT
 
 # generate a palttete,
 # then use it to make the gif.
 [ -z "$video" ] && exit 1
-trap 'rm -f "$palette"' EXIT
 ffmpeg -v error -i "$video" -vf "$filters,$palette_gen" -y "$palette" &&
     ffmpeg -v error -i "$video" -i "$palette" \
     -lavfi "$filters [x]; [x][1:v] $palette_use" -y "${video%.*}.gif"
