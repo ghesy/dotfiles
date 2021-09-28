@@ -1,8 +1,1 @@
-https://theathletic.com/international-soccer/?rss Sports
-https://irandaily.ir/News/Feed?id=3 News
-https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published&notcategories=No%20publish%7CArchived%7cAutoArchived%7cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews"
-https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published%7CIran&notcategories=No%20publish%7Cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews Middle East"
-https://en.wikinews.org/w/index.php?title=Special:NewsFeed&feed=rss&categories=Published%7CMiddle_East&notcategories=No%20publish%7Cdisputed&namespace=0&count=15&ordermethod=categoryadd&stablepages=only News "~WikiNews Iran"
-https://lukesmith.xyz/rss.xml Luke "~Luke Smith's Blog"
-https://lukesmith.xyz/peertube Luke "~Luke Smith's PeerTube"
-https://news.ycombinator.com/rss Tech
+/media/syncthing/Other/ln/newsboat/urls
