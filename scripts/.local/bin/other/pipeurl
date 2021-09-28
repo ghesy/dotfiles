@@ -12,6 +12,14 @@ gdl() {
     gallery-dl -G "$@" || proxychains -q gallery-dl -G "$@"
 }
 
+stream() {
+    if timeout 10 curl -fsIL "$@" >/dev/null; then
+        mpv -quiet "$@"
+    else
+        proxychains -q mpv -quiet "$@"
+    fi
+}
+
 case "$url" in
     *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
         gdl "$url" | xargs -d'\n' dl ;;
@@ -19,7 +27,7 @@ case "$url" in
     *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtu.be*|*hooktube.com*|*bitchute.com*|*odysee.com*|*v.redd*|\
     *streamwo.com*|*streamable.com*)
-        mpv -quiet "$url" || proxychains -q mpv -quiet "$url" ;;
+        stream "$url" ;;
 
     *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
         dl "$url" ;;
@@ -40,7 +48,7 @@ case "$url" in
 
         case "$action" in
             Download) dl "$url" ;;
-            Stream) mpv -quiet "$url" || proxychains -q mpv -quiet "$url" ;;
+            Stream) stream "$url" ;;
             Copy) printf %s "$url" | xclip -r -selection clipboard ;;
             Open) xdg-open "$url" ;;
         esac
