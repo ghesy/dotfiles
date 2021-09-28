@@ -4,7 +4,7 @@ root() {
 }
 
 tui() {
-    exec $TERMINAL -e sh -c '$@' "$0" "$@"
+    exec $TERMINAL -e "$@"
 }
 
 tuiroot() {
