@@ -1,3 +1,3 @@
 #!/bin/sh
-aria2c --no-conf -k1M -x5 -m2 -o "${1:?}" "${2:?}" ||
-    proxychains -q aria2c --async-dns=false --no-conf -k1M -x5 -o "${1:?}" "${2:?}"
+aria2c --no-conf -k1M -x5 -m2 -UWget -o "${1:?}" "${2:?}" ||
+    proxychains -q aria2c --async-dns=false --no-conf -k1M -x5 -UWget -o "${1:?}" "${2:?}"
