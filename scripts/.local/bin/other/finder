@@ -45,7 +45,7 @@ findfn()
     find -L "$@" \
       -mindepth $d \
       -maxdepth $d \
-      -not -path '*vim/undo*' \
+      -not -path '*/*vim/undo*/*' \
       -not -path '*/Trash/*' \
       -not -path '*/\.git/*' \
       -not -name '.git' \
