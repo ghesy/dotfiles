@@ -16,6 +16,7 @@
     idle_threshold = 10
     show_age_threshold = 60
     follow = keyboard
+    dmenu = "/usr/local/bin/dmenu"
 
 [shortcuts]
     close = ctrl+space
