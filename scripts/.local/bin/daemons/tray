@@ -20,8 +20,10 @@ init() {
     is_running && die Already running.
     sh -c '
         sleep 0.3
-        xdotool search --name stalonetray > "$0"
-        xdotool set_window --overrideredirect 1 "$(cat "$0")"
+        w=$(xdotool search --name stalonetray)
+        echo "${w:?}" > "${0:?}"
+        xdotool set_window --overrideredirect 1 "$w" \
+            windowunmap "$w" sleep 0.1 windowmap "$w"
     ' "$winid" &
     exec stalonetray ${STALONETRAYRC:+--config "$STALONETRAYRC"}
 }
