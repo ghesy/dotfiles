@@ -22,7 +22,6 @@ init() {
         sleep 0.3
         xdotool search --name stalonetray > "$0"
         xdotool set_window --overrideredirect 1 "$(cat "$0")"
-        xdotool windowunmap "$(cat "$0")"
     ' "$winid" &
     exec stalonetray ${STALONETRAYRC:+--config "$STALONETRAYRC"}
 }
