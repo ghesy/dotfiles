@@ -1,10 +1,15 @@
--- Change youtube video quality on the fly.
--- source: https://github.com/jgreco/mpv-youtube-quality
---
+-- Change ytdl video quality on the fly.
 -- Diplays a menu that lets you switch to different ytdl-format settings while
 -- you're in the middle of a video (just like you were using the web player).
---
--- Bound to ctrl-f by default.
+-- Bound to ctrl+f by default.
+
+-- Source: https://github.com/jgreco/mpv-youtube-quality
+-- I improved this version based on some of the open pull requests on this plugin's github page:
+-- Improved to support extractors other than YouTube (ex. PeerTube),
+-- Automatically fetch formats on video start,
+-- Added ESC key for closing,
+-- Improved font scaling and visibility,
+-- Other minor improvements.
 
 local mp = require 'mp'
 local utils = require 'mp.utils'
@@ -14,6 +19,7 @@ local assdraw = require 'mp.assdraw'
 local opts = {
     --key bindings
     toggle_menu_binding = "ctrl+f",
+    close_menu_binding = "ESC",
     up_binding = "k",
     down_binding = "j",
     select_binding = "ENTER",
@@ -25,7 +31,7 @@ local opts = {
     unselected_and_inactive = "○ - ",
 
     --font size scales by window, if false requires larger font and padding sizes
-    scale_playlist_by_window=false,
+    scale_playlist_by_window=true,
 
     --playlist ass style overrides inside curly brackets, \keyvalue is one field, extra \ for escape in lua
     --example {\\fnUbuntu\\fs10\\b0\\bord1} equals: font=Ubuntu, size=10, bold=no, border=1
@@ -34,7 +40,7 @@ local opts = {
     --these styles will be used for the whole playlist. More specific styling will need to be hacked in
     --
     --(a monospaced font is recommended but not required)
-    style_ass_tags = "{\\fnmonospace}",
+    style_ass_tags = "{\\fnmonospace\\fs10}",
 
     --paddings for top left corner
     text_padding_x = 5,
@@ -61,7 +67,7 @@ local opts = {
     ]
     ]],
 }
-(require 'mp.options').read_options(opts, "youtube-quality")
+(require 'mp.options').read_options(opts, "ytdl-quality")
 opts.quality_strings = utils.parse_json(opts.quality_strings)
 
 local destroyer = nil
@@ -141,6 +147,7 @@ function show_menu()
         mp.remove_key_binding("move_down")
         mp.remove_key_binding("select")
         mp.remove_key_binding("escape")
+        mp.remove_key_binding("close")
         destroyer = nil
     end
     timeout = mp.add_periodic_timer(opts.menu_timeout, destroy)
@@ -154,6 +161,7 @@ function show_menu()
         reload_resume()
     end)
     mp.add_forced_key_binding(opts.toggle_menu_binding, "escape", destroy)
+    mp.add_forced_key_binding(opts.close_menu_binding, "close", destroy) --close menu using ESC
 
     draw_menu()
     return
@@ -189,7 +197,7 @@ function download_formats()
         local res = format_cache[url]
         return res, table_size(res)
     end
-    mp.osd_message("fetching available formats with youtube-dl...", 60)
+    -- mp.osd_message("Fetching formats...", 60)
 
     if not (ytdl.searched) then
         local ytdl_mcd = mp.find_config_file("youtube-dl")
@@ -200,20 +208,20 @@ function download_formats()
         ytdl.searched = true
     end
 
-    local command = {ytdl.path, "--no-warnings", "--no-playlist", "-J"}
+    local command = {ytdl.path, "--no-warnings", "--no-playlist", "-j"}
     table.insert(command, url)
     local es, json, result = exec(command)
 
     if (es < 0) or (json == nil) or (json == "") then
-        mp.osd_message("fetching formats failed...", 1)
-        msg.error("failed to get format list: " .. err)
+        -- mp.osd_message("Fetching formats failed...", 1)
+        msg.error("failed to get format list: " .. es)
         return {}, 0
     end
 
     local json, err = utils.parse_json(json)
 
-    if (json == nil) then
-        mp.osd_message("fetching formats failed...", 1)
+    if (json == nil) or (json.formats == nil) then
+        -- mp.osd_message("Fetching formats failed...", 1)
         msg.error("failed to parse JSON data: " .. err)
         return {}, 0
     end
@@ -221,18 +229,20 @@ function download_formats()
     res = {}
     msg.verbose("youtube-dl succeeded!")
     for i,v in ipairs(json.formats) do
-        if v.vcodec ~= "none" then
+        if v.vcodec ~= "none|null" then
             local fps = v.fps and v.fps.."fps" or ""
             local resolution = string.format("%sx%s", v.width, v.height)
             local l = string.format("%-9s %-5s (%-4s / %s)", resolution, fps, v.ext, v.vcodec)
-            local f = string.format("%s+bestaudio/best", v.format_id)
-            table.insert(res, {label=l, format=f, width=v.width })
+            local f = string.format("%s+bestaudio/%s/best", v.format_id, v.format_id)
+            table.insert(res, {label=l, format=f, width=v.width, height=v.height})
         end
     end
 
-    table.sort(res, function(a, b) return a.width > b.width end)
+    table.sort(res, function(a, b)
+        return ((a.width or 1) * (a.height or 1)) > ((b.width or 1) * (b.height or 1))
+    end)
 
-    mp.osd_message("", 0)
+    -- mp.osd_message("", 0)
     format_cache[url] = res
     return res, table_size(res)
 end
@@ -272,3 +282,5 @@ function reload_resume()
         mp.register_event("file-loaded", seeker)
     end
 end
+
+mp.register_event("start-file", download_formats)
