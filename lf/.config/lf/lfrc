@@ -96,9 +96,8 @@ map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
 
 # renaming
-map A rename # at the very end
-map I push A<c-a> # at the very beginning
-map C push A<c-u> # new rename
+map I push A<c-a>
+map i push A<a-b><a-b><a-f> # before extention
 
 map m
 map "'"
