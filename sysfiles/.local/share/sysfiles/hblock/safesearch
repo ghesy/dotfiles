@@ -1,4 +1,18 @@
-# Redirect all google domains to their safesearch ip address
+# Redirect search engine domains to their safesearch ip address
+
+# duckduckgo
+40.81.93.196   duckduckgo.com
+40.81.93.196   images.duckduckgo.com
+40.81.93.196   www.duckduckgo.com
+40.81.93.196   www.images.duckduckgo.com
+
+# bing
+204.79.197.220 bing.com
+204.79.197.220 images.bing.com
+204.79.197.220 www.bing.com
+204.79.197.220 www.images.bing.com
+
+# google
 216.239.38.120 google.com
 216.239.38.120 google.ad
 216.239.38.120 google.ae
