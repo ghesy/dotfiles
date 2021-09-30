@@ -176,7 +176,7 @@ local ytdl = {
 format_cache={}
 function download_formats()
     local function exec(args)
-        local ret = utils.subprocess({args = args})
+        local ret = utils.subprocess({capture_stderr = true, args = args})
         return ret.status, ret.stdout, ret
     end
 
@@ -214,7 +214,7 @@ function download_formats()
 
     if (es < 0) or (json == nil) or (json == "") then
         -- mp.osd_message("Fetching formats failed...", 1)
-        msg.error("failed to get format list: " .. es)
+        msg.verbose("failed to get format list: " .. es)
         return {}, 0
     end
 
@@ -222,7 +222,7 @@ function download_formats()
 
     if (json == nil) or (json.formats == nil) then
         -- mp.osd_message("Fetching formats failed...", 1)
-        msg.error("failed to parse JSON data: " .. err)
+        msg.warn("failed to parse JSON data: " .. err)
         return {}, 0
     end
 
