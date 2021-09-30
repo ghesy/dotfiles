@@ -7,7 +7,7 @@ unread() {
     ids="$(c 'FETCH 1:* (UID FLAGS)' | grep -v Seen | tac | cut -d' ' -f5)"
     count="$(printf "%s${ids:+\n}" "$ids" | wc -l)"
     [ "$count" -le 0 ] && { notify-send " $(basename "$1")" 'No Unread Mail.'; exit ;}
-    last_subject="$(c "UID FETCH $(echo "$ids" | head -n1) (ENVELOPE)" | cut -d\" -f4 | grep -v '?UTF-8')"
+    last_subject="$(c "UID FETCH $(echo "$ids" | head -n1) (ENVELOPE)" | cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | grep -v '?UTF-8')"
     notify-send " $(basename "$1")" "Unread Count: $count${last_subject:+
 Last Subject:
 $last_subject}"
