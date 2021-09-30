@@ -22,6 +22,10 @@ local opts = {
     close_menu_binding = "ESC",
     up_binding = "k",
     down_binding = "j",
+    pgup_binding = "ctrl+u",
+    pgdown_binding = "ctrl+d",
+    top_binding = "g",
+    bottom_binding = "G",
     select_binding = "ENTER",
 
     --formatting / cursors
@@ -116,6 +120,18 @@ function show_menu()
         timeout:resume()
         draw_menu()
     end
+    function selected_top()
+        selected = 1
+        timeout:kill()
+        timeout:resume()
+        draw_menu()
+    end
+    function selected_bottom()
+        selected = num_options
+        timeout:kill()
+        timeout:resume()
+        draw_menu()
+    end
     function choose_prefix(i)
         if     i == selected and i == active then return opts.selected_and_active
         elseif i == selected then return opts.selected_and_inactive end
@@ -144,7 +160,11 @@ function show_menu()
         timeout:kill()
         mp.set_osd_ass(0,0,"")
         mp.remove_key_binding("move_up")
+        mp.remove_key_binding("page_up")
         mp.remove_key_binding("move_down")
+        mp.remove_key_binding("page_down")
+        mp.remove_key_binding("move_top")
+        mp.remove_key_binding("move_bottom")
         mp.remove_key_binding("select")
         mp.remove_key_binding("escape")
         mp.remove_key_binding("close")
@@ -153,9 +173,13 @@ function show_menu()
     timeout = mp.add_periodic_timer(opts.menu_timeout, destroy)
     destroyer = destroy
 
-    mp.add_forced_key_binding(opts.up_binding,     "move_up",   function() selected_move(-1) end, {repeatable=true})
-    mp.add_forced_key_binding(opts.down_binding,   "move_down", function() selected_move(1)  end, {repeatable=true})
-    mp.add_forced_key_binding(opts.select_binding, "select",    function()
+    mp.add_forced_key_binding(opts.up_binding,     "move_up",     function() selected_move(-1) end, {repeatable=true})
+    mp.add_forced_key_binding(opts.pgup_binding,   "page_up",     function() selected_move(-5) end, {repeatable=true})
+    mp.add_forced_key_binding(opts.down_binding,   "move_down",   function() selected_move(1)  end, {repeatable=true})
+    mp.add_forced_key_binding(opts.pgdown_binding, "page_down",   function() selected_move(5)  end, {repeatable=true})
+    mp.add_forced_key_binding(opts.top_binding,    "move_top",    function() selected_top()    end, {repeatable=true})
+    mp.add_forced_key_binding(opts.bottom_binding, "move_bottom", function() selected_bottom() end, {repeatable=true})
+    mp.add_forced_key_binding(opts.select_binding, "select",      function()
         destroy()
         mp.set_property("ytdl-format", options[selected].format)
         reload_resume()
