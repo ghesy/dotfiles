@@ -1,6 +1,6 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
-# requires dmenu, mpv, gallery-dl, xurls, moreutils and tuir(optional).
+# requires dmenu, xurls, mpv(+youtube-dl), curl, moreutils, gallery-dl, and tuir(optional).
 
 [ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" || url="$(
     xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
