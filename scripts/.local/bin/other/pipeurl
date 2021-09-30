@@ -9,15 +9,16 @@
 [ -z "$url" ] && exit
 
 gdl() {
-    gallery-dl -G "$@" || proxychains -q gallery-dl -G "$@"
+    { gallery-dl -G -- "$@" || proxychains -q gallery-dl -G -- "$@" ;} 2>/dev/null
 }
 
 stream() {
-    if timeout 10 curl -fsIL "$@" >/dev/null; then
-        mpv -quiet "$@"
+    notify-send PipeURL 'Opening Video...'
+    if timeout 10 curl -fsIL -- "$@" >/dev/null; then
+        mpv -quiet -- "$@"
     else
-        proxychains -q mpv -quiet "$@"
-    fi
+        proxychains -q mpv -quiet -- "$@"
+    fi || notify-send PipeURL 'Failed to open the Video.'
 }
 
 case "$url" in
@@ -33,11 +34,16 @@ case "$url" in
         dl "$url" ;;
 
     *reddit.com*|*redd.it*)
-        setsid -f $TERMINAL -e tuir "$url" >/dev/null 2>&1 ;;
+        setsid -f $TERMINAL -e tuir -- "$url" >/dev/null 2>&1 ;;
 
     *)
         if urls="$(gdl "$url")"; then
             printf '%s\n' "$urls" | xargs -d'\n' dl
+            exit 0
+        fi
+
+        if curl -fsLr0-0 -- "$url" | grep -q 'content="PeerTube"'; then
+            stream "$url"
             exit 0
         fi
 
