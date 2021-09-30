@@ -25,10 +25,10 @@ local opts = {
     select_binding = "ENTER",
 
     --formatting / cursors
-    selected_and_active     = "▶ - ",
-    selected_and_inactive   = "● - ",
-    unselected_and_active   = "▷ - ",
-    unselected_and_inactive = "○ - ",
+    selected_and_active     = "▶ ",
+    selected_and_inactive   = "● ",
+    unselected_and_active   = "▷ ",
+    unselected_and_inactive = "○ ",
 
     --font size scales by window, if false requires larger font and padding sizes
     scale_playlist_by_window=true,
@@ -230,10 +230,16 @@ function download_formats()
     msg.verbose("youtube-dl succeeded!")
     for i,v in ipairs(json.formats) do
         if v.vcodec ~= "none|null" then
-            local fps = v.fps and v.fps.."fps" or ""
-            local resolution = string.format("%sx%s", v.width, v.height)
-            local l = string.format("%-9s %-5s (%-4s / %s)", resolution, fps, v.ext, v.vcodec)
-            local f = string.format("%s+bestaudio/%s/best", v.format_id, v.format_id)
+            local fps = v.fps and v.fps.."FPS" or ""
+            local width = v.width and v.width.."x" or ""
+            local height = v.height and v.height or ""
+            local vcodec = v.vcodec and "/"..v.vcodec or ""
+            local audiofmt = "bestaudio"
+            local maxpx = math.max(tonumber(v.width or "1"), tonumber(v.height or "1"))
+            if maxpx < 1000 then audiofmt = "bestaudio[abr<=80]" end
+            local resolution = string.format("%s%s", width, height)
+            local l = string.format("%-9s %-5s (%s%s)", resolution, fps, v.ext, vcodec)
+            local f = string.format("%s+%s/%s+bestaudio/%s/best", v.format_id, audiofmt, v.format_id, v.format_id)
             table.insert(res, {label=l, format=f, width=v.width, height=v.height})
         end
     end
