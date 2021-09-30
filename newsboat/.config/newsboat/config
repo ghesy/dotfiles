@@ -26,6 +26,8 @@ color listnormal_unread blue default bold
 color listfocus_unread white black bold
 color article white default
 color info red black
+highlight feedlist "---.*---" color2 default bold
+highlight feedlist ".*0/0.." default default invis
 highlight article "^(Feed|Link):.*$" color6 default bold
 highlight article "^(Title|Date|Author):.*$" color6 default bold
 highlight article "https?://[^ ]+" color10 default underline
