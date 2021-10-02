@@ -12,7 +12,7 @@ canal'
 wind() {
     windscribe "$@" | stdbuf -o0 tr -d '\b/|\\-' |
         stdbuf -o0 egrep -v 'symlink|changed' |
-        xargs -d'\n' -L1 notify-send -u low -h string:x-dunst-stack-tag:dvpn Windscribe
+        xargs -d'\n' -L1 notify-send -u low -h string:x-canonical-private-synchronous:dvpn Windscribe
 }
 
 case $(printf 'Connect\nDisconnect' | dmenu -p VPN) in
