@@ -28,11 +28,11 @@ local opts = {
     bottom_binding = "G",
     select_binding = "ENTER",
 
-    --formatting / cursors
-    selected_and_active     = "▶ ",
+    --formatting / cursors ○●▷▶
+    selected_and_active     = "● ",
     selected_and_inactive   = "● ",
-    unselected_and_active   = "▷ ",
-    unselected_and_inactive = "○ ",
+    unselected_and_active   = "○ ",
+    unselected_and_inactive = ". ",
 
     --font size scales by window, if false requires larger font and padding sizes
     scale_playlist_by_window=true,
@@ -63,11 +63,11 @@ local opts = {
     {"2160p" : "bestvideo[height<=?2160]+bestaudio/best"},
     {"1440p" : "bestvideo[height<=?1440]+bestaudio/best"},
     {"1080p" : "bestvideo[height<=?1080]+bestaudio/best"},
-    {"720p" : "bestvideo[height<=?720]+bestaudio/best"},
-    {"480p" : "bestvideo[height<=?480]+bestaudio/best"},
-    {"360p" : "bestvideo[height<=?360]+bestaudio/best"},
-    {"240p" : "bestvideo[height<=?240]+bestaudio/best"},
-    {"144p" : "bestvideo[height<=?144]+bestaudio/best"}
+    {"720p"  : "bestvideo[height<=?720]+bestaudio/best"},
+    {"480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?80]/best"},
+    {"360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?80]/best"},
+    {"240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?80]/best"},
+    {"144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?80]/best"}
     ]
     ]],
 }
