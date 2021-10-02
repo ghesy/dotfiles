@@ -17,14 +17,14 @@ set realname  = 'Real Name'
 set imap_user = username
 set my_pass   = "`pass account`"
 set from      = $imap_user@host.com
-set folder    = imaps://$imap_user@host.com@imap.host.com:993
-set smtp_url  = smtps://$imap_user@host.com@smtp.host.com:465
+set folder    = imaps://$imap_user@imap.host.com:993
+set smtp_url  = smtps://$imap_user@smtp.host.com:465
 set smtp_pass = $my_pass
 set imap_pass = $my_pass
 set spoolfile = +INBOX
-set postponed = +Draft # "+[Gmail]/Drafts"
-set record    = +Sent  # "+[Gmail]/Sent Mail"
-set trash     = +Trash # "+[Gmail]/Trash"
+set postponed = +Draft # For Gmail: "+[Gmail]/Drafts"
+set record    = +Sent  # For Gmail: "+[Gmail]/Sent Mail"
+set trash     = +Trash # For Gmail: "+[Gmail]/Trash"
 eof
 
 mkdir -p ~/.cache/neomutt $dir/mailbook 2>/dev/null
