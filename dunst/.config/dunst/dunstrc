@@ -40,12 +40,13 @@
     frame_color = "#ff0000"
     timeout = 16
 
-[ignore]
+# don't keep low-urgency notifications in history
+[ignore_low]
+    msg_urgency = low
+    history_ignore = yes
+
+[ignore_aria2]
     summary = "Aria2 Download Manager Integration"
     format = ""
-
-[history-ignore]
-    summary = "Playing:"
-    history_ignore = yes
 
 # vim:ft=conf
