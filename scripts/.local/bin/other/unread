@@ -20,7 +20,7 @@ unread()
     # from the neomutt account file
     eval "$(egrep '^set.*(imap_user|folder).*=' "${1:?}" | cut -d' ' -f2- |
         sed 's/\s\+=\s\+/=/g')"
-    pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)")
+    pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)") || return 1
 
     # use curl to get the mails from the imap server
     c() { curl -su "${imap_user:?}:${pass:?}" "${folder:?}/INBOX" -X "$1" ;}
