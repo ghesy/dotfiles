@@ -8,9 +8,8 @@ if [ "$1" = -c ]; then
     [ "$FLOCKER" != "$(realpath -- "$0")" ] &&
         exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
     shift
-    trap 'pkill -P$$' EXIT HUP INT TERM
     notify-send -u low PipeURL 'Listening to Clipboard...'
-    clip=$(timeout 1m sh -c '
+    clip=$(timeout 30s sh -c '
         while :; do
             echo PipeURL | xclip -selection clipboard || exit 1
             clipnotify || exit 1
