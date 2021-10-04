@@ -69,7 +69,7 @@ case "$url" in
         fi
 
         action="$(
-            printf 'Download\nStream\nCopy\nOpen' |
+            printf 'Open\nCopy\nDownload\nStream\n' |
                 dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
         )" || exit 0
 
