@@ -1,4 +1,5 @@
 #!/bin/bash
+# a file opener script for lf.
 IFS=$'\n'
 
 [ -z $id ] || [ -z $f ] && exit 1
@@ -7,38 +8,36 @@ case $1 in
     -a) f=$fx ;;
 esac
 
-send() {
-    for arg; do
-        set -- "$@" "$(printf '%s\n' "$1" | sed 's/"/\\"/g')"
-        shift
-    done
-    lf -remote "send $id \$$(printf '"%s" ' "$@")"
-}
+printf '\e[?1049h'
+printf '\e[H'
 
+ext=true
 case $(printf '%s\n' $f | tr A-Z a-z) in
-    *.pro) exec kicad $f ;;
-    *.kicad_pcb*) exec pcbnew $f ;;
-    *.sch|*.sch-bak) exec eeschema $f ;;
-    *.azw3|*.mobi|*.fb[23]) exec zathura -- $f ;;
-esac
+    *.pro) kicad $f ;;
+    *.kicad_pcb|*.kicad_pcb-bak) pcbnew $f ;;
+    *.sch|*.sch-bak) eeschema $f ;;
+    *.azw3|*.mobi|*.fb[23]) zathura -- $f ;;
+    *) ext=false ;;
+esac || read -p 'Press enter to continue'
+[ "$ext" = true ] && exit
 
 case $(file -b --mime-type --dereference -- $f) in
-    */vnd.djvu|*/pdf|*/epup*) exec zathura -- $f ;;
-    */x-xcf|*photoshop) exec gimp -- $f ;;
-    video/*) exec mpv -- $f ;;
-    audio/*) send mpvmusic -- $f ;;
+    */vnd.djvu|*/pdf|*/epup*) zathura -- $f ;;
+    */x-xcf|*photoshop) gimp -- $f ;;
+    video/*) mpv --really-quiet -- $f ;;
+    audio/*) mpvmusic -- $f ;;
     image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
-    */html) exec $BROWSER $f ;;
-    */troff) send man -- $f ;;
-    */x-sc) send sc-im -- $f ;;
-    text/*|*/json) send $EDITOR -- $f ;;
+    */html) $BROWSER $f ;;
+    */troff) man -- $f ;;
+    */x-sc) sc-im -- $f ;;
+    text/*|*/json) $EDITOR -- $f ;;
 
     */vnd.ms*|*/msword|*/vnd.openxml*|*opendoc*|*officedoc*)
-        exec libreoffice $f
+        libreoffice $f
     ;;
 
     */x-archive|*/x-compress|*/x-cpio|*/x-tar|*/x-bzip2|*/gzip|*/x-lz*|\
     */x-xz|*/zstd|*/x-7z*|*/x-ace*|*/x-rar*|*/x-gtar|*/zip)
-        send atool -lp -- $f
+        atool -lp -- $f
     ;;
-esac
+esac || read -p 'Press enter to continue'
