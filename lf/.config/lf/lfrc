@@ -15,8 +15,8 @@ set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
 set previewer ~/.config/lf/scope
 set cleaner sxipc
 
-cmd open &~/.config/lf/opener
-cmd openall &~/.config/lf/opener -a
+cmd open $~/.config/lf/opener
+cmd openall $~/.config/lf/opener -a
 
 cmd paste ${{
     printf '\e[?1049h'
@@ -28,13 +28,11 @@ cmd paste ${{
     case $mode in
         copy) advcp -ag --backup=numbered $srcs . ;;
         move) advmv  -g --backup=numbered $srcs . 2>/dev/null ;;
-    esac
-    e=$?
-    tput cnorm
-    [ $e -ne 0 ]  exit
+    esac || { read -p 'Press enter to continue'; exit ;}
     rm $list
     lf -remote 'send clear'
     lf -remote 'send load'
+    tput cnorm
 }}
 
 cmd delete ${{
@@ -43,7 +41,7 @@ cmd delete ${{
     echo 'Permanently Deleting Files:'; echo
     printf '  %s\n' $fx ""
     read -p 'Delete? [y/N] ' ans
-    case "$ans" in y|Y) rm -rf -- $fx ;; esac
+    case "$ans" in y|Y) rm -rfv -- $fx ;; esac || read -p 'Press enter to continue'
 }}
 
 cmd mkdir %{{
@@ -66,7 +64,7 @@ cmd q quit
 cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;<space>load<enter>
 cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;<space>&sxipc<enter>
 cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>load"
-cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -
+cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
 
 map ~ cd ~
@@ -81,11 +79,10 @@ map t preview-on
 map T preview-off
 map U &termopen
 map D trash
-map x !$f
+map X !$f
 map <c-n> mkdir
 map <c-f> finder
-map B bulkrename
-map b &wallpaper $f
+map W &wallpaper $f
 map V push $$EDITOR<space>
 map R &dragon-drag-and-drop -a -x $fx
 map S %echo " calculating... "; du -sh 2>/dev/null # get size of dir
@@ -96,8 +93,11 @@ map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
 
 # renaming
-map I push A<c-a>
-map i push A<a-b><a-b><a-f> # before extention
+map b bulkrename
+map A rename
+map I push :rename<enter><c-a>
+map i push :rename<enter><a-b><a-b><a-f> # before extention
+map C push :rename<enter><c-u> # new rename
 
 map m
 map "'"
