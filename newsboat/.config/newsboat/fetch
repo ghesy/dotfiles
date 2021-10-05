@@ -1,0 +1,12 @@
+#!/bin/sh
+# this is an "execurl" script for newsboat.
+# look up newsboat's man page for more info.
+f=$(mktemp -u) || exit 1
+trap 'rm -f "$f"' EXIT
+d() {
+    $p aria2c -d "$(dirname -- "$f")" -o "$(basename -- "$f")" \
+        --allow-overwrite=true --no-conf ${p:+--async-dns=false} \
+        -q -k1m -x10 -s10 -m2 -- "${1:?}" &&
+        cat -- "$f"
+}
+p='' d "$1" || p='proxychains -q' d "$1"
