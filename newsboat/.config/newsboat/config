@@ -1,10 +1,10 @@
 scrolloff 5
 show-title-bar no
 browser "pipeurl %u"
-external-url-viewer "pipeurl"
+external-url-viewer pipeurl
+download-timeout 300
 reload-threads 50
 auto-reload yes
-reload-time 10
 
 bind-key k up
 bind-key j down
