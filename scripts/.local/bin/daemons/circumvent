@@ -74,8 +74,10 @@ trap 'echo exiting...; pkill -P$$' HUP INT TERM
 "$dir/$bin" -config "$dir"/config 2>&1 | while IFS= read -r line; do
     case $line in
         *Tunnels*)
-            curl -s --socks5 localhost:9050 ping.archlinux.org >/dev/null &&
+            curl -s --socks5 localhost:9050 ping.archlinux.org >/dev/null && {
                 echo "$bin" connected.
+                notify-send Circumvent Connected.
+            }
         ;;
         *PortInUse*)
             die "one of the ports ($socks_port, $http_port) is in use, probably by Tor."
