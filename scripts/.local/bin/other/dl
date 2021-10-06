@@ -34,10 +34,10 @@ dlcmd()
     if command -v aria2c >/dev/null; then
         $proxy aria2c --quiet --no-conf ${proxy:+--async-dns=false} \
             --max-connection-per-server=8 --split=8 --min-split-size=1M \
-            --disable-ipv6=true --timeout=5${proxy:+0} --connect-timeout=5${proxy:+0} \
+            --disable-ipv6=true --timeout=10${proxy:+0} --connect-timeout=10${proxy:+0} \
             --max-tries=1 --dir="$cache" --out="$2" -- "$1"
     else
-        $proxy curl --silent --connect-timeout 5${proxy:+0} --max-time 300 \
+        $proxy curl --silent --connect-timeout 10${proxy:+0} --max-time 300 \
             ---xattr --output-dir "$cache" --output "$2" -- "$1"
     fi
 }
