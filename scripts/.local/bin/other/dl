@@ -6,50 +6,29 @@
 # config
 cache=~/.cache/dl
 
-main()
-{
-    mkcachedir
+main() {
+    mkdir -pm700 "$cache" || exit 1
     for url; do
         file="$(download "$url")" && xdg-open "$file" &
     done
     wait
 }
 
-download()
-{
+download() {
     [ -z "$1" ] && return 1
-    file="$(echo "$1" | sha256sum | cut -d' ' -f1)"
+    file="$(printf '%s\n' "$1" | sha256sum | cut -d' ' -f1)"
     if [ ! -r "$cache/$file" ]; then
-        proxy='' dlcmd "$1" "$file" || proxy='proxychains -q' dlcmd "$1" "$file" || return 1
+        p='' dlcmd "$1" "$file" ||
+            p='proxychains -q' dlcmd "$1" "$file" ||
+            return 1
     fi
     printf '%s\n' "$cache/$file"
 }
 
-dlcmd()
-{
-    [ -n "$proxy" ] &&
-        ! $proxy timeout 8 curl -s ping.archlinux.org >/dev/null 2>&1 &&
-        return 1
-
-    if command -v aria2c >/dev/null; then
-        $proxy aria2c --quiet --no-conf ${proxy:+--async-dns=false} \
-            --max-connection-per-server=8 --split=8 --min-split-size=1M \
-            --disable-ipv6=true --timeout=10${proxy:+0} --connect-timeout=10${proxy:+0} \
-            --max-tries=1 --dir="$cache" --out="$2" -- "$1"
-    else
-        $proxy curl --silent --connect-timeout 10${proxy:+0} --max-time 300 \
-            ---xattr --output-dir "$cache" --output "$2" -- "$1"
-    fi
-}
-
-mkcachedir()
-{
-    if [ ! -w "$cache" ]; then
-        mkdir -m700 "$cache" || {
-            echo Couldn\'t make directory "$cache". >&2
-            exit 1
-        }
-    fi
+dlcmd() {
+    $p aria2c --quiet --no-conf -x10 -s10 -k1M -m1 -t10${p:+0} \
+        --connect-timeout=10${p:+0} ${p:+--async-dns=false} \
+        -d"$cache" -o"$2" -- "$1"
 }
 
 main "$@"
