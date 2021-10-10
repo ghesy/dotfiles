@@ -4,7 +4,7 @@
 
 # config
 format='bestvideo[height<=480]+bestaudio[abr<=80]/bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best'
-aria2_args='-c -k1M -x16 -s16 --async-dns=false --summary-interval=2 --show-console-readout=false --console-log-level=warn'
+aria2_args='-c -k1M -x16 -s16 --async-dns=false'
 
 [ -z "$1" ] || [ -f "$1" ] && exit 1
 # make sure only one instance of this script runs at a time.
