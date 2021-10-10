@@ -20,7 +20,11 @@ url=${1#ytdl://*}
 echo Downloading to "$PWD"...
 
 ytdl() {
-    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-subs --embed-subs --compat-options no-keep-subs \
+    case $(basename $(readlink -f $(which youtube-dl))) in
+        yt-dlp) compat='--compat-options no-keep-subs' ;;
+        *) compat='' ;;
+    esac
+    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-sub --embed-subs $compat \
         --external-downloader aria2c --external-downloader-args "$aria2_args" -- "$@"
 }
 
