@@ -1,0 +1,47 @@
+#!/bin/sh
+# This script downloads the currently playing video.
+# requires aria2 and youtube-dl.
+
+# config
+format='bestvideo[height<=480]+bestaudio[abr<=80]/bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best'
+aria2_args='-c -k1M -x16 -s16 --async-dns=false --summary-interval=2 --show-console-readout=false --console-log-level=warn'
+
+[ -z "$1" ] && exit 1
+# make sure only one instance of this script runs at a time.
+r=$(realpath -- "$0")
+if [ "$FLOCKER" != "$r" ]; then
+    b=$(basename -- "$0")
+    pidof -qxo$$ "$b" && echo Waiting for other downloads to finish...
+    exec env FLOCKER="$r" flock -e "$0" "$0" "$@"
+fi
+
+cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
+url=${1#ytdl://*}
+echo Downloading to "$PWD"...
+
+ytdl() {
+    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-subs --embed-subs --compat-options no-keep-subs \
+        --external-downloader aria2c --external-downloader-args "$aria2_args" -- "$@"
+}
+
+dl() {
+    ytdl "$@" || aria2c $aria2_args -- "$@" ||
+        echo Download Failed. >&2
+}
+
+print_info() {
+    while IFS= read -r line; do case $line in '[#'*)
+        set -- $line
+        size=${2#*/}; size=${size%(*}
+        percent=${2#*(}; percent=${percent%%%*}
+        eta=${5#*:}; eta=${eta%]}
+        printf '\r%s    ' "$percent% of $size${eta:+, eta:$eta}"
+    esac; done
+    echo
+}
+
+dl "$@" | print_info
+echo Download Finished.
+echo Press Enter.
+read x
+exec $SHELL
