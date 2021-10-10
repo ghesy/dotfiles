@@ -6,7 +6,7 @@
 format='bestvideo[height<=480]+bestaudio[abr<=80]/bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best'
 aria2_args='-c -k1M -x16 -s16 --async-dns=false'
 
-[ -z "$1" ] || [ -f "$1" ] && exit 1
+[ -f "${1:?}" ] && exit 1
 # make sure only one instance of this script runs at a time.
 r=$(realpath -- "$0")
 if [ "$FLOCKER" != "$r" ]; then
@@ -24,8 +24,9 @@ ytdl() {
         yt-dlp) compat='--compat-options no-keep-subs' ;;
         *) compat='' ;;
     esac
-    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-sub --embed-subs $compat \
-        --external-downloader aria2c --external-downloader-args "$aria2_args" -- "$@"
+    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-sub \
+        --embed-subs $compat --external-downloader aria2c \
+        --external-downloader-args "$aria2_args" -- "$@"
 }
 
 ytdl "$@" || aria2c $aria2_args -- "$@" &&

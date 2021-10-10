@@ -1,7 +1,7 @@
 #!/bin/bash
 # This script shows the description and comments of an internet video.
 # requires youtube-dl and pipe-viewer.
-[ -z "$1" ] || [ -f "$1" ] && exit 1
+[ -f "${1:?}" ] && exit 1
 url=${1#ytdl://*}
 notify-send -u low mpv 'Fetching Description...'
 set -o pipefail
