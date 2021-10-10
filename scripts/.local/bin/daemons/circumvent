@@ -44,8 +44,8 @@ cd "$dir" || die "couldn't change directory to $dir."
 echo checking for updates...
 url="https://raw.githubusercontent.com/${repo:?}/master/${repofile:?}"
 apiurl="https://api.github.com/repos/$repo/commits?path=$(echo "$repofile" | sed 's/\//%2F/g')&page=1&per_page=1"
-lastcommit=$(date -d "$(curl -s "$apiurl" | jq -r '.[0].commit.committer.date')" +%s)
-[ ! -x "${bin:?}" ] || [ "$lastcommit" -gt "$(date +%s)" ] && {
+lastcommit=$(date +%s -d "$(curl -fsL "$apiurl" | jq -r '.[0].commit.committer.date')")
+[ ! -x "${bin:?}" ] || [ "$lastcommit" -gt "$(date +%s -r "$bin")" ] && {
     rm -f "$bin"
     echo updating...
     aria2c --no-conf -k1M -x5 -o"$bin" "$url" || die 'failed to download psiphon.'
