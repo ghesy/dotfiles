@@ -3,33 +3,35 @@
 # requires aria2 and youtube-dl.
 
 # config
-format='bestvideo[height<=480]+bestaudio[abr<=80]/bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best'
 aria2_args='-c -k1M -x16 -s16 --async-dns=false'
 
+# if the given argument is a file (therefore not a link), exit
 [ -f "${1:?}" ] && exit 1
-# make sure only one instance of this script runs at a time.
-r=$(realpath -- "$0")
-if [ "$FLOCKER" != "$r" ]; then
-    b=$(basename -- "$0")
-    pidof -qxo$$ "$b" && echo Waiting for other downloads to finish...
-    exec env FLOCKER="$r" flock -e "$0" "$0" "$@"
-fi
 
+# go to download destination
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
-url=${1#ytdl://*}
-echo Downloading to "$PWD"...
+
+# ask the desired quality via dmenu
+quality=$(printf '480p\n720p\n1080p\n360p\n' | dmenu -p Choose\ Quality ${WINDOWID:+-w $WINDOWID}) || exit 1
+quality=${quality%p}
+quality="bestvideo[height=${quality:?}]+bestaudio/best[height=$quality]/bestvideo[height<=$((quality*2))]+bestaudio/best[height<=$((quality*2))]/bestvideo+bestaudio/best"
 
 ytdl() {
-    case $(basename $(readlink -f $(which youtube-dl))) in
-        yt-dlp) compat='--compat-options no-keep-subs' ;;
-        *) compat='' ;;
-    esac
-    youtube-dl -f "$format" --sub-lang=en --write-sub --write-auto-sub \
-        --embed-subs $compat --external-downloader aria2c \
-        --external-downloader-args "$aria2_args" -- "$@"
+    ytdlp_args='-N 8 --compat-options no-keep-subs'
+    ytdl=youtube-dl
+    if command -v yt-dlp >/dev/null; then
+        ytdl=yt-dlp
+    elif [ ! -L $(command -v youtube-dl) ]; then
+        ytdlp_args=''
+    fi
+    $ytdl -f "$quality" --sub-lang=en --write-sub --write-auto-sub \
+        --embed-subs --external-downloader aria2c \
+        --external-downloader-args "$aria2_args" $ytdlp_args -- "$@"
 }
 
-ytdl "$@" || aria2c $aria2_args -- "$@" &&
+echo Downloading to "$PWD"...
+url=${1#ytdl://*}
+ytdl "$url" || aria2c $aria2_args -- "$url" &&
     echo Download Finished. ||
     echo Download Failed.
 echo Press Enter.
