@@ -42,6 +42,7 @@ tmp=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}
 sxivpidfile=$tmp/sxip.sxiv.$ID.$rand
 pidfile=$tmp/sxip.pid.$ID.$rand
 ( (
+    trap '' HUP
     sxiv -ab -e "${WINDOWID:?}" -g "${sw}x${sh}+${sx}+${sy}" "$img" &
     echo $! > "$sxivpidfile"
     sxivpid=$!
