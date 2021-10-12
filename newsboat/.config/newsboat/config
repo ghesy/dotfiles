@@ -2,7 +2,7 @@ scrolloff 5
 show-title-bar no
 browser pipeurl
 external-url-viewer pipeurl
-download-timeout 300
+download-timeout 100
 reload-threads 50
 auto-reload yes
 
