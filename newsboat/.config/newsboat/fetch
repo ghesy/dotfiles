@@ -1,4 +1,5 @@
 #!/bin/sh
 # this is an "execurl" script for newsboat.
 # look up newsboat's man page for more info.
-curl -fsL --connect-timeout 20 -- "${1:?}" || proxychains -q curl -fsL -- "${1:?}"
+p=$(getproxy "${1:?}")
+$p curl -fsL --connect-timeout 30 -- "${1:?}"

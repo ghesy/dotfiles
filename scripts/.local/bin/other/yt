@@ -1,15 +1,9 @@
 #!/bin/sh
-f=$(mktemp)
-trap 'rm "$f"' EXIT
-(timeout 8 curl -fsLI https://www.youtube.com && [ -f "$f" ] && echo>"$f") &
 [ -z "$*" ] && case $(printf 'Search\nWatch History\nSearch History\n' | dmenu -p ytfzf) in
     Search) s=$(dmenu -p 'Search YouTube:' <&-) || exit 1 ;;
     'Watch History') set -- -H ;;
     'Search History') set -- -q ;;
     *) exit 1 ;;
 esac
-wait
-p='proxychains -q'
-[ -s "${f:?}" ] && unset p
-rm -f "$f"
-exec $TERMINAL -e $p ytfzf -tl "$@" ${s:+"$s"}
+p=$(getproxy)
+exec $TERMINAL -e $(getproxy https://www.youtube.com) ytfzf -tl "$@" ${s:+"$s"}

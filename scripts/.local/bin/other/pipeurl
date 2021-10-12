@@ -14,33 +14,26 @@ cache=~/.cache/gallery-dl
 
 stream() {
     notify-send -u low PipeURL 'Opening Video...'
-    if timeout 10 curl -fsIL -- "$@" >/dev/null; then
-        mpv -quiet -- "$@"
-    else
-        proxychains -q mpv -quiet -- "$@"
-    fi || notify-send PipeURL 'Failed to open the Video.'
+    $p mpv -quiet -- "$@" ||
+        notify-send PipeURL 'Failed to open the Video.'
 }
 
 gdl() {
-    imgs=$(gallery-dl -d "$cache" -- "$@" 2>/dev/null) ||
-        imgs=$(proxychains -q gallery-dl -d "$cache" -- "$@" 2>/dev/null) ||
-        return 1
+    imgs=$($p gallery-dl -d "$cache" -- "$@" 2>/dev/null) || return 1
     printf '%s\n' "$imgs" | sed 's/^# //' |
-        xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -- "$@"' ''
-}
-
-a2() {
-    $p aria2c -q -x10 -s10 -k1M -m1 --no-conf ${p:+--async-dns=false} \
-        -d"$cache" -o"$2" -- "$1"
+        xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -quiet -- "$@"' ''
 }
 
 dl() {
     file=$(printf '%s\n' "$1" | md5sum | cut -d' ' -f1)
     if [ ! -r "$cache/$file" ]; then
-        p='' a2 "$1" "$file" || p='proxychains -q' a2 "$1" "$file" || return 1
+        $p aria2c -q -x10 -s10 -k1M -m1 --no-conf ${p:+--async-dns=false} \
+            -d"$cache" -o"$file" -- "$1" || return 1
     fi
     xdg-open "$cache/$file"
 }
+
+p=$(getproxy "$url")
 
 case "$url" in
     *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
@@ -48,26 +41,34 @@ case "$url" in
 
     *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|\
     *youtube.com/embed/*|*youtu.be*|*hooktube.com*|*bitchute.com*|\
-    *odysee.com*|*v.redd*|*streamwo.com*|*streamable.com*)
+    *odysee.com*|*v.redd*|*streamwo.com*|*streamable.com*|\
+    *mp3|*mp3?source*|*flac|*opus)
         stream "$url" ;;
 
-    *pdf|*cbz|*cbr|*mp3|*flac|*opus|*mp3?source*)
+    *pdf|*cbz|*cbr)
         dl "$url" ;;
 
     *reddit.com*|*redd.it*)
         setsid -f $TERMINAL -e tuir -- "$url" >/dev/null 2>&1 ;;
 
     *)
-        gdl "$url" && exit 0
+        gdl "$url" && exit
 
-        if curl -fsLr0-0 -- "$url" | grep -q 'content="PeerTube"'; then
+        if $p timeout 8 curl -fsLr0-0 -- "$url" | head | grep -q 'content="PeerTube"'; then
             stream "$url"
-            exit 0
+            exit
         fi
+
+        mime=$($p timeout 8 curl -fsLIw'%{content_type}\n' "$url" | tail -n1)
+        case $mime in
+            image/*|*/pdf|*/vnd.djvu|*/epub*) dl "$url" && exit ;;
+            video/*|audio/*) stream "$url" && exit ;;
+            */html*) $BROWSER "$url" && exit ;;
+        esac
 
         action="$(
             printf 'Open\nCopy\nDownload\nStream\n' |
-                dmenu  -p 'Do What?' ${WINDOWID:+-w $WINDOWID}
+                dmenu  -p "Do What?${mime:+ (Type: $mime)}" ${WINDOWID:+-w $WINDOWID}
         )" || exit 0
 
         case "$action" in
