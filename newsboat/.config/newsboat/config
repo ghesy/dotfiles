@@ -1,6 +1,6 @@
 scrolloff 5
 show-title-bar no
-browser "pipeurl %u"
+browser pipeurl
 external-url-viewer pipeurl
 download-timeout 300
 reload-threads 50

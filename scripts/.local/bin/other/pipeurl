@@ -7,30 +7,10 @@
 # config
 cache=~/.cache/gallery-dl
 
-if [ "$1" = -c ]; then
-    [ "$FLOCKER" != "$(realpath -- "$0")" ] &&
-        exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
-    shift
-    notify-send -u low PipeURL 'Listening to Clipboard...'
-    clip=$(timeout 30s sh -c '
-        while :; do
-            echo PipeURL | xclip -selection clipboard || exit 1
-            clipnotify || exit 1
-            clip=$(xclip -o -selection clipboard)
-            [ "$clip" = PipeURL ] && continue
-            printf '%s\n' "$clip"
-            break
-        done
-    ') || exit 1
-    set -- "${clip:?}"
-fi
-
 [ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" || url="$(
     xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
 )"
-
 [ -z "$url" ] && exit
-[ -n "$clip" ] && notify-send PipeURL 'Got it.'
 
 stream() {
     notify-send -u low PipeURL 'Opening Video...'
