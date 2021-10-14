@@ -1,7 +1,7 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
-# requires dmenu, xurls, clipnotify, xclip, libnotify, mpv(+youtube-dl),
-# moreutils, gallery-dl, tuir(optional) and my urlype script.
+# requires my "urltype" script,  dmenu, xurls, libnotify,
+# mpv(+youtube-dl), moreutils, gallery-dl, and tuir(optional).
 
 # config
 cache=~/.cache/gallery-dl

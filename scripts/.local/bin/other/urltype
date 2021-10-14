@@ -1,5 +1,6 @@
 #!/bin/sh
 # get a url and determine how it should be opened.
+# requires rkill(pslist), gallery-dl and curl.
 
 p=$(getproxy "${1:?}")
 
