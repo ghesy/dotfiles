@@ -2,6 +2,13 @@
 # get a url and determine how it should be opened.
 # requires rkill(pslist), gallery-dl and curl.
 
+trap 'printf stream; rkill $$' USR1
+trap 'printf document; rkill $$' USR2
+trap 'printf gallery; rkill $$' TRAP
+trap exit INT TERM
+trap 'echo " $p"' EXIT
+exec 2>/dev/null
+
 p=$(getproxy "${1:?}")
 
 case ${1:?} in
@@ -21,13 +28,6 @@ case ${1:?} in
         printf reddit; exit
     ;;
 esac
-
-trap 'printf stream; rkill $$' USR1
-trap 'printf document; rkill $$' USR2
-trap 'printf gallery; rkill $$' TRAP
-trap exit INT TERM
-trap 'echo " $p"' EXIT
-exec 2>/dev/null
 
 # detect images and galleries
 ($p gallery-dl -j -- "${1:?}" >/dev/null 2>&1 && kill -TRAP $$) &
