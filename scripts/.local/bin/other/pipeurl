@@ -1,8 +1,7 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
-# option -c: take the next thing that is copied to clipboad as a url and open it
-# requires dmenu, xurls, clipnotify, xclip, libnotify,
-# mpv(+youtube-dl), curl, moreutils, gallery-dl, and tuir(optional).
+# requires dmenu, xurls, clipnotify, xclip, libnotify, mpv(+youtube-dl),
+# moreutils, gallery-dl, tuir(optional) and my urlype script.
 
 # config
 cache=~/.cache/gallery-dl
@@ -33,49 +32,14 @@ dl() {
     xdg-open "$cache/$file"
 }
 
-p=$(getproxy "$url")
+t=$(urltype "$url")
+p=${t#* }
+t=${t%% *}
 
-case "$url" in
-    *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
-        gdl "$url" ;;
-
-    *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|\
-    *youtube.com/embed/*|*youtu.be*|*hooktube.com*|*bitchute.com*|\
-    *odysee.com*|*v.redd*|*streamwo.com*|*streamable.com*|\
-    *mp3|*mp3?source*|*flac|*opus)
-        stream "$url" ;;
-
-    *pdf|*cbz|*cbr)
-        dl "$url" ;;
-
-    *reddit.com*|*redd.it*)
-        setsid -f $TERMINAL -e tuir -- "$url" >/dev/null 2>&1 ;;
-
-    *)
-        gdl "$url" && exit
-
-        if $p timeout 8 curl -fsLr0-0 -- "$url" | head | grep -q 'content="PeerTube"'; then
-            stream "$url"
-            exit
-        fi
-
-        mime=$($p timeout 8 curl -fsLIw'%{content_type}\n' "$url" | tail -n1)
-        case $mime in
-            image/*|*/pdf|*/vnd.djvu|*/epub*) dl "$url" && exit ;;
-            video/*|audio/*) stream "$url" && exit ;;
-            */html*) $BROWSER "$url" && exit ;;
-        esac
-
-        action="$(
-            printf 'Open\nCopy\nDownload\nStream\n' |
-                dmenu  -p "Do What?${mime:+ (Type: $mime)}" ${WINDOWID:+-w $WINDOWID}
-        )" || exit 0
-
-        case "$action" in
-            Download) dl "$url" ;;
-            Stream) stream "$url" ;;
-            Copy) printf %s "$url" | xclip -r -selection clipboard ;;
-            Open) xdg-open "$url" ;;
-        esac
-    ;;
+case $t in
+    gallery) gdl "$url" ;;
+    document) dl "$url" ;;
+    stream) stream "$url" ;;
+    reddit) setsid -f $TERMINAL -e tuir -- "$url" >/dev/null 2>&1 ;;
+    *) $BROWSER "$url" ;;
 esac

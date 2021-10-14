@@ -1,0 +1,48 @@
+#!/bin/sh
+# get a url and determine how it should be opened.
+
+p=$(getproxy "${1:?}")
+
+case ${1:?} in
+    *reddit.com/gallery*|*i.redd.it*|*imgur.com*)
+        printf gallery; exit
+    ;;
+    *.mp4|*.webm|*.mkv|*.mp3|*.flac|*.opus|*youtube.com/watch*|\
+    *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be*|*hooktube.com*|\
+    *bitchute.com*|*odysee.com*|*v.redd*|*streamwo.com*|*streamable.com*|\
+    *streamja.com*)
+        printf stream; exit
+    ;;
+    *.pdf|*.cbz|*.cbr)
+        printf document; exit
+    ;;
+    *reddit.com*|*redd.ir*)
+        printf reddit; exit
+    ;;
+esac
+
+trap 'printf stream; rkill $$' USR1
+trap 'printf document; rkill $$' USR2
+trap 'printf gallery; rkill $$' TRAP
+trap exit INT TERM
+trap 'echo " $p"' EXIT
+exec 2>/dev/null
+
+# detect images and galleries
+($p gallery-dl -j -- "${1:?}" >/dev/null 2>&1 && kill -TRAP $$) &
+
+# detect peertube instances
+(
+    $p timeout 10 curl -fsLr0-0 -- "${1:?}" | head -c1000 |
+        grep -q 'content="PeerTube"' && kill -USR1 $$
+) &
+
+# detect media type
+(
+    case $($p timeout 10 curl -fsLIw'\n%{content_type}\n' -- "${1:?}" | tail -n1) in
+        image/*|*/pdf|*/vnd.djvu|*/epub*) kill -USR2 $$ ;;
+        video/*|audio/*) kill -USR1 $$ ;;
+    esac
+) &
+
+wait
