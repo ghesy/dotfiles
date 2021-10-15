@@ -3,12 +3,9 @@
 
 [ -f "${1:?}" ] && exit 1
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
+res=$(printf '480\n720\n1080\n360\n' | dmenu -p Resolution: ${WINDOWID:+-w $WINDOWID}) || exit 1
 
-quality=$(printf '480p\n720p\n1080p\n360p\n' | dmenu -p Choose\ Quality ${WINDOWID:+-w $WINDOWID}) || exit 1
-quality=${quality%p}
-quality="bestvideo[height=${quality:?}]+bestaudio/best[height=$quality]/bestvideo[height<=$((quality*2))]+bestaudio/best[height<=$((quality*2))]/bestvideo+bestaudio/best"
-
-yt-dlp -f "$quality" -N 8 --add-metadata --sub-lang=en \
+yt-dlp -S "res:$res,abr~$((res/5))" -N 8 --add-metadata --sub-lang=en \
     --write-sub --write-auto-sub --embed-subs \
     --compat-options no-keep-subs -- "${1#ytdl://*}"
 
