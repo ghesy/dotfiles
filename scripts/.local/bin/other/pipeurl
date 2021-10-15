@@ -40,6 +40,6 @@ case $t in
     gallery) gdl "$url" ;;
     document) dl "$url" ;;
     stream) stream "$url" ;;
-    reddit) setsid -f $TERMINAL -e tuir -- "$url" >/dev/null 2>&1 ;;
+    reddit) tuir -- "$url" ;;
     *) $BROWSER "$url" ;;
 esac
