@@ -1,10 +1,13 @@
 #!/bin/bash
 # test a URL; if it's blocked, print 'proxychains -q'.
 # requires rkill(pslist).
+case ${1:?} in
+    *odysee.com/*|*.lbryplayer.xyz/*) exit ;;
+esac
 trap 'rkill $$' USR1
 trap 'echo proxychains -q; rkill $$' USR2
 trap exit INT TERM
 exec 2>/dev/null
-(timeout 8                 curl -fsIL -- "${1:?}" >/dev/null && kill -USR1 $$) &
-(timeout 16 proxychains -q curl -fsIL -- "${1:?}" >/dev/null && kill -USR2 $$) &
+(         timeout 8                 curl -sLI -- "${1:?}" >/dev/null && kill -USR1 $$) &
+(sleep 1; timeout 16 proxychains -q curl -sLI -- "${1:?}" >/dev/null && kill -USR2 $$) &
 wait
