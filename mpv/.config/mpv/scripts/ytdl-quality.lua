@@ -64,10 +64,10 @@ local opts = {
     {"1440p" : "bestvideo[height<=?1440]+bestaudio/best"},
     {"1080p" : "bestvideo[height<=?1080]+bestaudio/best"},
     {"720p"  : "bestvideo[height<=?720]+bestaudio/best"},
-    {"480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?80]/best"},
-    {"360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?80]/best"},
-    {"240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?80]/best"},
-    {"144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?80]/best"}
+    {"480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?70]/best"},
+    {"360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?70]/best"},
+    {"240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?70]/best"},
+    {"144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?70]/best"}
     ]
     ]],
 }
@@ -260,7 +260,7 @@ function download_formats()
             local vcodec = v.vcodec and "/"..v.vcodec or ""
             local audiofmt = "bestaudio"
             local maxpx = math.max(tonumber(v.width or "1"), tonumber(v.height or "1"))
-            if maxpx < 1000 then audiofmt = "bestaudio[abr<=80]" end
+            if maxpx < 1000 then audiofmt = "bestaudio[abr<=70]" end
             local resolution = string.format("%s%s", width, height)
             local l = string.format("%-9s %-5s (%s%s)", resolution, fps, v.ext, vcodec)
             local f = string.format("%s+%s/%s+bestaudio/%s/best", v.format_id, audiofmt, v.format_id, v.format_id)
