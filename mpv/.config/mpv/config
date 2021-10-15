@@ -1,5 +1,4 @@
-ytdl-format=bestvideo[height<=480]+bestaudio[abr<=80]/bestvideo[height<=480]+bestaudio/best[height<=480]/bestvideo+bestaudio/best
-ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=
+ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=,format-sort=res:480
 alang=jpn,eng,en,per,fa
 slang=eng,en,per,fa
 no-sub-visibility
