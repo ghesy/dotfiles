@@ -5,8 +5,8 @@
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
 res=$(printf '480\n720\n1080\n360\n' | dmenu -p Resolution: ${WINDOWID:+-w $WINDOWID}) || exit 1
 
-yt-dlp -S "res:$res,abr~$((res/5))" -N 8 --add-metadata --sub-lang=en \
-    --write-sub --write-auto-sub --embed-subs \
+yt-dlp -S "+res:$res,abr~$((res/5))" -N 8 --add-metadata \
+    --sub-lang=en --write-sub --write-auto-sub --embed-subs \
     --compat-options no-keep-subs -- "${1#ytdl://*}"
 
 case $? in
