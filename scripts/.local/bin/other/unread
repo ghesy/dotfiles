@@ -23,7 +23,7 @@ unread()
     pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)") || return 1
 
     # use curl to get the mails from the imap server
-    c() { curl -su "${imap_user:?}:${pass:?}" "${folder:?}/INBOX" -X "$1" ;}
+    c() { curl -fsLu"${imap_user:?}:${pass:?}" "${folder:?}/INBOX" -X "$1" ;}
     ids=$(c 'FETCH 1:* (UID FLAGS)' | grep -v Seen | tac | cut -d' ' -f5)
     count=$(printf "%s${ids:+\n}" "$ids" | wc -l)
     [ "$count" -gt 0 ] &&
