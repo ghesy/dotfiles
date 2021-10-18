@@ -11,10 +11,10 @@ $(getproxy "${1:?}") yt-dlp -S "+res:$res,abr~$((res/5))" -N 8 --add-metadata \
     aria2c:'-c -k1M -x8 -s8 --async-dns=false' -- "${@#ytdl://*}"
 
 case $? in
-    0) echo Download finished.
+    0) figlet Download finished.
         read x
         exec $SHELL ;;
-    *) echo Download failed.
+    *) figlet Download failed.
         read x
         exit ;;
 esac
