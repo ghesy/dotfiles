@@ -1,10 +1,12 @@
 scrolloff 5
 show-title-bar no
-browser pipeurl
-external-url-viewer pipeurl
 download-timeout 100
 reload-threads 50
 auto-reload yes
+
+browser pipeurl
+external-url-viewer pipeurl
+macro d set browser "setsid -f $TERMINAL -e ytdl" ; open-in-browser ; set browser pipeurl
 
 bind-key k up
 bind-key j down
