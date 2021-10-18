@@ -22,7 +22,7 @@ http_port=8082
 
 # wait until we have internet
 echo waiting for internet connectivity...
-while true; do
+while :; do
     case $(nmcli -g general.ip4-connectivity dev show) in *full*) break ;; esac
     sleep 30
 done

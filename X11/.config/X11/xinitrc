@@ -38,6 +38,6 @@ sleep 0.2; loginctl lock-session; sleep 0.2
 ~/.fehbg &
 
 # loop to launch dwm and relaunch if killed
-while true; do
+while :; do
     dwm
 done

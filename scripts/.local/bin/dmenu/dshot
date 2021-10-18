@@ -10,7 +10,7 @@ dir=/media/screenshots
 mode=Save # initial mode (possible values: Save, Clipboard)
 delay=0.2
 
-while true; do
+while :; do
     fn="$(
         printf '%s\n' \
             "Mode = $mode" Fullscreen 'Select Area' 'Current Window' |

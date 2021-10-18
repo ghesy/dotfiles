@@ -13,7 +13,7 @@ main()
     # make fzf fullscreen if -f is supplied
     [ "$1" = -f ] && shift && height='--height=100%'
 
-    while true; do
+    while :; do
         out="$(dfind "${@:-.}" | fzffn)"
         query="$(printf '%s\n' "$out" | head -n1)" # the searched string
         file="$(printf '%s\n' "$out" | tail -n1)"  # the selected file in fzf

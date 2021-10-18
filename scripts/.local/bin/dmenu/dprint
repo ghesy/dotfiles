@@ -4,7 +4,7 @@
 
 pidof -q cupsd || notify-send dprint "cups isn't running."
 
-while true; do
+while :; do
     printer="$({ echo Configure; lpstat -e ;} | dmenu -p 'Choose Printer:' ${WINDOWID:+-w $WINDOWID})" || exit 1
     case "$printer" in
         Configure) system-config-printer >/dev/null 2>&1 ;;
@@ -12,7 +12,7 @@ while true; do
     esac
 done
 
-while true; do
+while :; do
     choice="$(printf '%s\n' ${1:+Print} Jobs Back | dmenu -p Action: ${WINDOWID:+-w $WINDOWID})" || exit 1
     case "$choice" in
         Back) exec "$0" "$@" ;;
