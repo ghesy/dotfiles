@@ -10,7 +10,7 @@ export EDITOR=nvim
 export VISUAL=nvim
 export BROWSER=firefox
 export OPENER=opener
-export TFM=lfrun
+export TFM=lf
 
 # xdg dirs
 export XDG_STATE_HOME=~/.local/state
