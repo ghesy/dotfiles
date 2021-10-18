@@ -7,7 +7,9 @@ res=$(printf '480\n720\n1080\n360\n' | dmenu -p Resolution: ${WINDOWID:+-w $WIND
 
 yt-dlp -S "+res:$res,abr~$((res/5))" -N 8 --add-metadata \
     --sub-lang=en --write-sub --write-auto-sub --embed-subs \
-    --compat-options no-keep-subs -- "${1#ytdl://*}"
+    --compat-options no-keep-subs --downloader aria2c \
+    --downloader-args aria2c:'-c -k1M -x8 -s8 --async-dns=false' \
+    -- "${1#ytdl://*}"
 
 case $? in
     0) echo Download finished.
