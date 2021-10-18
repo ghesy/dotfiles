@@ -1,8 +1,9 @@
 #!/bin/sh
 uid() { stat -Lc '%n%i%F%s%W%Y' -- "$1" | sha256sum | cut -d' ' -f1 ;}
+info() { mediainfo "$1" | sed -E 's/^((\S+ )+) +:/\1=/' ;}
 case $(file -bL --mime-type -- "$1") in
-    text/*|*/xml) cat "$1" ;;
-    audio/*) mediainfo "$1" ;;
+    text/*|*/xml|*/json) cat "$1" ;;
+    audio/*) info "$1" ;;
     */x-7z*|*/x-rar|*/zip|*/zstd|*/x-xz|*/gzip) atool -l "$1" ;;
     image/*)
         if [ -z "$DISPLAY" ]; then
@@ -14,7 +15,7 @@ case $(file -bL --mime-type -- "$1") in
     ;;
     video/*)
         if [ -z "$DISPLAY" ]; then
-            mediainfo "$1"
+            info "$1"
             exit
         fi
         d=~/.cache/lf
