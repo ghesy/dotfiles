@@ -1,2 +1,2 @@
 #!/bin/sh
-exec xss-lock slock
+exec xss-lock -- sh -c 'dunstctl set-paused true; slock; dunstctl set-paused false'
