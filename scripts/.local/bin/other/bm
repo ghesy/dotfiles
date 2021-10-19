@@ -1,58 +1,50 @@
-#!/bin/sh
+#!/bin/bash
 # bookmark paths.
 # requires moreutils.
 
 # config
 list=~/.local/share/bm/bookmarks
 
-main ()
-{
+main () {
     fn=resolve
-    while getopts arlm opt; do
-        case $opt in
-            a) fn=add ;;
-            r) fn=remove ;;
-            l) fn=list ;;
-            m) fn=menu ;;
-            ?) exit 1 ;;
-        esac
-    done
+    while getopts arlm opt; do case $opt in
+        a) fn=add ;;
+        r) fn=remove ;;
+        l) fn=list ;;
+        m) fn=menu ;;
+        ?) exit 1 ;;
+    esac; done
     shift $((OPTIND-1))
-
     [ -z "$*" ] && set -- "$(basename "$PWD")"
-
     for bm; do
-        bm="$(printf '%s\n' "$bm" | tr ' \t' '_')"
+        bm="$(printf '%s\n' "$bm" | tr '[:blank:]' '_')"
         $fn
     done
 }
 
-menu()
-{
+menu() {
     bm="$(list | dmenu -p 'Go Where?')" || return 1
     exec xdg-open "$(resolve)"
 }
 
-list()
-{
+list() {
     awk '{print $1}' "$list"
 }
 
-add()
-{
+add() {
     remove
     mkdir -p "$(dirname "$list")"
-    printf '%s\n%s\t%s\n' "$(cat "$list")" "$bm" "$PWD" | column -t | sponge "$list"
+    printf '%s\n%s\t%s\n' "$(cat "$list")" "$bm" "${PWD/$HOME/'~'}" | column -t | sponge "$list"
 }
 
-remove()
-{
+remove() {
     awk -v bm="$bm" 'tolower($1) != tolower(bm)' "$list" | sponge "$list"
 }
 
-resolve()
-{
-    awk -v bm="$bm" 'tolower($1) == tolower(bm) {print $2}' "$list"
+resolve() {
+    d=$(awk -v bm="$bm" 'tolower($1) == tolower(bm) {print $2}' "$list")
+    case $d in '~'*) d=$HOME${d#'~'} ;; esac
+    printf '%s\n' "$d"
 }
 
 main "$@"
