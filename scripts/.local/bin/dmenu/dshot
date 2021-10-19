@@ -6,7 +6,7 @@
 # scrotcucks on suicidewatch right now.
 
 # config
-dir=/media/screenshots
+dir=~/Documents/Screenshots
 mode=Save # initial mode (possible values: Save, Clipboard)
 delay=0.2
 
