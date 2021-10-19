@@ -1,18 +1,21 @@
 #!/bin/sh
 uid() { stat -Lc '%n%i%F%s%W%Y' -- "$1" | sha256sum | cut -d' ' -f1 ;}
 info() { mediainfo "$1" | sed -E 's/^((\S+ )+) +:/\1=/' ;}
+showtype() { echo "[$type]"; file -bL -- "$1" | fold -sw"$2" ;}
+
 type=$(file -bL --mime-type -- "$1")
 case $type in
     text/*|*/xml|*/json) cat "$1" ;;
     audio/*) info "$1" ;;
     */x-7z*|*/x-rar|*/zip|*/zstd|*/x-xz|*/gzip) atool -l "$1" ;;
+    *xcf|*photoshop) showtype "$1" "$2" ;;
     image/*)
-        if [ -z "$DISPLAY" ]; then
-            chafa -c 240 -s "${2}x${3}" -- "$1"
-            exit
+        if [ -n "$DISPLAY" ]; then
+            echo ...
+            sxip "$1" "$2" "$3" "$4" "$5"
+            exit 1
         fi
-        sxip "$1" "$2" "$3" "$4" "$5"
-        exit 1
+        chafa -c 240 -s "${2}x${3}" -- "$1"
     ;;
     video/*)
         if [ -z "$DISPLAY" ]; then
@@ -26,5 +29,5 @@ case $type in
         sxip "$f" "$2" "$3" "$4" "$5"
         exit 1
     ;;
-    *) echo "[$type]"; file -bL -- "$1" | fold -sw"$2" ;;
+    *) showtype "$1" "$2" ;;
 esac
