@@ -1,6 +1,22 @@
 #!/bin/sh
-# a wrapper script for newsboat.
+# a wrapper script for newsboat that imports the list of
+# read articles, launches newsboat and exports the list upon exit.
+
+# config
 d=~/.local/share/newsboat
-newsboat -u $d/urls -I $d/read
-newsboat -u $d/urls
-newsboat -u $d/urls -E $d/read
+r=$d/read-articles
+export=$r/$(uname -n)-$(cat /etc/machine-id)
+import=$d/read-combined
+u=$d/urls
+
+( (
+    sleep 0.5
+    trap '' HUP
+    pwait newsboat
+    newsboat -u "$u" -E "$export"
+) & ) >/dev/null 2>&1
+
+mkdir -p "$r"
+sort -u "$r"/* > "$import"
+newsboat -u "$u" -I "$import"
+newsboat -u "$u"
