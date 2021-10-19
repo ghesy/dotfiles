@@ -1,0 +1,6 @@
+#!/bin/sh
+# a wrapper script for newsboat.
+d=~/.local/share/newsboat
+newsboat -u $d/urls -I $d/read
+newsboat -u $d/urls
+newsboat -u $d/urls -E $d/read
