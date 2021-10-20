@@ -9,6 +9,14 @@ export=$r/$(uname -n)-$(cat /etc/machine-id)
 import=$d/read-combined
 u=$d/urls
 
+# exit if newsboat is running
+if pidof -q newsboat; then
+    echo an instance of Newsboat is already running. >&2
+    exit 1
+fi
+
+# wait for newsboat's exit in the background,
+# then export the list of read articles
 ( (
     sleep 0.5
     trap '' HUP
@@ -16,6 +24,8 @@ u=$d/urls
     newsboat -u "$u" -E "$export"
 ) & ) >/dev/null 2>&1
 
+# make and import a list of read articles
+# and then launch newsboat
 mkdir -p "$r"
 sort -u "$r"/* > "$import"
 newsboat -u "$u" -I "$import"
