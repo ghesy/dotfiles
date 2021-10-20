@@ -16,9 +16,9 @@ case ${1:?} in
         printf gallery; exit
     ;;
     *.mp4|*.webm|*.mkv|*.mp3|*.flac|*.opus|*youtube.com/watch*|\
-    *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be*|*hooktube.com*|\
-    *bitchute.com*|*odysee.com*|*v.redd*|*streamwo.com*|*streamable.com*|\
-    *streamja.com*)
+    *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
+    *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
+    *streamja.com/*)
         printf stream; exit
     ;;
     *.pdf|*.cbz|*.cbr)
