@@ -19,4 +19,4 @@ u=$d/urls
 mkdir -p "$r"
 sort -u "$r"/* > "$import"
 newsboat -u "$u" -I "$import"
-newsboat -u "$u"
+exec newsboat -u "$u"
