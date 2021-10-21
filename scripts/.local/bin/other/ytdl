@@ -8,13 +8,10 @@ res=$(printf '480\n720\n1080\n360\n' | dmenu -p Resolution: ${WINDOWID:+-w $WIND
 $(getproxy "${1:?}") yt-dlp -S "+res:$res,abr~$((res/5))" -N 8 --add-metadata \
     --no-mtime --sub-lang=en --write-sub --write-auto-sub --embed-subs  \
     --compat-options no-keep-subs --downloader aria2c --downloader-args \
-    aria2c:'-c -k1M -x8 -s8 --async-dns=false' -- "${@#ytdl://*}"
+    aria2c:'-c -k1M -x8 -s8 --async-dns=false' --exec lf -- "${@#ytdl://*}"
 
-case $? in
-    0) figlet Download finished.
-        read x
-        exec $SHELL ;;
-    *) figlet Download failed.
-        read x
-        exit ;;
-esac
+if [ $? -ne 0 ]; then
+    printf "DOWNLOAD FAILED! Enter 'r' to retry: "
+    read key
+    [ "$key" = r ] && exec "$0" "$@"
+fi
