@@ -1,46 +1,53 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
-# requires my "urltype" script,  dmenu, xurls, libnotify,
-# mpv (+youtube-dl), moreutils, gallery-dl, and reddio (for reading reddit posts).
+# requires dmenu, xurls, libnotify, mpv (+youtube-dl), aria2,
+# moreutils, gallery-dl, and tuir (for reading reddit posts).
 
 # config
 cache=~/.cache/gallery-dl
 
-[ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" || url="$(
-    xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
-)"
-[ -z "$url" ] && exit
+main() {
+    [ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" ||
+        url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID})"
+    [ -z "$url" ] && exit
 
-stream() {
-    notify-send -u low PipeURL 'Opening Video...'
-    $p mpv -quiet -- "$@" ||
-        notify-send PipeURL 'Failed to open the Video.'
+    case $url in
+        *reddit.com/gallery*|*i.redd.it*|*imgur.com*) gdl ;;
+        *reddit.com*|*redd.ir*) tuir -- "$url" ;;
+        *.pdf|*.cbz|*.cbr) dl ;;
+
+        *.mp4|*.webm|*.mkv|*.mp3|*.flac|*.opus|*youtube.com/watch*|\
+        *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
+        *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
+        *streamja.com/*|*videos.lukesmith.xyz/*)
+            video ;;
+
+        *) $BROWSER "$url" ;;
+    esac
+}
+
+video() {
+    case $(printf 'Stream\nDownload\n' | dmenu ${WINDOWID:+-w $WINDOWID}) in
+        Download) setsid -f $TERMINAL -e ytdl "$url" >/dev/null 2>&1 ;;
+        Stream)
+            notify-send -u low PipeURL 'Opening Video...'
+            $(getproxy "$url") mpv -quiet -- "$url" ||
+                notify-send PipeURL 'Failed to open the Video.' ;;
+    esac
 }
 
 gdl() {
-    imgs=$($p gallery-dl -d "$cache" -- "$@" 2>/dev/null) || return 1
-    printf '%s\n' "$imgs" | sed 's/^# //' |
-        xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -quiet -- "$@"' ''
+    imgs=$($(getproxy "$url") gallery-dl -d "$cache" -- "$url" 2>/dev/null) || return 1
+    printf '%s\n' "$imgs" | sed 's/^# //' | xargs -d'\n' sh -c 'sxiv -a -- "$url" || mpv -quiet -- "$url"' ''
 }
 
 dl() {
-    file=$(printf '%s\n' "$1" | md5sum | cut -d' ' -f1)
+    file=$(printf '%s\n' "$url" | md5sum | cut -d' ' -f1)
     if [ ! -r "$cache/$file" ]; then
-        $p aria2c -q -x10 -s10 -k1M -m1 --no-conf ${p:+--async-dns=false} \
-            -d"$cache" -o"$file" -- "$1" || return 1
+        $(getproxy "$url") aria2c -q -x10 -s10 -k1M -m1 --no-conf \
+            ${p:+--async-dns=false} -d"$cache" -o"$file" -- "$url" || return 1
     fi
     xdg-open "$cache/$file"
 }
 
-t=$(urltype "$url")
-p=${t#* }
-t=${t%% *}
-
-case $t in
-    gallery) gdl "$url" ;;
-    document) dl "$url" ;;
-    stream) stream "$url" ;;
-    reddit) reddio print -c always "${url#*reddit.com/}" |
-        sed -E 's/(^[^ ].*t1_.*)/==========\n\n\1/' | less ;;
-    *) $BROWSER "$url" ;;
-esac
+main "$@"
