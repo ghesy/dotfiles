@@ -1,5 +1,5 @@
 [global]
-    geometry = "350x5-5+23"
+    offset = 5x23
     icon_position = left
     frame_width = 2
     separator_height = 1
@@ -17,12 +17,6 @@
     show_age_threshold = 60
     follow = keyboard
     dmenu = "/usr/local/bin/dmenu"
-
-[shortcuts]
-    close = ctrl+space
-    close_all = ctrl+shift+space
-    history = ctrl+grave
-    context = ctrl+shift+period
 
 [urgency_low]
     background = "#151515"
