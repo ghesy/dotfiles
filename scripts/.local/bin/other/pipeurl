@@ -12,33 +12,25 @@ main() {
     [ -z "$url" ] && exit
 
     case $url in
-        *reddit.com/gallery*|*i.redd.it*|*imgur.com*) gdl ;;
-        *reddit.com*|*redd.ir*) tuir -- "$url" ;;
         *.pdf|*.cbz|*.cbr) dl ;;
-
+        *reddit.com/gallery*|*i.redd.it*|*imgur.com/*|*gfycat.com/*) gdl ;;
         *.mp4|*.webm|*.mkv|*.mp3|*.flac|*.opus|*youtube.com/watch*|\
         *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
         *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
-        *streamja.com/*|*videos.lukesmith.xyz/*)
-            video ;;
-
-        *) $BROWSER "$url" ;;
+        *streamja.com/*|*videos.lukesmith.xyz/*) stream ;;
+        *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's/.*\/r\/([^/]+)\/?$/-s \1/') ;;
+        *) exec xdg-open "$url" ;;
     esac
 }
 
-video() {
-    case $(printf 'Stream\nDownload\n' | dmenu ${WINDOWID:+-w $WINDOWID}) in
-        Download) setsid -f $TERMINAL -e ytdl "$url" >/dev/null 2>&1 ;;
-        Stream)
-            notify-send -u low PipeURL 'Opening Video...'
-            $(getproxy "$url") mpv -quiet -- "$url" ||
-                notify-send PipeURL 'Failed to open the Video.' ;;
-    esac
+stream() {
+    notify-send -u low PipeURL 'Opening video...'
+    $(getproxy "$url") mpv -quiet -- "$url" || notify-send PipeURL 'Failed to open the video.'
 }
 
 gdl() {
     imgs=$($(getproxy "$url") gallery-dl -d "$cache" -- "$url" 2>/dev/null) || return 1
-    printf '%s\n' "$imgs" | sed 's/^# //' | xargs -d'\n' sh -c 'sxiv -a -- "$url" || mpv -quiet -- "$url"' ''
+    printf '%s\n' "$imgs" | sed 's/^# //' | xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -quiet -- "$@"' ''
 }
 
 dl() {
@@ -47,7 +39,7 @@ dl() {
         $(getproxy "$url") aria2c -q -x10 -s10 -k1M -m1 --no-conf \
             ${p:+--async-dns=false} -d"$cache" -o"$file" -- "$url" || return 1
     fi
-    xdg-open "$cache/$file"
+    exec xdg-open "$cache/$file"
 }
 
 main "$@"
