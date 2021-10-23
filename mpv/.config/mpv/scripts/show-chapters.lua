@@ -3,7 +3,7 @@
 -- source: https://github.com/oltodosel/mpv-scripts
 
 -- config
-HOTKEY = 'Ctrl+c'
+HOTKEY = 'ctrl+x'
 CHAPTERS_TO_SHOW = 30
 
 FONT_SCALE = 40 -- in % from osd-font-size
