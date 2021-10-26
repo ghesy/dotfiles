@@ -41,7 +41,7 @@ cmd delete ${{
     echo 'Permanently Deleting Files:'; echo
     printf '  %s\n' $fx ""
     read -p 'Delete? [y/N] ' ans
-    case "$ans" in y|Y) rm -rfv -- $fx ;; esac || read -p 'Press enter to continue'
+    case "$ans" in y|Y) rm -rfv --one-file-system -- $fx ;; esac || read -p 'Press enter to continue'
 }}
 
 cmd mkdir %{{
