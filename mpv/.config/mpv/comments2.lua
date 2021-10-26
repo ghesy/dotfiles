@@ -8,22 +8,22 @@ WRAPCOL = 75
 local mp = require 'mp'
 local utils = require 'mp.utils'
 
--- local shell = {}
--- function shell.escape(args)
---     local ret = {}
---     for _,a in pairs(args) do
---         s = tostring(a)
---         if s:match("[^A-Za-z0-9_/:=-]") then
---             s = "'"..s:gsub("'", "'\\''").."'"
---         end
---         table.insert(ret,s)
---     end
---     return table.concat(ret, " ")
--- end
+local shell = {}
+function shell.escape(args)
+    local ret = {}
+    for _,a in pairs(args) do
+        s = tostring(a)
+        if s:match("[^A-Za-z0-9_/:=-]") then
+            s = "'"..s:gsub("'", "'\\''").."'"
+        end
+        table.insert(ret,s)
+    end
+    return table.concat(ret, " ")
+end
 
--- function shell.exec(args)
---     return os.execute(shell.escape(args))
--- end
+function shell.exec(args)
+    return os.execute(shell.escape(args))
+end
 
 local function exec(args)
     local r = mp.command_native({name = "subprocess", args = args,
@@ -47,12 +47,11 @@ function ulen(s) return #s end
 -- wrap lines of the given string to WRAPCOL columns.
 function wrap(s)
     local w = {}
-    local s = string.gsub(s, "\r", "")
     for line in getlines(s) do
         local len = ulen(line)
         if len == nil then len = #line end
         if len <= WRAPCOL then
-            w[#w + 1] = line
+            w[#w + 1] = line .. "\n"
         else
             -- find the position of the first space character before the WRAPCOLth column
             local brk = string.find(string.reverse(string.sub(line, 1, uchar(line, WRAPCOL))), "%s")
@@ -130,9 +129,9 @@ end
 function page(file)
     term = os.getenv("TERMINAL")
     if term then
-        exec{"setsid", "-f", term, "-e", os.getenv("PAGER") or "less", file}
+        shell.exec{"setsid", "-f", term, "-e", os.getenv("PAGER") or "less", file, ">/dev/null 2>&1"}
     else
-        exec{"setsid", "-f", "xdg-open", file}
+        shell.exec{"setsid", "-f", "xdg-open", file, ">/dev/null 2>&1"}
     end
 end
 
