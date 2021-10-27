@@ -11,12 +11,19 @@ CACHEDIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/desc
 
 local mp = require 'mp'
 local utils = require 'mp.utils'
+descfile = {}
 
 -- execute shell commands using mpv's subprocess command
 local function exec(args)
     local r = mp.command_native({name = "subprocess", args = args,
         capture_stdout = true, capture_stderr = true})
     return r.status == 0, r.stdout
+end
+
+-- execute shell commands using mpv's subprocess command
+local function execasync(fn, args)
+    mp.command_native_async({name = "subprocess", args = args,
+        capture_stdout = true, capture_stderr = true}, fn)
 end
 
 -- execute shell commands by escaping args and feeding them to os.execute()
@@ -71,7 +78,7 @@ function wrap(s)
 end
 
 -- open description or comments in a pager in a terminal window
-function page(f)
+function pager(f)
     local file = descfile[geturl()][f]
     if not isfile(file) then return end
     local term = os.getenv("TERMINAL")
@@ -82,32 +89,13 @@ function page(f)
     end
 end
 
--- download and save description and comments to CACHEDIR
-descfile = {}
-function savedesc()
-
-    -- if the video is a local file, return
-    local url = geturl()
-    if isfile(url) then return end
-
-    -- set the path of cache files
-    local id = url:gsub(".-%w/", ""):gsub("[^%w%-_]", ""):reverse()
-    descfile[url] = {}
-    descfile[url].desc = CACHEDIR.."/"..id..".desc"
-    descfile[url].comm = CACHEDIR.."/"..id..".comm"
-    if isfile(descfile[url].desc) or isfile(descfile[url].comm) then return end
-
-    -- get the video's infojson using yt-dlp
-    local maxcomments = ""
-    if MAX_COMMENTS > 0 then maxcomments = ";max_comments="..MAX_COMMENTS end
-    local status, json = exec{"yt-dlp", "--no-playlist", "-j", "--write-comments",
-        "--extractor-args", "youtube:comment_sort=top"..maxcomments,
-        "--", url}
-    if not status then return end
-    local json = utils.parse_json(json)
+-- save the description and comments fetch by fetchdesc() to CACHEDIR
+function savedesc(success, result, error)
+    if (not success) or (result.status ~= 0) then return end
+    local json = utils.parse_json(result.stdout)
     if not json then return end
-
     if not exec{"mkdir", "-pm700", CACHEDIR} then return end
+    local url = geturl()
 
     -- format and write the description to cache
     if json.description then
@@ -142,6 +130,26 @@ function savedesc()
     f:close()
 end
 
-mp.register_event("start-file", savedesc)
-mp.add_forced_key_binding(DESCRIPTION_KEY, "show_description", function() page("desc") end)
-mp.add_forced_key_binding(COMMENTS_KEY, "show_comments", function() page("comm") end)
+-- download description and comments and hand it to savedesc()
+function fetchdesc()
+    -- if the video is a local file, return
+    local url = geturl()
+    if isfile(url) then return end
+
+    -- set the path of cache files
+    local id = url:gsub(".-%w/", ""):gsub("[^%w%-_]", ""):reverse()
+    descfile[url] = {}
+    descfile[url].desc = CACHEDIR.."/"..id..".desc"
+    descfile[url].comm = CACHEDIR.."/"..id..".comm"
+    if isfile(descfile[url].desc) or isfile(descfile[url].comm) then return end
+
+    -- get the video's infojson using yt-dlp and send it's result to formatdesc()
+    local maxcomments = ""
+    if MAX_COMMENTS > 0 then maxcomments = ";max_comments="..MAX_COMMENTS end
+    execasync(savedesc, {"yt-dlp", "--no-playlist", "-j", "--write-comments",
+        "--extractor-args", "youtube:comment_sort=top"..maxcomments, "--", url})
+end
+
+mp.add_forced_key_binding(DESCRIPTION_KEY, "show_description", function() pager("desc") end)
+mp.add_forced_key_binding(COMMENTS_KEY, "show_comments", function() pager("comm") end)
+mp.register_event("start-file", fetchdesc)
