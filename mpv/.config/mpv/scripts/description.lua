@@ -39,12 +39,6 @@ function shexec(args)
     return os.execute("setsid -f "..table.concat(t, " ").." >/dev/null 2>&1")
 end
 
--- separate the given string into lines.
-function getlines(s)
-    if s:sub(-1)~="\n" then s=s.."\n" end
-    return s:gmatch("(.-)\n")
-end
-
 -- test wether the given path is a file
 function isfile(path)
    local f = io.open(path, "r")
@@ -54,6 +48,12 @@ end
 -- get the path/url of the currently playing video
 function geturl()
     return string.gsub(mp.get_property("path"), "ytdl://", "")
+end
+
+-- separate the given string into lines.
+function getlines(s)
+    if s:sub(-1)~="\n" then s=s.."\n" end
+    return s:gmatch("(.-)\n")
 end
 
 -- wrap lines of the given string to WRAPCOL columns.
