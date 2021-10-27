@@ -1,9 +1,12 @@
 -- get the description and comments of videos.
+-- requires yt-dlp (youtube-dl can't fetch comments).
+
 -- config
-DESCRIPTION_KEY = 'ctrl+d'
-COMMENTS_KEY = 'ctrl+c'
-MAX_COMMENTS = 300 -- set to 0 to fetch all comments
-MAX_REPLIES = 10 -- set to 0 to show all replies
+DESCRIPTION_KEY = 'ctrl+d' -- binding to open the video description in your pager in a new terminal window.
+COMMENTS_KEY = 'ctrl+c' -- same as above but for the comments.
+FETCH_REPLIES = false -- wether to include replies in the comments or not.
+MAX_COMMENTS = 50 -- limit the number of comments to fetch. set to 0 to fetch all comments.
+MAX_REPLIES = 10 -- limit the number of replies to display. set to 0 to show all replies.
 COMMENTS_PREFIX = "│"
 WRAPCOL = 70
 CACHEDIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description"
@@ -144,10 +147,11 @@ function fetchdesc()
     if isfile(descfile[url].desc) or isfile(descfile[url].comm) then return end
 
     -- get the video's infojson using yt-dlp and send it's result to formatdesc()
-    local maxcomments = ""
+    local maxcomments = "" local replies = ""
+    if not FETCH_REPLIES then replies = ";max_comment_depth=1" end
     if MAX_COMMENTS > 0 then maxcomments = ";max_comments="..MAX_COMMENTS end
     execasync(savedesc, {"yt-dlp", "--no-playlist", "-j", "--write-comments",
-        "--extractor-args", "youtube:comment_sort=top"..maxcomments, "--", url})
+        "--extractor-args", "youtube:comment_sort=top"..maxcomments..replies, "--", url})
 end
 
 mp.add_forced_key_binding(DESCRIPTION_KEY, "show_description", function() pager("desc") end)
