@@ -1,21 +1,22 @@
+# vim:ft=conf
+
 [global]
+    # font
+    font = Alegreya Sans 14
+    line_height = 3
+    # geometry
     offset = 5x23
     icon_position = left
     frame_width = 2
-    separator_height = 1
-    horizontal_padding = 8
+    separator_height = 2
     padding = 8
-    frame_color = "#9d9d9d"
-    font = Alegreya Sans 14
-    line_height = 3
-    word_wrap = yes
+    horizontal_padding = 8
+    # other
     markup = full
-    format = "<b>%s</b> %b"
-    shrink = true
-    hide_duplicate_count = true
+    follow = keyboard
     idle_threshold = 10
     show_age_threshold = 60
-    follow = keyboard
+    hide_duplicate_count = true
     dmenu = "/usr/local/bin/dmenu"
 
 [urgency_low]
@@ -29,7 +30,7 @@
     timeout = 8
 
 [urgency_critical]
-    background = "#15151580"
+    background = "#151515"
     foreground = "#bbbbbb"
     frame_color = "#ff0000"
     timeout = 16
@@ -38,9 +39,3 @@
 [ignore_low]
     msg_urgency = low
     history_ignore = yes
-
-[ignore_aria2]
-    summary = "Aria2 Download Manager Integration"
-    format = ""
-
-# vim:ft=conf
