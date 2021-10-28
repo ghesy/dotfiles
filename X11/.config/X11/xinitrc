@@ -21,9 +21,6 @@ autolock &
 # enable keyboard remaps / mouse settings
 remaps &
 
-# startup dunst
-dunstinit &
-
 # wait for tasks to finish
 wait
 
