@@ -1,7 +1,6 @@
 # vim:ft=zsh
 
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$HOME"/.config/java
-export STALONETRAYRC=~/.config/stalonetray/stalonetrayrc
 export ANSIBLE_CONFIG=~/.config/ansible/ansible.cfg
 export NPM_CONFIG_USERCONFIG=~/.config/npm/config
 export GTK2_RC_FILES=~/.config/gtk-2.0/gtkrc-2.0
