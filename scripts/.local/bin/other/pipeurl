@@ -1,7 +1,8 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
 # requires dmenu, xurls, libnotify, mpv (+youtube-dl), aria2,
-# moreutils, gallery-dl, and tuir (for reading reddit posts).
+# moreutils, gallery-dl, tuir (for reading reddit posts),
+# and haxor-news (for reading hacker-news comments).
 
 # config
 cache=~/.cache/gallery-dl
@@ -19,6 +20,7 @@ main() {
         *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
         *streamja.com/*|*videos.lukesmith.xyz/*) stream ;;
         *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's/.*\/r\/([^/]+)\/?$/-s \1/') ;;
+        *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
     esac
 }
