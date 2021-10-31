@@ -4,15 +4,19 @@
 [ -f "${1:?}" ] && exit 1
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
 
-read -p 'Resolution [480/720/...] (Default:480): ' res
-[ -z "$res" ] || [ "$res" -ne "$res" ] && res=480
+read -p 'Enter resolution [480/720/... or "best"] (Default:480): ' res
+case $res in
+    best) res='' ;;
+    '') res=480 ;;
+    *) [ "$res" -ne "$res" ] && res=480 ;;
+esac
 
 title=$($(getproxy "$1") yt-dlp -e "$1")
 for i in {1..10}; do
-    $(getproxy "$1") yt-dlp -S "+res:$res,abr~$((res/8))" --add-metadata \
+    $(getproxy "$1") yt-dlp ${res:+-S "+res:$res,abr~$((res/8))"} --add-metadata \
     --no-mtime --sub-lang=en --write-sub --write-auto-sub --embed-subs  \
     --compat-options no-keep-subs --downloader aria2c --downloader-args \
-    aria2c:--async-dns=false -- "${@#ytdl://*}" && break
+    aria2c:--async-dns=false "${@#ytdl://*}" && break
     if [ $i -eq 10 ]; then
         notify-send ytdl Failed:$'\n'"$title"
         exit 1
