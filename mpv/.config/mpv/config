@@ -1,5 +1,5 @@
 # the 'format-sort=...' raw option only works with yt-dlp, not youtube-dl.
-ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=,format-sort=[res:480,abr~50]
+ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=,format-sort=[res:480,codec,abr~50]
 alang=jpn,eng,en,per,fa
 slang=eng,en,per,fa
 no-sub-visibility
