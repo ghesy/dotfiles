@@ -13,10 +13,10 @@ esac
 
 title=$($(getproxy "$1") yt-dlp -e "$1")
 for i in {1..10}; do
-    $(getproxy "$1") yt-dlp ${res:+-S "+res:$res,abr~$((res/8))"} --add-metadata \
+    $(getproxy "$1") yt-dlp ${res:+-S "+res:$res,codec,abr~$((res/6))"} --add-metadata \
     --no-mtime --sub-lang=en --write-sub --write-auto-sub --embed-subs  \
-    --compat-options no-keep-subs --downloader aria2c --downloader-args \
-    aria2c:--async-dns=false "${@#ytdl://*}" && break
+    --compat-options no-keep-subs --embed-thumbnail --downloader aria2c \
+    --downloader-args aria2c:--async-dns=false "${@#ytdl://*}" && break
     if [ $i -eq 10 ]; then
         notify-send ytdl Failed:$'\n'"$title"
         exit 1
