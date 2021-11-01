@@ -25,7 +25,7 @@ case $type in
         d=~/.cache/lf
         f=$d/$(uid "$1").jpg
         mkdir -pm700 "$d"
-        [ ! -f "$f" ] && ffmpegthumbnailer -s0 -q5 -f -i "$1" -o "$f"
+        [ ! -f "$f" ] && ffmpegthumbnailer -m -s0 -q5 -f -i "$1" -o "$f"
         sxip "$f" "$2" "$3" "$4" "$5"
         exit 1
     ;;
