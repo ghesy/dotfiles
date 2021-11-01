@@ -53,7 +53,7 @@ cmd mkdir %{{
 }}
 
 cmd finder ${{
-    f=$(finder -f) || exit
+    f=$(finder) || exit
     case $(basename -- $f) in
         .*) lf -remote "send $id set hidden" ;;
     esac
