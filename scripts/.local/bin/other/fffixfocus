@@ -6,20 +6,6 @@
 # but this script gives the focus back to the main page, by
 # right and then left clicking in the center of currently active
 # window.
-
-[ "$(xdotool getactivewindow getwindowclassname)" != firefox ] && exit
-
-eval $(
-    xwininfo -id $(xdotool getactivewindow) |
-        sed -n -e "s/^ \+Absolute upper-left X: \+\([0-9]\+\).*/x=\1/p" \
-               -e "s/^ \+Absolute upper-left Y: \+\([0-9]\+\).*/y=\1/p" \
-               -e "s/^ \+Width: \+\([0-9]\+\).*/w=\1/p" \
-               -e "s/^ \+Height: \+\([0-9]\+\).*/h=\1/p"
-)
-
-xdotool \
-    mousemove $((w/2 + x)) $((h/2 + y)) \
-    click 3 \
-    mousemove_relative -- -20 -20 \
-    click 1 \
-    mousemove 0 0
+[ "$(xdotool getactivewindow getwindowclassname)" = firefox ] &&
+    xdotool getactivewindow mousemove --window %1 --polar 0 0 click 3 \
+    mousemove_relative -- -20 -20 click 1 mousemove 0 0
