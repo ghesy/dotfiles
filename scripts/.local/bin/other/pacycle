@@ -2,12 +2,12 @@
 # cycle the audio output device of pulseaudio.
 unset first current next
 while IFS= read -r i; do case $i in *index:*)
-    read -r name; case $name in *aloop*) continue ;; esac
+    read -r name; case $name in *aloop*|*remapped*) continue ;; esac
     [ -z "$first" ] && first=$i
     if [ -z "$current" ]; then
         case $i in *' * '*) current=$i ;; esac
     else
-        next=$i
+        next=$i; break
     fi
 esac; done <<< "$(pacmd list-sinks)"
 next="${next:-$first}"
