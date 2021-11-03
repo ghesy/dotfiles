@@ -1,0 +1,81 @@
+#!/bin/sh
+# detect an audio stream on the local network, and
+# set it up as a pulseaudio input device. requires mpv.
+
+# config
+PORT=8080
+HOST="http://192.168.1.[10-30]:$PORT"
+pid=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/vmic.pid
+
+# if vmic is already running, kill and cleanup everything and exit.
+if [ -f "$pid" ]; then
+    kill "$(cat "$pid")"
+    exit
+fi
+
+# find the host using curl.
+host=$(curl -ZIsw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
+    -- "${HOST:?}" | grep -Pom1 '^audio/\S+ \K.*')
+# if not found, try finding it using adb.
+[ -z "$host" ] && host=$(
+    command -v adb >/dev/null || exit 1
+    for dev in $(adb devices | sed 1d | cut -f1); do
+        p=$(adb -s "$dev" forward tcp:0 tcp:"${PORT:?}") || continue
+        curl -Isw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
+            "http://localhost:$p" | grep -Pom1 '^audio/\S+ \K.*' ||
+            adb -s "$dev" forward --remove tcp:$p
+    done
+)
+# if not found, exit.
+[ -z "$host" ] && exit 1
+
+# load the remap-sink module.
+module=$(pactl load-module module-remap-sink) || exit 2
+
+# get remap's sink input and mute it.
+module_input=$(pactl list sink-inputs | tac | tr '\n' ' ' |
+    grep -Po "Owner Module: ${module:?}\s.*?Sink Input #\K\d+") || exit 3
+pactl set-sink-input-mute "$module_input" 1
+
+# get remap's sink.
+module_sink=$(pactl list sinks | tac | tr '\n' ' ' |
+    grep -Po "Owner Module: ${module:?}\s.*?Sink #\K\d+") || exit 4
+
+# get remap's source.
+module_source=$(pactl list sources | tac | tr '\n' ' ' |
+    grep -Po "Owner Module: ${module:?}\s.*?Source #\K\d+") || exit 5
+
+# start mpv.
+mpv --no-config --load-scripts=no --no-terminal \
+    --profile=low-latency --no-cache --untimed -- "$host" >/dev/null 2>&1 &
+mpv_pid=$!
+echo "$mpv_pid" > "$pid"
+sleep 2
+
+# cleanup upon failure.
+( (pwait -F "$pid"; pactl unload-module "$module"
+    rm "$pid"; notify-send vmic Disconnected.)&) >/dev/null 2>&1
+trap 'kill $mpv_pid' EXIT
+
+# get mpv's sink input.
+mpv_input=$(pactl list sink-inputs | tac | tr '\n' ' ' |
+    grep -Po "application\.process\.id = \"${mpv_pid:?}\"\s.*?Sink Input #\K\d+") || exit 6
+
+# move mpv's sink input to remap's sink.
+pactl move-sink-input "$mpv_input" "$module_sink" || exit 7
+
+# make remap's source the default.
+pactl set-default-source "$module_source" || exit 8
+
+# notify the success.
+notify-send -u low vmic Connected.
+
+# if "module-stream-restore" is loaded, add the "restore_device=false" option to it,
+# to prevent this module from moving all mpv inputs under the remap module's sink.
+args=$(pactl list short modules | grep module-stream-restore | cut -f2- |
+    grep -v 'restore_device=false' | sed 's/$/restore_device=false/')
+[ -n "$args" ] && pactl unload-module module-stream-restore &&
+    pactl load-module $args >/dev/null
+
+# clear the trap.
+trap - EXIT
