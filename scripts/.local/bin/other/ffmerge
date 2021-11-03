@@ -1,0 +1,30 @@
+#!/bin/sh
+# this script puts all the tabs of the currently active firefox window
+# into another firefox window that is in the same desktop or dwm tag.
+# requires dwm to be patched to support _NET_WM_DESKTOP.
+
+# config
+class=firefox
+
+set -e
+ff1=$(xdotool getactivewindow) || exit 1
+[ "$(xdotool getwindowclassname "$ff1")" != "${class:?}" ] && exit 2
+ff2=$(xdotool search --desktop $(xdotool get_desktop) --class "${class:?}" | fgrep -vm1 "$ff1") || exit 3
+geom=$(xdotool getwindowgeometry --shell "$ff2") && eval "$geom" || exit 4
+
+c=--clearmodifiers
+d='--delay 50'
+xdotool mousemove --window "$ff1" 50 10 \
+    key $c $d ctrl+Tab ctrl+shift+Tab \
+    click $c 3 \
+    key $c $d s Escape \
+    mousedown $c 1 \
+    mousemove $((X+WIDTH-100)) $((Y+20)) \
+    sleep 0.1 \
+    mousemove_relative 5 0 \
+    sleep 0.1 \
+    mouseup $c 1 \
+    sleep 0.5 \
+    key $c $d ctrl+Tab ctrl+shift+Tab
+
+xdotool keyup Shift_L Shift_R Control_L Control_R
