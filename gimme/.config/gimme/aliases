@@ -11,9 +11,9 @@ GParted, Partitioning : root gparted
 Book Reader, Foliate : foliate
 aRandr : arandr
 
-TS3 : teamspeak3
+TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
+Ripcord : trayrun ripcord
 Discord : discord
-Ripcord : ripcord
 Telegram : telegram-desktop
 Printers : system-config-printer
 Gimp : gimp

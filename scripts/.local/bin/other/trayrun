@@ -1,0 +1,12 @@
+#!/bin/sh
+# Usage: trayrun PROGRAM [WINDOW_NAME] [PROCESS_NAME]
+# Function:
+#   if the PROCESS_NAME is running, runs PROGRAM.
+#   otherwise, clicks on the program's icon that has the name WINDOW_NAME.
+#   if WINDOW_NAME or PROCESS_NAME aren't given, PROGRAM is used in their place.
+
+pidof -q "${3:-${1:?}}" || exec "${1:?}"
+xy=$(xwininfo -name stalonetray -tree -int | tac |
+    grep -iA2 "${2:-${1:?}}" |
+    tail -n1 | awk '{print$NF}' | tr + ' ')
+xdotool mousemove ${xy:?} click 1 mousemove restore
