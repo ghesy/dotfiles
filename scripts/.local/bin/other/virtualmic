@@ -18,7 +18,7 @@ elif pidof -qxo%PPID "${0##*/}"; then
 fi
 
 # notify the failure.
-trap 'notify-send virtualmic "Could not connect."' EXIT
+trap 'notify-send -u low virtualmic "Could not connect."' EXIT
 
 # find the host using curl.
 host=$(curl -ZIsw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
