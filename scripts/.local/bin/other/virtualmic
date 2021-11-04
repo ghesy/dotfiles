@@ -5,18 +5,24 @@
 
 # config
 PORT=8080
-HOST="http://192.168.1.[10-30]:$PORT"
-pid=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/vmic.pid
+subnet=$(set -- $(ip r); echo "${3%.*}")
+HOST=http://${subnet:?}.[0-255]:${PORT:?}
+PIDFILE=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/virtualmic.pid
 
-# if vmic is already running, kill and cleanup everything and exit.
-if [ -f "$pid" ]; then
-    kill "$(cat "$pid")"
+# if virtualmicmic is already running, kill and cleanup everything and exit.
+if [ -f "${PIDFILE:?}" ]; then
+    kill "$(cat "${PIDFILE:?}")"
+    exit
+elif pidof -qxo%PPID "${0##*/}"; then
     exit
 fi
 
+# notify the failure.
+trap 'notify-send virtualmic "Could not connect."' EXIT
+
 # find the host using curl.
 host=$(curl -ZIsw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
-    -- "${HOST:?}" | grep -Pom1 '^audio/\S+ \K.*')
+    --parallel-max 25 -- "${HOST:?}" | grep -Pom1 '^audio/\S+ \K.*')
 # if not found, try finding it using adb.
 [ -z "$host" ] && host=$(
     command -v adb >/dev/null || exit 1
@@ -50,12 +56,12 @@ module_source=$(pactl list sources | tac | tr '\n' ' ' |
 mpv --no-config --load-scripts=no --no-terminal \
     --profile=low-latency --no-cache --untimed -- "$host" >/dev/null 2>&1 &
 mpv_pid=$!
-echo "$mpv_pid" > "$pid"
+echo "$mpv_pid" > "${PIDFILE:?}"
 sleep 2
 
 # cleanup upon failure.
-( (pwait -F "$pid"; pactl unload-module "$module"
-    rm "$pid"; notify-send vmic Disconnected.)&) >/dev/null 2>&1
+( (pwait -F "${PIDFILE:?}"; pactl unload-module "$module"
+    rm "${PIDFILE:?}"; notify-send virtualmic Disconnected.)&) >/dev/null 2>&1
 trap 'kill $mpv_pid' EXIT
 
 # get mpv's sink input.
@@ -69,7 +75,7 @@ pactl move-sink-input "$mpv_input" "$module_sink" || exit 7
 pactl set-default-source "$module_source" || exit 8
 
 # notify the success.
-notify-send -u low vmic Connected.
+notify-send -u low virtualmic Connected.
 
 # if "module-stream-restore" is loaded, add the "restore_device=false" option to it,
 # to prevent this module from moving all mpv inputs under the remap module's sink.
