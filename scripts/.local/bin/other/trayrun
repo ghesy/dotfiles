@@ -9,4 +9,4 @@ pidof -q "${3:-${1:?}}" || exec "${1:?}"
 xy=$(xwininfo -name stalonetray -tree -int | tac |
     grep -iA2 "${2:-${1:?}}" |
     tail -n1 | awk '{print$NF}' | tr + ' ')
-xdotool mousemove ${xy:?} click 1 mousemove restore
+xdotool mousemove ${xy:?} mousemove_relative 10 10 click 1 mousemove restore
