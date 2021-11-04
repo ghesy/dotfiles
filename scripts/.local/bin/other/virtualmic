@@ -1,6 +1,7 @@
 #!/bin/sh
-# detect an audio stream on the local network, and
-# set it up as a pulseaudio input device. requires mpv.
+# detect an audio stream on the local network or on an android phone
+# connected via cable through adb, and set it up as a pulseaudio input device.
+# requires mpv, android-tools(optional), libnotify, curl.
 
 # config
 PORT=8080
