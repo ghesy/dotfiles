@@ -1,0 +1,26 @@
+#!/bin/sh
+# change aria2 server options via dmenu.
+
+# config
+host=http://localhost:6800/rpc
+opts='max-concurrent-downloads
+max-overall-download-limit
+optimize-concurrent-downloads'
+
+getval() {
+    printf '%s\n' "${o:?}" | grep -A1 "${1:?}" | tail -n1 | cut -d"'" -f2
+}
+w=${WINDOWID:+-w $WINDOWID}
+unset msg
+while :; do
+    o=$(xmlrpc "${host:?}" aria2.getGlobalOption) || exit 1
+    s=$(for opt in $opts; do printf '%s: %s\n' "$opt" "$(getval "$opt")"; done |
+        dmenu $w -l 10 ${msg:+-p "$msg"}) || exit 0
+    val=$(dmenu $w -p 'new value:' <&-) || exit 0
+    val=$(echo "$val" | sed 's/:/\\:/g')
+    case $(xmlrpc "${host:?}" \
+        aria2.changeGlobalOption struct/"{${s%%:*}:$val}") in
+        *"'OK'"*) msg=Success. ;;
+        *) msg=Failed. ;;
+    esac
+done
