@@ -12,19 +12,20 @@ ff1=$(xdotool getactivewindow) || exit 1
 ff2=$(xdotool search --desktop $(xdotool get_desktop) --class "${class:?}" | fgrep -vm1 "$ff1") || exit 3
 geom=$(xdotool getwindowgeometry --shell "$ff2") && eval "$geom" || exit 4
 
+s='sleep 0.1'
+d='--delay 100'
 c=--clearmodifiers
-d='--delay 50'
-xdotool mousemove --window "$ff1" 50 10 \
-    key $c $d ctrl+Tab ctrl+shift+Tab \
+timeout 5 xdotool mousemove --window "$ff1" 50 10 \
+    key $c $d ctrl+shift+Tab ctrl+Tab \
     click $c 3 \
     key $c $d s Escape \
     mousedown $c 1 \
-    mousemove $((X+WIDTH-100)) $((Y+20)) \
-    sleep 0.1 \
-    mousemove_relative 5 0 \
-    sleep 0.1 \
-    mouseup $c 1 \
-    sleep 0.5 \
-    key $c $d ctrl+Tab ctrl+shift+Tab
+    mousemove $((X+WIDTH-100)) $((Y+20)) $s \
+    mousemove_relative -- -5 0 $s \
+    mouseup $c 1 $s \
+    mousemove 0 0 $s \
+    mousemove --window "$ff2" --polar 0 0 \
+    windowactivate --sync "$ff2" $s \
+    key $c $d ctrl+shift+Tab ctrl+Tab
 
 xdotool keyup Shift_L Shift_R Control_L Control_R
