@@ -39,7 +39,7 @@ dl() {
     file=$(printf '%s\n' "$url" | md5sum | cut -d' ' -f1)
     if [ ! -r "$cache/$file" ]; then
         $(getproxy "$url") aria2c -q -x10 -s10 -k1M -m1 --no-conf \
-            ${p:+--async-dns=false} -d"$cache" -o"$file" -- "$url" || return 1
+            --async-dns=false -d"$cache" -o"$file" -- "$url" || return 1
     fi
     exec xdg-open "$cache/$file"
 }
