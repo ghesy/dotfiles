@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # login to mutt's email accounts and notify the unread emails.
 
 # config
@@ -8,42 +8,32 @@ mutt_accounts_dir=~/.local/share/neomutt/accounts
 [ "$FLOCKER" != "$(realpath -- "$0")" ] &&
     exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
 
-nf=$(mktemp)
-trap 'rm -f "$nf"' EXIT HUP INT TERM
-
-unset n
 unread()
 {
-    unset imap_user pass folder ids count last_subject
+    unset imap_user pass folder ids count last_subject summary body
 
     # get the variables 'imap_user', 'folder' and imap's password
     # from the neomutt account file
-    eval "$(egrep '^set.*(imap_user|folder).*=' "${1:?}" | cut -d' ' -f2- |
-        sed 's/\s\+=\s\+/=/g')"
-    pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)") || return 1
+    eval "$(egrep '^set.*(imap_user|folder).*=' "${1:?}" |
+        sed -E 's/set\s+(\S+)\s*=\s*(\S+)/\1=\2/')"
+    pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)" | head -n1) || return 1
 
     # use curl to get the mails from the imap server
-    c() { curl -fsLu"${imap_user:?}:${pass:?}" "${folder:?}/INBOX" -X "$1" ;}
-    ids=$(c 'FETCH 1:* (UID FLAGS)' | grep -v Seen | tac | cut -d' ' -f5)
-    count=$(printf "%s${ids:+\n}" "$ids" | wc -l)
-    [ "$count" -gt 0 ] &&
-        last_subject=$(c "UID FETCH $(echo "$ids" | head -n1) (ENVELOPE)" |
-            cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | grep -v '?UTF-8')
-
-    # send the notification
-    [ -f "$nf" ] && n=$(cat "${nf:?}")
-    n="${n}${n:+
-}
- $(basename "$1")
-Unread Count: $count${last_subject:+
-Last Subject:
-$last_subject}"
-    [ -f "$nf" ] && printf '%s\n' "$n" > "$nf"
-    notify-send 'Unread Mails' "$n" -t 30000 -u low \
-        -h string:x-canonical-private-synchronous:xkbsubscr
+    c() { curl -fsSLu"${imap_user:?}:${pass:?}" "${folder:?}/INBOX" -X "$1" ;}
+    if ids=$(c 'FETCH 1:* (UID FLAGS)'); then
+        ids=$(echo "$ids" | grep -v Seen | cut -d' ' -f5)
+        count=$(printf "%s${ids:+\n}" "$ids" | wc -l)
+        if [ "$count" -gt 0 ]; then
+            last_subject=$(c "UID FETCH $(echo "$ids" | tail -n1) (ENVELOPE)" |
+                cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | grep -v '?UTF-8')
+        fi
+        notif="Unread Count: $count${last_subject:+$'\n'Last Subject:$'\n'$last_subject}"
+    else
+        notif='Failed.'
+    fi
+    notify-send -t 30000 -u low " $(basename "$1")" "$notif"
 }
 
 for f in "${mutt_accounts_dir:?}"/*; do
-    [ -f "$f" ] && unread "$f" &
+    [ -f "$f" ] && unread "$f"
 done
-wait
