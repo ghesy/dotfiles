@@ -92,8 +92,8 @@ bind index,pager \Cn sidebar-next-new
 bind index,pager B sidebar-toggle-visible
 
 # ctrl-x: Put mail / tagged mails in the spam folder. $my_spam_folder needs to be set.
-macro index \Cx "<enter-command>push <tag-prefix><save-message>$my_spam_folder<enter>" 'Put mail in the spam folder'
-macro pager \Cx "<enter-command>push <save-message>$my_spam_folder<enter>" 'Put mail in the spam folder'
+macro index \Cx "<enter-command>push <tag-prefix><save-message>$my_spam_folder<enter><enter>" 'Put mail in the spam folder'
+macro pager \Cx "<enter-command>push <save-message>$my_spam_folder<enter><enter>" 'Put mail in the spam folder'
 
 # ctrl-v: Toggle between "reverse-date" and "reverse-threads" sort modes
 macro index ,@srtth "<enter-command>set sort=reverse-threads; macro index \\Cv ,@srtdt 'Toggle threads display mode'<return>"
