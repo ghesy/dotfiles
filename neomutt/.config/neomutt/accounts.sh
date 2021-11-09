@@ -25,6 +25,9 @@ set spoolfile = +INBOX
 set postponed = +Draft # For Gmail: "+[Gmail]/Drafts"
 set record    = +Sent  # For Gmail: "+[Gmail]/Sent Mail"
 set trash     = +Trash # For Gmail: "+[Gmail]/Trash"
+set my_spam_folder +Spam # For Gmail: "+[Gmail]/Spam"
+# uncomment this if inbox is not showing up
+#mailboxes +INBOX
 # uncomment these lines to disable tls:
 #set ssl_starttls = no
 #set ssl_force_tls = no
