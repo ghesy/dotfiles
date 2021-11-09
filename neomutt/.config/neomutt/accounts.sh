@@ -25,6 +25,9 @@ set spoolfile = +INBOX
 set postponed = +Draft # For Gmail: "+[Gmail]/Drafts"
 set record    = +Sent  # For Gmail: "+[Gmail]/Sent Mail"
 set trash     = +Trash # For Gmail: "+[Gmail]/Trash"
+# uncomment these lines to disable tls:
+#set ssl_starttls = no
+#set ssl_force_tls = no
 eof
 
 mkdir -p ~/.cache/neomutt $dir/mailbook 2>/dev/null
