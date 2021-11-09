@@ -1,16 +1,27 @@
 #!/bin/sh
+
+# config
 dir=${PASSWORD_STORE_DIR:-$HOME/.password-store}
-cd $dir || exit 1
-f="$(find * -name '*.gpg' | rev | cut -c5- | rev |
-        dmenu -p 'Wat password u want?' | xargs -rd'\n' pass show)"
-prnt() { printf '%s\n' "$*" ;}
-pass="$(prnt "$f" | head -n1)"
-user="$(prnt "$f" | grep -Pio '^username:\s*\K.*')"
+
+set -e
+cd "$dir"
+p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass)
+f=$(pass show "${p:?}")
+
+p() { printf '%s\n' "$*" ;}
+pass=$(p "${f:?}" | head -n1)
+user=$(p "${f:?}" | grep -Pio '^username:\s*\K.*')
+
 if [ -n "$user" ]; then
     notify-send -t 2000 -h string:x-canonical-private-synchronous:dpass 'Username copied to clipboard.'
-    prnt "$user" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard || exit
+    p "$user" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
 fi
+
 if [ -n "$pass" ]; then
     notify-send -t 2000 -u low -h string:x-canonical-private-synchronous:dpass 'Password copied to clipboard.'
-    prnt "$pass" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
+    p "$pass" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
 fi
+
+p "$f" | grep -q '^otpauth://' &&
+    pass otp code -c "$p" &&
+    notify-send -t 2000 -u low -h string:x-canonical-private-synchronous:dpass 'OTP copied to clipboard.'
