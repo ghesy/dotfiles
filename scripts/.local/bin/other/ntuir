@@ -1,0 +1,4 @@
+#!/bin/bash
+# a wrapper script for tuir that merges oauth_client_id and oauth_client_secret
+# from another file into the main configuration file.
+exec tuir --config <(cat ~/.config/tuir/tuir.cfg ~/.local/share/tuir/oauth.cfg)
