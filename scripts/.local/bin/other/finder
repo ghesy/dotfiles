@@ -1,3 +1,4 @@
 #!/bin/sh
-# find files using bfs and fzf.
-FZF_DEFAULT_COMMAND="bfs -L -not -path '*/*vim/undo*/*' -not -path '*/Trash/*' -not -path '*/\.git/*' -- $@" fzf
+# find files using fzf and bfs. bfs does breadth-first search,
+# which is much faster than find's depth-first search
+FZF_DEFAULT_COMMAND="bfs -L -not -path '*/.git/*' -not -path '*/Trash/*' -not -path '*/*vim/undo*/*' -not -path '*/dosdevices/*' -- $@" fzf
