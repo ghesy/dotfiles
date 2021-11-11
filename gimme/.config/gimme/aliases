@@ -30,7 +30,7 @@ Github : web https://github.com/soystemd
 Syncthing : web localhost:8384
 
 News Boat, RSS : tui nboat
-Reddit : tui ntuir
+Reddit : tui tuir
 CPU, htop : tui htop
 Net Top : tuiroot nethogs -l
 Disk Top, IOTop : tuiroot iotop

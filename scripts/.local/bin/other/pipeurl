@@ -19,7 +19,7 @@ main() {
         *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
         *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
         *streamja.com/*|*videos.lukesmith.xyz/*) stream ;;
-        *reddit.com*|*redd.it*) exec ntuir $(printf '%s\n' "$url" | sed -E 's/.*\/r\/([^/]+)\/?$/-s \1/') ;;
+        *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's/.*\/r\/([^/]+)\/?$/-s \1/') ;;
         *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
     esac
