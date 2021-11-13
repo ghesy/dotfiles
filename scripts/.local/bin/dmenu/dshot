@@ -7,7 +7,9 @@
 
 # config
 dir=~/Documents/Screenshots
-mode=Save # initial mode (possible values: Save, Clipboard)
+savemode='Save '
+copymode='Copy '
+mode=$savemode # initial mode (possible values: Save, Clipboard)
 delay=0.2
 
 while :; do
@@ -17,15 +19,15 @@ while :; do
             dmenu -p Screenshot ${WINDOWID:+-w $WINDOWID}
     )" || exit 1
     case "$fn" in
-        Mode*) [ $mode = Save ] && mode=Clipboard || mode=Save ;;
+        Mode*) [ "$mode" = "$savemode" ] && mode="$copymode" || mode="$savemode" ;;
         *) break ;;
     esac
 done
 
 mkdir -p "$dir" || dir=~
 case $mode in
-    Save)  a="$(date +"$dir"/%y%m%d-%H%M%S).png" ;;
-    Clip*) a="| xclip -selection clipboard -t image/png" ;;
+    "$savemode") a="$(date +"$dir"/%y%m%d-%H%M%S).png" ;;
+    "$copymode") a="| xclip -selection clipboard -t image/png" ;;
 esac
 
 sleep $delay
@@ -36,6 +38,6 @@ case "$fn" in
 esac
 
 [ $? -eq 0 ] && case "$mode" in
-    Save) notify-send -i "$a" 'Screenshot Saved.' ;;
-    Clip*) notify-send 'Screenshot Copied to Clipboard.' ;;
+    "$savemode") notify-send -i "$a" 'Screenshot Saved.' ;;
+    "$copymode") notify-send 'Screenshot Copied to Clipboard.' ;;
 esac
