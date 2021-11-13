@@ -7,9 +7,12 @@ actions='鈴 Sleep
  Reboot
  Logout'
 
+# the -shb and -shf dmenu color options require dmenu's fuzzyhighlight patch.
+colors='-sb #657432 -shb #657432 -sf white -shf gray'
+
 main() {
     action=$1
-    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'Do what?')
+    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'Do what?' $colors)
     case $(echo $action | tr A-Z a-z) in
         *sleep)
             can_hibernate &&
@@ -31,7 +34,8 @@ main() {
 
 ask() {
     ans=$(printf "No\\nYes" | dmenu -p "$*" \
-        -nb darkred -sb maroon -sf white -nf darkgray)
+        -nb darkred -nhb darkred -nf darkgray -nhf darkgray \
+        -sb maroon -shb maroon -sf white -shf gray)
     [ "$ans" = Yes ] && return 0 || return 1
 }
 
@@ -55,7 +59,7 @@ ask_reboot_os() {
     command -v grub-entries >/dev/null || return 9
     entries=$(sudo -A grub-entries -g)
     [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
-    sel=$(echo "$entries" | dmenu -p 'Reboot to:') || return 1
+    sel=$(echo "$entries" | dmenu -p 'Reboot to:' $colors) || return 1
     echo "$sel" | cut -d' ' -f2-
 }
 
