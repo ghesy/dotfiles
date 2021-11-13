@@ -11,7 +11,7 @@ command -v abook >/dev/null ||
 command -v lynx >/dev/null  ||
     notify-send NeoMutt 'Please install "lynx" to be able to read HTML mails'
 
-[ ! -d $acc ] && cat << 'eof' | { mkdir -p $acc; cat > $acc/EXAMPLE ;}
+[ ! -d "$acc" ] && cat << 'eof' | { mkdir -p "$acc"; cat > "$acc"/EXAMPLE ;}
 # vim:ft=neomuttrc
 set realname  = 'Real Name'
 set imap_user = username
@@ -34,6 +34,6 @@ set my_spam_folder +Spam # For Gmail: "+[Gmail]/Spam"
 eof
 
 mkdir -p ~/.cache/neomutt $dir/mailbook 2>/dev/null
-! sel=$(basename -a $acc/* | dmenu -w $WINDOWID -p 'Choose an email account') ||
-    [ ! -r $acc/$sel ] && { pkill -xg0 neomutt && exit ;}
-echo source $acc/$sel
+! sel=$(basename -a "$acc"/* | dmenu -w $WINDOWID -p 'Choose an email account') ||
+    [ ! -r "$acc/$sel" ] && { pkill -xg0 neomutt && exit ;}
+echo source "$acc/$sel"
