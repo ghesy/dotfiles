@@ -72,7 +72,7 @@ autocmd BufWritePre * call <SID>NoTrailing()
 nnoremap <silent>U :silent !termopen<CR>
 
 " center the cursor horizontally
-nnoremap <silent> z. :normal! zszH<CR>
+nnoremap <silent> z. zs5zh
 
 " go to start/end of line
 nnoremap H ^
@@ -166,17 +166,8 @@ function UndoTreeRun()
     endif
 endf
 
-autocmd VimEnter,BufEnter * call BufferMaps()
-function BufferMaps()
-    if ( bufname('%') =~# "undotree_" || bufname('%') =~# "diffpanel_" ||
-       \ bufname('%') =~# "fugitive://" || bufname('%') =~# ".git/index" || &diff )
-        silent! nunmap <C-n>
-        silent! nunmap <C-p>
-    else
-        nnoremap <silent> <C-n> :bnext<CR>
-        nnoremap <silent> <C-p> :bprev<CR>
-    endif
-endf
+nnoremap <silent> <C-n> :bnext<CR>
+nnoremap <silent> <C-p> :bprev<CR>
 
 " vim-bufferline
 let g:bufferline_show_bufnr = 0
