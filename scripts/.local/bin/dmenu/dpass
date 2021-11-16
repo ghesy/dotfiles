@@ -11,7 +11,7 @@ f=$(pass show "${p:?}")
 
 p() { printf '%s\n' "$*" ;}
 pass=$(p "${f:?}" | head -n1)
-user=$(p "${f:?}" | grep -Pio '^username:\s*\K.*')
+user=$(p "${f:?}" | grep -Pio '^username:\s*\K.*') ||:
 
 if [ -n "$user" ]; then
     notify-send -t 2000 -h string:x-canonical-private-synchronous:dpass 'Username copied to clipboard.'
