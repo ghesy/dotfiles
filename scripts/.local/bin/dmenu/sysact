@@ -8,11 +8,11 @@ actions='鈴 Sleep
  Logout'
 
 # the -shb and -shf dmenu color options require dmenu's fuzzyhighlight patch.
-colors='-sb #657432 -shb #657432 -sf white -shf gray'
+colors='-sb #660066 -shb #660066 -sf white -shf red'
 
 main() {
     action=$1
-    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'Do what?' $colors)
+    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'System Action:' $colors)
     case $(echo $action | tr A-Z a-z) in
         *sleep)
             can_hibernate &&
@@ -35,7 +35,7 @@ main() {
 ask() {
     ans=$(printf "No\\nYes" | dmenu -p "$*" \
         -nb darkred -nhb darkred -nf darkgray -nhf darkgray \
-        -sb maroon -shb maroon -sf white -shf gray)
+        -sb maroon -shb maroon -sf white -shf orange)
     [ "$ans" = Yes ] && return 0 || return 1
 }
 

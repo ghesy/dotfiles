@@ -19,8 +19,8 @@ main()
 menu()
 {
     # the -shb and -shf dmenu options require dmenu's fuzzyhighlight patch.
-    a="$(list_aliases | dmenu -p 'Choose Your Poison' -sb '#005000' \
-        -shb '#005000' -sf white -shf darkgray)" || return 1
+    a="$(list_aliases | dmenu -p 'Choose Your Poison:' -sb '#006000' \
+        -shb '#006000' -sf white -shf green)" || return 1
     eval "$(get_cmd "$a")"
 }
 
