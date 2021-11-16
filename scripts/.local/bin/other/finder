@@ -1,5 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 # find files using fzf and bfs. bfs does breadth-first search,
 # which is much faster than find's depth-first search
+set -- "${@//\"/'\"'}"; set -- "${@//\$/'\$'}"; set -- "${@/#/\"}"; set -- "${@/%/\"}"
 FZF_DEFAULT_COMMAND="bfs -L -not -path '*/.git/*' -not -path '*/Trash/*' \
     -not -path '*/*vim/undo*/*' -not -path '*/dosdevices/*' -- $*" fzf
