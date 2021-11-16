@@ -67,11 +67,19 @@ pidfile=$tmp/sxip.pid.$ID.$rand
 
 tput(){ ########## TPUT
 
+set -e
+umask 077
+
 dir=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/sxip.$(id -u)
 bin=$dir/tput
 
-umask 077
-[ ! -x "$bin" ] && mkdir -p "$dir" && { base32 -d > "$bin" && chmod 700 "$bin" ;} << 'eof'
+mkdir -pm700 "$dir"
+chmod 700 "$dir"
+
+checksum=270276379cdfd3b51047d9e5baa6cbee87f00f836536939b7c1218e7b3391afc
+[ -e "$bin" ] && [ "$(sha256sum "$bin" | cut -d' ' -f1)" != "$checksum" ] && rm "$bin"
+
+[ ! -e "$bin" ] && base32 -d > "$bin" << 'eof'
 P5CUYRQCAEAQAAAAAAAAAAAAAABQAPQAAEAAAABAEQAAAAAAAAAEAAAAAAAAAAAAJBIQAAAAAAAA
 AAAAAAAEAABYAAGQAQAADEABQAAGAAAAABAAAAAEAAAAAAAAAAAAIAAAAAAAAAAAAQAAAAAAAAAA
 ADMAEAAAAAAAAAGYAIAAAAAAAAAAQAAAAAAAAAAAAMAAAAAEAAAAAGADAAAAAAAAAAMAGAAAAAAA
@@ -546,12 +554,9 @@ AAAAAAIAAAAAAAAAAAAQAAAAAAAAAAABAAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVCQAAAA
 AAAAADZQAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAA===
 eof
 
-if [ "$(sha256sum "$bin" | cut -d' ' -f1)" = "270276379cdfd3b51047d9e5baa6cbee87f00f836536939b7c1218e7b3391afc" ]
-then
-    "$bin" "$@"
-else
-    rm "$bin"
-fi
+chmod 700 "$bin"
+set +e
+"$bin" "$@"
 
 } ########## END OF TPUT
 
