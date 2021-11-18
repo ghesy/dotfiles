@@ -20,8 +20,6 @@ eval "$(xdotool getwindowgeometry --shell "${WINDOWID:?}")"
 hp=$((${HEIGHT:?}/$(tput lines)))
 wp=$((${WIDTH:?}/$(tput cols)))
 [ $? -ne 0 ] && exit 1
-tx=${X:?}
-ty=${Y:?}
 
 # calculate the geometry of the sxiv window
 eval "$(exiv2 "$img" 2>/dev/null | sed -n -e 's/^Image size \+: \+\([0-9]\+\) \+x \+\([0-9]\+\)/sw=\1;sh=\2/p')"
@@ -31,12 +29,6 @@ ww=$((w*wp))
 [ "${sw:?}" -gt "$ww" ] && { sh=$(echo "scale=5; $sh*($ww/$sw)" | bc); sh=${sh%.*}; sw=$ww ;}
 sx=$((x*wp))
 sy=$((y*hp))
-
-# if the mouse is in the area of sxiv, move it
-eval "$(xdotool getmouselocation --shell)"
-[ "${X:?}" -ge "$((tx+sx))" ] && [ "$X" -le "$((tx+sx+sw))" ] &&
-[ "${Y:?}" -ge "$((ty+sy))" ] && [ "$Y" -le "$((ty+sy+sh))" ] &&
-xdotool mousemove $((tx+sx-2)) $((ty+sy-2))
 
 # launch the preview
 rand=$(shuf -n1 -i10000-99999)
