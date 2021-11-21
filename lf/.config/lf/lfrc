@@ -12,7 +12,7 @@ set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
 
-set previewer ~/.config/lf/scope
+set previewer ~/.config/lf/previewer
 set cleaner sxipc
 
 cmd open $~/.config/lf/opener
