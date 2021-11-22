@@ -16,6 +16,20 @@ main() {
         echo 
     fi
     net_recently_changed && print_net_type
+    if downloading && seeding; then echo 
+    elif downloading; then echo 
+    elif seeding; then echo 
+    fi
+}
+
+# return true if transmission or aria2 have ongoing downloads.
+downloading() {
+    test $(transmission-remote -l | grep Downloading | wc -l) -gt 0 ||
+    test $(xmlrpc http://localhost:6800/rpc aria2.tellActive | sed '1,3d' | wc -l) -gt 0
+}
+
+seeding() {
+    test $(transmission-remote -l | grep Seeding | wc -l) -gt 0
 }
 
 print_net_type() {
