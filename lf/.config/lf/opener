@@ -16,13 +16,14 @@ case $(printf '%s\n' $f | tr A-Z a-z) in
     *.pro) kicad $f ;;
     *.kicad_pcb|*.kicad_pcb-bak) pcbnew $f ;;
     *.sch|*.sch-bak) eeschema $f ;;
-    *.azw3|*.mobi|*.fb[23]) zathura -- $f ;;
+    *.azw3|*.mobi|*.fb[23]) foliate $f ;;
     *) ext=false ;;
 esac || read -p 'Press enter to continue'
 [ "$ext" = true ] && exit
 
 case $(file -b --mime-type --dereference -- $f) in
-    */vnd.djvu|*/pdf|*/epup*) zathura -- $f ;;
+    */pdf) zathura -- $f ;;
+    */vnd.djvu|*/epub*) foliate $f ;;
     */x-xcf|*photoshop) gimp -- $f ;;
     video/*) mpv --really-quiet -- $f ;;
     audio/*) mpvmusic -- $f ;;
