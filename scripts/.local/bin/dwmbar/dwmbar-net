@@ -24,12 +24,12 @@ main() {
 
 # return true if transmission or aria2 have ongoing downloads.
 downloading() {
-    test $(transmission-remote -l | grep Downloading | wc -l) -gt 0 ||
+    test $(transmission-remote -l | grep 'Downloading\|Up & Down' | wc -l) -gt 0 ||
     test $(xmlrpc http://localhost:6800/rpc aria2.tellActive | sed '1,3d' | wc -l) -gt 0
 }
 
 seeding() {
-    test $(transmission-remote -l | grep Seeding | wc -l) -gt 0
+    test $(transmission-remote -l | grep 'Seeding\|Up & Down' | wc -l) -gt 0
 }
 
 print_net_type() {
