@@ -13,6 +13,10 @@ group=$(id -gn "$SUDO_USER")
 printf '%s\n' "$HOME"/.mozilla/firefox/*.*/ |
     xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" user.js -t
 
+# install HideContainersIcon.css
+printf '%schrome\n' "$HOME"/.mozilla/firefox/*.*/ |
+    xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" HideContainersIcon.css -Dt
+
 # install pywalfox
 [ ! -e "${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json ] &&
     chmod -v 755 $(runuser -u "$SUDO_USER" -g "${group:-nobody}" pywalfox install | grep -Eom1 '\S+main.sh')
