@@ -1,6 +1,7 @@
 set selection-clipboard clipboard
 set window-title-basename 1
 set statusbar-basename 1
+set guioptions sv
 set recolor
 
 map u scroll half-up
