@@ -14,7 +14,7 @@ case $1 in
     { episoder list -Cd90 -n120
         date +%F\ $'\e[1;36m=========='
         date -d 'last month' +%F\ $'\e[1;36m==========' ;} |
-        sort -n | tac | ${PAGER:-less} ;;
+        sort -rn | ${PAGER:-less} ;;
 -a)
     cmd="episoder search {q} | grep '^[0-9]'"
     printf '\033[5 q'
@@ -27,6 +27,14 @@ case $1 in
 -i)
     cut -f1 $conf/shows | HOME=$conf xargs -rd'\n' -L1 episoder add
     episoder update -d90 ;;
+-h)
+    cat <<- 'eof'
+	options:
+	-a search and add new shows.
+	-e export the list of added shows to ~/.config/tv/shows.
+	-i import shows from ~/.config/tv/shows.
+	eof
+    ;;
 *)
     exec episoder "$@" ;;
 esac
