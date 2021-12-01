@@ -16,8 +16,8 @@ case $1 in
     cmd="episoder search {q} | grep '^[0-9]'"
     printf '\033[5 q'
     show=$(:|fzf --disabled --bind="change:reload:$cmd") &&
-        episoder add "${show%%$'\t'*}" && episoder update -d90
-    exec "$0" -e ;;
+        episoder add "${show%%$'\t'*}" && episoder update -d90 &&
+        exec "$0" -e ;;
 -e)
     paste <(episoder shows | grep -Po '^\[.*\d\] \K\S+') \
         <(episoder shows | grep -E '(, \S+){2}' | rev | cut -d, -f3- | awk '{$1=$1};1' | rev) > $conf/shows ;;
