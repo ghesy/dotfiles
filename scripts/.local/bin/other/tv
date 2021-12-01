@@ -11,10 +11,7 @@ episoder() { HOME=$conf command episoder "$@" ;}
 case $1 in
 '')
     episoder update -d90
-    { episoder list -Cd90 -n120
-        date +%F\ $'\e[1;36m=========='
-        date -d 'last month' +%F\ $'\e[1;36m==========' ;} |
-        sort -rn | ${PAGER:-less} ;;
+    episoder list -i | tac | less ;;
 -a)
     cmd="episoder search {q} | grep '^[0-9]'"
     printf '\033[5 q'
@@ -36,5 +33,5 @@ case $1 in
 	eof
     ;;
 *)
-    exec episoder "$@" ;;
+    episoder "$@" ;;
 esac
