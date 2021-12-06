@@ -13,12 +13,12 @@ main() {
     [ -z "$url" ] && exit
 
     case $url in
-        *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp) dl ;;
+        *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp|*.gif) dl ;;
         *reddit.com/gallery*|*i.redd.it*|*imgur.com/*|*gfycat.com/*) gdl ;;
-        *.mp4|*.mp4?*|*.webm|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*youtube.com/watch*|\
+        *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*youtube.com/watch*|\
         *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
-        *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|\
-        *streamja.com/*|*videos.lukesmith.xyz/*) stream ;;
+        *bitchute.com/*|*odysee.com/*|*v.redd*|*streamwo.com/*|*streamable.com/*|*streamff.com/*|\
+        *streamja.com/*|*videos.lukesmith.xyz/*|*tiktok.com/*|*khanacademy.org/*) stream ;;
         *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
         *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
