@@ -1,5 +1,9 @@
 #!/bin/bash
 # a file opener script for lf.
+# note: sxiv's -F option requires the START_FROM_FILE_PATCH from sxiv-flexipatch,
+# and the -E option requires this patch:
+# https://github.com/soystemd/sxiv-flexipatch/commit/7422f2c?diff=unified
+
 IFS=$'\n'
 
 [ -z $id ] || [ -z $f ] && exit 1
@@ -27,7 +31,7 @@ case $(file -b --mime-type --dereference -- $f) in
     */x-xcf|*photoshop) gimp -- $f ;;
     video/*) mpv --really-quiet -- $f ;;
     audio/*) mpvmusic -- $f ;;
-    image/*) sxiv -aoF $(realpath -- $f) . | lfselect ;;
+    image/*) sxiv -aoEF $(realpath -- $f) . | lfselect ;;
     */html) $BROWSER $f ;;
     */troff) man -- $f ;;
     */x-sc) sc-im -- $f ;;
