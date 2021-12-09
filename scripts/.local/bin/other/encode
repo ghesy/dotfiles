@@ -1,0 +1,36 @@
+#!/bin/sh
+# (re)encodes videos to x265 using ffmpeg.
+# usage: encode FILE...
+# TODO: add an option to encode to VP9.
+
+# safely make a fifo
+d=$(mktemp -d)
+trap exit INT TERM
+trap 'rm -r "$d"' EXIT
+fifo=$d/fifo
+mkfifo "$fifo" | exit 1
+
+# loop over all given files and (re)encode them
+for f; do
+    if [ -f "${f%.*}.x265.${f##*.}" ]; then
+        echo video already converted: "$f"
+        continue
+    fi
+
+    frame_count=$(ffprobe -v error -select_streams v:0 -count_packets \
+        -show_entries stream=nb_read_packets -of csv=p=0 "$f")
+
+    while IFS= read -r info; do
+        case $info in frame=*)
+            set -- ${info#*=}
+            p=$(echo "scale=2; $1*100/$frame_count" | bc)
+            printf '\r%s%%  %s  ' "$p" "${f##*/}" ;;
+        esac
+    done <"$fifo" &
+
+    ffmpeg -nostdin -hide_banner -loglevel error -progress pipe:1 -y -i "$f" \
+        -c:v libx264 -x265-params log-level=error -c:a copy \
+        "${f%.*}.x265.TMP.${f##*.}" >"$fifo" &&
+        mv -n "${f%.*}.x265.TMP.${f##*.}" "${f%.*}.x265.${f##*.}"
+    echo
+done
