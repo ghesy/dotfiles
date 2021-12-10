@@ -5,7 +5,7 @@ umask 077
 c=~/.config/resrouter/resrouter.conf
 mkdir -p $(dirname $c)
 if [ ! -r $c ]; then
-    printf 'host=192.168.1.1\ncmds="admin\npass\nreboot"\n' > $c
+    printf 'host=192.168.1.1\ncmds="admin\n$(pass Router | head -n1)\nreboot"\n' > $c
     echo default config created: $c
     echo edit it and run again.
     exit
