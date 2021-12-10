@@ -19,8 +19,7 @@ cmd open $~/.config/lf/opener
 cmd openall $~/.config/lf/opener -a
 
 cmd paste ${{
-    printf '\e[?1049h'
-    printf '\e[H'
+    printf '\e[?1049h\e[H'
     list=~/.local/share/lf/files
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
@@ -36,12 +35,12 @@ cmd paste ${{
 }}
 
 cmd delete ${{
-    printf '\e[?1049h'
-    printf '\e[H'
+    printf '\e[?1049h\e[H'
     echo 'Permanently Deleting Files:'; echo
     printf '  %s\n' $fx ""
     read -p 'Delete? [y/N] ' ans
-    case "$ans" in y|Y) rm -rfv --one-file-system -- $fx ;; esac || read -p 'Press enter to continue'
+    case "$ans" in y|Y) rm -rfv --one-file-system -- $fx ;;
+    esac || read -p 'Press enter to continue'
 }}
 
 cmd mkdir %{{
@@ -60,6 +59,11 @@ cmd finder ${{
     printf '%s\n' $f | lfselect
 }}
 
+cmd extract ${{
+    printf '\e[?1049h\e[H'
+    aunpack -De -- $fx || read -p 'Press enter to continue'
+}}
+
 cmd q quit
 cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;<space>load<enter>
 cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;<space>&sxipc<enter>
@@ -73,7 +77,7 @@ map * push :glob-select<space>
 map gh
 map g top
 map L openall
-map E $aunpack -De -- $fx
+map E extract
 map a push :archive<space>
 map t preview-on
 map T preview-off
