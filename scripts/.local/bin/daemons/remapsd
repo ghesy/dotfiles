@@ -1,5 +1,6 @@
 #!/bin/sh
 # run "remaps" when new input devices are connected.
+unset p
 trap 'pkill -P$$' HUP INT TERM
 udevadm monitor -usinput | while IFS= read -r line; do
     kill -0 $p && continue
