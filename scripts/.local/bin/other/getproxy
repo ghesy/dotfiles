@@ -1,13 +1,20 @@
-#!/bin/bash
-# test a URL; if it's blocked, print 'proxychains -q'.
-# requires rkill(pslist).
-case ${1:?} in
-    *odysee.com/*|*.lbryplayer.xyz/*) exit ;;
-esac
-trap 'rkill $$' USR1
-trap 'echo proxychains -q; rkill $$' USR2
-trap exit INT TERM
+#!/bin/sh
+# test a URL; if it can be accessed freely, dont' print anything and exit
+# with a value of 0. if it only can be accessed using `proxychains`, print
+# "proxychains -q" and exit with a value of 0. if it outright can't be accessed,
+# exit with a value of 1 and without printing anything.
 exec 2>/dev/null
-(         timeout 8                 curl -sLI -- "${1:?}" >/dev/null && kill -USR1 $$) &
-(sleep 1; timeout 16 proxychains -q curl -sLI -- "${1:?}" >/dev/null && kill -USR2 $$) &
-wait
+[ -z "$1" ] && exit 1
+id=$(shuf -n1 -i10000000-99999999)
+trap 'pkill -f "00$id" && pkill -f "00$id"' EXIT
+unset n
+(
+    (timeout 8.00$id curl -sLI -- "$1" >/dev/null && echo noproxy || echo timeout) &
+    (sleep 1.00$id; timeout 16.00$id proxychains -q curl -sLI -- "$1" >/dev/null && echo proxy || echo timeout) &
+) | while read x; do
+        case $x in
+            noproxy) exit 0 ;;
+            proxy) echo 'proxychains -q'; exit 0 ;;
+            timeout) n=$((n+1)); [ $n -ge 2 ] && exit 1 ;;
+        esac
+    done
