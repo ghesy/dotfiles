@@ -29,7 +29,9 @@ wait
 runsvdir -P ~/.local/sv/run &
 
 # lock the screen
-sleep 0.2; loginctl lock-session; sleep 0.2
+until pidof -q xss-lock; do sleep 0.2; done
+loginctl lock-session
+sleep 0.2
 
 # set wallpaper
 ~/.fehbg &
