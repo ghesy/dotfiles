@@ -27,4 +27,4 @@ newsboat -u "$u" -I "$import"
 newsboat -u "$u" -E "$export" ) & ) >/dev/null 2>&1
 
 # lauch newsboat
-exec newsboat -u "$u"
+exec newsboat -u "$u" "$@"
