@@ -1,5 +1,6 @@
 #!/bin/bash
 # login to mutt's email accounts and notify the unread emails.
+# requires curl and python.
 
 # config
 mutt_accounts_dir=~/.local/share/neomutt/accounts
@@ -8,9 +9,17 @@ mutt_accounts_dir=~/.local/share/neomutt/accounts
 [ "$FLOCKER" != "$(realpath -- "$0")" ] &&
     exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
 
+# decode utf8-encoded email subjects
+utf8() {
+python -c "import sys,email.header
+def decode(s): return ''.join(w.decode(e or 'utf8') if isinstance(w,bytes) else w
+for w,e in email.header.decode_header(s))
+print(decode(sys.stdin.read()))"
+}
+
 unread()
 {
-    unset imap_user pass folder ids count last_subject summary body
+    unset imap_user pass folder ids count last_subject
 
     # get the variables 'imap_user', 'folder' and imap's password
     # from the neomutt account file
@@ -25,7 +34,7 @@ unread()
         count=$(printf "%s${ids:+\n}" "$ids" | wc -l)
         if [ "$count" -gt 0 ]; then
             last_subject=$(c "UID FETCH $(echo "$ids" | tail -n1) (ENVELOPE)" |
-                cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | grep -v '?UTF-8')
+                cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | utf8)
         fi
         notif="Unread Count: $count${last_subject:+$'\n'Last Subject:$'\n'$last_subject}"
     else
