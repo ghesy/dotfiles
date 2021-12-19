@@ -10,6 +10,7 @@ Claws Mail : claws-mail --alternate-config-dir ~/.local/share/claws-mail
 GParted, Partitioning : root gparted
 Book Reader, Foliate : foliate
 aRandr : arandr
+Miracast : gnome-network-displays
 
 TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 Ripcord : trayrun ripcord
