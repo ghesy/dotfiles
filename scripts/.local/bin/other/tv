@@ -4,6 +4,7 @@
 #
 # options:
 # -a: search and add new shows.
+# -r: select and remove added shows.
 # -l: list added shows.
 # -e: export the list of added shows to ~/.local/share/tv/shows.
 # -i: import shows from ~/.local/share/tv/shows.
@@ -19,18 +20,25 @@ episoder() {
         HOME=${dbdir:?} command episoder -c <(printf '%s\n' "${conf:?}") "$@"
 }
 
+list_show_nums() {
+    episoder shows | grep -Po '^\[\s*\K\d+'
+}
+
+list_show_ids() {
+    episoder shows | grep -Po '^\[\s*\d+] \K\S+'
+}
+
 list_show_names() {
     episoder shows | grep -E '(, \S+){2}' | rev |
         cut -d, -f3- | awk '{$1=$1};1' | rev
 }
 
-list_show_ids() {
-    episoder shows | grep -Po '^\[.*\d\] \K\S+'
+print_show_list() {
+    paste <(list_show_nums) <(list_show_ids) <(list_show_names)
 }
 
 export_show_list() {
-    mkdir -p "$(dirname "${shows:?}")" &&
-        paste <(list_show_ids) <(list_show_names) > "${shows:?}"
+    mkdir -p "$(dirname "${shows:?}")" && print_show_list > "${shows:?}"
 }
 
 case $1 in
@@ -42,7 +50,7 @@ case $1 in
     episoder update -d90
     episoder list -i | tac | less ;;
 -i)
-    cut -f1 "${shows:?}" | while IFS= read -r show; do
+    cut -f2 "${shows:?}" | while IFS= read -r show; do
         echo importing "$show"...
         episoder add "$show"
     done
@@ -50,13 +58,23 @@ case $1 in
 -a)
     cmd="episoder search {q} | grep '^[0-9]'"
     printf '\033[5 q'
-    show=$(:|fzf --disabled --bind="change:reload:$cmd") &&
+    show=$(:|fzf --disabled --bind="change:reload:$cmd" \
+        --prompt 'Search for a show to add: ') &&
         episoder add "${show%%$'\t'*}" && episoder update -d90 &&
         export_show_list ;;
+-r)
+    print_show_list | fzf --prompt 'Show(s) to remove: ' | cut -f1 |
+        while IFS= read -r show; do
+            echo removing "$show"...
+            episoder remove "$show"
+        done ;;
 -h)
     cat <<- 'eof'
+	run without any arguments: show upcoming shows in pager.
+	run with options/arguments not listed here: pass all args to episoder.
 	options:
 	-a search and add new shows.
+	-r select and remove added shows.
 	-l list added shows.
 	-e export the list of added shows to ~/.local/share/tv/shows.
 	-i import shows from ~/.local/share/tv/shows.
