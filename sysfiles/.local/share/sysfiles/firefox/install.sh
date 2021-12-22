@@ -1,9 +1,8 @@
 #!/bin/sh
 # install firefox, pywalfox and a privacy-oriented user.js.
 
-# install packages
-pkg() { pacman -Q "$@" >/dev/null 2>&1 || paru -S --needed "$@" || exit 1 ;}
-pkg firefox python-pywalfox
+# install firefox
+command -v firefox >/dev/null || pacman -S --needed firefox || exit 1
 
 # get user's home directory and group
 HOME=$(getent passwd "${SUDO_USER:?}" | cut -d: -f6)
@@ -18,5 +17,10 @@ printf '%schrome\n' "$HOME"/.mozilla/firefox/*.*/ |
     xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" HideContainersIcon.css -Dt
 
 # install pywalfox
-[ ! -e "${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json ] &&
-    chmod -v 755 $(runuser -u "$SUDO_USER" -g "${group:-nobody}" pywalfox install | grep -Eom1 '\S+main.sh')
+pacman -Q python-pywalfox >/dev/null 2>&1 || {
+    echo Please install python-pywalfox form the AUR and run this again to install it\'s config files.
+    exit 1
+}
+grep -q lib/"$(basename "$(readlink -f /bin/python)")" "${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json ||
+    runuser -u "$SUDO_USER" -g "${group:-nobody}" pywalfox install | grep -v permi
+chmod -c 755 $(pacman -Qql python-pywalfox | grep main.sh)
