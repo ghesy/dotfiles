@@ -1,3 +1,7 @@
+/* github.com/arkenfox/user.js
+ * BASED ON COMMIT: bb56056
+ * View changes: https://github.com/arkenfox/user.js/compare/bb56056..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+
 /* ==============================
  * ===    practical prefs     ===
  * ============================== */
@@ -38,16 +42,17 @@ user_pref("browser.aboutConfig.showWarning", false);
 /* disable default browser check */
 user_pref("browser.shell.checkDefaultBrowser", false);
 
-/* disable Activity Stream stuff */
+/* disable Homepage/ActivityStream stuff */
 user_pref("browser.newtabpage.enabled", false);
 user_pref("browser.newtab.preload", false);
 user_pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
 user_pref("browser.newtabpage.activity-stream.telemetry", false);
-user_pref("browser.newtabpage.activity-stream.feeds.snippets", false); // [DEFAULT: false FF89+]
+user_pref("browser.newtabpage.activity-stream.feeds.snippets", false);
 user_pref("browser.newtabpage.activity-stream.feeds.section.topstories", false);
 user_pref("browser.newtabpage.activity-stream.section.highlights.includePocket", false);
 user_pref("browser.newtabpage.activity-stream.showSponsored", false);
-user_pref("browser.newtabpage.activity-stream.feeds.discoverystreamfeed", false); // [FF66+]
+user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
+user_pref("browser.newtabpage.activity-stream.feeds.discoverystreamfeed", false);
 user_pref("browser.newtabpage.activity-stream.default.sites", "");
 
 /* disable pocket */
@@ -98,8 +103,6 @@ user_pref("browser.discovery.enabled", false);
 user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
 user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
-user_pref("captivedetect.canonicalURL", "");
-user_pref("network.captive-portal-service.enabled", false);
 user_pref("network.connectivity-service.enabled", false);
 
 /* enable blocklists */
@@ -122,6 +125,8 @@ user_pref("extensions.formautofill.available", "off");
 user_pref("extensions.formautofill.creditCards.available", false);
 user_pref("extensions.formautofill.creditCards.enabled", false);
 user_pref("extensions.formautofill.heuristics.enabled", false);
+user_pref("signon.formlessCapture.enabled", false);
+user_pref("signon.autofillForms", false);
 
 /* disable more telemetry bullshit */
 user_pref("extensions.webcompat-reporter.enabled", false);
@@ -130,10 +135,14 @@ user_pref("extensions.webcompat-reporter.enabled", false);
 user_pref("network.prefetch-next", false);
 user_pref("network.dns.disablePrefetch", true);
 user_pref("network.predictor.enabled", false);
+user_pref("network.predictor.enable-prefetch", false);
 user_pref("network.http.speculative-parallel-limit", 0);
 
 /* disable IPv6 which can be abused and leak data */
 user_pref("network.dns.disableIPv6", true);
+
+/* when using SOCKS proxy, also route DNS lookups through it */
+user_pref("network.proxy.socks_remote_dns", true);
 
 /* disable a potential proxy bypass */
 user_pref("network.gio.supported-protocols", "");
@@ -149,6 +158,8 @@ user_pref("browser.search.suggest.enabled", false);
 user_pref("browser.urlbar.suggest.searches", false);
 user_pref("browser.urlbar.speculativeConnect.enabled", false);
 user_pref("browser.urlbar.dnsResolveSingleWordsAfterSearch", 0);
+user_pref("browser.urlbar.suggest.quicksuggest.nonsponsored", false);
+user_pref("browser.urlbar.suggest.quicksuggest.sponsored", false);
 
 /* more suggestion settings */
 user_pref("browser.urlbar.suggest.history", true);
@@ -161,6 +172,11 @@ user_pref("signon.rememberSignons", false);
 
 /* don't write cache to disk in private browsing */
 user_pref("browser.privatebrowsing.forceMediaMemoryCache", true);
+user_pref("media.memory_cache_max_size", 65536);
+
+/* disable favicons in shortcuts, which remain on disk
+ * even after deleting the shortcut */
+user_pref("browser.shell.shortcutFavicons", false);
 
 /* enforce TLS 1.0 and 1.1 downgrades as session only */
 user_pref("security.tls.version.enable-deprecated", false);
@@ -204,10 +220,6 @@ user_pref("dom.disable_window_move_resize", true);
 /* disable push notifications */
 user_pref("dom.push.enabled", false);
 
-/* disable clipboard commands (cut/copy) from "non-privileged" content */
-/* this is set to "true" because it breaks "click to copy" buttons */
-user_pref("dom.allow_cut_copy", true);
-
 /* disable insecure asm.js */
 user_pref("javascript.options.asmjs", false);
 
@@ -233,18 +245,60 @@ user_pref("permissions.manager.defaultsUrl", "");
 /* enable an important security feature */
 user_pref("security.csp.enable", true);
 
-/* block all third party cookies */
-user_pref("network.cookie.cookieBehavior", 1);
+/* cookie, tracking and miner protection */
 user_pref("browser.contentblocking.category", "custom");
+user_pref("network.cookie.cookieBehavior", 1);
+user_pref("network.http.referer.disallowCrossSiteRelaxingDefault", true);
+user_pref("privacy.partition.network_state.ocsp_cache", true);
+user_pref("privacy.trackingprotection.enabled", true);
+user_pref("privacy.trackingprotection.socialtracking.enabled", true);
+user_pref("privacy.trackingprotection.cryptomining.enabled", true);
+user_pref("privacy.trackingprotection.fingerprinting.enabled", true);
+
+/* enable state partitioning of service workers */
+user_pref("privacy.partition.serviceWorkers", true);
 
 /* disable social tracking */
 user_pref("privacy.trackingprotection.socialtracking.enabled", true);
-
-/* resist fingerprinting (it's set to false because it causes brakages) */
-user_pref("privacy.resistFingerprinting", false);
 
 /* disable some bullshit annoyances */
 user_pref("browser.startup.homepage_override.mstone", "ignore");
 user_pref("browser.messaging-system.whatsNewPanel.enabled", false);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
 user_pref("browser.newtabpage.activity-stream.asrouter.userprefs.cfr.addons", false);
+
+/* enforce PDFJS, disable PDFJS scripting */
+user_pref("pdfjs.disabled", false);
+user_pref("pdfjs.enableScripting", false);
+
+/* disable permission delegation */
+user_pref("permissions.delegation.enabled", false);
+
+/* disable adding downloads to the system's "recent documents" list */
+user_pref("browser.download.manager.addToRecentDocs", false);
+
+/*
+ * disabled stuff:
+ */
+
+/* don't set resistFingerprinting because it causes brakages */
+user_pref("privacy.resistFingerprinting", false);
+
+/* enable clipboard commands (cut/copy) from "non-privileged" content */
+user_pref("dom.allow_cut_copy", true);
+/* disabled version:
+ * user_pref("dom.allow_cut_copy", false); */
+
+/* enable captive portal detection */
+user_pref("captivedetect.canonicalURL", "http://detectportal.firefox.com/canonical.html");
+user_pref("network.captive-portal-service.enabled", true);
+/* disabled version:
+ * user_pref("captivedetect.canonicalURL", "");
+ * user_pref("network.captive-portal-service.enabled", false); */
+
+/*
+ * interesting stuff:
+ */
+
+/* disable downloads panel opening on every download:
+ * user_pref("browser.download.alwaysOpenPanel", false); */
