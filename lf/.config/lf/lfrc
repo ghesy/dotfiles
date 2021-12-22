@@ -89,7 +89,7 @@ map <c-f> finder
 map W &wallpaper $f
 map V push $$EDITOR<space>
 map R &dragon-drag-and-drop -a -x $fx
-map S %echo " calculating... "; du -sh 2>/dev/null # get size of dir
+map S !printf '\e[?1049h\e[HCalculating size... '; du -sh 2>/dev/null # get size of dir
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
 map o &readlink -f $f | lfselect # follow symlinks
 map H push :mark-load<enter>' # jump back to previous dir
@@ -116,3 +116,5 @@ map <m-down> down
 map <m-up> up
 map <m-1> preview-on
 map <m-2> preview-off
+
+# vim:ft=conf
