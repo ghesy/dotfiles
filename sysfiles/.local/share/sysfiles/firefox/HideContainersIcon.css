@@ -1,3 +1,0 @@
-/* Add this to userChrome.css */
-/* Hide the containers icon from the addressbar */
-#pageAction-urlbar-_testpilot-containers { display: none; }

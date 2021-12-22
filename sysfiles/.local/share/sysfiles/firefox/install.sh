@@ -12,10 +12,6 @@ group=$(id -gn "$SUDO_USER")
 printf '%s\n' "$HOME"/.mozilla/firefox/*.*/ |
     xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" user.js -t
 
-# install HideContainersIcon.css
-printf '%schrome\n' "$HOME"/.mozilla/firefox/*.*/ |
-    xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" HideContainersIcon.css -Dt
-
 # install pywalfox
 pacman -Q python-pywalfox >/dev/null 2>&1 || {
     echo Please install python-pywalfox form the AUR and run this again to install it\'s config files.
