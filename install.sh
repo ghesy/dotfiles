@@ -6,7 +6,7 @@
 # make these directories so that stow can't create them as symlinks
 l=~/.local; s=$l/share c=~/.config
 mkdir -p $l/bin $l/sv/run $s/applications $s/gnupg $c/kicad \
-    $c/pulse $c/gtk-2.0 $c/gtk-3.0 $c/transmission-daemon $c/tv \
+    $c/pulse $c/gtk-2.0 $c/gtk-3.0 $c/transmission-daemon \
     $s/local/profile.d $s/local/xinitrc.d $s/local/gimme/aliases.d
 
 # install the dotfiles
