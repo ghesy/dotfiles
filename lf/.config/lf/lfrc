@@ -24,9 +24,11 @@ cmd paste ${{
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
     tput civis
-    case $mode in
-        copy) advcp -ag --backup=numbered $srcs . ;;
-        move) advmv  -g --backup=numbered $srcs . 2>/dev/null ;;
+    case $mode/${1:-adv} in
+        copy/adv) advcp -ag --backup=numbered -- $srcs . ;;
+        move/adv) advmv  -g --backup=numbered -- $srcs . ;;
+        copy/simple) cp -av --backup=numbered -- $srcs . ;;
+        move/simple) mv  -v --backup=numbered -- $srcs . ;;
     esac || { read -p 'Press enter to continue'; exit ;}
     rm $list
     lf -remote 'send clear'
@@ -46,7 +48,7 @@ cmd delete ${{
 cmd mkdir %{{
     printf ' '
     read dir
-    mkdir -p $dir
+    mkdir -p -- $dir
     lf -remote "send load"
     printf '%s\n' $dir | lfselect
 }}
@@ -74,6 +76,7 @@ cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
 map ~ cd ~
 map . set hidden!
 map * push :glob-select<space>
+map P paste simple
 map gh
 map g top
 map L openall
@@ -91,7 +94,7 @@ map V push $$EDITOR<space>
 map R &dragon-drag-and-drop -a -x $fx
 map S !printf '\e[?1049h\e[HCalculating size... '; du -sh 2>/dev/null # get size of dir
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
-map o &readlink -f $f | lfselect # follow symlinks
+map o &readlink -f -- $f | lfselect # follow symlinks
 map H push :mark-load<enter>' # jump back to previous dir
 map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
