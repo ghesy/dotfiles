@@ -47,6 +47,7 @@ case $1 in
 -e)
     export_show_list ;;
 '')
+    echo updating the database...
     episoder update -d90
     episoder list -i | tac | less ;;
 -i)
@@ -54,15 +55,17 @@ case $1 in
         echo importing "$show"...
         episoder add "$show"
     done
+    echo updating the database...
     episoder update -d90 ;;
 -a)
     cmd="episoder search {q} | grep '^[0-9]'"
-    printf '\033[5 q'
+    printf '\033[5 q' # change the cursor to a line
     show=$(:|fzf --disabled --bind="change:reload:$cmd" \
         --prompt 'Search for a show to add: ') &&
         episoder add "${show%%$'\t'*}" && episoder update -d90 &&
         export_show_list ;;
 -r)
+    printf '\033[5 q' # change the cursor to a line
     print_show_list | fzf --prompt 'Show(s) to remove: ' | cut -f1 |
         while IFS= read -r show; do
             echo removing "$show"...
