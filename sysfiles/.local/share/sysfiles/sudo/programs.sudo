@@ -4,6 +4,7 @@ Cmnd_Alias PROGRAMS = \
   /usr/bin/grub-reboot, \
   /usr/bin/resolvconf, \
   /usr/bin/protonvpn, \
+  /usr/bin/fgconsole, \
   /usr/bin/nethogs, \
   /usr/bin/iotop, \
   /usr/bin/rsm, \
