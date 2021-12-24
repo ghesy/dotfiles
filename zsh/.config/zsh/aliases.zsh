@@ -90,6 +90,7 @@ alias loglive='tail -n 20 -f /var/log/everything.log'
 alias d=vimdict
 alias sdl='search /media/downloads'
 alias sf='search /media /mnt'
+alias sd='search ~/.config ~/.local/bin ~/.dots ~/Documents/Notes ~/Repositories'
 alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
