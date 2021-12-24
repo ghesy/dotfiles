@@ -28,7 +28,7 @@ main() {
         ;;
         *reboot) rebootfn ;;
         *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
-        *logout) ask 'Logout?' && killall xinit ;;
+        *logout) ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole) ;;
     esac
 }
 
