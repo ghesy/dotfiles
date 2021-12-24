@@ -15,6 +15,44 @@ shows=~/.local/share/tv/shows
 conf="dateformat=%F
 format=%airdate - %show - %seasonx%epnum - %eptitle"
 
+main() {
+    case $1 in
+    '')
+        echo updating the database...
+        episoder update -d90
+        episoder list -i | tac | less ;;
+    -h)
+        print_help ;;
+    -l)
+        list_show_names ;;
+    -e)
+        export_show_list ;;
+    -i)
+        cut -f2 "${shows:?}" | while IFS= read -r show; do
+            echo importing "$show"...
+            episoder add "$show"
+        done
+        echo updating the database...
+        episoder update -d90 ;;
+    -a)
+        cmd="episoder search {q} | grep '^[0-9]'"
+        printf '\033[5 q' # change the cursor to a line
+        show=$(:|fzf --disabled --bind="change:reload:$cmd" \
+            --prompt 'Search for a show to add: ') &&
+            episoder add "${show%%$'\t'*}" && episoder update -d90 &&
+            export_show_list ;;
+    -r)
+        printf '\033[5 q' # change the cursor to a line
+        print_show_list | fzf --prompt 'Show(s) to remove: ' | cut -f1 |
+            while IFS= read -r show; do
+                echo removing "$show"...
+                episoder remove "$show"
+            done ;;
+    *)
+        episoder "$@" ;;
+    esac
+}
+
 episoder() {
     mkdir -p "${dbdir:?}" &&
         HOME=${dbdir:?} command episoder -c <(printf '%s\n' "${conf:?}") "$@"
@@ -41,48 +79,17 @@ export_show_list() {
     mkdir -p "$(dirname "${shows:?}")" && print_show_list > "${shows:?}"
 }
 
-case $1 in
--l)
-    list_show_names ;;
--e)
-    export_show_list ;;
-'')
-    echo updating the database...
-    episoder update -d90
-    episoder list -i | tac | less ;;
--i)
-    cut -f2 "${shows:?}" | while IFS= read -r show; do
-        echo importing "$show"...
-        episoder add "$show"
-    done
-    echo updating the database...
-    episoder update -d90 ;;
--a)
-    cmd="episoder search {q} | grep '^[0-9]'"
-    printf '\033[5 q' # change the cursor to a line
-    show=$(:|fzf --disabled --bind="change:reload:$cmd" \
-        --prompt 'Search for a show to add: ') &&
-        episoder add "${show%%$'\t'*}" && episoder update -d90 &&
-        export_show_list ;;
--r)
-    printf '\033[5 q' # change the cursor to a line
-    print_show_list | fzf --prompt 'Show(s) to remove: ' | cut -f1 |
-        while IFS= read -r show; do
-            echo removing "$show"...
-            episoder remove "$show"
-        done ;;
--h)
-    cat <<- 'eof'
-	run without any arguments: show upcoming shows in pager.
-	run with options/arguments not listed here: pass all args to episoder.
-	options:
-	-a search and add new shows.
-	-r select and remove added shows.
-	-l list added shows.
-	-e export the list of added shows to ~/.local/share/tv/shows.
-	-i import shows from ~/.local/share/tv/shows.
-	eof
-    ;;
-*)
-    episoder "$@" ;;
-esac
+print_help() {
+cat << 'eof'
+run without any arguments: show upcoming shows in pager.
+run with options/arguments not listed here: pass all args to episoder.
+options:
+-a search and add new shows.
+-r select and remove added shows.
+-l list added shows.
+-e export the list of added shows to ~/.local/share/tv/shows.
+-i import shows from ~/.local/share/tv/shows.
+eof
+}
+
+main "$@"
