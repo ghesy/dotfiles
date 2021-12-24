@@ -21,6 +21,9 @@ autolock &
 # enable keyboard remaps / mouse settings
 remaps &
 
+# set wallpaper
+~/.fehbg &
+
 # wait for tasks to finish
 wait
 
@@ -31,10 +34,7 @@ runsvdir -P ~/.local/sv/run &
 # lock the screen
 until pidof -q xss-lock; do sleep 0.2; done
 loginctl lock-session
-sleep 0.2
-
-# set wallpaper
-~/.fehbg &
+sleep 0.5
 
 # loop to launch dwm and relaunch if killed
 while :; do
