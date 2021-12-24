@@ -36,7 +36,7 @@ map <c-f> finder
 map W &wallpaper $f
 map V push $$EDITOR<space>
 map R &dragon-drag-and-drop -a -x $fx
-map S !printf '\e[?1049h\e[HCalculating size... '; du -sh 2>/dev/null # get size of dir
+map S getdirsize
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
 map o &readlink -f -- $f | lfselect # follow symlinks
 map H push :mark-load<enter>' # jump back to previous dir
@@ -78,6 +78,7 @@ cmd q quit
 cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>load"
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
+cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
 
 cmd open $~/.config/lf/opener
 cmd openall $~/.config/lf/opener -a
