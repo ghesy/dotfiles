@@ -20,8 +20,11 @@ Printers : system-config-printer
 Gimp : gimp
 OBS, Recorder : obs
 Re Tor : restor
-Bottles : bottles
 VirtualMic : virtualmic
+
+# although bottles is a gui program, we run it
+# from a terminal because it takes long to open.
+Bottles : tui bottles
 
 Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
