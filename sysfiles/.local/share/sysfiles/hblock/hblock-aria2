@@ -1,8 +1,0 @@
-#!/bin/sh
-# /usr/local/bin/hblock-aria2
-# download hblock's sources in parallel using aria2, then apply them using hblock.
-dir=$(mktemp -d) || exit 1
-trap 'rm -r "$dir"' EXIT
-aria2c --no-conf -d"${dir:?}" -i/etc/hblock/sources.list -k1M -x5 &&
-    printf 'file://%s\n' "${dir:?}"/* | hblock -S- &&
-    date '+# %F %T' | sudo tee -a /etc/hosts

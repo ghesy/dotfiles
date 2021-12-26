@@ -1,4 +1,4 @@
-# /etc/hblock/sources.list
+# /etc/sblock/sources.list
 https://raw.githubusercontent.com/4skinSkywalker/Anti-Porn-HOSTS-File/master/HOSTS.txt
 https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts
 https://raw.githubusercontent.com/soystemd/hosts/master/hosts
