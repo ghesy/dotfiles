@@ -13,8 +13,9 @@ main()
     udevadm monitor -ususb | while IFS= read -r dev; do
         case $dev in
             *' add '*|*' remove '*)
+                # shellcheck disable=SC2086
                 set -- $dev
-                handle $4 &
+                handle "$4" &
             ;;
         esac
     done &
@@ -57,7 +58,7 @@ unmount_and_cleanup()
 unmount()
 {
     delay=2
-    until fusermount -u "$1" 2>&1 | egrep -q 'not found|(bad|invalid) mount'; do
+    until fusermount -u "$1" 2>&1 | grep -Eq 'not found|(bad|invalid) mount'; do
         sleep $delay
         [ $delay -lt 120 ] && delay=$((delay+2))
     done
