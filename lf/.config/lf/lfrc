@@ -119,10 +119,10 @@ cmd paste ${{
     srcs=$(sed 1d $list)
     tput civis
     case $mode/${1:-adv} in
-        copy/adv) advcp -ag --backup=numbered -- $srcs . ;;
-        move/adv) advmv  -g --backup=numbered -- $srcs . ;;
-        copy/simple) cp -av --backup=numbered -- $srcs . ;;
-        move/simple) mv  -v --backup=numbered -- $srcs . ;;
+        copy/adv) advcp -ag --backup=numbered -- ${srcs:?} . ;;
+        move/adv) advmv  -g --backup=numbered -- ${srcs:?} . ;;
+        copy/simple) cp -av --backup=numbered -- ${srcs:?} . ;;
+        move/simple) mv  -v --backup=numbered -- ${srcs:?} . ;;
     esac || { read -p 'Press enter to continue'; exit ;}
     rm $list
     lf -remote 'send clear'
