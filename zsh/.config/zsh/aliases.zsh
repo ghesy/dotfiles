@@ -85,7 +85,7 @@ gp() { g push "$@" && gl3 || figlet failed }
 alias startx='command startx "$XINITRC"'
 alias speed='speedtest-cli --bytes'
 alias shch='shellcheck'
-alias logview='less /var/log/everything.log '
+alias logview='${PAGER:-less} /var/log/everything.log '
 alias loglive='tail -n 20 -f /var/log/everything.log'
 alias d=vimdict
 alias sdl='search /media/downloads'

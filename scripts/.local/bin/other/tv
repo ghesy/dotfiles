@@ -20,7 +20,7 @@ main() {
     '')
         echo updating the database...
         episoder update -d90
-        episoder list -i | tac | less ;;
+        episoder list -i | tac | ${PAGER:-less} ;;
     -h)
         print_help ;;
     -l)
