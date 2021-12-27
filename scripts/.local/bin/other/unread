@@ -23,7 +23,7 @@ unread()
 
     # get the variables 'imap_user', 'folder' and imap's password
     # from the neomutt account file
-    eval "$(egrep '^set.*(imap_user|folder).*=' "${1:?}" |
+    eval "$(grep '^set.*(imap_user|folder).*=' "${1:?}" |
         sed -E 's/set\s+(\S+)\s*=\s*(\S+)/\1=\2/')"
     pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)" | head -n1) || return 1
 

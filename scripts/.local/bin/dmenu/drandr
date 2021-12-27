@@ -16,11 +16,11 @@ esac
 
 # ask position
 pos=$(printf 'same-as\nright-of\nleft-of\nabove\nbelow\n' | dmenu -p "Choose $mon's Position") || exit
-rel=$(xrandr | grep ' connected' | cut -d' ' -f1 | fgrep -v "$mon")
+rel=$(xrandr | grep ' connected' | cut -d' ' -f1 | grep -Fv "$mon")
 [ $(echo "$rel" | wc -l) -gt 1 ] && { rel=$(echo "$rel" | dmenu -p "Put $mon $pos which monitor?") || exit ;}
 
 # if the monitor was already enabled, don't wait for it again
-xrandr --listmonitors | fgrep -q "$mon" && wait=false || wait=true
+xrandr --listmonitors | grep -Fq "$mon" && wait=false || wait=true
 
 # apply the selected settings
 xrandr --output "${mon:?}" --auto ${type:+--"$type"} ${rel:+--"$pos" "$rel"} || exit

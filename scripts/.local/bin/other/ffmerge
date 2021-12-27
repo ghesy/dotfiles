@@ -11,7 +11,7 @@ class=firefox
 set -e
 ff1=$(xdotool getactivewindow) || exit 1
 [ "$(xdotool getwindowclassname "$ff1")" != "${class:?}" ] && exit 2
-ff2=$(xdotool search --desktop $(xdotool get_desktop) --class "${class:?}" | fgrep -vm1 "$ff1") || exit 3
+ff2=$(xdotool search --desktop $(xdotool get_desktop) --class "${class:?}" | grep -Fvm1 "$ff1") || exit 3
 geom=$(xdotool getwindowgeometry --shell "$ff2") && eval "$geom" || exit 4
 
 s='sleep 0.1'

@@ -11,7 +11,7 @@ canal'
 
 wind() {
     windscribe "$@" | stdbuf -o0 tr -d '\b/|\\-' |
-        stdbuf -o0 egrep -v 'symlink|changed' |
+        stdbuf -o0 grep -Ev 'symlink|changed' |
         xargs -d'\n' -L1 notify-send -h string:x-canonical-private-synchronous:dvpn Windscribe
 }
 
