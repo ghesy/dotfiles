@@ -1,0 +1,11 @@
+#!/bin/bash
+# read filenames from stdin/args and select them in lf.
+IFS=$'\n'
+set -- $(cat)
+set -- "${@//\"/'\"'}"
+send() { lf -remote "send ${id:?} $*" ;}
+case $# in
+    0) ;;
+    1) send "select \"$1\"" ;;
+    *) for f; do send "select \"$f\""; send toggle; done ;;
+esac
