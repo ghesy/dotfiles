@@ -54,17 +54,18 @@ alias mv='advmv -ig'
 alias rm='rm -Iv --one-file-system'
 
 # man-pages in vim
-alias man='vman'
+alias man=vman
 compdef vman=man
 
 # pacman
 alias p='sudo pacman'
 alias pl='paclast -t | head'
+alias pa=paru
 
 # vim
-alias v='nvim'
-alias vi='nvim'
-alias vim='nvim'
+alias v=nvim
+alias vi=nvim
+alias vim=nvim
 svi() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
 # git
