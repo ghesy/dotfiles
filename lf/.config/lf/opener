@@ -32,7 +32,6 @@ case $(file -b --mime-type --dereference -- $f) in
     video/*) mpv --really-quiet -- $f ;;
     audio/*) mpvmusic -- $f ;;
     image/*) sxiv -aoEF $(realpath -- $f) . | lfselect ;;
-    */html) $BROWSER $f ;;
     */troff) man -- $f ;;
     */x-sc) sc-im -- $f ;;
     text/*|*/json) $EDITOR -- $f ;;
