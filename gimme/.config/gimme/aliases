@@ -41,9 +41,10 @@ Disk Top, IOTop : tuiroot iotop
 Res Router : tui resrouter
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
-Cava, Visualizer : tui cava
-Music, ncmpcpp : tui ncmpcpp
-Bash Mount : tui bashmount
+Cava, Visualizer: tui cava
+Music, ncmpcpp: tui ncmpcpp
+Bash Mount: tui bashmount
+Dictionary: tui dictfzf
 
 Autolock : autolock
 No Autolock : autolock -p
