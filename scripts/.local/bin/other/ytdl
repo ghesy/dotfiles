@@ -4,12 +4,14 @@
 [ -f "${1:?}" ] && exit 1
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
 
-read -p 'Enter resolution [480/720/... or "best"] (Default:480): ' res
+read -p 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
 case $res in
-    best) res='' ;;
+    q) exit ;;
+    b) res='' ;;
     '') res=480 ;;
-    *) [ "$res" -ne "$res" ] && res=480 ;;
+    *) [ "$res" -eq "$res" ] || res=480 ;;
 esac
+echo ${res:-Best} selected.
 
 title=$($(getproxy "$1") yt-dlp -e "$1")
 for i in {1..10}; do
