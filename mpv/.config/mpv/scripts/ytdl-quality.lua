@@ -57,19 +57,17 @@ local opts = {
     fetch_formats = true,
 
     --default menu entries
-    quality_strings=[[
-    [
-    {"4320p" : "bestvideo[height<=?4320p]+bestaudio/best"},
-    {"2160p" : "bestvideo[height<=?2160]+bestaudio/best"},
-    {"1440p" : "bestvideo[height<=?1440]+bestaudio/best"},
-    {"1080p" : "bestvideo[height<=?1080]+bestaudio/best"},
-    {"720p"  : "bestvideo[height<=?720]+bestaudio/best"},
-    {"480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?70]/best"},
-    {"360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?70]/best"},
-    {"240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?70]/best"},
-    {"144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?70]/best"}
-    ]
-    ]],
+    quality_strings=[[ [
+    { "4320p" : "bestvideo[height<=?4320p]+bestaudio/best" },
+    { "2160p" : "bestvideo[height<=?2160]+bestaudio/best" },
+    { "1440p" : "bestvideo[height<=?1440]+bestaudio/best" },
+    { "1080p" : "bestvideo[height<=?1080]+bestaudio/best" },
+    { "720p"  : "bestvideo[height<=?720]+bestaudio/best" },
+    { "480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?70]/best" },
+    { "360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?70]/best" },
+    { "240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?70]/best" },
+    { "144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?70]/best" }
+    ] ]],
 }
 (require 'mp.options').read_options(opts, "ytdl-quality")
 opts.quality_strings = utils.parse_json(opts.quality_strings)
@@ -84,7 +82,6 @@ function show_menu()
     msg.verbose("current ytdl-format: "..current_ytdl_format)
     local num_options = 0
     local options = {}
-
 
     if opts.fetch_formats then
         options, num_options = download_formats()
@@ -246,7 +243,7 @@ function download_formats()
 
     if (json == nil) or (json.formats == nil) then
         -- mp.osd_message("Fetching formats failed...", 1)
-        msg.warn("failed to parse JSON data: " .. err)
+        if (err ~= nil) then msg.warn("failed to parse JSON data: " .. err) end
         return {}, 0
     end
 
