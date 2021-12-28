@@ -1,5 +1,8 @@
-# the 'format-sort=...' raw option only works with yt-dlp, not youtube-dl.
+# the format-sort combined with the format, makes resolution preference
+# something like this: 480p > 360p > 720p > 1080p > ... > 240p > 144p
+# note: the format-sort ytdl raw option only works with yt-dlp, not youtube-dl.
 ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=,format-sort=[res:480,codec,abr~50]
+ytdl-format=bestvideo[height>=360]+bestaudio/bestvideo+bestaudio/best[height>=360]/best
 alang=jpn,eng,en,per,fa
 slang=eng,en,per,fa
 no-sub-visibility
