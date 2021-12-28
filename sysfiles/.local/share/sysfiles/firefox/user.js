@@ -1,13 +1,13 @@
 /* github.com/arkenfox/user.js
- * BASED ON COMMIT: bb56056
- * View changes: https://github.com/arkenfox/user.js/compare/bb56056..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+ * BASED ON COMMIT: 7e18f8b
+ * View diff with master: https://github.com/arkenfox/user.js/compare/7e18f8b..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
 
 /* ==============================
  * ===    practical prefs     ===
  * ============================== */
 
-/* cache directory */
-user_pref("browser.cache.disk.parent_directory", "/run/user/1000/firefox");
+/* disable disk cache (memory cache is enabled by default) */
+user_pref("browser.cache.disk.enable", false);
 
 /* interval for saving session data to restore if firefox crashes.
  * default is 15000 milliseconds which is too short. */
@@ -43,7 +43,7 @@ user_pref("browser.aboutConfig.showWarning", false);
 user_pref("browser.shell.checkDefaultBrowser", false);
 
 /* disable Homepage/ActivityStream stuff */
-user_pref("browser.newtabpage.enabled", false);
+user_pref("browser.newtabpage.enabled", true);
 user_pref("browser.newtab.preload", false);
 user_pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
 user_pref("browser.newtabpage.activity-stream.telemetry", false);
@@ -276,6 +276,16 @@ user_pref("permissions.delegation.enabled", false);
 
 /* disable adding downloads to the system's "recent documents" list */
 user_pref("browser.download.manager.addToRecentDocs", false);
+
+/* clear cache upon exit */
+user_pref("privacy.sanitize.sanitizeOnShutdown", true);
+user_pref("privacy.clearOnShutdown.cache", true);
+user_pref("privacy.clearOnShutdown.downloads", false);
+user_pref("privacy.clearOnShutdown.formdata", false);
+user_pref("privacy.clearOnShutdown.history", false);
+user_pref("privacy.clearOnShutdown.sessions", false);
+user_pref("privacy.clearOnShutdown.offlineApps", false);
+user_pref("privacy.clearOnShutdown.cookies", false);
 
 /*
  * disabled stuff:
