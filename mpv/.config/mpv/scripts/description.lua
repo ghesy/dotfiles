@@ -1,14 +1,15 @@
 -- get the description and comments of videos.
 -- requires yt-dlp (youtube-dl can't fetch comments).
+-- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
 
 -- config
 DESCRIPTION_KEY = 'ctrl+d' -- binding to open the video description in your pager in a new terminal window.
 COMMENTS_KEY = 'ctrl+c' -- same as above but for the comments.
-FETCH_REPLIES = false -- wether to include replies in the comments or not.
-MAX_COMMENTS = 50 -- limit the number of comments to fetch. set to 0 to fetch all comments.
-MAX_REPLIES = 10 -- limit the number of replies to display. set to 0 to show all replies.
+TRY_PROXYCHAINS = true -- try to use proxychains for connection if normal connection is not possible.
+MAX_COMMENTS = 10 -- limit the number of comments to fetch.
+MAX_REPLIES = 5 -- limit the number of replies per comment to fetch.
+WRAPCOL = 70 -- wrap lines longer that this many characters.
 COMMENTS_PREFIX = "│"
-WRAPCOL = 70
 CACHEDIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description"
 ---
 
@@ -23,7 +24,7 @@ local function exec(args)
     return r.status == 0, r.stdout
 end
 
--- execute shell commands using mpv's subprocess command
+-- asynchronously execute shell commands using mpv's subprocess command
 local function execasync(fn, args)
     mp.command_native_async({name = "subprocess", args = args,
         capture_stdout = true, capture_stderr = true}, fn)
@@ -48,9 +49,18 @@ function isfile(path)
    if f ~= nil then io.close(f) return true else return false end
 end
 
--- get the path/url of the currently playing video
+-- get the source url of a downloaded video file from it's metadata
+function getfileurl(path)
+    local status, url = exec{"ffprobe", "-loglevel", "error",
+        "-show_entries", "format_tags=purl", "-of", "default=nk=1:nw=1", path}
+    if status == false or url == nil then url = "" end
+    return url:gsub("\n", "")
+end
+
+-- get the url of the currently playing video
 function geturl()
-    return string.gsub(mp.get_property("path"), "ytdl://", "")
+    local url = string.gsub(mp.get_property("path"), "ytdl://", "")
+    if isfile(url) then return getfileurl(url) else return url end
 end
 
 -- separate the given string into lines.
@@ -110,25 +120,15 @@ function savedesc(success, result, error)
     -- format and write the comments to cache
     if not json.comments then return end
     local f = assert(io.open(descfile[url].comm, "w"))
-    local replies = 0
     for i,v in ipairs(json.comments) do
         local op = "" local fav = "" local indent = COMMENTS_PREFIX
-        if v.parent == "root" then
-            replies = 0
-        else
-            if MAX_REPLIES > 0 then
-                replies = replies + 1
-                if replies > MAX_REPLIES then goto continue end
-            end
-            indent = "   "..COMMENTS_PREFIX
-        end
+        if v.parent ~= "root" then indent = "   "..COMMENTS_PREFIX end
         if v.author_is_uploader then op = " " end
         if v.is_favorited then fav = " " end
         local text = indent..v.author..op..fav.." • "..v.like_count..
             " Likes".." • "..v.time_text.."\n"..v.text
         text = wrap(text):gsub("\n$", ""):gsub("\n", "\n"..indent)
         f:write(text, "\n\n\n")
-        ::continue::
     end
     f:close()
 end
@@ -137,7 +137,7 @@ end
 function fetchdesc()
     -- if the video is a local file, return
     local url = geturl()
-    if isfile(url) then return end
+    if url == nil or url == "" then return end
 
     -- set the path of cache files
     local id = url:gsub(".-%w/", ""):gsub("[^%w%-_]", ""):reverse()
@@ -147,11 +147,16 @@ function fetchdesc()
     if isfile(descfile[url].desc) or isfile(descfile[url].comm) then return end
 
     -- get the video's infojson using yt-dlp and send it's result to formatdesc()
-    local maxcomments = "" local replies = ""
-    if not FETCH_REPLIES then replies = ";max_comment_depth=1" end
-    if MAX_COMMENTS > 0 then maxcomments = ";max_comments="..MAX_COMMENTS end
-    execasync(savedesc, {"yt-dlp", "--no-playlist", "-j", "--write-comments",
-        "--extractor-args", "youtube:comment_sort=top"..maxcomments..replies, "--", url})
+    local args = {"yt-dlp", "--no-playlist", "-j", "--write-comments", "--extractor-args",
+        "youtube:comment_sort=top;max_comments=all,"..MAX_COMMENTS..",all,"..MAX_REPLIES, "--", url}
+
+    if TRY_PROXYCHAINS then
+        local status, stdout = exec{"curl", "-sLIm8", "--", url}
+        if status == false or stdout == "" then
+            args = {"proxychains", "-q", table.unpack(args)}
+        end
+    end
+    execasync(savedesc, args)
 end
 
 mp.add_forced_key_binding(DESCRIPTION_KEY, "show_description", function() pager("desc") end)
