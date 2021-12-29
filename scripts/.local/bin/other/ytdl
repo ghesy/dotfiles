@@ -4,7 +4,8 @@
 [ -f "${1:?}" ] && exit 1
 cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
 
-read -p 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
+# ask the user what resolution to download
+read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
 case $res in
     q) exit ;;
     b) res='' ;;
@@ -13,16 +14,32 @@ case $res in
 esac
 echo ${res:-Best} selected.
 
-title=$($(getproxy "$1") yt-dlp -e "$1")
+# try not to go below res/2+res/8, unless no higher res is available
+minres=$((${res:-480}/2+${res:-480}/8))
+
+# put all the yt-dlp options in a variable
+opts=" \
+    -S ${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6)) \
+    -f bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best \
+    --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub \
+    --write-auto-sub --embed-subs --compat-option no-keep-subs \
+    --downloader aria2c --downloader-args aria2c:--async-dns=false"
+
+title=$($(getproxy "$1") yt-dlp --print title "$1")
+
+# download interim files to a temp dir
+tmp=.ytdl-tmp
+trap 'rmdir $tmp 2>/dev/null' EXIT
+
+# try to download the video up to 10 times
 for i in {1..10}; do
-    $(getproxy "$1") yt-dlp ${res:+-S "+res:$res,codec,abr~$((res/6))"} --add-metadata \
-    --no-mtime --sub-lang=en --write-sub --write-auto-sub --embed-subs  \
-    --compat-options no-keep-subs --embed-thumbnail --downloader aria2c \
-    --downloader-args aria2c:--async-dns=false "${@#ytdl://*}" && break
+    $(getproxy "$1") yt-dlp $opts -P temp:$tmp "${@#ytdl://*}" && break
     if [ $i -eq 10 ]; then
         notify-send ytdl Failed:$'\n'"$title"
         exit 1
     fi
     sleep 30
+    echo "[ytdl] Attempt $((i+1)) of 10"
 done
+
 notify-send ytdl Done:$'\n'"$title"
