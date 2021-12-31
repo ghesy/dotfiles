@@ -19,7 +19,7 @@ Telegram : telegram-desktop
 Printers : system-config-printer
 Gimp : gimp
 OBS, Recorder : obs
-Re Tor : restor
+Reset Tor : restor
 VirtualMic : virtualmic
 
 # although bottles is a gui program, we run it
@@ -29,16 +29,15 @@ Bottles : tui bottles
 Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
-Port Forwarding : web http://192.168.1.1/virtualSrv.htm
 Github : web https://github.com/soystemd
 Syncthing : web localhost:8384
 
-News Boat, RSS : tui nboat
+Newsboat, RSS : tui nboat
 Reddit : tui tuir
 CPU, htop : tui htop
 Net Top : tuiroot nethogs -l
 Disk Top, IOTop : tuiroot iotop
-Res Router : tui resrouter
+Reset Router : tui resrouter
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
 Cava, Visualizer: tui cava
@@ -59,7 +58,7 @@ Emojies : demoji
 VPN : dvpn
 Sound Card Profiles, dPaProfile: dpaprofile
 dRandr, Monitors : drandr
-Network Manager, Wi-Fi : networkmanager_dmenu
+NetworkManager, Wi-Fi : networkmanager_dmenu
 Last Notification : dunstctl history-pop
 
 # vim:ft=conf
