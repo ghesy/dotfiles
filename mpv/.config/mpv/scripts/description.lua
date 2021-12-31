@@ -1,4 +1,4 @@
--- get the description and comments of videos.
+-- fetch and show comments and description of videos.
 -- requires yt-dlp (youtube-dl can't fetch comments).
 -- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
 
@@ -9,7 +9,7 @@ TRY_PROXYCHAINS = true -- try to use proxychains for connection if normal connec
 MAX_COMMENTS = 10 -- limit the number of comments to fetch.
 MAX_REPLIES = 5 -- limit the number of replies per comment to fetch.
 WRAPCOL = 70 -- wrap lines longer that this many characters.
-COMMENTS_PREFIX = "│"
+COMMENTS_PREFIX = '│'
 CACHEDIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description"
 ---
 

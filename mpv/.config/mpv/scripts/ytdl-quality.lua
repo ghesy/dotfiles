@@ -74,7 +74,6 @@ opts.quality_strings = utils.parse_json(opts.quality_strings)
 
 local destroyer = nil
 
-
 function show_menu()
     local selected = 1
     local active = 0
@@ -273,7 +272,6 @@ function download_formats()
     format_cache[url] = res
     return res, table_size(res)
 end
-
 
 -- register script message to show menu
 mp.register_script_message("toggle-quality-menu",
