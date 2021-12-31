@@ -21,12 +21,14 @@ Plug 'chaoren/vim-wordmotion'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
 Plug 'bling/vim-bufferline'
+Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
+Plug 'junegunn/fzf.vim'
+" colorschemes
+Plug 'fenetikm/falcon'
+Plug 'whatyouhide/vim-gotham'
 Plug 'pbrisbin/vim-colors-off'
 Plug 'davidosomething/vim-colors-meh'
 Plug 'sainnhe/gruvbox-material'
-Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
-Plug 'junegunn/fzf', {'do': { -> fzf#install() }}
-Plug 'junegunn/fzf.vim'
 call plug#end()
 
 " basics
@@ -99,9 +101,11 @@ map <C-v> "+P
 nnoremap <silent><Leader>cs :nohlsearch<CR>
 
 " compile markdown
-autocmd FileType markdown
-  \ nnoremap <Leader>md :silent !mdpdf -O %:p:S<CR> |
-  \ nnoremap <Leader>cc :silent !mdpdf -o %:p:S<CR>
+function MarkdownMaps()
+    nnoremap <Leader>cc :!pandoc -s --pdf-engine=wkhtmltopdf -o %:r:S.pdf %:S<CR>
+    nnoremap <Leader>vv :silent !setsid -f zathura %:r:S.pdf<CR>
+endf
+autocmd FileType markdown call MarkdownMaps()
 
 " fugitive
 nmap <Leader>gs :G<CR>
