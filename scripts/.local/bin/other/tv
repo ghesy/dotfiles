@@ -1,6 +1,6 @@
 #!/bin/bash
 # see release date of TV show episodes.
-# requires episoder(aur) and fzf.
+# requires 'episoder' from the AUR, and 'fzf'.
 #
 # options:
 # -a: search and add new shows.
