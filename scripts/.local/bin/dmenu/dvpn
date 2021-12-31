@@ -1,25 +1,47 @@
 #!/bin/sh
-# a simple dmenu interface for the windscribe vpn.
+# a simple dmenu interface for windscibe and protonvpn.
 
-locations='best
-crumpets
-custard
-ranch
-seine
-castle
-canal'
+wind_locations='Best
+Crumpets
+Custard
+Ranch
+Seine
+Castle
+Canal
+Ataturk'
 
-wind() {
-    windscribe "$@" | stdbuf -o0 tr -d '\b/|\\-' |
-        stdbuf -o0 grep -Ev 'symlink|changed' |
-        xargs -d'\n' -L1 notify-send -h string:x-canonical-private-synchronous:dvpn Windscribe
+pvpn_locations='US
+Netherlands
+Japan
+Fastest'
+
+notif() {
+    while IFS= read -r line; do case $line in
+        ''|Visit*|*graphical*|*symlink*|*changed*) ;;
+        *) notify-send -u low "$1" "$line" ;;
+    esac; done
 }
 
-case $(printf 'Connect\nDisconnect' | dmenu -p VPN) in
-    Con*)
-        location=$(echo "$locations" | dmenu -p Location)
-        [ ${location:?} = best ] && location=
-        wind connect $location
-    ;;
-    Dis*) wind disconnect ;;
+# if the unbuffer command exists, use it for protonvpn
+command -v unbuffer >/dev/null && unbuf=unbuffer || unbuf=''
+
+case $(printf 'Connect\nDisconnect\n' | dmenu -p VPN) in
+    Connect)
+        case $(printf 'ProtonVPN\nWindscribe\n' | dmenu -p VPN) in
+            ProtonVPN)
+                location=$(echo "$pvpn_locations" | dmenu -p Location:)
+                [ ${location:?} = Fastest ] && location=-f || location="--cc $location"
+                $unbuf sudo -A protonvpn c $location | notif ProtonVPN ;;
+            Windscribe)
+                location=$(echo "$wind_locations" | dmenu -p Location:)
+                [ ${location:?} = Best ] && location=
+                windscribe connect $location | stdbuf -o0 tr -d '\b/|\\-' |
+                    notif Windscribe ;;
+        esac ;;
+    Disconnect)
+        case $(pgrep -ax openvpn) in
+            *windscribe*) windscribe disconnect | notif Windscribe ;;
+            *pvpn*) $unbuf sudo -A protonvpn d | notif ProtonVPN ;;
+            *) echo No VPN connection found. | notif dvpn ;;
+        esac ;;
 esac
