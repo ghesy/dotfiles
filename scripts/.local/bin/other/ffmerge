@@ -1,9 +1,12 @@
 #!/bin/sh
 # this script puts all the tabs of the currently active firefox window
 # into another firefox window that is in the same desktop or dwm tag.
-# if you're a dwm enjoyer, you need to patch it to support the _NET_WM_DESKTOP hint.
-# here is the patch: https://github.com/soystemd/dwm/compare/cc4564f...5ce1409
-# which is based on this patch: https://github.com/wor/abs-repo/blob/master/dwm-git/dwm-6.1-netwmdesktop.patch
+# requires xdotool.
+
+# note:
+# your window manager needs to support the _NET_WM_DESKTOP hint.
+# if you use dwm, you need to apply this patch: https://github.com/soystemd/dwm/compare/cc4564f...5ce1409
+# sidenote - the above patch is based on this patch: https://github.com/wor/abs-repo/blob/master/dwm-git/dwm-6.1-netwmdesktop.patch
 
 # config
 class=firefox
