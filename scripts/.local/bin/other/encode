@@ -1,7 +1,6 @@
 #!/bin/sh
-# (re)encodes videos to x265 using ffmpeg.
+# (re)encodes videos to x265/vp9/av1 using ffmpeg.
 # usage: encode FILE...
-# TODO: add an option to encode to VP9.
 
 # safely make a fifo
 d=$(mktemp -d)
@@ -10,9 +9,16 @@ trap 'rm -r "$d"' EXIT
 fifo=$d/fifo
 mkfifo "$fifo" | exit 1
 
+if 2>/dev/null test "${1:?}" -eq "${1:?}"; then
+    crf=${1:?}
+    shift
+else
+    crf=25
+fi
+
 # loop over all given files and (re)encode them
 for f; do
-    if [ -f "${f%.*}.x265.${f##*.}" ]; then
+    if [ -f "${f%.*}.x265.mkv" ] 2>/dev/null; then
         echo video already converted: "$f"
         continue
     fi
@@ -24,13 +30,13 @@ for f; do
         case $info in frame=*)
             set -- ${info#*=}
             p=$(echo "scale=2; $1*100/$frame_count" | bc)
-            printf '\r%s%%  %s  ' "$p" "${f##*/}" ;;
+            printf '\033[2K\r%s%%  %s  ' "$p" "${f##*/}" ;;
         esac
     done <"$fifo" &
 
     ffmpeg -nostdin -hide_banner -loglevel error -progress pipe:1 -y -i "$f" \
-        -c:v libx264 -x265-params log-level=error -c:a copy \
-        "${f%.*}.x265.TMP.${f##*.}" >"$fifo" &&
-        mv -n "${f%.*}.x265.TMP.${f##*.}" "${f%.*}.x265.${f##*.}"
-    echo
+        -c:v libx265 -crf $crf -preset slow -x265-params log-level=error \
+        -c:a libopus -ac 2 "${f%.*}.x265.TMP.mkv" >"$fifo" &&
+        mv -n "${f%.*}.x265.TMP.mkv" "${f%.*}.x265.mkv"
+    echo Done.
 done
