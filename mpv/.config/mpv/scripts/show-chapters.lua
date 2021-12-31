@@ -5,15 +5,10 @@
 -- config
 HOTKEY = 'ctrl+x'
 CHAPTERS_TO_SHOW = 30
-
 FONT_SCALE = 40 -- in % from osd-font-size
 FONT_SCALE_inactive_chapters = 35
 FONT_ALPHA_inactive_chapters = 60
-
-AUTOSTART_IN_PATHS = {
---    "^edl://",
-}
-----------------------------------------
+---
 
 local assdraw = require('mp.assdraw')
 
@@ -109,22 +104,6 @@ function show_chapters()
     mp.set_osd_ass(osd_w, osd_h, ass.text)
 end
 
-function started()
-    local pth = mp.get_property("path")
-
-    if pth == nil then
-        return
-    end
-
-    for i, i_path in pairs(AUTOSTART_IN_PATHS) do
-        if pth:find(i_path) then
-            running = true
-            show_chapters()
-            return
-        end
-    end
-end
-
 function show_hide()
     if running == true then
         running = false
@@ -139,5 +118,4 @@ end
 
 observation_active = false
 
-mp.register_event("file-loaded", started)
 mp.add_forced_key_binding(HOTKEY, 'show_hide', show_hide, {repeatable=true})
