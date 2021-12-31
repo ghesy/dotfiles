@@ -4,14 +4,13 @@
 -- bindings
 SLICING_MARK = 'C'
 SLICING_MARK_CLEAR = 'c'
-SLICING_AUDIO = 'A'
+---
 
 local msg = require "mp.msg"
 local utils = require "mp.utils"
 local options = require "mp.options"
 
 local cut_pos = nil
-local copy_audio = true
 local command_template = {
     ss = "$shift",
     t = "$duration",
@@ -113,7 +112,6 @@ local function cut(shift, endpos)
         :arg("-t", (command_template.t:gsub("$duration", endpos - shift)))
         :arg("-c:v", o.vcodec)
         :arg("-c:a", o.acodec)
-        :arg(not copy_audio and "-an" or nil)
         :arg(outpath)
     msg.info("Run commands: " .. cmds:as_str())
     local res, err = cmds:run()
@@ -149,11 +147,6 @@ local function toggle_mark()
     end
 end
 
-local function toggle_audio()
-    copy_audio = not copy_audio
-    info("Audio capturing is " .. (copy_audio and "enabled" or "disabled"))
-end
-
 local function clear_toggle_mark()
     cut_pos = nil
     info("Cleared cut fragment")
@@ -170,5 +163,4 @@ elseif not file.is_dir then
 end
 o.target_dir = mp.command_native({ "expand-path", o.target_dir })
 mp.add_key_binding(SLICING_MARK, "slicing_mark", toggle_mark)
-mp.add_key_binding(SLICING_AUDIO, "slicing_audio", toggle_audio)
 mp.add_key_binding(SLICING_MARK_CLEAR, "clear_slicing_mark", clear_toggle_mark)
