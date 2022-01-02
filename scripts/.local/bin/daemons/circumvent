@@ -1,93 +1,107 @@
 #!/bin/sh
 # download, configure and start the psiphon proxy client.
-# requires curl, jq and libnotify(optional).
-# also this script uses NetworkManager to detect internet connectivity,
-# but that can be removed.
+# requires curl and libnotify(optional).
 
+# Config
 # ==========
-# = Config
-# ==========
-
 # ports
 socks_port=9050
 http_port=8585
-
+#
 # where to put the psiphon binary and configs
 dir=~/.local/share/circumvent
-
+#
 # psiphon-client's github path
-repo=Psiphon-Labs/psiphon-tunnel-core-binaries
-repofile=linux/psiphon-tunnel-core-x86_64
+repo=Psiphon-Labs/psiphon-tunnel-core-binaries # name of the github repository
+path=linux/psiphon-tunnel-core-x86_64 # path of the file in the repository
+#
+# name of psiphon's binary
+bin=psiphon-client
+# ==========
 
-# =================
-# = End of Config
-# =================
+main() {
+    wait_for_internet
+    check_for_updates
+    gen_psiphon_configs
+    start
+}
 
-# wait until we have internet
-echo waiting for internet connectivity...
-while :; do
-    case $(nmcli -g general.ip4-connectivity dev show) in *full*) break ;; esac
-    sleep 30
-done
+# if NetworkManager is available, use it to wait until we have internet
+wait_for_internet() {
+    if [ "$1" != -n ] && command -v nmcli >/dev/null && pidof -q NetworkManager; then
+        echo waiting for internet connectivity...
+        while :; do
+            case $(nmcli -g general.ip4-connectivity dev show) in *full*) break ;; esac
+            sleep 30
+        done
+    fi
+}
+
+# start psiphon
+start() {
+    echo starting "$bin"...
+    pidof -qx "$bin" && die "another instance of $bin is running."
+    trap 'echo exiting...; pkill -P$$' HUP INT TERM
+    "$dir/$bin" -config "$dir"/config -dataRootDirectory "$dir" 2>&1 |
+        while IFS= read -r line; do
+            case $line in
+            *Tunnels*)
+                curl -s --socks5 localhost:$socks_port ping.archlinux.org >/dev/null && {
+                    echo "$bin" connected.
+                    notify-send Circumvent Connected.
+                }
+            ;;
+            *PortInUse*)
+                die "one of the ports ($socks_port, $http_port) is in use, probably by Tor."
+            ;;
+            esac
+    done &
+    echo "$bin" started, connecting...
+    wait
+}
+
+# update psiphon if a newer version is available
+check_for_updates() {
+    echo checking for updates...
+    apiurl="https://api.github.com/repos/$repo/commits?path=$(echo "$path" | sed 's|/|%2F|g')&page=1&per_page=1"
+    lastcommit=$(curl -fsL "$apiurl" | grep -m1 '^\s\+"date":' | cut -d\" -f4 | xargs -r date +%s -d)
+    filebirth=$(stat -c%W "$dir/$bin")
+    if [ ! -f "$dir/$bin" ] || [ "$lastcommit" -gt "$filebirth" ]; then
+        echo "a new commit at $lastcommit is newer than $bin's birth at $filebirth."
+        update
+    fi
+    chmod 755 "$dir/$bin"
+}
+
+update() {
+    echo updating...
+    url="https://raw.githubusercontent.com/$repo/master/$path"
+    mkdir -p "$dir" || die "couldn't make directory $dir."
+    aria2c -k1M -x5 -d"$dir" -o"$bin.new" "$url" &&
+        mv "$dir/$bin.new" "$dir/$bin"
+}
 
 die() {
-    echo "Circumvent: Error: $*"
+    echo "Error: $*"
     notify-send Circumvent "Error: $*"
     exit 1
 }
 
-# install dependencies
-echo checking dependencies...
-command -v jq >/dev/null || die 'please install "jq".'
-
-mkdir -p "${dir:?}" || die "couldn't make directory $dir."
-cd "$dir" || die "couldn't change directory to $dir."
-
-# name of psiphon's binary
-bin=psiphon-client
-
-# update psiphon if a newer version is available
-echo checking for updates...
-url="https://raw.githubusercontent.com/${repo:?}/master/${repofile:?}"
-apiurl="https://api.github.com/repos/$repo/commits?path=$(echo "$repofile" | sed 's|/|%2F|g')&page=1&per_page=1"
-lastcommit=$(date +%s -d "$(curl -fsL "$apiurl" | jq -r '.[0].commit.committer.date')")
-[ ! -f "${bin:?}" ] || [ "$lastcommit" -gt "$(stat -c%W "$bin")" ] && {
-    echo updating...
-    aria2c -k1M -x5 -o"$bin.new" "$url" && mv "$bin.new" "$bin"
-}
-chmod 755 "$bin"
-
 # generate psiphon's config file
-echo writing the config file...
-cat << eof > config || die "failed to write psiphon's config."
+gen_psiphon_configs() {
+    echo writing the config file...
+    cat << eof > "$dir"/config || die "failed to write psiphon's config."
 {
-"LocalHttpProxyPort":$http_port,
-"LocalSocksProxyPort":$socks_port,
-"PropagationChannelId":"FFFFFFFFFFFFFFFF",
-"RemoteServerListDownloadFilename":"remote_server_list",
-"RemoteServerListSignaturePublicKey":"MIICIDANBgkqhkiG9w0BAQEFAAOCAg0AMIICCAKCAgEAt7Ls+/39r+T6zNW7GiVpJfzq/xvL9SBH5rIFnk0RXYEYavax3WS6HOD35eTAqn8AniOwiH+DOkvgSKF2caqk/y1dfq47Pdymtwzp9ikpB1C5OfAysXzBiwVJlCdajBKvBZDerV1cMvRzCKvKwRmvDmHgphQQ7WfXIGbRbmmk6opMBh3roE42KcotLFtqp0RRwLtcBRNtCdsrVsjiI1Lqz/lH+T61sGjSjQ3CHMuZYSQJZo/KrvzgQXpkaCTdbObxHqb6/+i1qaVOfEsvjoiyzTxJADvSytVtcTjijhPEV6XskJVHE1Zgl+7rATr/pDQkw6DPCNBS1+Y6fy7GstZALQXwEDN/qhQI9kWkHijT8ns+i1vGg00Mk/6J75arLhqcodWsdeG/M/moWgqQAnlZAGVtJI1OgeF5fsPpXu4kctOfuZlGjVZXQNW34aOzm8r8S0eVZitPlbhcPiR4gT/aSMz/wd8lZlzZYsje/Jr8u/YtlwjjreZrGRmG8KMOzukV3lLmMppXFMvl4bxv6YFEmIuTsOhbLTwFgh7KYNjodLj/LsqRVfwz31PgWQFTEPICV7GCvgVlPRxnofqKSjgTWI4mxDhBpVcATvaoBl1L/6WLbFvBsoAUBItWwctO2xalKxF5szhGm8lccoc5MZr8kfE0uxMgsxz4er68iCID+rsCAQM=",
-"RemoteServerListUrl":"https://s3.amazonaws.com//psiphon/web/mjr4-p23r-puwl/server_list_compressed",
-"SponsorId":"FFFFFFFFFFFFFFFF",
-"UseIndistinguishableTLS":true
+    "LocalHttpProxyPort": $http_port,
+    "LocalSocksProxyPort": $socks_port,
+    "PropagationChannelId": "FFFFFFFFFFFFFFFF",
+    "RemoteServerListDownloadFilename": "remote_server_list",
+    "RemoteServerListSignaturePublicKey": "MIICIDANBgkqhkiG9w0BAQEFAAOCAg0AMIICCAKCAgEAt7Ls+/39r+T6zNW7GiVpJfzq/xvL9SBH5rIFnk0RXYEYavax3WS6HOD35eTAqn8AniOwiH+DOkvgSKF2caqk/y1dfq47Pdymtwzp9ikpB1C5OfAysXzBiwVJlCdajBKvBZDerV1cMvRzCKvKwRmvDmHgphQQ7WfXIGbRbmmk6opMBh3roE42KcotLFtqp0RRwLtcBRNtCdsrVsjiI1Lqz/lH+T61sGjSjQ3CHMuZYSQJZo/KrvzgQXpkaCTdbObxHqb6/+i1qaVOfEsvjoiyzTxJADvSytVtcTjijhPEV6XskJVHE1Zgl+7rATr/pDQkw6DPCNBS1+Y6fy7GstZALQXwEDN/qhQI9kWkHijT8ns+i1vGg00Mk/6J75arLhqcodWsdeG/M/moWgqQAnlZAGVtJI1OgeF5fsPpXu4kctOfuZlGjVZXQNW34aOzm8r8S0eVZitPlbhcPiR4gT/aSMz/wd8lZlzZYsje/Jr8u/YtlwjjreZrGRmG8KMOzukV3lLmMppXFMvl4bxv6YFEmIuTsOhbLTwFgh7KYNjodLj/LsqRVfwz31PgWQFTEPICV7GCvgVlPRxnofqKSjgTWI4mxDhBpVcATvaoBl1L/6WLbFvBsoAUBItWwctO2xalKxF5szhGm8lccoc5MZr8kfE0uxMgsxz4er68iCID+rsCAQM=",
+    "RemoteServerListUrl": "https://s3.amazonaws.com//psiphon/web/mjr4-p23r-puwl/server_list_compressed",
+    "SponsorId": "FFFFFFFFFFFFFFFF",
+    "UseIndistinguishableTLS": true
 }
 eof
+}
 
-# start psiphon
-echo starting "$bin"...
-killall -q "$bin"
-trap 'echo exiting...; pkill -P$$' HUP INT TERM
-"$dir/$bin" -config "$dir"/config 2>&1 | while IFS= read -r line; do
-    case $line in
-        *Tunnels*)
-            curl -s --socks5 localhost:$socks_port ping.archlinux.org >/dev/null && {
-                echo "$bin" connected.
-                notify-send Circumvent Connected.
-            }
-        ;;
-        *PortInUse*)
-            die "one of the ports ($socks_port, $http_port) is in use, probably by Tor."
-        ;;
-    esac
-done &
-echo "$bin" started, connecting...
-wait
+main "$@"
