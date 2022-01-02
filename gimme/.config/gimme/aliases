@@ -8,6 +8,7 @@ Grub : root grub-customizer
 Email, Mutt : tui neomutt
 Claws Mail : claws-mail --alternate-config-dir ~/.local/share/claws-mail
 GParted, Partitioning : root gparted
+Ventoy, ISO : root ventoygui
 Book Reader, Foliate : foliate
 aRandr : arandr
 Miracast : gnome-network-displays
