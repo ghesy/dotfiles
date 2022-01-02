@@ -109,7 +109,8 @@ cmd finder ${{
 
 cmd extract ${{
     printf '\e[?1049h\e[H'
-    aunpack -De -- $fx || read -p 'Press enter to continue'
+    aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
+    printf '%s\n' ${f%.*} | lfselect
 }}
 
 cmd paste ${{
