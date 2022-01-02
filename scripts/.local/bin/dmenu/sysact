@@ -14,21 +14,29 @@ main() {
     action=$1
     [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'System Action:' $colors)
     case $(echo $action | tr A-Z a-z) in
-        *sleep)
-            can_hibernate &&
-                loginctl suspend-then-hibernate ||
-                loginctl suspend
-        ;;
-        *hiber*)
+        *sleep) loginctl_chvt suspend$(can_hibernate && echo -then-hibernate) ;;
+        *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
+        *logout) ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole) ;;
+        *hibernate)
             if can_hibernate; then
-                ask 'Hibernate?' && loginctl hibernate
+                ask 'Hibernate?' && loginctl_chvt hibernate
             else
                 notify-send 'Hibernation is not enabled on this machine.'
             fi
         ;;
-        *reboot) rebootfn ;;
-        *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
-        *logout) ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole) ;;
+        *reboot)
+            unset os
+            command -v grub-reboot >/dev/null &&
+                command -v grub-entries >/dev/null &&
+                entries=$(sudo -A grub-entries -g) &&
+                [ "$(echo "$entries" | wc -l)" -gt 1 ] && {
+                    sel=$(echo "$entries" | dmenu -p 'Reboot to:' $colors) || return 1
+                    os=$(echo "$sel" | cut -d' ' -f2-)
+                }
+            ask 'Reboot?' || return 1
+            [ -n "$os" ] && sudo -A grub-reboot "$os"
+            loginctl reboot
+        ;;
     esac
 }
 
@@ -40,27 +48,20 @@ ask() {
 }
 
 can_hibernate() {
-    grep -q 'resume=' /proc/cmdline
+    [ $(cat /sys/power/resume) != 0:0 ]
 }
 
-rebootfn() {
-    os="$(ask_reboot_os)"
-    case $? in
-        9) cmd=true ;;
-        0) cmd='sudo -A grub-reboot' ;;
-        *) return 1 ;;
-    esac
-    ask 'Reboot?' || return 1
-    $cmd "$os" && loginctl reboot
-}
-
-ask_reboot_os() {
-    command -v grub-reboot >/dev/null || return 9
-    command -v grub-entries >/dev/null || return 9
-    entries=$(sudo -A grub-entries -g)
-    [ "$(echo "$entries" | wc -l)" -le 1 ] && return 9
-    sel=$(echo "$entries" | dmenu -p 'Reboot to:' $colors) || return 1
-    echo "$sel" | cut -d' ' -f2-
+# change tty before running the loginctl command, then change it back
+loginctl_chvt() {
+    sudo -A fgconsole -h 2>/dev/null
+    sudo -A chvt -h 2>/dev/null
+    loginctl lock-session
+    sleep 0.5
+    vt=$(sudo -A fgconsole)
+    sudo -A chvt 6
+    loginctl "${1:?}"
+    sleep 3
+    sudo -A chvt ${vt:-1}
 }
 
 main "$@"

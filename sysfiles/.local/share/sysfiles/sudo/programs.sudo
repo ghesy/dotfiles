@@ -7,6 +7,7 @@ Cmnd_Alias PROGRAMS = \
   /usr/bin/fgconsole, \
   /usr/bin/nethogs, \
   /usr/bin/iotop, \
+  /usr/bin/chvt, \
   /usr/bin/rsm, \
   /usr/bin/sv
 %wheel ALL=(ALL) NOPASSWD: PROGRAMS
