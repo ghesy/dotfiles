@@ -17,13 +17,15 @@ Fastest'
 
 notif() {
     while IFS= read -r line; do case $line in
-        ''|Visit*|*graphical*|*symlink*|*changed*) ;;
-        *) notify-send -u low "$1" "$line" ;;
+        Visit*|*graphical*|*symlink*|*changed*) ;;
+        *[a-zA-Z]*) notify-send "$1" "$line" ;;
     esac; done
 }
 
-# if the unbuffer command exists, use it for protonvpn
-command -v unbuffer >/dev/null && unbuf=unbuffer || unbuf=''
+# run the given command unbuffered
+unbuffer() {
+    script -qfc "$(/usr/bin/printf '%q ' "$@")" /dev/null
+}
 
 case $(printf 'Connect\nDisconnect\n' | dmenu -p VPN) in
     Connect)
@@ -31,7 +33,7 @@ case $(printf 'Connect\nDisconnect\n' | dmenu -p VPN) in
             ProtonVPN)
                 location=$(echo "$pvpn_locations" | dmenu -p Location:)
                 [ ${location:?} = Fastest ] && location=-f || location="--cc $location"
-                $unbuf sudo -A protonvpn c $location | notif ProtonVPN ;;
+                unbuffer sudo -A protonvpn c $location | notif ProtonVPN ;;
             Windscribe)
                 location=$(echo "$wind_locations" | dmenu -p Location:)
                 [ ${location:?} = Best ] && location=
@@ -41,7 +43,7 @@ case $(printf 'Connect\nDisconnect\n' | dmenu -p VPN) in
     Disconnect)
         case $(pgrep -ax openvpn) in
             *windscribe*) windscribe disconnect | notif Windscribe ;;
-            *pvpn*) $unbuf sudo -A protonvpn d | notif ProtonVPN ;;
+            *pvpn*) unbuffer sudo -A protonvpn d | notif ProtonVPN ;;
             *) echo No VPN connection found. | notif dvpn ;;
         esac ;;
 esac
