@@ -1,16 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 # find files using fzf and bfs. bfs does breadth-first search,
 # which is much faster than find's depth-first search
 # usage: finder [starting-point...]
-
-# shell-escape input arguments to be passed to bfs
-set -- "${@//\"/'\"'}" # escape quotes
-set -- "${@//\$/'\$'}" # escape dollarsigns
-set -- "${@/#/\"}" # prepend a doublequote to each arg
-set -- "${@/%/\"}" # append a doublequote to each arg
 
 # build the command line ignoring famous directories that
 # should not be searched, and pass it to fzf
 FZF_DEFAULT_COMMAND="bfs -L -not -path '*/.git/*' -not -path '*/Trash/*' \
     -not -path '*/.Trash-*/*' -not -path '*/*vim/undo*/*' \
-    -not -path '*/dosdevices/*' -- $*" fzf
+    -not -path '*/dosdevices/*' -- $(/usr/bin/printf '%q ' "$@")" fzf
