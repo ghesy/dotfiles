@@ -4,39 +4,42 @@
 
 # config
 dir=~/.local/share/bottles/bin
-bin=Bottles.AppImage
 repo=bottlesdevs/Bottles
 
 case $1 in
-    -v) cd "$dir" && echo *.AppImage ;;
-    -h)
-        echo "-u    update/download the appimage"
-        echo "-l    unlink wine bottles' dirs from user's home dir"
-        echo "-v    show version"
-        echo "-h    show this help message" ;;
-    -u)
-        js=$(curl -fsL "https://api.github.com/repos/$repo/releases/latest") || exit 1
-        name=$(printf '%s\n' "$js" | grep -m1 '"name".*\.AppImage"' | cut -d\" -f4)
-        url=$(printf '%s\n' "$js" | grep -m1 '"browser_download_url.*\.AppImage"' | cut -d\" -f4)
+-v) cd "$dir" && echo *.AppImage ;;
+-h)
+    echo "-u    update/download the appimage"
+    echo "-l    unlink wine bottles' dirs from user's home dir"
+    echo "-v    show version"
+    echo "-h    show this help message" ;;
+-u)
+    p() { printf '%s\n' "$js" ;}
+    js=$(curl -fsL "https://api.github.com/repos/$repo/releases/latest") || exit 1
+    name=$(p | grep -m1 '"name".*\.AppImage"' | cut -d\" -f4)
+    url=$(p | grep -m1 '"browser_download_url.*\.AppImage"' | cut -d\" -f4)
 
-        echo "Latest release: $name"
-        [ -f "$dir"/*.AppImage ] && echo Current verson: $(cd "$dir" && echo *.AppImage)
+    [ -f "$dir"/*.AppImage ] && echo Current verson: $(cd "$dir" && echo *.AppImage)
+    echo "Latest release: $name"
 
-        printf 'Continue? [y/N] '
-        read ans
-        case $ans in y|Y|yes|Yes) ;; *) exit ;; esac
+    printf 'Continue? [y/N] '
+    read ans
+    case $ans in y|Y|yes|Yes) ;; *) exit ;; esac
 
-        aria2c -k1M -x16 -s16 -d"$dir" -o"$name.tmp" "$url" &&
-            rm -f "$dir"/*.AppImage &&
-            mv "$dir/$name.tmp" "$dir/$name" ;;
-    -l)
-        rmdir ~/Desktop 2>/dev/null
-        for d in ~/.local/share/bottles/bottles/*/drive_c/users/*/*; do
-            [ -L "$d" ] && rm "$d" && mkdir "$d"
-        done ;;
-    *)
-        export TMPDIR=$dir/.mnt
-        export XDG_DATA_DIRS=/usr/local/share:/usr/share
-        mkdir -p "$TMPDIR"
-        "$dir"/*.AppImage "$@" ;;
+    aria2c -k1M -x16 -s16 -d"$dir" -o"$name.tmp" "$url" &&
+        mkdir -p "$dir/previous-version" &&
+        rm -f "$dir/previous-version"/*.AppImage &&
+        mv "$dir"/*.AppImage "$dir/previous-version" &&
+        mv "$dir/$name.tmp" "$dir/$name" &&
+        chmod 755 "$dir/$name" ;;
+-l)
+    rmdir ~/Desktop 2>/dev/null
+    for d in ~/.local/share/bottles/bottles/*/drive_c/users/*/*; do
+        [ -L "$d" ] && rm "$d" && mkdir "$d"
+    done ;;
+*)
+    export TMPDIR=$dir/.mnt
+    export XDG_DATA_DIRS=/usr/local/share:/usr/share
+    mkdir -p "$TMPDIR"
+    "$dir"/*.AppImage "$@" ;;
 esac
