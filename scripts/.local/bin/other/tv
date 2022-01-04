@@ -17,14 +17,14 @@ format=%airdate - %show - %seasonx%epnum - %eptitle"
 
 main() {
     case $1 in
-    '')
+    -h)
+        print_help ;;
+    -s)
         echo updating the database...
         episoder update -d90
         episoder list -i | tac | ${PAGER:-less} ;;
-    -h)
-        print_help ;;
     -l)
-        list_show_names ;;
+        list_show_names | ${PAGER:-less} ;;
     -e)
         export_show_list ;;
     -i)
@@ -48,6 +48,26 @@ main() {
                 echo removing "$show"...
                 episoder remove "$show"
             done ;;
+    '')
+        printf '\e[?1049h\e[2J\e[H'
+        while :; do
+            printf '\e[H'
+            echo 's: Show upcoming shows    l: List added shows'
+            echo 'a: Add new shows          r: Remove shows'
+            echo 'q: Quit'
+            printf '━%.0s' {1..45}; echo
+            printf 'Command: '
+            printf '\e[s'
+            read x
+            printf '\e[u\e[0J\e[1E'
+            case $x in
+                q) break ;;
+                s|l|a|r) main -$x ;;
+            esac
+            printf '\e[?1049h'
+        done
+        printf '\e[?1049l'
+        ;;
     *)
         episoder "$@" ;;
     esac
@@ -81,14 +101,15 @@ export_show_list() {
 
 print_help() {
 cat << 'eof'
-run without any arguments: show upcoming shows in pager.
+run without any arguments: run the tui.
 run with options/arguments not listed here: pass all args to episoder.
 options:
--a search and add new shows.
--r select and remove added shows.
--l list added shows.
--e export the list of added shows to ~/.local/share/tv/shows.
--i import shows from ~/.local/share/tv/shows.
+-s  show list of upcoming shows
+-a  search and add new shows
+-r  select and remove added shows
+-l  list added shows
+-e  export the list of added shows to ~/.local/share/tv/shows
+-i  import shows from ~/.local/share/tv/shows
 eof
 }
 
