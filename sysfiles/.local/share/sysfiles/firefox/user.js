@@ -3,7 +3,7 @@
  * View diff with master: https://github.com/arkenfox/user.js/compare/7e18f8b..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
 
 /* ==============================
- * ===    practical prefs     ===
+ * ===    Practical Prefs     ===
  * ============================== */
 
 /* disable disk cache (memory cache is enabled by default) */
@@ -30,7 +30,7 @@ user_pref("ui.click_hold_context_menus", false);
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 
 /* ==============================
- * ===   privacy/annoyances   ===
+ * ===   Privacy/Annoyances   ===
  * ============================== */
 
 /* enable userChrome/userContent */
@@ -41,6 +41,16 @@ user_pref("browser.aboutConfig.showWarning", false);
 
 /* disable default browser check */
 user_pref("browser.shell.checkDefaultBrowser", false);
+
+/* enable DNS over HTTPS
+/* choose a dns server from here:
+ * https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers */
+user_pref("network.trr.mode", 2);
+user_pref("network.dns.skipTRR-when-parental-control-enabled", false);
+user_pref("network.trr.blocklist_cleanup_done", true);
+user_pref("network.trr.exclude-etc-hosts", true);
+user_pref("network.trr.uri", "https://doh.eu.dnswarden.com/adultfilter");
+//user_pref("network.trr.uri", "https://dns.quad9.net/dns-query");
 
 /* disable Homepage/ActivityStream stuff */
 user_pref("browser.newtabpage.enabled", true);
@@ -287,28 +297,24 @@ user_pref("privacy.clearOnShutdown.sessions", false);
 user_pref("privacy.clearOnShutdown.offlineApps", false);
 user_pref("privacy.clearOnShutdown.cookies", false);
 
-/*
- * disabled stuff:
- */
+/* =============================
+ * ===    Disabled Stuff    ===
+ * ============================= */
 
-/* don't set resistFingerprinting because it causes brakages */
-user_pref("privacy.resistFingerprinting", false);
+/* don't enable resistFingerprinting because it causes brakages */
+//user_pref("privacy.resistFingerprinting", false);
 
 /* enable clipboard commands (cut/copy) from "non-privileged" content */
 user_pref("dom.allow_cut_copy", true);
-/* disabled version:
- * user_pref("dom.allow_cut_copy", false); */
+/* disabled version: */
+//user_pref("dom.allow_cut_copy", false);
 
 /* enable captive portal detection */
 user_pref("captivedetect.canonicalURL", "http://detectportal.firefox.com/canonical.html");
 user_pref("network.captive-portal-service.enabled", true);
-/* disabled version:
- * user_pref("captivedetect.canonicalURL", "");
- * user_pref("network.captive-portal-service.enabled", false); */
+/* disabled version: */
+//user_pref("captivedetect.canonicalURL", "");
+//user_pref("network.captive-portal-service.enabled", false);
 
-/*
- * interesting stuff:
- */
-
-/* disable downloads panel opening on every download:
- * user_pref("browser.download.alwaysOpenPanel", false); */
+/* disable downloads panel opening on every download */
+//user_pref("browser.download.alwaysOpenPanel", false);
