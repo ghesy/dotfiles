@@ -1,16 +1,30 @@
-shortcuts=alt-l,alt-t,alt-o,alt-v,ctrl-alt-d,alt-m,alt-s,alt-enter,alt-d
-enable_fzf_default_opts=1
-thumb_disp_method=custom
+is_loop=1
+enable_hist=1
+show_thumbnails=1
 
-handle_display_img() {
-    PID=$(pgrep -xns0 ytfzf)
-    sxipc "$PID"
-    sxip "$5" "$1" "$2" "$3" "$4" "$PID" "$PID"
+thumbnail_quality=high
+thumbnail_viewer=img_display_function
+img_display_function() {
+    sxipc "$YTFZF_PID"
+    sxip "$thumb_dir/$id.jpg" "$2" "$3" 3 10 "$YTFZF_PID" "$YTFZF_PID"
 }
 
-handle_custom_shortcuts() {
-    case $selected_key in alt-d)
-        setsid -f $TERMINAL -e ytdl $selected_urls >/dev/null 2>&1
-        return 2
-    ;; esac
+download_shortcut=ctrl-alt-d
+custom_shortcut_binds=alt-d
+handle_custom_keypresses() {
+    case $1 in
+        alt-d)
+            setsid -f ${TERMINAL:?} -e ytdl $(cat "$ytfzf_selected_urls") >/dev/null 2>&1
+            return 0 ;;
+    esac
+}
+
+thumbnail_video_info_text () {
+    [ -n "$title" ] && printf "\n ${c_cyan}%s" "$title"
+    [ -n "$channel" ] && printf "\n ${c_blue}Channel  ${c_green}%s" "$channel"
+    [ -n "$duration" ] && printf "\n ${c_blue}Duration ${c_yellow}%s" "$duration"
+    [ -n "$views" ] && printf "\n ${c_blue}Views    ${c_magenta}%s" "$views"
+    [ -n "$date" ] && printf "\n ${c_blue}Date     ${c_cyan}%s" "$date"
+    [ -n "$url" ] && urlhost=${url#https://} && printf "\n ${c_blue}Source   ${c_reset}%s" "${urlhost%%/*}"
+    [ -n "$description" ] && printf "\n ${c_blue}Description${c_reset}: %s" "$(printf "%s" "$description" | sed 's/\\n/\n/g')"
 }
