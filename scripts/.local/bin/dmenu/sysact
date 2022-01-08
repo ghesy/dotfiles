@@ -60,7 +60,7 @@ loginctl_chvt() {
     vt=$(sudo -A fgconsole)
     sudo -A chvt 6
     loginctl "${1:?}"
-    sleep 3
+    sleep 8
     sudo -A chvt ${vt:-1}
 }
 
