@@ -5,6 +5,6 @@ trap 'pkill -P$$' HUP INT TERM
 udevadm monitor -usinput | while IFS= read -r line; do
     kill -0 $p && continue
     sleep 1 & p=$!
-    remaps
+    (sleep 0.5; remaps) &
 done &
 wait
