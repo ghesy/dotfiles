@@ -1,10 +1,9 @@
 #!/bin/sh
 # a wrapper script for ytfzf.
-[ -z "$*" ] && case $(printf 'Search\nWatch History\nSearch History\n' | dmenu -p ytfzf) in
+[ -z "$*" ] && case $(printf 'Search\nHistory\n' | dmenu -p ytfzf) in
     Search) s=$(dmenu -p 'Search YouTube:' <&-) || exit 1 ;;
-    'Watch History') set -- -H ;;
-    'Search History') set -- -q ;;
+    History) set -- -H ;;
     *) exit 1 ;;
 esac
 export FZF_DEFAULT_OPTS='--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top'
-exec $TERMINAL -e sh -c 'exec $(getproxy https://www.youtube.com) ytfzf -tl "$@" ${0:+"$0"}' ${s:+"$s"} "$@"
+exec ${TERMINAL:?} -e sh -c 'exec $(getproxy https://www.youtube.com) ytfzf "$@" ${0:+"$0"}' ${s:+"$s"} "$@"

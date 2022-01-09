@@ -130,6 +130,6 @@
   (lib (name Transformer_THT)(type KiCad)(uri ${KISYSMOD}/Transformer_THT.pretty)(options "")(descr "Through hole transformers"))
   (lib (name Valve)(type KiCad)(uri ${KISYSMOD}/Valve.pretty)(options "")(descr Valve))
   (lib (name Varistor)(type KiCad)(uri ${KISYSMOD}/Varistor.pretty)(options "")(descr Varistor))
-  (lib (name UniX_Generic)(type KiCad)(uri ${KUSTOM_FOOTPRINTS}/UniX_Generic.pretty)(options "")(descr ""))
-  (lib (name Ribbon_Cable)(type KiCad)(uri ${KUSTOM_FOOTPRINTS}/Ribbon_Cable.pretty)(options "")(descr ""))
+  (lib (name UniX_Generic)(type KiCad)(uri ${CUSTOM_FOOTPRINTS}/UniX_Generic.pretty)(options "")(descr ""))
+  (lib (name Ribbon_Cable)(type KiCad)(uri ${CUSTOM_FOOTPRINTS}/Ribbon_Cable.pretty)(options "")(descr ""))
 )

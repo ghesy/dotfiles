@@ -1,10 +1,11 @@
 let mapleader = " "
 
 " install vim-plug
-if ! filereadable(system('echo -n "${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim"'))
-    echo "installing vim-plug..."
-    silent !mkdir -p ${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload
-    silent !sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+let s:VimPlugPath = '${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim'
+let s:VimPlugURL = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+if ! filereadable(system('printf '.s:VimPlugPath))
+    echo 'Installing vim-plug...'
+    call system('curl --create-dirs -fsLo '.s:VimPlugPath.' '.s:VimPlugURL)
     autocmd VimEnter * PlugInstall
 endif
 
