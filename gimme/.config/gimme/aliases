@@ -12,6 +12,7 @@ Ventoy, ISO : root ventoygui
 Book Reader, Foliate : foliate
 aRandr : arandr
 Miracast : gnome-network-displays
+Steam : export HOME=~/.local/share/SteamHome && mkdir -p ~ && steam
 
 TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 Ripcord : trayrun ripcord
