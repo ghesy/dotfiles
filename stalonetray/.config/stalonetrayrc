@@ -6,3 +6,4 @@ icon_gravity SE
 no_shrink false
 transparent true
 background "#181818"
+kludges force_icons_size
