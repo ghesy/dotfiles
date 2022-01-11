@@ -12,6 +12,10 @@ case $1 in
     -a) f=$fx ;;
 esac
 
+# delay before exit to keep lf from crashing due to a racing issue:
+# https://github.com/gokcehan/lf/issues/621#issuecomment-841576897
+trap 'sleep 0.01' EXIT
+
 printf '\e[?1049h'
 printf '\e[H'
 
@@ -31,8 +35,7 @@ case $(file -b --mime-type --dereference -- $f) in
     */x-xcf|*photoshop) gimp -- $f ;;
     video/*) mpv --really-quiet -- $f ;;
     audio/*) mpvmusic -- $f ;;
-    image/*) sxiv -aoEF $(realpath -- $f) . | lfselect ;;
-    */troff) man -- $f ;;
+    image/*) sxiv -aoEF $(realpath -- $f) .  ;;
     */x-sc) sc-im -- $f ;;
     text/*|*/json) $EDITOR -- $f ;;
 
