@@ -6,6 +6,12 @@
  * ===    Practical Prefs     ===
  * ============================== */
 
+/* disable autoplay for audio and video */
+user_pref("media.autoplay.default", 5);
+
+/* block all notification requests */
+user_pref("permissions.default.desktop-notification", 2);
+
 /* disable disk cache (memory cache is enabled by default) */
 user_pref("browser.cache.disk.enable", false);
 
@@ -13,7 +19,7 @@ user_pref("browser.cache.disk.enable", false);
  * default is 15000 milliseconds which is too short. */
 user_pref("browser.sessionstore.interval", 120000);
 
-/* link opening behaviour */
+/* open external links in a new window */
 user_pref("browser.link.open_newwindow.override.external", 2);
 
 /* scroll speed */
@@ -220,9 +226,6 @@ user_pref("dom.disable_open_during_load", true);
 
 /* limit events that can cause a popup */
 user_pref("dom.popup_allowed_events", "click dblclick mousedown pointerdown");
-
-/* disable autoplay of HTML5 media */
-user_pref("media.autoplay.default", 5);
 
 /* prevent scripts from moving and resizing open windows */
 user_pref("dom.disable_window_move_resize", true);
