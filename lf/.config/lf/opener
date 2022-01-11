@@ -31,7 +31,7 @@ esac || read -p 'Press enter to continue'
 
 case $(file -b --mime-type --dereference -- $f) in
     */pdf) zathura -- $f ;;
-    */vnd.djvu|*/epub*) foliate $f ;;
+    */epub*) foliate $f ;;
     */x-xcf|*photoshop) gimp -- $f ;;
     video/*) mpv --really-quiet -- $f ;;
     audio/*) mpvmusic -- $f ;;
