@@ -3,6 +3,7 @@ set shellopts '-u'
 set ifs "\n"
 set mouse
 set scrolloff 10
+set drawbox
 set nopreview
 set period 1
 set ratios 1
