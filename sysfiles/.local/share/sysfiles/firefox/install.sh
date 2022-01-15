@@ -17,6 +17,7 @@ pacman -Q python-pywalfox >/dev/null 2>&1 || {
     echo Please install python-pywalfox form the AUR and run this again to install it\'s config files.
     exit 1
 }
-grep -q lib/"$(basename "$(readlink -f /bin/python)")" "${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json ||
+f="${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json
+[ -f "$f" ] && grep -q lib/"$(basename "$(readlink -f /bin/python)")" "$f" ||
     runuser -u "$SUDO_USER" -g "${group:-nobody}" pywalfox install | grep -v permi
 chmod -c 755 $(pacman -Qql python-pywalfox | grep main.sh)
