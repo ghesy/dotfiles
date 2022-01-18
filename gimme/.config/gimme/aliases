@@ -47,6 +47,7 @@ Music, ncmpcpp: tui ncmpcpp
 Bash Mount: tui bashmount
 Dictionary: tui dictfzf
 TV Shows: tui tv
+Footabll Streams: tui fstream
 
 Autolock : autolock
 No Autolock : autolock -p

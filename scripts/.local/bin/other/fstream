@@ -1,0 +1,15 @@
+#!/bin/bash
+# select and watch football streams from AparatSport.
+# requires yt-dlp, fzf, mpv, moreutils.
+yt-dlp -O '%(description)s	%(original_url)s' \
+    https://www.aparat.com/AparatSport{1..5}/live 2>/dev/null |
+    sed "s/چ/ch/g; s/خ/kh/g; s/ژ/zh/g; s/ش/sh/g; s/ع/'a/g; s/غ/gh/g; \
+    s/ق/gh/g; s/ئ/'a/g; s/ه /e/g; s/یو/u/g; s/فو/fo/g; s/تون/ton/g; \
+    s/نیو/new/g; s/لیگ/league/g; s/برتر/bartar/g; s/انگلیس/englis/g; \
+    y/اآبپتثجحدذرزسصضطظفکگلمنوهی/aabptsjhdzrzssztzfkglmnvhi/" |
+    while IFS= read -r line; do
+        echo "$line" | cut -f1 | sed "s/\b\(.\)/\u\1/g" | tr '\n' '	'
+        echo "$line" | cut -f2
+    done |
+    ifne fzf -d'	' --with-nth=1 | cut -f2 |
+    xargs -r mpv --really-quiet --title=AparatSport
