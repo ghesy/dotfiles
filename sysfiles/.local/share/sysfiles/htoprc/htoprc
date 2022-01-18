@@ -1,9 +1,10 @@
 # /etc/htoprc
+config_reader_min_version=2
 fields=0 48 46 47 1
 sort_key=46
 sort_direction=-1
 tree_sort_key=46
-tree_sort_direction=1
+tree_sort_direction=-1
 hide_kernel_threads=1
 hide_userland_threads=1
 shadow_other_users=0
@@ -33,8 +34,9 @@ account_guest_in_cpu_meter=0
 color_scheme=0
 enable_mouse=1
 delay=15
-left_meters=CPU Memory Swap
-left_meter_modes=1 1 1
-right_meters=Uptime DiskIO Battery
-right_meter_modes=2 2 2
+header_layout=two_50_50
+column_meters_0=CPU Memory Swap
+column_meter_modes_0=1 1 1
+column_meters_1=Battery DiskIO NetworkIO
+column_meter_modes_1=2 2 2
 hide_function_bar=1
