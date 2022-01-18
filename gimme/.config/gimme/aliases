@@ -23,6 +23,7 @@ Gimp : gimp
 OBS, Recorder : obs
 Reset Tor : restor
 VirtualMic : virtualmic
+Syncthing : stopen
 
 # although bottles is a gui program, we run it
 # from a terminal because it takes long to open.
@@ -32,7 +33,6 @@ Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
 Github : web https://github.com/soystemd
-Syncthing : web localhost:8384
 
 Newsboat, RSS : tui nboat
 Reddit : tui tuir

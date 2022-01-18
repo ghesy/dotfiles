@@ -1,0 +1,11 @@
+#!/bin/sh
+# find and open syncthing's webui.
+PORT=8384
+case $(printf 'Local\nServer\n' | dmenu -p stopen) in
+    Local) ${BROWSER:-xdg-open} localhost:$PORT ;;
+    Server)
+        curl -ZIsw'\n%{content_type}	%{url}\n' \
+            "http://$(set -- $(ip r); echo "${3%.*}").[0-255]:$PORT" \
+            --connect-timeout 0.2 --parallel-max 25 |
+            grep '^text/html' | cut -f2 | xargs -r ${BROWSER:-xdg-open} ;;
+esac
