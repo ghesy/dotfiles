@@ -55,8 +55,8 @@ user_pref("network.trr.mode", 2);
 user_pref("network.dns.skipTRR-when-parental-control-enabled", false);
 user_pref("network.trr.blocklist_cleanup_done", true);
 user_pref("network.trr.exclude-etc-hosts", true);
-user_pref("network.trr.uri", "https://doh.eu.dnswarden.com/adultfilter");
-//user_pref("network.trr.uri", "https://dns.quad9.net/dns-query");
+user_pref("network.trr.uri", "https://dns.quad9.net/dns-query");
+//user_pref("network.trr.uri", "https://doh.eu.dnswarden.com/adultfilter");
 
 /* disable Homepage/ActivityStream stuff */
 user_pref("browser.newtabpage.enabled", true);
