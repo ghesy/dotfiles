@@ -14,7 +14,6 @@ export GRIPHOME=~/.config/grip
 export ZDOTDIR=~/.config/zsh
 
 export PASSWORD_STORE_DIR=~/.local/share/password-store
-export WINEPREFIX=~/.local/share/wineprefixes/default
 export TS3_CONFIG_DIR=~/.local/share/ts3client
 export RUSTUP_HOME=~/.local/share/rustup
 export PYLINTHOME=~/.local/share/pylint

@@ -33,6 +33,7 @@ export TUIR_BROWSER=pipeurl
 export TUIR_URLVIEWER=pipeurl
 export MOZ_USE_XINPUT2=1 # mozilla smooth scrolling/touchpads
 export _JAVA_AWT_WM_NONREPARENTING=1 # fix for java applications in dwm
+export WINEPREFIX=/dev/null # don't let wine use a default prefix
 
 # ls colors
 export LS_COLORS="no=38;5;250:fi=38;5;250:di=38;5;30:\
