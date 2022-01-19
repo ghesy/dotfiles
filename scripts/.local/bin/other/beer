@@ -7,6 +7,8 @@
 # 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
 # to get wine plus all of it's optional dependencies.
 
+# TODO: make new_bottle() cleaner and split it into more functions
+
 # config
 DIR=~/.local/share/beer
 export WINEDEBUG=fixme-all,err-wineboot # make wine less verbose
@@ -35,8 +37,8 @@ main() {
         read -p "${PFX:+$(basename "$PFX") }> " cmd
         case $cmd in
             n) new_bottle ;;
-            r) run_executable ;;
-            R) remove_bottle ;;
+            r) remove_bottle ;;
+            x) run_executable ;;
             p) select_program ;;
             e) edit_programs ;;
             v) run_winecfg ;;
@@ -59,15 +61,15 @@ main() {
 help() {
     echo
     echo "n  new bottle"
-    echo "r  run an executable in bottle"
-    echo "R  remove a bottle"
+    echo "r  remove a bottle"
     echo
+    echo "x  run an executable in bottle"
     echo "p  run one of the predefined programs"
-    echo "e  edit the list of predefined programs"
+    echo "P  edit the list of predefined programs"
     echo
     echo "c  winecfg"
-    echo "t  winetricks"
     echo "s  run shell"
+    echo "t  winetricks"
     echo "T  theme selection"
     echo "o  open bottle's path"
     echo
@@ -162,20 +164,16 @@ deselect_bottle() {
 run_executable() {
     check_pfx 'for running executables' || return 1
     local ans exe f
-
-    echo
-    echo 'File selection method:'
-    echo
-    echo 'p  enter path'
-    echo 'g  gtk file chooser'
-    echo 'd  drag and drop'
-    echo
+    echo "Enter the executable's path,"
+    echo "or 'g' for GTK file selector,"
+    echo "or 'd' for drag and drop,"
+    echo "or 'q' to go back."
     read -p '>> ' ans
     case $ans in
+        q|'') return ;;
         g) exe=$(zenity --file-selection --title='Select an executable') || return 1 ;;
         d) exe=$(dragon-drag-and-drop -t -x | grep -Po '^file://\K.*') || return 1 ;;
-        p) read -p 'Path to executable: ' exe ;;
-        *) return 1 ;;
+        *) exe=$ans ;;
     esac
 
     printf '\nThese files will be executed:\n\n'
@@ -206,25 +204,26 @@ edit_programs() {
 }
 
 new_bottle() {
-    local arch name
+    local arch name d
     read -p 'Arch: [ 64 (Default) / 32 ] ' arch
     read -p 'Unlinked Home Dir? [Y/n] ' sandbox
     read -p 'Name: ' name
     [ -z "$name" ] && return 1
     name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]*//g')
-    local d=${DIR:?}/$name
+    d=${DIR:?}/$name
     mkdir -p "$d" || return 1
     echo "win${arch:-64}" > "$d"/arch
+    WINEPREFIX=$d WINEARCH=win${arch:-64} wine regedit <(theme_dark_background)
     case $sandbox in ''|y|Y) ;; *) return ;; esac
     echo Creating a sandboxed bottle...
     WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks isolate_home
+    PFX=$d
 }
 
 remove_bottle() {
     check_pfx 'to remove' || return 1
-    echo "Bottle \"$(basename "$PFX")\" on this path will be removed:"
-    echo "  $PFX"
-    local ans; read -p 'Proceed? [y/N] ' ans
+    local ans
+    read -p "REMOVE \"$(basename "$PFX")\"? [y/N] " ans
     case $ans in y|Y) ;; *) return ;; esac
     rm -r --one-file-system "$PFX"
     deselect_bottle
@@ -243,6 +242,7 @@ open_bottle() {
 tricks() {
     check_pfx 'for running winetricks' || return 1
     local args
+    echo "'q' to go back."
     read -p '$ winetricks ' args
     [ "$args" = q ] && return
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winetricks $args
@@ -265,84 +265,104 @@ get_arch() {
     fi
 }
 
-themes() {
+select_theme() {
     check_pfx 'for themeing' || return 1
     local ans
-    read -p '(b)reeze-dark / (d)efault ' ans
+    read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit' ans
     case $ans in
-        b)
-WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <(cat << 'eof'
-Windows Registry Editor Version 5.00
-[HKEY_CURRENT_USER\Control Panel\Colors]
-"ActiveBorder"="49 54 58"
-"ActiveTitle"="49 54 58"
-"AppWorkSpace"="60 64 72"
-"Background"="49 54 58"
-"ButtonAlternativeFace"="200 0 0"
-"ButtonDkShadow"="154 154 154"
-"ButtonFace"="49 54 58"
-"ButtonHilight"="119 126 140"
-"ButtonLight"="60 64 72"
-"ButtonShadow"="60 64 72"
-"ButtonText"="219 220 222"
-"GradientActiveTitle"="49 54 58"
-"GradientInactiveTitle"="49 54 58"
-"GrayText"="155 155 155"
-"Hilight"="119 126 140"
-"HilightText"="255 255 255"
-"InactiveBorder"="49 54 58"
-"InactiveTitle"="49 54 58"
-"InactiveTitleText"="219 220 222"
-"InfoText"="159 167 180"
-"InfoWindow"="49 54 58"
-"Menu"="49 54 58"
-"MenuBar"="49 54 58"
-"MenuHilight"="119 126 140"
-"MenuText"="219 220 222"
-"Scrollbar"="73 78 88"
-"TitleText"="219 220 222"
-"Window"="35 38 41"
-"WindowFrame"="49 54 58"
-"WindowText"="219 220 222"
-eof
-) ;;
-        d)
-WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <(cat << 'eof'
-Windows Registry Editor Version 5.00
-[HKEY_CURRENT_USER\Control Panel\Colors]
-"ActiveBorder"=-
-"ActiveTitle"=-
-"AppWorkSpace"=-
-"Background"=-
-"ButtonAlternativeFace"=-
-"ButtonDkShadow"=-
-"ButtonFace"=-
-"ButtonHilight"=-
-"ButtonLight"=-
-"ButtonShadow"=-
-"ButtonText"=-
-"GradientActiveTitle"=-
-"GradientInactiveTitle"=-
-"GrayText"=-
-"Hilight"=-
-"HilightText"=-
-"InactiveBorder"=-
-"InactiveTitle"=-
-"InactiveTitleText"=-
-"InfoText"=-
-"InfoWindow"=-
-"Menu"=-
-"MenuBar"=-
-"MenuHilight"=-
-"MenuText"=-
-"Scrollbar"=-
-"TitleText"=-
-"Window"=-
-"WindowFrame"=-
-"WindowText"=-
-eof
-) ;;
+        d) theme=theme_dark_background ;;
+        b) theme=theme_breeze_dark ;;
+        D) theme=theme_default ;;
+        *) return ;;
     esac
+    apply_theme $theme
+
+}
+
+apply_theme() {
+    [ -n "$1" ] && WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <($1)
+}
+
+theme_dark_background() {
+    cat <<- 'eof'
+	Windows Registry Editor Version 5.00
+	[HKEY_CURRENT_USER\Control Panel\Colors]
+	"Background"="49 54 58"
+	eof
+}
+
+theme_breeze_dark() {
+    cat <<- 'eof'
+	Windows Registry Editor Version 5.00
+	[HKEY_CURRENT_USER\Control Panel\Colors]
+	"ActiveBorder"="49 54 58"
+	"ActiveTitle"="49 54 58"
+	"AppWorkSpace"="60 64 72"
+	"Background"="49 54 58"
+	"ButtonAlternativeFace"="200 0 0"
+	"ButtonDkShadow"="154 154 154"
+	"ButtonFace"="49 54 58"
+	"ButtonHilight"="119 126 140"
+	"ButtonLight"="60 64 72"
+	"ButtonShadow"="60 64 72"
+	"ButtonText"="219 220 222"
+	"GradientActiveTitle"="49 54 58"
+	"GradientInactiveTitle"="49 54 58"
+	"GrayText"="155 155 155"
+	"Hilight"="119 126 140"
+	"HilightText"="255 255 255"
+	"InactiveBorder"="49 54 58"
+	"InactiveTitle"="49 54 58"
+	"InactiveTitleText"="219 220 222"
+	"InfoText"="159 167 180"
+	"InfoWindow"="49 54 58"
+	"Menu"="49 54 58"
+	"MenuBar"="49 54 58"
+	"MenuHilight"="119 126 140"
+	"MenuText"="219 220 222"
+	"Scrollbar"="73 78 88"
+	"TitleText"="219 220 222"
+	"Window"="35 38 41"
+	"WindowFrame"="49 54 58"
+	"WindowText"="219 220 222"
+	eof
+}
+
+theme_default() {
+    cat <<- 'eof'
+	Windows Registry Editor Version 5.00
+	[HKEY_CURRENT_USER\Control Panel\Colors]
+	"ActiveBorder"=-
+	"ActiveTitle"=-
+	"AppWorkSpace"=-
+	"Background"=-
+	"ButtonAlternativeFace"=-
+	"ButtonDkShadow"=-
+	"ButtonFace"=-
+	"ButtonHilight"=-
+	"ButtonLight"=-
+	"ButtonShadow"=-
+	"ButtonText"=-
+	"GradientActiveTitle"=-
+	"GradientInactiveTitle"=-
+	"GrayText"=-
+	"Hilight"=-
+	"HilightText"=-
+	"InactiveBorder"=-
+	"InactiveTitle"=-
+	"InactiveTitleText"=-
+	"InfoText"=-
+	"InfoWindow"=-
+	"Menu"=-
+	"MenuBar"=-
+	"MenuHilight"=-
+	"MenuText"=-
+	"Scrollbar"=-
+	"TitleText"=-
+	"Window"=-
+	"WindowFrame"=-
+	"WindowText"=-
+	eof
 }
 
 main "$@"
