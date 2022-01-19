@@ -7,6 +7,8 @@
 # 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
 # to get wine plus all of it's optional dependencies.
 
+# TODO: make our list of brograms just be shell commands
+#   with support for quoting and args
 # TODO: make new_bottle() cleaner and split it into more functions
 
 # config
@@ -45,7 +47,7 @@ main() {
             c) run_winecfg ;;
             s) run_shell ;;
             t) tricks ;;
-            T) themes ;;
+            T) select_theme ;;
             o) open_bottle ;;
             S) select_bottle ;;
             d) deselect_bottle ;;
@@ -65,7 +67,7 @@ help() {
     echo
     echo "x  run an executable in bottle"
     echo "p  run one of the predefined programs"
-    echo "P  edit the list of predefined programs"
+    echo "e  edit the list of predefined programs"
     echo
     echo "c  winecfg"
     echo "s  run shell"
@@ -268,7 +270,7 @@ get_arch() {
 select_theme() {
     check_pfx 'for themeing' || return 1
     local ans
-    read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit' ans
+    read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit : ' ans
     case $ans in
         d) theme=theme_dark_background ;;
         b) theme=theme_breeze_dark ;;
@@ -287,7 +289,36 @@ theme_dark_background() {
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
+	"ActiveBorder"=-
+	"ActiveTitle"=-
+	"AppWorkSpace"=-
 	"Background"="49 54 58"
+	"ButtonAlternativeFace"=-
+	"ButtonDkShadow"=-
+	"ButtonFace"=-
+	"ButtonHilight"=-
+	"ButtonLight"=-
+	"ButtonShadow"=-
+	"ButtonText"=-
+	"GradientActiveTitle"=-
+	"GradientInactiveTitle"=-
+	"GrayText"=-
+	"Hilight"=-
+	"HilightText"=-
+	"InactiveBorder"=-
+	"InactiveTitle"=-
+	"InactiveTitleText"=-
+	"InfoText"=-
+	"InfoWindow"=-
+	"Menu"=-
+	"MenuBar"=-
+	"MenuHilight"=-
+	"MenuText"=-
+	"Scrollbar"=-
+	"TitleText"=-
+	"Window"=-
+	"WindowFrame"=-
+	"WindowText"=-
 	eof
 }
 
