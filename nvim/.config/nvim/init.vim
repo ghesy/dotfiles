@@ -63,6 +63,8 @@ set undofile
 
 " on save, deletes all trailing whitespace and newlines at end of file.
 function s:NoTrailing()
+    " if the file is binary, don't do anything
+    if !!search('\%u0000', 'wn') | return | endif
     let line = line(".")
     let col = col(".")
     %s/\s\+$//e
