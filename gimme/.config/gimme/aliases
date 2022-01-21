@@ -13,6 +13,7 @@ Book Reader, Foliate : foliate
 aRandr : arandr
 Miracast : gnome-network-displays
 Steam : export HOME=~/.local/share/SteamHome && mkdir -p ~ && steam
+Everdo, GTD : everdo
 
 TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 Ripcord : trayrun ripcord
@@ -24,10 +25,6 @@ OBS, Recorder : obs
 Reset Tor : restor
 VirtualMic : virtualmic
 Syncthing : stopen
-
-# although bottles is a gui program, we run it
-# from a terminal because it takes long to open.
-Bottles : tui bottles
 
 Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
@@ -56,12 +53,14 @@ KiCad, PCB : kicad
 Symphytum : symphytum
 Pavucontrol : pavucontrol
 
+Wine Programs : beer -d
+Wine Management, Beer : tui beer
 FTP : dftp
 Screenshot : dshot
 Emojies : demoji
 VPN : dvpn
 Sound Card Profiles, dPaProfile: dpaprofile
-dRandr, Monitors : drandr
+dRandr, Monitors, HDMI : drandr
 NetworkManager, Wi-Fi : networkmanager_dmenu
 Last Notification : dunstctl history-pop
 
