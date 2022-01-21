@@ -16,9 +16,6 @@ case "$1" in
         # reload dwm colors
         xdotool key super+F12 &
 
-        # reload st colors
-        ( ( sleep 0.1; killall -USR1 st ) & ) >/dev/null 2>&1
-
         # copy zathura and xresources pywal colors to their place
         cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors &
         cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors &
