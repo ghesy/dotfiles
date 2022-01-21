@@ -1,5 +1,6 @@
 scrolloff 5
 show-title-bar no
+show-keymap-hint no
 download-timeout 100
 reload-threads 10
 
@@ -21,11 +22,11 @@ bind-key h quit
 bind-key n next-unread
 bind-key N prev-unread
 
-color listfocus white black
-color listnormal cyan default
-color listnormal_unread blue default bold
-color listfocus_unread white black bold
-color article white default
+color listnormal color244 default
+color listnormal_unread color250 default
+color listfocus color44 default bold
+color listfocus_unread color44 default bold
+color article color250 default
 color info red black
 highlight feedlist "---.*---" color2 default bold
 highlight feedlist ".*0/0.." default default invis
