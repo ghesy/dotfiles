@@ -14,11 +14,11 @@ aRandr : arandr
 Miracast : gnome-network-displays
 Steam : export HOME=~/.local/share/SteamHome && mkdir -p ~ && steam
 Everdo, GTD : everdo
-
 TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 Ripcord : trayrun ripcord
 Discord : discord
 Telegram : telegram-desktop
+Whatsapp : if command -v whatsapp-for-linux; then whatsapp-for-linux; else web https://web.whatsapp.com; fi
 Printers : system-config-printer
 Gimp : gimp
 OBS, Recorder : obs
@@ -26,10 +26,10 @@ Reset Tor : restor
 VirtualMic : virtualmic
 Syncthing : stopen
 
-Whatsapp : web https://web.whatsapp.com
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
 Github : web https://github.com/soystemd
+AUR : web "https://aur.archlinux.org/packages/?O=0&SeB=m&K=koonix&outdated=&SB=p&SO=d&PP=250&do_Search=Go"
 
 Newsboat, RSS : tui nboat
 Reddit : tui tuir
