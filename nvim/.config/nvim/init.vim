@@ -25,10 +25,9 @@ Plug 'bling/vim-bufferline'
 Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf.vim'
 " colorschemes
-Plug 'fenetikm/falcon'
-Plug 'whatyouhide/vim-gotham'
+Plug 'sainnhe/everforest'
 Plug 'pbrisbin/vim-colors-off'
-Plug 'davidosomething/vim-colors-meh'
+Plug 'arcticicestudio/nord-vim'
 Plug 'sainnhe/gruvbox-material'
 call plug#end()
 
@@ -178,10 +177,9 @@ nnoremap <silent> <C-p> :bprev<CR>
 let g:bufferline_show_bufnr = 0
 
 " colors and appearance
-let g:gruvbox_material_enable_italic = 1
 let g:gruvbox_material_better_performance = 1
-let g:gruvbox_material_disable_italic_comment = 0
-colorscheme off
+let g:everforest_better_performance = 1
+colorscheme everforest
 
 " set a constant horizontal line between splits
 let g:HorizLine1='─'
