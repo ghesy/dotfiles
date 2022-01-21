@@ -140,8 +140,6 @@ nnoremap <silent><Leader>eq :wincmd =<CR>
 nnoremap <silent><Leader>wq :wincmd q<CR>
 nnoremap <silent><Leader>on :only<CR>
 nnoremap <silent><Leader>ON :call OnlyBuffer()<CR>
-nnoremap <silent><Leader>bw :call KillBuffer()<CR>
-nnoremap <silent><Leader>bd :call KillBuffer()<CR>
 
 " equalize window sizes upon vim resize
 au VimResized * wincmd =
@@ -206,5 +204,4 @@ autocmd ColorScheme * call TransparentBg()
 call TransparentBg()
 
 " load other configs
-source ~/.config/nvim/killbuffer.vim
 source ~/.config/nvim/term.vim
