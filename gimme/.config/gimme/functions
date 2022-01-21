@@ -4,13 +4,13 @@ root() {
 }
 
 tui() {
-    exec $TERMINAL -e "$@"
+    exec ${TERMINAL:?} -e "$@"
 }
 
 tuiroot() {
-    exec $TERMINAL -e sudo -A "$@"
+    exec ${TERMINAL:?} -e sudo -A "$@"
 }
 
 web() {
-    exec $BROWSER "$@"
+    exec ${BROWSER:-xdg-open} "$@"
 }
