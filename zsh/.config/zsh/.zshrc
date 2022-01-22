@@ -76,5 +76,36 @@ zle -N zle-line-init
 echo -ne '\e[5 q' # use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # use beam shape cursor for each new prompt.
 
-source ~/.cache/wal/fzf 2>/dev/null
+# add "ci" and "di" bindings for brackets to the vim mode
+# from /usr/share/zsh/functions/Zle/select-bracketed
+autoload -U select-bracketed
+zle -N select-bracketed
+for m in visual viopp; do
+    for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+        bindkey -M $m $c select-bracketed
+    done
+done
+
+# add "ci" and "di" bindings for quotes to the vim mode
+# from /usr/share/zsh/functions/Zle/select-quoted
+autoload -U select-quoted
+zle -N select-quoted
+for m in visual viopp; do
+    for c in {a,i}{\',\",\`}; do
+        bindkey -M $m $c select-quoted
+    done
+done
+
+# add surround bindings ("ys", "cs", "ds") to the vim mode
+# from /usr/share/zsh/functions/Zle/surround
+autoload -Uz surround
+zle -N delete-surround surround
+zle -N add-surround surround
+zle -N change-surround surround
+bindkey -a cs change-surround
+bindkey -a ds delete-surround
+bindkey -a ys add-surround
+bindkey -M visual S add-surround
+
+# source the aliases
 source ~/.config/zsh/aliases.zsh
