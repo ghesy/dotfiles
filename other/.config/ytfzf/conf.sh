@@ -5,8 +5,9 @@ show_thumbnails=1
 thumbnail_quality=high
 thumbnail_viewer=img_display_function
 img_display_function() {
+    [ "$1" != view ] && return 0
     sxipc "$YTFZF_PID"
-    sxip "$thumb_dir/$id.jpg" "$2" "$3" 3 10 "$YTFZF_PID" "$YTFZF_PID"
+    sxip "$2" "$5" "$6" "$3" "$4" "$YTFZF_PID" "$YTFZF_PID"
 }
 
 download_shortcut=ctrl-alt-d
