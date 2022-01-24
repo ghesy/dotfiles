@@ -1,6 +1,7 @@
 [user]
     name = Ehsan G.
     email = ehsan@disroot.org
+    signingkey = 0DDFA36FF019B89A
 [credential]
     helper = cache
 [alias]
@@ -9,3 +10,5 @@
     upstr = rebase --rebase-merges --autostash
 [init]
     defaultBranch = master
+[commit]
+    gpgsign = true
