@@ -6,6 +6,9 @@
  * ===    Practical Prefs     ===
  * ============================== */
 
+/* don't autohide tabs in fullscreen mode */
+user_pref("browser.fullscreen.autohide", false);
+
 /* disable autoplay for audio and video */
 user_pref("media.autoplay.default", 5);
 
