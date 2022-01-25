@@ -1,7 +1,7 @@
 #!/bin/sh
 # a wrapper script for ytfzf.
 [ -z "$*" ] && case $(printf 'Search\nHistory\n' | dmenu -p ytfzf) in
-    Search) s=$(dmenu -p 'Search YouTube:' <&-) || exit 1 ;;
+    Search) set -- --force-youtube && s=$(dmenu -p 'Search YouTube:' <&-) || exit 1 ;;
     History) set -- -H ;;
     *) exit 1 ;;
 esac

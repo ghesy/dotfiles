@@ -29,3 +29,5 @@ thumbnail_video_info_text () {
     [ -n "$url" ] && urlhost=${url#https://} && printf "\n ${c_blue}Source   ${c_reset}%s" "${urlhost%%/*}"
     [ -n "$description" ] && printf "\n ${c_blue}Description${c_reset}: %s" "$(printf "%s" "$description" | sed 's/\\n/\n/g')"
 }
+
+video_pref='bestvideo[height>=360]+bestaudio/bestvideo+bestaudio/best[height>=360]/best'
