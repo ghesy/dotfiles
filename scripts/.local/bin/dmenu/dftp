@@ -5,11 +5,14 @@
 # mountpoints directory
 dir=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/dftp
 
+# dmenu's embedding arg
+w=${WINDOWID:+-w $WINDOWID}
+
 main() {
-    a=$( ( printf 'Mount\nUnmount\nCleanup\n'; list_mountpoints ) | dmenu -p 'dftp') || return 1
+    a=$( ( printf 'Mount\nUnmount\nCleanup\n'; list_mountpoints ) | dmenu $w -p 'dftp') || return 1
     case $a in
         Mount) mount ;;
-        Unmount) unmount ;;
+        Unmount) unmount && exec "$0" ;;
         Cleanup) cleanup; exec "$0" ;;
         '') ;;
         *) mount_ftp "$a"
@@ -30,9 +33,9 @@ unmount() {
     mp=$(
         for mp in "${dir:?}"/*; do
             [ -d "$mp" ] && mountpoint -q "$mp" && basename "$mp"
-        done | ifne dmenu
-    ) && [ -d "${dir:?}/$mp" ] || return 1
-    msg=$(fusermount -u "${dir:?}/$mp" 2>&1) &&
+        done | ifne dmenu $w
+    ) && [ -d "${dir:?}/${mp:?}" ] || return 1
+    msg=$(fusermount -u "${dir:?}/${mp:?}" 2>&1) &&
         notify-send dftp Unmounted. ||
         notify-send Error "$msg"
 }
@@ -51,10 +54,10 @@ mount_ftp() {
     fi
 
     # get user and password
-    user=$(dmenu -p 'Enter USER:PASSWORD >' <&-)
+    user=$(dmenu $w -p 'Enter USER:PASSWORD >' <&-)
 
     # mount
-    mkdir -p "$mp" || exit 1
+    mkdir -p "$mp" || return 1
     msg=$(curlftpfs -o "${user:+user=$user,}transform_symlinks" "${1:?}" "${mp:?}" 2>&1) &&
         notify-send Mounted. || {
         notify-send Error "$msg"
@@ -69,14 +72,15 @@ discover_avahi() {
     pidof -q avahi-daemon || return 1
     hosts=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 | tr \; :)
     [ -z "$hosts" ] && return 1
-    host=$(echo "$hosts" | dmenu -p 'Choose Server') || return 1
+    host=$(echo "$hosts" | dmenu $w -p 'Choose Server') || return 1
     [ -n "$host" ] && echo "$hosts" | cut -d: -f2- || return 1
 }
 
 discover_curl() {
     unset hosts
-    port=$(dmenu -p "Enter the Server's Port :" <&-) || return 1
-    [ "$port" -eq "$port" ] || return 1
+    until [ "$port" -eq "$port" ]; do
+        port=$(dmenu $w -p "Enter the Server's Port :" <&-) || return 1
+    done
     gateway=$(set -- $(ip r); echo "$3")
     [ -z "$gateway" ] && return 1
     subnet=${gateway%.*}
@@ -84,7 +88,7 @@ discover_curl() {
         --connect-timeout 2 "ftp://$subnet.[0-255]:${port:?}" |
         grep -Ev "ftp://$gateway:" | grep -E '^(0|60|67) ')
     [ -z "$hosts" ] && return 1
-    host=$(echo "$hosts" | cut -d/ -f3- | dmenu -p 'Choose Server') || return 1
+    host=$(echo "$hosts" | cut -d/ -f3- | dmenu $w -p 'Choose Server') || return 1
     [ -n "$host" ] && echo "$host" || return 1
 }
 
