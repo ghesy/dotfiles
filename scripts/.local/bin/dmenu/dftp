@@ -1,46 +1,91 @@
 #!/bin/sh
-# a dmenu interface to discover and mount ftp servers on the local network.
-# requires avahi, curlftpfs, dmenu and moreutils.
+# a dmenu interface to discover and mount LAN FTP servers.
+# requires dmenu, curlftpfs, avahi, moreutils.
 
 # mountpoints directory
-d=${XDG_RUNTIME_DIR:-/tmp}/dftp
+dir=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/dftp
 
-case $(printf "Discover\nEnter Host\nUnmount\n" | dmenu -p 'dftp') in
-    Unmount)
-        cd "$d" || exit 1
-        dir=$(
-            for dir in */; do
-                [ -d "$dir" ] && mountpoint -q "$dir" && echo "$dir"
-            done | ifne dmenu -p 'Unmount which one?'
-        )
-        [ -z "$dir" ] && exit 1
-        msg=$(fusermount -u ./"${dir:?}" 2>&1) && notify-send dftp Unmounted. || notify-send dftp "$msg"
-        exit
-    ;;
-    Discover*)
-        # discover ftp servers using avahi-browse and choose one via dmenu
-        host=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 |
-            tr \; : | ifne -n notify-send dftp 'No local FTP servers found.' |
-            ifne dmenu -p 'Choose a server')
-    ;;
-    Enter*) host=$(dmenu -p 'Enter host[:port] >' <&-) ;;
-    *) exit 1 ;;
-esac
-
-# if it's already mounted, open it
-mp=${d:?}/${host:?}
-if mountpoint -q "$mp"; then
-    (xdg-open "$mp" &) >/dev/null 2>&1
-    exit
-fi
-
-# get user and password
-user=$(dmenu -p 'Enter user:password >' <&-)
-
-# mount
-mkdir -p "$mp" || exit 1
-msg=$(curlftpfs -o ${user:+user="$user"${pass:+:"$pass"}},transform_symlinks "${host#*:}" "${mp:?}" 2>&1) || {
-    notify-send dftp "$msg"
-    exit 1
+main() {
+    a=$( ( printf 'Mount\nUnmount\nCleanup\n'; list_mountpoints ) | dmenu -p 'dftp') || return 1
+    case $a in
+        Mount) mount ;;
+        Unmount) unmount ;;
+        Cleanup) cleanup; exec "$0" ;;
+        '') ;;
+        *) mount_ftp "$a"
+    esac
 }
-(xdg-open "$mp" &) >/dev/null 2>&1
+
+list_mountpoints() {
+    for mp in "${dir:?}"/*; do
+        [ -d "$mp" ] && basename "$mp"
+    done
+}
+
+cleanup() {
+    rmdir "${dir:?}"/*/ >/dev/null 2>&1
+}
+
+unmount() {
+    mp=$(
+        for mp in "${dir:?}"/*; do
+            [ -d "$mp" ] && mountpoint -q "$mp" && basename "$mp"
+        done | ifne dmenu
+    ) && [ -d "${dir:?}/$mp" ] || return 1
+    msg=$(fusermount -u "${dir:?}/$mp" 2>&1) &&
+        notify-send dftp Unmounted. ||
+        notify-send Error "$msg"
+}
+
+mount() {
+    host=$(discover_avahi) || host=$(discover_curl) || return 1
+    mount_ftp "$host"
+}
+
+mount_ftp() {
+    # if it's already mounted, open it
+    mp=${dir:?}/${1:?}
+    if mountpoint -q "$mp"; then
+        (xdg-open "$mp" &) >/dev/null 2>&1
+        return
+    fi
+
+    # get user and password
+    user=$(dmenu -p 'Enter USER:PASSWORD >' <&-)
+
+    # mount
+    mkdir -p "$mp" || exit 1
+    msg=$(curlftpfs -o "${user:+user=$user,}transform_symlinks" "${1:?}" "${mp:?}" 2>&1) &&
+        notify-send Mounted. || {
+        notify-send Error "$msg"
+        return 1
+    }
+
+    # open
+    (xdg-open "$mp" &) >/dev/null 2>&1
+}
+
+discover_avahi() {
+    pidof -q avahi-daemon || return 1
+    hosts=$(avahi-browse -lprt _ftp._tcp | grep ^= | grep -v IPv6 | cut -d\; -f7-9 | tr \; :)
+    [ -z "$hosts" ] && return 1
+    host=$(echo "$hosts" | dmenu -p 'Choose Server') || return 1
+    [ -n "$host" ] && echo "$hosts" | cut -d: -f2- || return 1
+}
+
+discover_curl() {
+    unset hosts
+    port=$(dmenu -p "Enter the Server's Port :" <&-) || return 1
+    [ "$port" -eq "$port" ] || return 1
+    gateway=$(set -- $(ip r); echo "$3")
+    [ -z "$gateway" ] && return 1
+    subnet=${gateway%.*}
+    hosts=$(timeout 3 curl -ZIsw'%{exitcode} %{url}\n' --parallel-max 999 \
+        --connect-timeout 2 "ftp://$subnet.[0-255]:${port:?}" |
+        grep -Ev "ftp://$gateway:" | grep -E '^(0|60|67) ')
+    [ -z "$hosts" ] && return 1
+    host=$(echo "$hosts" | cut -d/ -f3- | dmenu -p 'Choose Server') || return 1
+    [ -n "$host" ] && echo "$host" || return 1
+}
+
+main "$@"
