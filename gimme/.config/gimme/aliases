@@ -56,6 +56,7 @@ Pavucontrol : pavucontrol
 Wine Programs : beer -d
 Wine Management, Beer : tui beer
 FTP : dftp
+SFTP : dsftp
 Screenshot : dshot
 Emojies : demoji
 VPN : dvpn

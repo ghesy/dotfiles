@@ -1,0 +1,48 @@
+#!/bin/sh
+# mount an sftp server from a bunch of preconfigured servers.
+# config file variables: host, port, user, keypath, svpath.
+
+# config
+dir=~/.local/share/dsftp
+sshfs_opts='ServerAliveCountMax=6,ServerAliveInterval=20,idmap=user,reconnect,transform_symlinks,max_conns=10'
+
+f=$(
+    for f in "${dir:?}"/*; do
+        [ -f "$f" ] && [ "${f##*/}" != "$(uname -n)" ] && printf '%s\n' "${f##*/}"
+    done | ifne dmenu -p 'Choose an SFTP Server' ${WINDOWID:+-w $WINDOWID}
+) && [ -f "${dir:?}/$f" ] || exit 1
+
+while IFS='=' read -r key val; do
+    [ "${key##\#*}" ] || continue
+    export "$key=$val" 2>/dev/null ||
+        printf 'Error: %s is not a valid variable name.\n' "$key"
+done < "${dir:?}/$f"
+
+mountpoint=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/dsftp/$host
+
+case $(printf 'Mount\nUnmount\n' | dmenu ${WINDOWID:+-w $WINDOWID})
+in
+    Mount)
+        mnt() { sshfs "${user:?}@${host:?}${svpath:+:$svpath}" "${mountpoint:?}" ${port:+-p $port} ${sshfs_opts:+-o "$sshfs_opts"} ;}
+
+        # if the ssh key isn't already in the ssh agent, add it there.
+        [ "${keypath%%/*}" = '~' ] && keypath=~/${keypath#'~/'}
+        ssh-add -l | grep -Fq "$(ssh-keygen -lf "${keypath:?}" | cut -d' ' -f2)" || ssh-add "${keypath:?}"
+
+        # if the server isn't already mounted, mount it.
+        mkdir -p "${mountpoint:?}" && ! mountpoint -q "$mountpoint" && {
+            msg=$(mnt 2>&1) && notify-send Mounted. || notify-send Error "$msg"
+        }
+
+        # if it's properly mounted, open the mountpoint via xdg-open.
+        mountpoint -q "$mountpoint" && (xdg-open "$mountpoint" &) >/dev/null 2>&1
+        ;;
+
+    Unmount)
+        mountpoint -q "${mountpoint:?}" && {
+            msg=$(fusermount -u "$mountpoint" 2>&1) &&
+                notify-send Un-Mounted. && rmdir "$mountpoint" ||
+                notify-send fusermount "$msg"
+        }
+        ;;
+esac
