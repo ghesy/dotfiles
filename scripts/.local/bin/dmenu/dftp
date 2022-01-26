@@ -36,7 +36,7 @@ unmount() {
         done | ifne dmenu $w
     ) && [ -d "${dir:?}/${mp:?}" ] || return 1
     msg=$(fusermount -u "${dir:?}/${mp:?}" 2>&1) &&
-        notify-send dftp Unmounted. ||
+        notify-send dftp Un-Mounted. ||
         notify-send Error "$msg"
 }
 
