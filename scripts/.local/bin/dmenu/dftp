@@ -54,18 +54,18 @@ mount_ftp() {
     fi
 
     # get user and password
-    user=$(dmenu $w -p 'Enter USER:PASSWORD >' <&-)
-
-    # mount
-    mkdir -p "$mp" || return 1
-    msg=$(curlftpfs -o "${user:+user=$user,}transform_symlinks" "${1:?}" "${mp:?}" 2>&1) &&
-        notify-send Mounted. || {
-        notify-send Error "$msg"
-        return 1
-    }
-
-    # open
-    (xdg-open "$mp" &) >/dev/null 2>&1
+    while :; do
+        user=$(dmenu $w -p 'Enter USER:PASSWORD >' <&-) || return 1
+        mkdir -p "$mp" || return 1
+        msg=$(curlftpfs -o "${user:+user=$user,}transform_symlinks" "${1:?}" "${mp:?}" 2>&1) && {
+            notify-send Mounted.
+            (xdg-open "$mp" &) >/dev/null 2>&1
+            return
+        } || {
+            notify-send Error "$msg"
+            echo "$msg" | grep -qi 'access denied' || return 1
+        }
+    done
 }
 
 discover_avahi() {
