@@ -4,8 +4,11 @@
 
 pidof -q cupsd || notify-send dprint "cups isn't running."
 
+# dmenu's embedding arg
+w=${WINDOWID:+-w $WINDOWID}
+
 while :; do
-    printer="$({ echo Configure; lpstat -e ;} | dmenu -p 'Choose Printer:' ${WINDOWID:+-w $WINDOWID})" || exit 1
+    printer="$({ echo Configure; lpstat -e ;} | dmenu $w -p 'Choose Printer:')" || exit 1
     case "$printer" in
         Configure) system-config-printer >/dev/null 2>&1 ;;
         *) break ;;
@@ -13,7 +16,7 @@ while :; do
 done
 
 while :; do
-    choice="$(printf '%s\n' ${1:+Print} Jobs Back | dmenu -p Action: ${WINDOWID:+-w $WINDOWID})" || exit 1
+    choice="$(printf '%s\n' ${1:+Print} Jobs Back | dmenu $w -p Action:)" || exit 1
     case "$choice" in
         Back) exec "$0" "$@" ;;
         Jobs) system-config-printer --show-jobs "$printer" ;;

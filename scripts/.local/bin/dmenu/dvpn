@@ -27,15 +27,18 @@ unbuffer() {
     script -qfc "$(/usr/bin/printf '%q ' "$@")" /dev/null
 }
 
-case $(printf 'Connect\nDisconnect\n' | dmenu -p VPN) in
+# dmenu's embedding arg
+w=${WINDOWID:+-w $WINDOWID}
+
+case $(printf 'Connect\nDisconnect\n' | dmenu $w -p VPN) in
     Connect)
-        case $(printf 'ProtonVPN\nWindscribe\n' | dmenu -p VPN) in
+        case $(printf 'ProtonVPN\nWindscribe\n' | dmenu $w -p VPN) in
             ProtonVPN)
-                location=$(echo "$pvpn_locations" | dmenu -p Location:)
+                location=$(echo "$pvpn_locations" | dmenu $w -p Location:)
                 [ ${location:?} = Fastest ] && location=-f || location="--cc $location"
                 unbuffer sudo -A protonvpn c $location | notif ProtonVPN ;;
             Windscribe)
-                location=$(echo "$wind_locations" | dmenu -p Location:)
+                location=$(echo "$wind_locations" | dmenu $w -p Location:)
                 [ ${location:?} = Best ] && location=
                 windscribe connect $location | stdbuf -o0 tr -d '\b/|\\-' |
                     notif Windscribe ;;
