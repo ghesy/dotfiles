@@ -6,21 +6,27 @@
 dir=~/.local/share/dsftp
 sshfs_opts='ServerAliveCountMax=6,ServerAliveInterval=20,idmap=user,reconnect,transform_symlinks,max_conns=10'
 
+# dmenu's embedding arg
+w=${WINDOWID:+-w $WINDOWID}
+
+# ask the server from the user
 f=$(
     for f in "${dir:?}"/*; do
         [ -f "$f" ] && [ "${f##*/}" != "$(uname -n)" ] && printf '%s\n' "${f##*/}"
-    done | ifne dmenu -p 'Choose an SFTP Server' ${WINDOWID:+-w $WINDOWID}
-) && [ -f "${dir:?}/$f" ] || exit 1
+    done | ifne dmenu $w -p 'Choose an SFTP Server'
+) && [ -f "${dir:?}/${f:?}" ] || exit 1
 
+# parse the server config file
 while IFS='=' read -r key val; do
     [ "${key##\#*}" ] || continue
     export "$key=$val" 2>/dev/null ||
         printf 'Error: %s is not a valid variable name.\n' "$key"
-done < "${dir:?}/$f"
+done < "${dir:?}/${f:?}"
 
+# specify the mountpoint
 mountpoint=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/dsftp/$host
 
-case $(printf 'Mount\nUnmount\n' | dmenu ${WINDOWID:+-w $WINDOWID})
+case $(printf 'Mount\nUnmount\n' | dmenu $w)
 in
     Mount)
         mnt() { sshfs "${user:?}@${host:?}${svpath:+:$svpath}" "${mountpoint:?}" ${port:+-p $port} ${sshfs_opts:+-o "$sshfs_opts"} ;}
