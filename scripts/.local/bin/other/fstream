@@ -1,9 +1,42 @@
 #!/bin/bash
-# select and watch football streams from AparatSport.
-# requires yt-dlp, zenity, mpv.
-yt-dlp -O '%(description)s
-%(original_url)s' \
-    https://www.aparat.com/AparatSport{1..5}/live 2>/dev/null |
-    zenity --list --text='Fetching Streams...' --column='' \
-    --column='' --print-column=2 --hide-column=2 --hide-header |
-    xargs -r mpv --really-quiet --title='Football Stream'
+# show and open a list of football streams.
+# requires yt-dlp, curl, zenity, mpv.
+
+main() {
+    { redditz_streams & aparat_streams ;} |
+        zenity --width=300 --height=400 --list \
+        --text='Fetching Streams...' --column='' --column='' \
+        --print-column=2 --hide-column=2 --hide-header |
+        while IFS= read -r l; do case $l in
+            *aparat.com/*) mpv --title='Football Stream' --really-quiet "$l" ;;
+            *) ${BROWSER:-xdg-open} "$l"
+        esac; done
+}
+
+aparat_streams() {
+    yt-dlp -O '%(description)s'$'\n''%(original_url)s' \
+        https://www.aparat.com/AparatSport{1..5}/live 2>/dev/null
+}
+
+redditz_streams() {
+    unset t1 t2 url
+    {
+        curl -fsSL 'https://redditz.soccerstreamlinks.com' | tac | grep -A10 LIVE
+        echo --
+    } |
+        while IFS= read -r l; do case $l in
+            *'<abbr title'*)
+                t=$(echo "$l" | cut -d\" -f2)
+                [ -z "$t1" ] && t1=$t || t2=$t
+                ;;
+            */detail-match/*)
+                [ -z "$url" ] && url=$(echo "$l" | cut -d\" -f4)
+                ;;
+            --)
+                printf '%s - %s\n%s\n' "$t2" "$t1" "$url"
+                unset t1 t2 url
+                ;;
+        esac; done
+}
+
+main "$@"
