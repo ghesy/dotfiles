@@ -3,5 +3,6 @@
 cmd="{ dict -mfssubstring -- {q}; dict -mfslev -- {q} ;} | \
     cut -f4 | awk NF | sort -uf"
 printf '\033[5 q'
+sleep 0.01
 word=$(:|fzf --disabled --bind="change:reload:$cmd") &&
     dict "${word:?}" | "${PAGER:-less}"
