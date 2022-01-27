@@ -25,6 +25,7 @@ OBS, Recorder : obs
 Reset Tor : restor
 VirtualMic : virtualmic
 Syncthing : stopen
+Footabll Streams: fstream
 
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
@@ -44,7 +45,6 @@ Music, ncmpcpp: tui ncmpcpp
 Bash Mount: tui bashmount
 Dictionary: tui dictfzf
 TV Shows: tui tv
-Footabll Streams: tui fstream
 
 Autolock : autolock
 No Autolock : autolock -p
