@@ -1,0 +1,2 @@
+read-only ${HOME}/.config/zsh
+blacklist ${HOME}/.pvpn-cli

@@ -1,0 +1,4 @@
+whitelist ${HOME}/.dots/gtk
+whitelist ${HOME}/.dots/xdg
+whitelist ${HOME}/.dots/fontconfig
+read-only ${HOME}/.cache/fontconfig

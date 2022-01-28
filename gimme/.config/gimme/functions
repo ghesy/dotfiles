@@ -14,8 +14,3 @@ tuiroot() {
 web() {
     exec ${BROWSER:-xdg-open} "$@"
 }
-
-fixfonts() {
-    ( ( sleep 2 && fc-cache -f ) & )
-    exec "$@"
-}
