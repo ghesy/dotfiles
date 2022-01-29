@@ -1,6 +1,6 @@
 /* github.com/arkenfox/user.js
- * BASED ON COMMIT: 7e18f8b
- * View diff with master: https://github.com/arkenfox/user.js/compare/7e18f8b..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+ * BASED ON COMMIT: cc7ca9d
+ * View diff with master: https://github.com/arkenfox/user.js/compare/cc7ca9d..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
 
 /* ==============================
  * ===    Practical Prefs     ===
@@ -94,9 +94,6 @@ user_pref("intl.accept_languages", "en-US, en");
 
 /* disable firefox auto-installing it's updates */
 user_pref("app.update.auto", false);
-
-/* disable bullshit search-engine updates */
-user_pref("browser.search.update", false);
 
 /* disable annoying recommendations */
 user_pref("extensions.getAddons.showPane", false);
@@ -209,9 +206,6 @@ user_pref("security.ssl.treat_unsafe_negotiation_as_broken", true);
 /* display advanced information on Insecure Connection warning pages */
 user_pref("browser.xul.error_pages.expert_bad_cert", true);
 
-/* display "insecure" icon and "Not Secure" text on HTTP sites */
-user_pref("security.insecure_connection_text.enabled", true);
-
 /* disable graphite which has many security issues */
 user_pref("gfx.font_rendering.graphite.enabled", false);
 
@@ -303,24 +297,25 @@ user_pref("privacy.clearOnShutdown.sessions", false);
 user_pref("privacy.clearOnShutdown.offlineApps", false);
 user_pref("privacy.clearOnShutdown.cookies", false);
 
+/* ==============================
+ * ===     Windows Prefs      ===
+ * ============================== */
+
+/* 0202: disable using the OS's geolocation service */
+user_pref("geo.provider.ms-windows-location", false);
+
+/* 1221: disable Windows 8.1's Microsoft Family Safety cert [FF50+] */
+user_pref("security.family_safety.mode", 0);
+
+/* 2621: disable links launching Windows Store on Windows 8/8.1/10 */
+user_pref("network.protocol-handler.external.ms-windows-store", false);
+
 /* =============================
  * ===    Disabled Stuff    ===
  * ============================= */
 
-/* don't enable resistFingerprinting because it causes brakages */
-//user_pref("privacy.resistFingerprinting", false);
-
-/* enable clipboard commands (cut/copy) from "non-privileged" content */
-user_pref("dom.allow_cut_copy", true);
-/* disabled version: */
-//user_pref("dom.allow_cut_copy", false);
-
-/* enable captive portal detection */
-user_pref("captivedetect.canonicalURL", "http://detectportal.firefox.com/canonical.html");
-user_pref("network.captive-portal-service.enabled", true);
-/* disabled version: */
-//user_pref("captivedetect.canonicalURL", "");
-//user_pref("network.captive-portal-service.enabled", false);
-
 /* disable downloads panel opening on every download */
 //user_pref("browser.download.alwaysOpenPanel", false);
+
+/* disable clipboard commands (cut/copy) from "non-privileged" content */
+//user_pref("dom.allow_cut_copy", false);
