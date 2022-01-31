@@ -2,7 +2,6 @@ set shell bash
 set shellopts '-u'
 set ifs "\n"
 set mouse
-set scrolloff 10
 set drawbox
 set nopreview
 set period 1
@@ -12,6 +11,9 @@ set timefmt   "2006-01-02 15:04"
 set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
+
+cmd scrolloff set scrolloff 10
+scrolloff
 
 set previewer ~/.config/lf/previewer
 set cleaner sxipc
@@ -26,13 +28,15 @@ map * push :glob-select<space>
 map P paste simple
 map gh
 map g top
+map zz center
 map L openall
 map E extract
 map a push :archive<space>
 map U &termopen
 map D trash
 map X !$f
-map <c-n> mkdir
+map m mkdir
+map <c-n> togglenum
 map <c-f> finder
 map W &wallpaper $f
 map V push $$EDITOR<space>
@@ -62,7 +66,6 @@ map <m-down> down
 map <m-up> up
 
 # remove bookmark maps
-map m
 map "'"
 map '"'
 
@@ -79,6 +82,7 @@ cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>load"
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
+cmd togglenum push :set<space>number!;set<space>relativenumber!<enter>
 
 cmd open $~/.config/lf/opener
 cmd openall $~/.config/lf/opener -a
@@ -130,6 +134,12 @@ cmd paste ${{
     lf -remote 'send clear'
     lf -remote 'send load'
     tput cnorm
+}}
+
+cmd center &{{
+    n=$(stty size </dev/"$(ps -o tty= -p $$)" | cut -d' ' -f1)
+    lf -remote "send set scrolloff $(( (n - 3) / 2 ))"
+    lf -remote 'send push jk:scrolloff<enter>'
 }}
 
 # vim:ft=conf
