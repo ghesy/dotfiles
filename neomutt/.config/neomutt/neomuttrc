@@ -13,7 +13,7 @@ set mailcap_path = ~/.config/neomutt/mailcap
 set query_command = "~/.config/neomutt/abook.sh --mutt-query '%s'"
 set mime_type_query_command = "file --mime-type -b %s"
 
-auto_view text/html # show html via lynx
+auto_view text/html # Show HTML using lynx
 auto_view application/pgp-encrypted
 alternative_order text/plain text/enriched text/html
 
@@ -25,18 +25,18 @@ set imap_check_subscribed
 set mail_check = 120
 unset imap_passive
 set rfc2047_parameters = yes
-set sleep_time = 0 # don't pause for informational messages
-set markers = no # disable the '+' signs at line wraps
-set mark_old = no # unread mail stay unread until read
-set mime_forward = yes # attachments are forwarded with mail
-set fast_reply # skip to compose when replying
-set fcc_attach # save attachments with the body
-set forward_format = "Fwd: %s" # format of subject when forwarding
-set forward_quote # include message in forwards
-set reverse_name # reply as whomever it was to
-set include # include message in replies
+set sleep_time = 0 # Don't pause for informational messages
+set markers = no # Disable the '+' signs at line wraps
+set mark_old = no # Unread mail stay unread until read
+set mime_forward = yes # Attachments are forwarded with mail
+set fast_reply # Skip to compose when replying
+set fcc_attach # Save attachments with the body
+set forward_format = "Fwd: %s" # Format of subject when forwarding
+set forward_quote # Include message in forwards
+set reverse_name # Reply as whomever it was to
+set include # Include message in replies
 
-# sidebar settings
+# Sidebar settings
 set sidebar_visible = yes
 set sidebar_width = 18
 set sidebar_short_path = yes
@@ -83,7 +83,7 @@ bind index,pager S sync-mailbox
 bind index,pager R group-reply
 bind editor <Tab> complete-query
 
-# Sidebar mappings and settings
+# Sidebar bindings
 bind index,pager \Ck sidebar-prev
 bind index,pager \Cj sidebar-next
 bind index,pager \Co sidebar-open
@@ -100,16 +100,16 @@ macro index ,@srtth "<enter-command>set sort=reverse-threads; macro index \\Cv ,
 macro index ,@srtdt "<enter-command>set sort=reverse-date;    macro index \\Cv ,@srtth 'Toggle threads display mode'<return>"
 macro index \Cv ,@srtth
 
-# Mark all messages as read
+# ctrl-a: Mark all messages as read
 macro index \Ca "T~U<enter><tag-prefix><clear-flag>N<untag-pattern>.<enter>" 'Mark all messages as read'
 
-# Select and open urls using my pipeurl script
+# U: Select and open urls using my pipeurl script
 macro pager U "<enter-command>set my_pipe_decode=\$pipe_decode pipe_decode<return><pipe-message>pipeurl<return><enter-command>set pipe_decode=\$my_pipe_decode; unset my_pipe_decode<return>" 'Follow URLs'
 
-# Add contact to abook
+# a: Add contact to abook
 macro index,pager a "<enter-command>set my_pipe_decode=\$pipe_decode pipe_decode<return><pipe-message>~/.config/neomutt/abook.sh --add-email<return><enter-command>set pipe_decode=\$my_pipe_decode; unset my_pipe_decode<return>" 'Add the sender address to abook'
 
-# Disable limits
+# A: Disable limits
 macro index A "<limit>all\n" 'Disable limits and show all messages'
 
 # ==========
@@ -175,10 +175,10 @@ color body brightblue default "^# \.*" # Headings as bold blue
 color body brightcyan default "^## \.*" # Subheadings as bold cyan
 color body brightgreen default "^### \.*" # Subsubheadings as bold green
 color body yellow default "^(\t| )*(-|\\*) \.*" # List items as yellow
-color body brightcyan default "[;:][-o][)/(|]" # emoticons
-color body brightcyan default "[;:][)(|]" # emoticons
-color body brightcyan default "[ ][*][^*]*[*][ ]?" # more emoticon?
-color body brightcyan default "[ ]?[*][^*]*[*][ ]" # more emoticon?
+color body brightcyan default "[;:][-o][)/(|]" # Emoticons
+color body brightcyan default "[;:][)(|]" # Emoticons
+color body brightcyan default "[ ][*][^*]*[*][ ]?" # More emoticon?
+color body brightcyan default "[ ]?[*][^*]*[*][ ]" # More emoticon?
 color body red default "(BAD signature)"
 color body cyan default "(Good signature)"
 color body brightblack default "^gpg: Good signature .*"
