@@ -15,8 +15,58 @@ NL
 JP
 Fastest'
 
+# windscribe's runit service
+wind_sv_src=/etc/runit/sv/windscribe
+wind_sv_dest=/run/runit/service/windscribe
+
+# dmenu's embedding arg
+w=${WINDOWID:+-w $WINDOWID}
+
+main() {
+    case $(printf 'Connect\nDisconnect\n' | dmenu $w -p VPN) in
+        Connect)
+            case $(printf 'ProtonVPN\nWindscribe\n' | dmenu $w -p VPN) in
+                ProtonVPN) pvpn_connect ;;
+                Windscribe) wind_connect ;;
+            esac ;;
+        Disconnect)
+            case $(pgrep -ax openvpn; basename ${wind_sv_dest%e}*) in
+                *pvpn*) pvpn_disconnect ;;
+                *windscribe*) wind_disconnect ;;
+                *) echo No VPN connection found. | notif dvpn ;;
+            esac ;;
+    esac
+}
+
+wind_connect() {
+    location=$(echo "$wind_locations" | dmenu $w -p Location:) || return 1
+    [ ${location:?} = Best ] && location=
+    [ -L $wind_sv_dest ] || sudo -A ln -s $wind_sv_src $wind_sv_dest
+    until sudo -A sv check windscribe; do sleep 2; done
+    windscribe connect $location | stdbuf -o0 tr -d '\b/|\\-' | notif Windscribe
+}
+
+wind_disconnect() {
+    sudo -Av || return 1
+    [ -L $wind_sv_dest ] || sudo -A ln -s $wind_sv_src $wind_sv_dest
+    until sudo -A sv check windscribe; do sleep 2; done
+    windscribe disconnect | notif Windscribe
+    [ -L $wind_sv_dest ] && sudo -A sv down windscribe && sudo -A rm $wind_sv_dest
+}
+
+pvpn_connect() {
+    location=$(echo "$pvpn_locations" | dmenu $w -p Location:) || return 1
+    [ ${location:?} = Fastest ] && location=-f || location="--cc $location"
+    unbuffer sudo -A protonvpn c $location | notif ProtonVPN
+}
+
+pvpn_disconnect() {
+    unbuffer sudo -A protonvpn d | notif ProtonVPN
+}
+
 notif() {
     while IFS= read -r line; do case $line in
+        *Usage:*) return ;;
         Visit*|*graphical*|*symlink*|*changed*) ;;
         *[a-zA-Z]*) notify-send "$1" "$line" ;;
     esac; done
@@ -27,26 +77,4 @@ unbuffer() {
     script -qfc "$(/usr/bin/printf '%q ' "$@")" /dev/null
 }
 
-# dmenu's embedding arg
-w=${WINDOWID:+-w $WINDOWID}
-
-case $(printf 'Connect\nDisconnect\n' | dmenu $w -p VPN) in
-    Connect)
-        case $(printf 'ProtonVPN\nWindscribe\n' | dmenu $w -p VPN) in
-            ProtonVPN)
-                location=$(echo "$pvpn_locations" | dmenu $w -p Location:)
-                [ ${location:?} = Fastest ] && location=-f || location="--cc $location"
-                unbuffer sudo -A protonvpn c $location | notif ProtonVPN ;;
-            Windscribe)
-                location=$(echo "$wind_locations" | dmenu $w -p Location:)
-                [ ${location:?} = Best ] && location=
-                windscribe connect $location | stdbuf -o0 tr -d '\b/|\\-' |
-                    notif Windscribe ;;
-        esac ;;
-    Disconnect)
-        case $(pgrep -ax openvpn) in
-            *windscribe*) windscribe disconnect | notif Windscribe ;;
-            *pvpn*) unbuffer sudo -A protonvpn d | notif ProtonVPN ;;
-            *) echo No VPN connection found. | notif dvpn ;;
-        esac ;;
-esac
+main "$@"
