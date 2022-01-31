@@ -121,8 +121,8 @@ nmap <Leader>gp :diffput<CR>
 
 " fuzzy searching
 nnoremap <Leader>ff :Files<CR>
-nnoremap <Leader>FL :BLines<CR>
 nnoremap <leader>fl :Lines<CR>
+nnoremap <Leader>FL :BLines<CR>
 nnoremap <leader>rg :Rg<CR>
 nnoremap <C-f> :Buffers<CR>
 
@@ -140,7 +140,6 @@ nnoremap <silent><Leader>D :resize -5<CR>
 nnoremap <silent><Leader>eq :wincmd =<CR>
 nnoremap <silent><Leader>wq :wincmd q<CR>
 nnoremap <silent><Leader>on :only<CR>
-nnoremap <silent><Leader>ON :call OnlyBuffer()<CR>
 
 " equalize window sizes upon vim resize
 au VimResized * wincmd =
