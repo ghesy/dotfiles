@@ -25,6 +25,11 @@ search() {
     unset F
 }
 
+paru() {
+    [ $# -eq 0 ] && sudo -v && artixnews
+    command paru "$@"
+}
+
 # bookmarks
 b() {
     case "$1" in

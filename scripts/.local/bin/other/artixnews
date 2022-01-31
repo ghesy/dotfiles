@@ -1,0 +1,40 @@
+#!/bin/bash
+# show feeds from the specified RSS feed that are newer
+# than the build date of all installed official packages.
+
+# config
+feed=https://artixlinux.org/feed.php
+
+newest_build_date=$(
+    pacman -Qin | grep -Po '^Build Date\s*:\s*\K[^+]*' |
+    xargs -d'\n' -L1 -P50 date +%s -d |
+    sort -rn | head -1
+)
+
+curl -fsL "${feed:?}" | while IFS='>' read -r -d'<' TAG VALUE; do
+    case $TAG in
+        item) unset title link date isodate body ;;
+        title) title=$VALUE ;;
+        link) link=$VALUE ;;
+        pubDate)
+            [ "$(date -d"$VALUE" +%s)" -lt "${newest_build_date:?}" ] && break
+            date=$(date -d"$VALUE" '+%F %H:%M')
+        ;;
+        description)
+            # convert '&lt;' and '&gt;' to '<' and '>'
+            body=$(printf '%s\n' "$VALUE" | sed -e 's/&lt;/</g' -e 's/&gt;/>/g')
+        ;;
+        /item)
+            cat <<- eof
+				<article>
+				<h2><a href="$link">$title</a></h2>
+				<p>posted on $date</p>
+				<p>$body</p>
+				</article>
+			eof
+        ;;
+    esac
+done |
+    ifne -n echo no new artix news >&2 |
+    ifne lynx -stdin -dump |
+    ifne ${PAGER:-less}
