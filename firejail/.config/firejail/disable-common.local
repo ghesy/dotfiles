@@ -1,2 +1,3 @@
+read-only ${HOME}/.config/X11
 read-only ${HOME}/.config/zsh
 blacklist ${HOME}/.pvpn-cli
