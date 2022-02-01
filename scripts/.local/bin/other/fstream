@@ -1,6 +1,6 @@
 #!/bin/bash
 # show and open a list of football streams.
-# requires yt-dlp, curl, zenity, mpv.
+# requires moreutils, yt-dlp, curl, zenity, mpv.
 
 main() {
     { redditz_streams & aparat_streams ;} |
@@ -21,8 +21,8 @@ aparat_streams() {
 redditz_streams() {
     unset t1 t2 url
     {
-        curl -fsSL 'https://redditz.soccerstreamlinks.com' | tac | grep -A10 LIVE
-        echo --
+        curl -fsSL 'https://redditz.soccerstreamlinks.com' | tac |
+            grep -A10 LIVE | ifne cat - <(echo --)
     } |
         while IFS= read -r l; do case $l in
             *'<abbr title'*)
