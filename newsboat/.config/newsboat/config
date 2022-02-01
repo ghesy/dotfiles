@@ -24,8 +24,8 @@ bind-key N prev-unread
 
 color listnormal color244 default
 color listnormal_unread color250 default
-color listfocus color44 default bold
-color listfocus_unread color44 default bold
+color listfocus color39 default
+color listfocus_unread color45 default bold
 color article color250 default
 color info red black
 highlight feedlist "---.*---" color2 default bold
