@@ -19,7 +19,7 @@ export XDG_CONFIG_HOME=~/.config
 export XDG_CACHE_HOME=~/.cache
 
 # home clean-up
-source ~/.config/zsh/xdg
+source ~/.config/zsh/xdg.profile
 
 # have sudo ask for a password via dmenu
 export SUDO_ASKPASS=~/.local/bin/dmenu/dmenu-askpass
@@ -79,4 +79,5 @@ for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
 done
 
 # start X if we're on tty1
-[ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ] && startx "$XINITRC" >/dev/null 2>&1
+[ -z "$DISPLAY" ] && [ "$(tty)" = /dev/tty1 ] &&
+    startx "${XINITRC:?}" -- -nolisten tcp -nolisten local >/dev/null 2>&1
