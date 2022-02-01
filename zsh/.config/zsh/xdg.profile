@@ -26,6 +26,7 @@ export NVM_DIR=~/.local/share/nvm
 export GOPATH=~/.local/share/go
 export GOBIN="$GOPATH/bin"
 
+export PARALLEL_HOME=~/.cache/parallel && mkdir -p "$PARALLEL_HOME"
 export NUGET_PACKAGES=~/.cache/NuGetPackages
 export GEM_SPEC_CACHE=~/.cache/gem
 
