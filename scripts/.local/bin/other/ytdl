@@ -12,7 +12,7 @@ case $res in
     '') res=480 ;;
     *) [ "$res" -eq "$res" ] || res=480 ;;
 esac
-echo ${res:-Best} selected.
+echo "[ytdl] ${res:-Best} selected."
 
 # try not to go below res/2+res/8, unless no higher res is available
 minres=$((${res:-480}/2+${res:-480}/8))
@@ -25,21 +25,34 @@ opts=" \
     --write-auto-sub --embed-subs --compat-option no-keep-subs \
     --downloader aria2c --downloader-args aria2c:--async-dns=false"
 
-title=$($(getproxy "$1") yt-dlp --print title "$1")
-
 # download interim files to a temp dir
 tmp=.ytdl-tmp
 trap 'rmdir $tmp 2>/dev/null' EXIT
 
+failed=()
+
 # try to download the video up to 10 times
-for i in {1..10}; do
-    $(getproxy "$1") yt-dlp $opts -P temp:$tmp "${@#ytdl://*}" && break
-    if [ $i -eq 10 ]; then
-        notify-send ytdl Failed:$'\n'"$title"
-        exit 1
-    fi
-    sleep 30
-    echo "[ytdl] Attempt $((i+1)) of 10"
+for url; do
+    url=${url#ytdl://}
+    title=$($(getproxy "$url") yt-dlp --print title "$url")
+    for i in {1..10}; do
+        if $(getproxy "$url") yt-dlp $opts -P temp:$tmp "$url"; then
+            notify-send ytdl Done:$'\n'"$title"
+            break
+        elif [ $i -eq 10 ]; then
+            notify-send ytdl Failed:$'\n'"$title"
+            failed+=("$title -- $url")
+            break
+        fi
+        sleep 30
+        echo "[ytdl] Attempt $((i+1)) of 10"
+    done
 done
 
-notify-send ytdl Done:$'\n'"$title"
+# report a summary
+[ $# -le 1 ] && exit
+echo
+echo "[ytdl] Summary: $# Downloads, ${#failed[@]} Failed."
+[ ${#failed[@]} -lt 1 ] && exit
+echo 'Failed Downloads:'
+printf '- %s\n' "${failed[@]}"
