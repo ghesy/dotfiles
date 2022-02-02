@@ -1,6 +1,15 @@
 #!/bin/sh
-# open a terminal in the given path.
-exec >/dev/null 2>&1
-unset TMUX
-path="${1:-$PWD}"
-cd "$path" || cd "$(dirname "$path")" && setsid -f $TERMINAL
+# open the given path in lf.
+if [ "$1" = -a ]; then
+    shift
+    tmp=$(mktemp)
+    lf -last-dir-path="$tmp" "$@"
+    [ ! -f "$tmp" ] && exit
+    dir=$(cat "$tmp")
+    rm -f "$tmp"
+    [ -d "$dir" ] && cd "$dir"
+    TMUX= exec ${SHELL:-}
+else
+    path=${1:-$PWD}
+    setsid -f ${TERMINAL:?} -e "$0" -a "${1:-$PWD}" >/dev/null 2>&1
+fi
