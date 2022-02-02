@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# cd to the script's directory
+cd "$(dirname "$(readlink -f "${0:?}")")" || exit 1
+
 # check if gnu stow is installed
 ! command -v stow >/dev/null && echo Please install stow. && exit 1
 
