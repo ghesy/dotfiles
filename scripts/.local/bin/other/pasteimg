@@ -1,0 +1,5 @@
+#!/bin/sh
+# save the image that's copied to clipboard to a file.
+f=$(mktemp) &&
+    xclip -o -t image/png -selection clipboard > "$f" &&
+    mv --backup=numbered -- "$f" "$PWD/$(basename "$f").png"
