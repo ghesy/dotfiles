@@ -31,7 +31,9 @@ stream() {
 }
 
 gdl() {
-    imgs=$($(getproxy "$(gallery-dl -G -- "$url" | head -n1)") gallery-dl -d "$cache" -- "$url" 2>/dev/null) || return 1
+    p=$(getproxy "$url")
+    p=$(getproxy "$($p gallery-dl -G -- "$url" | head -n1)")
+    imgs=$($p gallery-dl --no-mtime -d "$cache" -- "$url" 2>/dev/null) || return 1
     printf '%s\n' "$imgs" | sed 's/^# //' | xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -quiet -- "$@"' ''
 }
 
