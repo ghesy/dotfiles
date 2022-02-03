@@ -1,58 +1,100 @@
 #!/bin/bash
 # download videos using yt-dlp and aria2.
 
-[ -f "${1:?}" ] && exit 1
-cd /media/downloads || cd ~/Downloads || cd ~ || exit 1
+main() {
+    [ -f "${1:?}" ] && return 1
+    cd /media/downloads || cd ~/Downloads || cd ~ || return 1
 
-# ask the user what resolution to download
-read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
-case $res in
-    q) exit ;;
-    b) res='' ;;
-    '') res=480 ;;
-    *) [ "$res" -eq "$res" ] || res=480 ;;
-esac
-echo "[ytdl] ${res:-Best} selected."
+    ask_res
 
-# try not to go below res/2+res/8, unless no higher res is available
-minres=$((${res:-480}/2+${res:-480}/8))
+    # temp dir for storing interim files
+    TMP=.ytdl-tmp
+    trap 'rmdir $TMP 2>/dev/null' EXIT
 
-# put all the yt-dlp options in a variable
-opts=" \
-    -S ${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6)) \
-    -f bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best \
-    --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub \
-    --write-auto-sub --embed-subs --compat-option no-keep-subs \
-    --downloader aria2c --downloader-args aria2c:--async-dns=false"
+    ntotal=$#
+    FAILED=()
+    SUCCEEDED=()
 
-# download interim files to a temp dir
-tmp=.ytdl-tmp
-trap 'rmdir $tmp 2>/dev/null' EXIT
+    download_all "$@"
+    summary_end
+}
 
-failed=()
+ask_res() {
+    # ask the user what resolution to download
+    read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
+    case $res in
+        q) exit ;;
+        b) res='' ;;
+        '') res=480 ;;
+        *) [ "$res" -eq "$res" ] || res=480 ;;
+    esac
+    echo "[ytdl] ${res:-Best} selected."
 
-# try to download the video up to 10 times
-for url; do
-    url=${url#ytdl://}
-    title=$($(getproxy "$url") yt-dlp --print title "$url")
-    for i in {1..10}; do
-        if $(getproxy "$url") yt-dlp $opts -P temp:$tmp "$url"; then
-            notify-send ytdl Done:$'\n'"$title"
-            break
-        elif [ $i -eq 10 ]; then
-            notify-send ytdl Failed:$'\n'"$title"
-            failed+=("$title -- $url")
-            break
-        fi
-        sleep 30
-        echo "[ytdl] Attempt $((i+1)) of 10"
+    # try not to go below res/2+res/8, unless no higher res is available
+    minres=$((${res:-480}/2+${res:-480}/8))
+
+    # put all the yt-dlp options in a variable
+    OPTS=" \
+        -S ${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6)) \
+        -f bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best \
+        --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub \
+        --write-auto-sub --embed-subs --compat-option no-keep-subs \
+        --downloader aria2c --downloader-args aria2c:--async-dns=false"
+}
+
+download_all() {
+    # try to download each video up to 10 times
+    for URL; do
+        URL=${URL#ytdl://}
+        TITLE=$(get_title)
+        echo "[ytdl] Downloading \"$TITLE\" ($URL)"
+        for i in {1..10}; do
+            if download; then
+                report_success
+                break
+            elif [ $i -eq 10 ]; then
+                report_failure
+                break
+            fi
+            sleep 30
+            echo "[ytdl] Attempt $((i+1)) of 10 to download \"$TITLE\" ($URL)"
+        done
     done
-done
+}
 
-# report a summary
-[ $# -le 1 ] && exit
-echo
-echo "[ytdl] Summary: $# Downloads, ${#failed[@]} Failed."
-[ ${#failed[@]} -lt 1 ] && exit
-echo 'Failed Downloads:'
-printf '- %s\n' "${failed[@]}"
+download() {
+    $(getproxy "$URL") yt-dlp $OPTS -P temp:$TMP "$URL"
+}
+
+get_title() {
+    $(getproxy "$URL") yt-dlp --print title "$URL"
+}
+
+report_success() {
+    notify-send ytdl Done:$'\n'"$TITLE"
+    SUCCEEDED+=("$TITLE -- $URL")
+    summary
+}
+
+report_failure() {
+    notify-send ytdl Failed:$'\n'"$TITLE"
+    FAILED+=("$TITLE -- $URL")
+    summary
+}
+
+summary() {
+    left=$(( ntotal - ( ${#SUCCEEDED[@]} + ${#FAILED[@]} ) ))
+    echo "[ytdl] $left Left, ${#SUCCEEDED[@]} Done, ${#FAILED[@]} Failed out of $ntotal"
+}
+
+summary_end() {
+    # report a summary
+    [ $ntotal -le 1 ] && exit
+    echo
+    echo "[ytdl] Summary: $ntotal Total Downloads, ${#FAILED[@]} Failed."
+    [ ${#FAILED[@]} -lt 1 ] && exit
+    echo 'Failed Downloads:'
+    printf '- %s\n' "${FAILED[@]}"
+}
+
+main "$@"
