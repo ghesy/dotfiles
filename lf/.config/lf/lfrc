@@ -33,7 +33,7 @@ map L openall
 map E extract
 map a push :archive<space>
 map U &termopen
-map D trash
+map D push :trash<space>
 map X !$f
 map m mkdir
 map <c-n> togglenum
@@ -78,7 +78,6 @@ map <tab> :echo
 # ============
 
 cmd q quit
-cmd trash push &trash-put<space>$fx;lf<space>-remote<space>"send<space>load"
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
@@ -91,8 +90,21 @@ cmd mkdir %{{
     printf ' '
     read dir
     mkdir -p -- $dir
-    lf -remote "send load"
+    lf -remote 'send load'
     printf '%s\n' $dir | lfselect
+}}
+
+cmd trash &{{
+    lf -remote "send $id echo Trashing..."
+    msg=$(mktemp)
+    trap 'rm -f "$msg"' EXIT
+    if trash-put $fx >$msg 2>&1; then
+        lf -remote "send $id echo Trashing Done."
+    else
+        lf -remote "send $id !printf '\e[?1049h\e[H'; cat \"$msg\""
+        lf -remote "send $id echo Trashing Failed."
+    fi
+    lf -remote 'send load'
 }}
 
 cmd delete ${{

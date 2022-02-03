@@ -1,6 +1,7 @@
 #!/bin/bash
 # show feeds from the specified RSS feed that are newer
 # than the build date of all installed official packages.
+# requires curl and moreutils.
 
 # config
 feed=https://artixlinux.org/feed.php
