@@ -24,6 +24,8 @@ Plug 'tpope/vim-eunuch'
 Plug 'bling/vim-bufferline'
 Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-repeat'
 " colorschemes
 Plug 'sainnhe/everforest'
 Plug 'pbrisbin/vim-colors-off'
