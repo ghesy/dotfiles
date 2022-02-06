@@ -18,7 +18,8 @@ main() {
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*youtube.com/watch*|\
         *youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/*|\
         *bitchute.com/*|*odysee.com/*:*|*v.redd*|*streamwo.com/*|*streamable.com/*|*streamff.com/*|\
-        *streamja.com/*|*videos.lukesmith.xyz/*|*tiktok.com/*|*khanacademy.org/*|*clippituser.tv/*) stream ;;
+        *streamja.com/*|*videos.lukesmith.xyz/*|*tiktok.com/*|*khanacademy.org/*|*clippituser.tv/*|\
+        *mixture.gg/*) stream ;;
         *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
         *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
@@ -26,8 +27,15 @@ main() {
 }
 
 stream() {
+    unset streamerr
     notify-send -u low PipeURL 'Opening video...'
-    $(getproxy "$url") mpv -quiet -- "$url" || notify-send PipeURL 'Failed to open the video.'
+    msg=$($(getproxy "$url") mpv -quiet -- "$url" 2>&1)
+    case $?/$msg in
+        2/*'Temporary failure in name resolution'*)
+            proxychains -q mpv -quiet -- "$url" || streamerr=true ;;
+        *) echo "$msg"; streamerr=true ;;
+    esac
+    [ $streamerr ] && notify-send PipeURL 'Failed to open the video.'
 }
 
 gdl() {
