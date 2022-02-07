@@ -1,0 +1,19 @@
+#!/bin/sh
+# find and open syncthing's webui.
+PORT=8384
+case $(printf 'Local\nServer\n' | dmenu -p stopen) in
+    Local) ${BROWSER:-xdg-open} https://localhost:$PORT ;;
+    Server)
+        subnet=$(set -- $(ip r); echo "${3%.*}")
+        curl -ZIskw'\n%{content_type}	%{url}\n' "https://$subnet.[0-255]:$PORT" \
+            --connect-timeout 1 --parallel-max 25 |
+            while IFS= read -r line; do
+                case $line in text/plain*|text/html*)
+                    pkill -xs0 -P$$ curl
+                    set -- $line
+                    for url; do :; done
+                    ${BROWSER:-xdg-open} "$url"
+                    break ;;
+                esac
+            done
+esac

@@ -25,7 +25,7 @@ Gimp : gimp
 OBS, Recorder : obs
 Reset Tor : restor
 VirtualMic : virtualmic
-Syncthing : stopen
+Syncthing : syncthingopen
 Footabll Streams: fstream
 
 CUPS : web localhost:631
