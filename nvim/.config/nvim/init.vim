@@ -180,7 +180,7 @@ let g:bufferline_show_bufnr = 0
 " colors and appearance
 let g:gruvbox_material_better_performance = 1
 let g:everforest_better_performance = 1
-colorscheme everforest
+colorscheme off
 
 " set a constant horizontal line between splits
 let g:HorizLine1='─'
