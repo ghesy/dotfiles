@@ -3,6 +3,7 @@ show-title-bar no
 show-keymap-hint no
 download-timeout 100
 reload-threads 10
+max-items 100
 
 browser pipeurl
 external-url-viewer pipeurl
