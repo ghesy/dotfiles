@@ -3,25 +3,33 @@
 set -eE
 trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
 
-pushd /media/syncthing/Main
+pushd /media/syncthing/Main >/dev/null
+    basename "$PWD"
     ./install.sh
-popd
+popd >/dev/null
 
-pushd ~/.dots
-    if git branch --show | grep -q master; then
-        git pull | grep -v '^Already up to date' &&
-        echo y | ./install.sh && echo
-    else
+pushd ~/.dots >/dev/null
+    basename "$PWD"
+    if git branch --show | grep -vq master; then
         echo dotfiles is not on the proper branch
+    elif [ -n "$(git status --porcelain)" ]; then
+        echo dotfiles contains uncommited changes
+    else
+        git pull | grep -v '^Already up to date' &&
+            echo y | ./install.sh && echo
     fi
-popd
+popd >/dev/null
 
 for dir in ~/Repositories/suckless/*/; do
-    pushd "$dir"
-        if git branch --show | grep -q ^my-; then
-            git pull | grep -v '^Already up to date' && make && sudo make install
-        else
+    pushd "$dir" >/dev/null
+        basename "$PWD"
+        if git branch --show | grep -vq ^my-; then
             echo "$(basename "$dir") is not on the proper branch"
+        elif [ -n "$(git status --porcelain)" ]; then
+            echo "$(basename "$dir") contains uncommited changes"
+        else
+            git pull | grep -v '^Already up to date' &&
+                make && sudo make install
         fi
-    popd
+    popd >/dev/null
 done
