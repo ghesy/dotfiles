@@ -1,0 +1,15 @@
+#!/bin/bash
+# update my dotfiles, my syncthing-synced file and my suckless software repoes.
+set -eE
+trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
+echo y | ~/.dots/install.sh; echo
+/media/syncthing/Main/install.sh
+for dir in ~/Repositories/suckless/*/; do
+    pushd "$dir"
+        if git branch --show | grep -q ^my-; then
+            git pull | grep -qv '^Already up to date' && make && sudo make install
+        else
+            echo "$(basename "$dir") is not in the proper branch"
+        fi
+    popd
+done
