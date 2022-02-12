@@ -2,14 +2,24 @@
 # update my dotfiles, my syncthing-synced file and my suckless software repoes.
 set -eE
 trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
-echo y | ~/.dots/install.sh; echo
+
 /media/syncthing/Main/install.sh
+
+pushd ~/.dots
+    if git branch --show | grep -q master; then
+        git pull | grep -v '^Already up to date' &&
+        echo y | ./install.sh && echo
+    else
+        echo dotfiles is not on the proper branch
+    fi
+popd
+
 for dir in ~/Repositories/suckless/*/; do
     pushd "$dir"
         if git branch --show | grep -q ^my-; then
-            git pull | grep -qv '^Already up to date' && make && sudo make install
+            git pull | grep -v '^Already up to date' && make && sudo make install
         else
-            echo "$(basename "$dir") is not in the proper branch"
+            echo "$(basename "$dir") is not on the proper branch"
         fi
     popd
 done
