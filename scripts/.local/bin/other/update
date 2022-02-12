@@ -1,9 +1,11 @@
 #!/bin/bash
-# update my dotfiles, my syncthing-synced file and my suckless software repoes.
+# update my dotfiles, my syncthing-synced files and my suckless software repoes.
 set -eE
 trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
 
-/media/syncthing/Main/install.sh
+pushd /media/syncthing/Main
+    ./install.sh
+popd
 
 pushd ~/.dots
     if git branch --show | grep -q master; then
