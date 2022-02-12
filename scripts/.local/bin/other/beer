@@ -7,8 +7,7 @@
 # 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
 # to get wine plus all of it's optional dependencies.
 
-# TODO: make our list of brograms just be shell commands
-#   with support for quoting and args
+# TODO: make our list of programs just be shell commands with support for quoting and args
 # TODO: make new_bottle() cleaner and split it into more functions
 
 # config
@@ -208,7 +207,7 @@ edit_programs() {
 new_bottle() {
     local arch name d
     read -p 'Arch: [ 64 (Default) / 32 ] ' arch
-    read -p 'Unlinked Home Dir? [Y/n] ' sandbox
+    read -p "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox
     read -p 'Name: ' name
     [ -z "$name" ] && return 1
     name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]*//g')
@@ -216,9 +215,11 @@ new_bottle() {
     mkdir -p "$d" || return 1
     echo "win${arch:-64}" > "$d"/arch
     WINEPREFIX=$d WINEARCH=win${arch:-64} wine regedit <(theme_dark_background)
-    case $sandbox in ''|y|Y) ;; *) return ;; esac
-    echo Creating a sandboxed bottle...
-    WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks isolate_home
+    case $sandbox in
+        n) ;;
+        ''|h) WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks isolate_home ;;
+        f)    WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks sandbox ;;
+    esac
     PFX=$d
 }
 
