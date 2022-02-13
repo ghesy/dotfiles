@@ -153,7 +153,7 @@ function fetchdesc()
     if TRY_PROXYCHAINS then
         local status, stdout = exec{"curl", "-sLIm8", "--", url}
         if status == false or stdout == "" then
-            args = {"proxychains", "-q", table.unpack(args)}
+            args = {"proxychains", "-q", unpack(args)}
         end
     end
     execasync(savedesc, args)
