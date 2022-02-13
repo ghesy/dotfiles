@@ -27,15 +27,16 @@ main() {
 }
 
 stream() {
-    unset streamerr
+    error=false
     notify-send -u low PipeURL 'Opening video...'
-    msg=$($(getproxy "$url") mpv -quiet -- "$url" 2>&1)
+    msg=$($(getproxy "$url") mpv --msg-level=all=error -- "$url" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
-            proxychains -q mpv -quiet -- "$url" || streamerr=true ;;
-        *) echo "$msg"; streamerr=true ;;
+            proxychains -q mpv --msg-level=all=error -- "$url" || error=true ;;
+        0/*) ;;
+        *) error=true; printf '%s\n' "$msg" ;;
     esac
-    [ $streamerr ] && notify-send PipeURL 'Failed to open the video.'
+    [ "$error" = true ] && notify-send PipeURL 'Failed to open the video.'
 }
 
 gdl() {
