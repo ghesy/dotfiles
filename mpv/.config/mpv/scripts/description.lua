@@ -17,15 +17,20 @@ local mp = require 'mp'
 local utils = require 'mp.utils'
 descfile = {}
 
+-- if table.unpack() isn't available, use unpack() instead
+if not table.unpack then
+    table.unpack = unpack
+end
+
 -- execute shell commands using mpv's subprocess command
-local function exec(args)
+function exec(args)
     local r = mp.command_native({name = "subprocess", args = args,
         capture_stdout = true, capture_stderr = true})
     return r.status == 0, r.stdout
 end
 
 -- asynchronously execute shell commands using mpv's subprocess command
-local function execasync(fn, args)
+function execasync(fn, args)
     mp.command_native_async({name = "subprocess", args = args,
         capture_stdout = true, capture_stderr = true}, fn)
 end
@@ -102,7 +107,7 @@ function pager(f)
     end
 end
 
--- save the description and comments fetch by fetchdesc() to CACHEDIR
+-- save the description and comments fetched by fetchdesc() to CACHEDIR
 function savedesc(success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
@@ -135,7 +140,7 @@ end
 
 -- download description and comments and hand it to savedesc()
 function fetchdesc()
-    -- if the video is a local file, return
+    -- return if no url is associated with the video
     local url = geturl()
     if url == nil or url == "" then return end
 
@@ -153,7 +158,7 @@ function fetchdesc()
     if TRY_PROXYCHAINS then
         local status, stdout = exec{"curl", "-sLIm8", "--", url}
         if status == false or stdout == "" then
-            args = {"proxychains", "-q", unpack(args)}
+            args = {"proxychains", "-q", table.unpack(args)}
         end
     end
     execasync(savedesc, args)
