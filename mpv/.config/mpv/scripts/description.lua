@@ -253,5 +253,5 @@ function fetchdesc()
     execasync(savedesc, args)
 end
 
-mp.add_forced_key_binding(KEY, "show_description", function() opendesc() end)
+mp.add_forced_key_binding(KEY, "show_description", opendesc)
 mp.register_event("start-file", fetchdesc)
