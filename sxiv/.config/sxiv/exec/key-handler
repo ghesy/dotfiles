@@ -7,12 +7,13 @@ main()
     first=$(printf '%s\n' "$imgs" | head -n1)
     count=$(printf '%s\n' "$imgs" | wc -l)
 
-    case "$1" in
+    case $1 in
         h) help ;;
         w) wallpaper "$first" ;;
         W) wallpaper -n "$first" ;;
         g) x setsid -f gimp -- ;;
         p) x dprint ;;
+        D) x dragon-drag-and-drop -a -x ;;
         t) ask Trash &&
             x trash-put -- &&
             notif Trashed
@@ -57,6 +58,7 @@ notif() { notify-send sxiv "$* $count image(s)." ;}
 help() {
 notify-send sxiv "$(cat << 'eof'
 y)   copy image to clipboard
+D)   drag and drop
 a)   auto rotate based on metadata
 r,R) rotate cw/ccw
 f)   flip horizontally
