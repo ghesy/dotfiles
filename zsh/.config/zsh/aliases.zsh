@@ -26,10 +26,7 @@ search() {
 }
 
 paru() {
-    if [ $# -eq 0 ]; then
-        command -v pkgsync >/dev/null && sudo pkgsync
-        artixnews
-    fi
+    [ $# -eq 0 ] && sudo -v && artixnews
     command paru "$@"
 }
 
