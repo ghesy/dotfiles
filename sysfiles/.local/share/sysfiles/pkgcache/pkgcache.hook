@@ -6,6 +6,6 @@ Operation = Upgrade
 Target = *
 
 [Action]
-Description = Removing obsolete cached package files...
+Description = Cleaning up the package cache...
 When = PostTransaction
 Exec = /usr/bin/pkgcache
