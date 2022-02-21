@@ -3,9 +3,7 @@
 
 # go to the alternative terminal buffer and hide the cursor
 printf '\033[?25l\033[?1049h\033[;r'
-revert() { printf '\033[?25h\033[?1049l' ;}
-trap exit INT TERM HUP
-trap revert EXIT
+trap 'printf "\033[?25h\033[?1049l"' EXIT
 
 mpv \
     --audio-display=no --term-osd-bar --force-window=no \
