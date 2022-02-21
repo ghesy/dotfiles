@@ -18,6 +18,7 @@ image/vnd.adobe.photoshop=gimp.desktop
 video/x-matroska=video.desktop
 video/mpeg=video.desktop
 
+audio/ogg=audio.desktop
 audio/flac=audio.desktop
 audio/mpegapplication/octet-stream=audio.desktop
 
