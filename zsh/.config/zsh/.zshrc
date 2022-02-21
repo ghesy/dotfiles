@@ -18,7 +18,6 @@ setopt ignoreeof # don't exit by ctrl-d
 setopt autocd # cd to paths typed in the shell, without the cd command
 setopt nullglob # make globs expand to nothing if they match nothing
 setopt interactivecomments # allow comments in interactive shell
-stty stop undef # disable ctrl-s freezing the shell
 
 # shell prompt
 autoload -U colors && colors
