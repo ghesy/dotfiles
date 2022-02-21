@@ -26,6 +26,7 @@ Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
+Plug 'voldikss/vim-floaterm'
 " colorschemes
 Plug 'sainnhe/everforest'
 Plug 'pbrisbin/vim-colors-off'
@@ -177,6 +178,15 @@ nnoremap <silent> <C-p> :bprev<CR>
 " vim-bufferline
 let g:bufferline_show_bufnr = 0
 
+" floaterm
+let g:floaterm_keymap_toggle = '<C-x>'
+let g:floaterm_keymap_new    = '<F12>'
+let g:floaterm_keymap_next   = '<C-b>'
+let g:floaterm_keymap_kill   = '<C-w>'
+let g:floaterm_width = 0.9
+let g:floaterm_height = 0.9
+let g:floaterm_autoclose = 2
+
 " colors and appearance
 let g:gruvbox_material_better_performance = 1
 let g:everforest_better_performance = 1
@@ -203,6 +213,3 @@ function TransparentBg()
 endf
 autocmd ColorScheme * call TransparentBg()
 call TransparentBg()
-
-" load other configs
-source ~/.config/nvim/term.vim
