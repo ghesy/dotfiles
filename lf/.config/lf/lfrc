@@ -127,7 +127,7 @@ cmd finder ${{
 cmd extract ${{
     printf '\e[?1049h\e[H'
     aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
-    printf '%s\n' ${f%.*} | lfselect
+    f=${f%.*}; printf '%s\n' ${f%.tar} | lfselect
 }}
 
 cmd paste ${{
