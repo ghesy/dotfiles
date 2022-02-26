@@ -32,6 +32,7 @@ CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
 Github : web https://github.com/soystemd
 AUR : web "https://aur.archlinux.org/packages/?O=0&SeB=m&K=soystemd&outdated=&SB=p&SO=d&PP=250&do_Search=Go"
+Tailscale Management : web https://tailscale.com/admin
 
 Newsboat, RSS : tui nboat
 Reddit : tui tuir
