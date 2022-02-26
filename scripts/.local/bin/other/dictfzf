@@ -1,5 +1,6 @@
 #!/bin/sh
 # search for words and see their definitions using dict and fzf.
+echo dictfzf
 cmd="{ dict -mfssubstring -- {q}; dict -mfslev -- {q} ;} | \
     cut -f4 | awk NF | sort -uf"
 printf '\033[5 q'
