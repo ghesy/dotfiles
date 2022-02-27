@@ -54,7 +54,7 @@ module_source=$(pactl list sources | tac | tr '\n' ' ' |
 
 # start mpv.
 mpv --no-config --load-scripts=no --no-terminal \
-    --profile=low-latency --no-cache --untimed -- "$host" >/dev/null 2>&1 &
+    --no-video --profile=low-latency --no-cache -- "$host" >/dev/null 2>&1 &
 mpv_pid=$!
 echo "$mpv_pid" > "${PIDFILE:?}"
 sleep 2
