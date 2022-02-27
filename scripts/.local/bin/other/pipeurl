@@ -16,10 +16,10 @@ main() {
         *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp|*.gif) dl ;;
         *reddit.com/gallery*|*i.redd.it*|*imgur.com/*|*gfycat.com/*) gdl ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|\
-        *youtube.com/watch*|*youtube.com/playlist*|*youtube.com/embed/*|*youtu.be/*|*hooktube.com/watch*|\
-        *bitchute.com/video/*|*odysee.com/*:*|*khanacademy.org/*/v/*|*v.redd.it/*|*tiktok.com/@*/video/*|\
-        *videos.lukesmith.xyz/w/*|*streamff.com/v/*|*mixture.gg/v/*|*streamgg.com/v/*|*clippituser.tv/c/*|\
-        *streamable.com/*|*streamja.com/*) stream ;;
+        *youtube.com/watch*|*youtube.com/playlist*|*youtube.com/embed/*|*youtube.com/shorts/*|*youtu.be/*|\
+        *hooktube.com/watch*|*bitchute.com/video/*|*odysee.com/*:*|*khanacademy.org/*/v/*|*v.redd.it/*|\
+        *tiktok.com/@*/video/*|*videos.lukesmith.xyz/w/*|*streamff.com/v/*|*mixture.gg/v/*|*streamgg.com/v/*|\
+        *clippituser.tv/c/*|*streamable.com/*|*streamja.com/*) stream ;;
         *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
         *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
