@@ -9,7 +9,7 @@ export TERMINAL=st
 export EDITOR=nvim
 export VISUAL=nvim
 export BROWSER=browser
-export OPENER=opener
+export OPENER=xdg-open
 export TFM=lf
 
 # xdg dirs
