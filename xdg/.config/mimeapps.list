@@ -27,6 +27,8 @@ application/pdf=pdf.desktop
 
 application/x-bittorrent=torrent.desktop
 application/rss+xml=rss.desktop
+x-scheme-handler/http=browser.desktop
+x-scheme-handler/https=browser.desktop
 x-scheme-handler/magnet=torrent.desktop
 x-scheme-handler/mailto=mail.desktop
 x-scheme-handler/lbry=lbry.desktop

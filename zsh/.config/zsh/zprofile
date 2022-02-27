@@ -8,7 +8,7 @@ export PATH="${PATH}${localpaths}"
 export TERMINAL=st
 export EDITOR=nvim
 export VISUAL=nvim
-export BROWSER=firefox
+export BROWSER=browser
 export OPENER=opener
 export TFM=lf
 

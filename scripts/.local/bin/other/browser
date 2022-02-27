@@ -1,0 +1,4 @@
+#!/bin/sh
+for browser in firefox chromium librewolf brave; do
+    exec setsid -f $browser "$@" >/dev/null 2>&1
+done
