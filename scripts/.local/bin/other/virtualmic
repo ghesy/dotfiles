@@ -11,7 +11,7 @@ PIDFILE=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/virtualmic.pid
 
 # if virtualmicmic is already running, kill and cleanup everything and exit.
 if [ -f "${PIDFILE:?}" ]; then
-    kill "$(cat "${PIDFILE:?}")"
+    pkill -F "${PIDFILE:?}"
     exit
 elif pidof -qxo%PPID "${0##*/}"; then
     exit
