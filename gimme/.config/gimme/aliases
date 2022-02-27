@@ -46,6 +46,7 @@ Cava, Visualizer: tui cava
 Music, ncmpcpp: tui ncmpcpp
 Bash Mount: tui bashmount
 Dictionary: tui dictfzf
+Calculator : tui calc
 TV Shows: tui tv
 
 Autolock : autolock

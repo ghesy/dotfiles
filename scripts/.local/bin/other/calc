@@ -1,0 +1,9 @@
+#!/bin/sh
+echo calculator
+printf '\033[6 q'
+if command -v qalc >/dev/null; then
+    trap exit HUP
+    qalc
+else
+    exec bc -qi
+fi
