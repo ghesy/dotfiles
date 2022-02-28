@@ -7,19 +7,16 @@
 PORT=8080
 subnet=$(set -- $(ip r); echo "${3%.*}")
 HOST=http://${subnet:?}.[0-255]:${PORT:?}
-PIDFILE=${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/virtualmic.pid
+PIDFILE=${XDG_RUNTIME_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}}/virtualmic.pid
 NAME=VirtualMic
 
 # if virtualmicmic is already running, kill and cleanup everything and exit.
 if [ -e "${PIDFILE:?}" ]; then
-    # test if the pidfile contains an integer
-    pidfile_contents=$(cat "${PIDFILE:?}")
-    if [ "$pidfile_contents" -eq "$pidfile_contents" ]; then
-        pkill -F "${PIDFILE:?}"
-        exit
-    else
-        rm -f "${PIDFILE:?}"
-    fi
+    pkill -F "${PIDFILE:?}"
+    exit
+elif pidof -qxo%PPID "${0##*/}"; then
+    notify-send -u low virtualmic "Another instance is trying to connect."
+    exit
 fi
 
 # notify the failure.
@@ -43,7 +40,7 @@ host=$(curl -ZIsw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
 
 # load the remap-sink module.
 module=$(pactl load-module module-remap-sink \
-    sink_name="$NAME-$$" sink_properties=device.description="$NAME") || exit 2
+    sink_name="$NAME" sink_properties=device.description="$NAME") || exit 2
 
 # get remap's sink input, then mute it and change it's name.
 module_input=$(pactl list sink-inputs | tac | tr '\n' ' ' |
