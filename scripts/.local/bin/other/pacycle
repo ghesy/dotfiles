@@ -2,7 +2,7 @@
 # cycle the audio output device of pulseaudio.
 unset first current next
 while IFS= read -r i; do case $i in *index:*)
-    read -r name; case $name in *aloop*|*remapped*) continue ;; esac
+    read -r name; case $name in *aloop*|*remapped*|*VirtualMic*) continue ;; esac
     [ -z "$first" ] && first=$i
     if [ -z "$current" ]; then
         case $i in *' * '*) current=$i ;; esac
