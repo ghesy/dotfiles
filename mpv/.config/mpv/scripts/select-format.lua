@@ -193,6 +193,114 @@ local ytdl = {
     blacklisted = {}
 }
 
+-- shorten and format the given number (eg. 4560 -> 4.5K)
+function numshorten(n)
+    n = tonumber(n)
+    if n >= 10^9 then
+        return string.format("%.1fG", n/10^9)
+    elseif n >= 10^6 then
+        return string.format("%.1fM", n/10^6)
+    elseif n >= 10^3 then
+        return string.format("%.1fK", n/10^3)
+    else
+        return string.format("%.1f", n)
+    end
+end
+
+function pri_vcodec(s)
+    s = s:gsub("%..*", "")
+    if s == "av01" then
+        return 8
+    elseif s == "vp9" then
+        return 7
+    elseif s == "h265" or s == "hevc" then
+        return 6
+    elseif s == "h264" or s == "avc1" then
+        return 5
+    elseif s == "vp8" then
+        return 4
+    elseif s == "h263" then
+        return 3
+    elseif s == "theora" then
+        return 2
+    elseif s == nil then
+        return 0
+    else
+        return 1
+    end
+end
+
+function pri_acodec(s)
+    s = s:gsub("%..*", "")
+    if s == "flac" or s == "alac" then
+        return 11
+    elseif s == "wav" or s == "aiff" then
+        return 10
+    elseif s == "opus" then
+        return 9
+    elseif s == "vorbis" then
+        return 8
+    elseif s == "aac" then
+        return 7
+    elseif s == "mp4a" then
+        return 6
+    elseif s == "mp3" then
+        return 5
+    elseif s == "eac3" then
+        return 4
+    elseif s == "ac3" then
+        return 3
+    elseif s == "dts" then
+        return 2
+    elseif s == nil then
+        return 0
+    else
+        return 1
+    end
+end
+
+function pri_protocol(s)
+    if s == "https" or s == "ftps" then
+        return 8
+    elseif s == "http" or s == "ftp" then
+        return 7
+    elseif s == "m3u8_native" or s == "m3u8" then
+        return 6
+    elseif s == "http_dash_segments" then
+        return 5
+    elseif s == "websocket_frag" then
+        return 4
+    elseif s == "mms" or s == "rtsp" then
+        return 3
+    elseif s == "f4f3" or s == "f4m" then
+        return 2
+    elseif s == nil then
+        return 0
+    else
+        return 1
+    end
+end
+
+function pri_hdr(s)
+    if s == "DV" then
+        return 7
+    elseif s == "HDR12" then
+        return 6
+    elseif s == "HDR10+" then
+        return 5
+    elseif s == "HDR10" then
+        return 4
+    elseif s == "HLG" then
+        return 3
+    elseif s == "SDR" then
+        return 2
+    elseif s == nil then
+        return 0
+    else
+        return 1
+    end
+end
+
 format_cache={}
 function download_formats()
     local function exec(args)
@@ -214,8 +322,8 @@ function download_formats()
 
     -- don't fetch the format list if we already have it
     if format_cache[url] ~= nil then
-        local res = format_cache[url]
-        return res, table_size(res)
+        local formats = format_cache[url]
+        return formats, table_size(formats)
     end
     -- mp.osd_message("Fetching formats...", 60)
 
@@ -246,31 +354,105 @@ function download_formats()
         return {}, 0
     end
 
-    res = {}
+    formats = {}
     msg.verbose("youtube-dl succeeded!")
-    for i,v in ipairs(json.formats) do
-        if v.vcodec ~= "none|null" then
-            local fps = v.fps and v.fps.."FPS" or ""
-            local width = v.width and v.width.."x" or ""
-            local height = v.height and v.height or ""
-            local vcodec = v.vcodec and "/"..v.vcodec or ""
-            local audiofmt = "bestaudio"
-            local maxpx = math.max(tonumber(v.width or "1"), tonumber(v.height or "1"))
-            if maxpx < 1000 then audiofmt = "bestaudio[abr<=70]" end
-            local resolution = string.format("%s%s", width, height)
-            local l = string.format("%-9s %-5s (%s%s)", resolution, fps, v.ext, vcodec)
-            local f = string.format("%s+%s/%s+bestaudio/%s/best", v.format_id, audiofmt, v.format_id, v.format_id)
-            table.insert(res, {label=l, format=f, width=v.width, height=v.height})
+    for _,f in ipairs(json.formats) do
+
+        if (f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null") and
+           (f.acodec == nil or f.acodec == "none" or f.acodec == "null") then
+            goto continue
         end
+
+        local res, fps, hdr, codec, br, asr, format, audiofmt, maxpx
+
+        if f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null" then
+            -- audio-only formats
+            res = "audio-only"
+            fps = ""
+            hdr = ""
+            codec = f.acodec or ""
+            br = f.abr or ""
+            asr = f.asr and "SR="..numshorten(f.asr) or ""
+            format = string.format("%s/bestaudio", f.format_id)
+        else
+            res = (f.width or "?").."x"..(f.height or "?")
+            codec = f.vcodec or ""
+            asr = ""
+            br = f.vbr or ""
+            fps = f.fps and "FPS="..f.fps or ""
+            if f.dynamic_range and f.dynamic_range ~= "SDR" then
+                hdr = " "..f.dynamic_range.." "
+            else
+                hdr = ""
+            end
+            -- if width or height are less than 1000 pixels, set the maximum audio bitrate to 70 kbps.
+            maxpx = math.max(tonumber(f.width or "1"), tonumber(f.height or "1"))
+            if maxpx < 1000 then
+                audiofmt = "bestaudio[abr<=70]"
+            else
+                audiofmt = "bestaudio"
+            end
+            format = string.format("%s+%s/%s+bestaudio/%s/best", f.format_id, audiofmt, f.format_id, f.format_id)
+        end
+        codec = codec:gsub("%..*", ""):gsub("av01", "av1"):gsub("avc1", "h264"):gsub("h265", "hevc")
+        if br and tonumber(br) then
+            br = "BR="..numshorten(br*10^3)
+        else
+            br = ""
+        end
+        local label = string.format("%-11s%-8s%s%-6s%-10s%s", res, fps, hdr, codec, br, asr)
+        table.insert(formats,
+            { label=label, format=format, width=f.width,
+            height=f.height, fps=f.fps, hdr=f.dynamic_range, vcodec=f.vcodec,
+            acodec=f.acodec, vbr=f.vbr, abr=f.abr, asr=f.asr, protocol=f.protocol, id=f.format_id }
+        )
+
+        ::continue::
     end
 
-    table.sort(res, function(a, b)
-        return ((a.width or 1) * (a.height or 1)) > ((b.width or 1) * (b.height or 1))
-    end)
+    table.sort(formats,
+        function(a, b)
+            if (a.width or 1) * (a.height or 1) > (b.width or 1) * (b.height or 1) then
+                return true
+            elseif (a.width or 1) * (a.height or 1) < (b.width or 1) * (b.height or 1) then
+                return false
+            elseif (a.fps or 0) > (b.fps or 0) then
+                return true
+            elseif (a.fps or 0) < (b.fps or 0) then
+                return false
+            elseif pri_hdr(a.hdr) > pri_hdr(b.hdr) then
+                return true
+            elseif pri_hdr(a.hdr) < pri_hdr(b.hdr) then
+                return false
+            elseif pri_vcodec(a.vcodec) > pri_vcodec(b.vcodec) then
+                return true
+            elseif pri_vcodec(a.vcodec) < pri_vcodec(b.vcodec) then
+                return false
+            elseif pri_acodec(a.acodec) > pri_acodec(b.acodec) then
+                return true
+            elseif pri_acodec(a.acodec) < pri_acodec(b.acodec) then
+                return false
+            elseif (a.vbr or 0) > (b.vbr or 0) then
+                return true
+            elseif (a.vbr or 0) < (b.vbr or 0) then
+                return false
+            elseif (a.asr or 0) > (b.asr or 0) then
+                return true
+            elseif (a.asr or 0) < (b.asr or 0) then
+                return false
+            elseif pri_protocol(a.protocol) > pri_protocol(b.protocol) then
+                return true
+            elseif pri_protocol(a.protocol) < pri_protocol(b.protocol) then
+                return false
+            else
+                return a.id > b.id
+            end
+        end
+    )
 
     -- mp.osd_message("", 0)
-    format_cache[url] = res
-    return res, table_size(res)
+    format_cache[url] = formats
+    return formats, table_size(formats)
 end
 
 -- register script message to show menu
