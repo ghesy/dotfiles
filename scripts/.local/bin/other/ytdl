@@ -21,25 +21,32 @@ main() {
 
 ask_res() {
     # ask the user what resolution to download
-    read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best), q (Quit) ]: ' res
+    read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best) / a (Audio) / q (Quit) ]: ' res
+    unset fmt name
     case $res in
         q) exit ;;
-        b) res='' ;;
+        b) res='' name=Best ;;
+        a) res='' fmt=bestaudio name=Audio ;;
         '') res=480 ;;
         *) [ "$res" -eq "$res" ] || res=480 ;;
     esac
-    echo "[ytdl] ${res:-Best} selected."
+    echo "[ytdl] ${name:-$res} selected."
 
+    gen_opts
+}
+
+gen_opts() {
     # try not to go below res/2+res/8, unless no higher res is available
     minres=$((${res:-480}/2+${res:-480}/8))
 
-    # put all the yt-dlp options in a variable
-    OPTS=" \
-        -S ${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6)) \
-        -f bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best \
-        --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub \
-        --write-auto-sub --embed-subs --compat-option no-keep-subs \
-        --downloader aria2c --downloader-args aria2c:--async-dns=false"
+    # the options that are passed to yt-dlp
+    OPTS=(
+        -S "${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6))"
+        -f "${fmt:-bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best}"
+        --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub
+        --write-auto-sub --embed-subs --compat-option no-keep-subs --downloader aria2c
+        --downloader-args aria2c:'--async-dns=false --lowest-speed-limit=5K'
+    )
 }
 
 download_all() {
@@ -63,7 +70,7 @@ download_all() {
 }
 
 download() {
-    $(getproxy "$URL") yt-dlp $OPTS -P temp:$TMP "$URL"
+    $(getproxy "$URL") yt-dlp "${OPTS[@]}" -P temp:$TMP "$URL"
 }
 
 get_title() {
