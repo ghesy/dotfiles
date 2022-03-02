@@ -38,7 +38,13 @@ stream() {
         0/*) ;;
         *) error=true; printf '%s\n' "$msg" ;;
     esac
-    [ "$error" = true ] && notify-send PipeURL 'Failed to open the video.'
+    if [ "$error" = true ]; then
+        msg=${msg#* ERROR: }
+        msg=${msg%%(caused*}
+        msg=$(printf '%s\n' "$msg" | head -1)
+        notify-send PipeURL "Failed to open the video${msg:+:}
+$msg"
+    fi
 }
 
 gdl() {
