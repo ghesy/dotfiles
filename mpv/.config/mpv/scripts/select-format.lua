@@ -175,11 +175,13 @@ function show_menu()
     mp.add_forced_key_binding(opts.pgdown_binding, "page_down",   function() selected_move(5)  end, {repeatable=true})
     mp.add_forced_key_binding(opts.top_binding,    "move_top",    function() selected_top()    end, {repeatable=true})
     mp.add_forced_key_binding(opts.bottom_binding, "move_bottom", function() selected_bottom() end, {repeatable=true})
-    mp.add_forced_key_binding(opts.select_binding, "select",      function()
-        destroy()
-        mp.set_property("ytdl-format", options[selected].format)
-        reload_resume()
-    end)
+    mp.add_forced_key_binding(opts.select_binding, "select",
+        function()
+            destroy()
+            mp.set_property("ytdl-format", options[selected].format)
+            reload_resume()
+        end
+    )
     mp.add_forced_key_binding(opts.toggle_menu_binding, "escape", destroy)
     mp.add_forced_key_binding(opts.close_menu_binding, "close", destroy) --close menu using ESC
 
@@ -315,7 +317,6 @@ function download_formats()
     end
 
     local url = mp.get_property("path")
-
     url = string.gsub(url, "ytdl://", "") -- Strip possible ytdl:// prefix.
 
     -- don't fetch the format list if we already have it
@@ -463,13 +464,14 @@ end
 
 -- register script message to show menu
 mp.register_script_message("toggle-quality-menu",
-function()
-    if destroyer ~= nil then
-        destroyer()
-    else
-        show_menu()
+    function()
+        if destroyer ~= nil then
+            destroyer()
+        else
+            show_menu()
+        end
     end
-end)
+)
 
 -- keybind to launch menu
 mp.add_key_binding(opts.toggle_menu_binding, "quality-menu", show_menu)
