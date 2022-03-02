@@ -12,23 +12,25 @@ main() {
         url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID})"
     [ -z "$url" ] && exit
 
-    case $url in
+    site=${url#*://}
+    site=${site#www.}
+    case $site in
         *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp|*.gif) dl ;;
-        *reddit.com/gallery*|*i.redd.it*|*imgur.com/*|*gfycat.com/*) gdl ;;
+        reddit.com/gallery*|i.redd.it*|imgur.com/*|gfycat.com/*) gdl ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|\
-        *youtube.com/watch*|*youtube.com/playlist*|*youtube.com/embed/*|*youtube.com/shorts/*|*youtu.be/*|\
-        *hooktube.com/watch*|*bitchute.com/video/*|*odysee.com/*:*|*khanacademy.org/*/v/*|*v.redd.it/*|\
-        *tiktok.com/@*/video/*|*videos.lukesmith.xyz/w/*|*streamff.com/v/*|*mixture.gg/v/*|*streamgg.com/v/*|\
-        *clippituser.tv/c/*|*streamable.com/*|*streamja.com/*) stream ;;
-        *reddit.com*|*redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
-        *news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
+        youtube.com/watch*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
+        hooktube.com/watch*|bitchute.com/video/*|odysee.com/*:*|khanacademy.org/*/v/*|v.redd.it/*|\
+        tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|videos.lukesmith.xyz/w/*|streamff.com/v/*|\
+        mixture.gg/v/*|streamgg.com/v/*|clippituser.tv/c/*|streamable.com/*|streamja.com/*) stream ;;
+        reddit.com*|redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
+        news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
     esac
 }
 
 stream() {
     error=false
-    notify-send -u low PipeURL 'Opening video...'
+    notify-send -u low -t 1000 PipeURL 'Opening video...'
     msg=$($(getproxy "$url") mpv --msg-level=all=error -- "$url" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
