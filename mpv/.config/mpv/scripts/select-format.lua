@@ -44,7 +44,7 @@ local opts = {
     --these styles will be used for the whole playlist. More specific styling will need to be hacked in
     --
     --(a monospaced font is recommended but not required)
-    style_ass_tags = "{\\fnmonospace\\fs10}",
+    style_ass_tags = "{\\fnmonospace\\fs9}",
 
     --paddings for top left corner
     text_padding_x = 5,
@@ -208,6 +208,7 @@ function numshorten(n)
 end
 
 function pri_vcodec(s)
+    if not s then return 0 end
     s = s:gsub("%..*", "")
     if s == "av01" then
         return 8
@@ -223,14 +224,13 @@ function pri_vcodec(s)
         return 3
     elseif s == "theora" then
         return 2
-    elseif s == nil then
-        return 0
     else
         return 1
     end
 end
 
 function pri_acodec(s)
+    if not s then return 0 end
     s = s:gsub("%..*", "")
     if s == "flac" or s == "alac" then
         return 11
@@ -252,8 +252,6 @@ function pri_acodec(s)
         return 3
     elseif s == "dts" then
         return 2
-    elseif s == nil then
-        return 0
     else
         return 1
     end
@@ -358,27 +356,35 @@ function download_formats()
     msg.verbose("youtube-dl succeeded!")
     for _,f in ipairs(json.formats) do
 
-        if (f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null") and
-           (f.acodec == nil or f.acodec == "none" or f.acodec == "null") then
+        if ((f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null") and
+            (f.acodec == nil or f.acodec == "none" or f.acodec == "null") and
+            (f.width  == nil or f.width  == "none" or f.width  == "null") and
+            (f.height == nil or f.height == "none" or f.height == "null") and
+            (f.vbr    == nil or f.vbr    == "none" or f.vbr    == "null") and
+            (f.abr    == nil or f.abr    == "none" or f.abr    == "null") and
+            (f.tbr    == nil or f.tbr    == "none" or f.tbr    == "null")) or
+            f.ext == "mhtml" or f.protocol == "mhtml" then
             goto continue
         end
 
         local res, fps, hdr, codec, br, asr, format, audiofmt, maxpx
 
-        if f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null" then
+        if (f.vcodec == nil or  f.vcodec == "none" or  f.vcodec == "null") and
+           (f.acodec ~= nil and f.acodec ~= "none" and f.acodec ~= "null") then
             -- audio-only formats
             res = "audio-only"
             fps = ""
             hdr = ""
             codec = f.acodec or ""
-            br = f.abr or ""
+            br = f.abr or f.tbr or ""
             asr = f.asr and "SR="..numshorten(f.asr) or ""
             format = string.format("%s/bestaudio", f.format_id)
         else
+            -- video formats
             res = (f.width or "?").."x"..(f.height or "?")
             codec = f.vcodec or ""
             asr = ""
-            br = f.vbr or ""
+            br = f.vbr or f.tbr or ""
             fps = f.fps and "FPS="..f.fps or ""
             if f.dynamic_range and f.dynamic_range ~= "SDR" then
                 hdr = " "..f.dynamic_range.." "
