@@ -1,2 +1,2 @@
 #!/bin/sh
-exec unclutter --timeout 2 --jitter 10 --ignore-scrolling
+exec unclutter --timeout 2 --jitter 10 --ignore-scrolling --start-hidden
