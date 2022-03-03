@@ -11,7 +11,7 @@ main() {
     TMP=.ytdl-tmp
     trap 'rmdir $TMP 2>/dev/null' EXIT
 
-    ntotal=$#
+    NTOTAL=$#
     FAILED=()
     SUCCEEDED=()
 
@@ -22,11 +22,24 @@ main() {
 ask_res() {
     # ask the user what resolution to download
     read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best) / a (Audio) / q (Quit) ]: ' res
-    unset fmt name
+    case $res in a) read -rp 'Convert audio to MKV to embed thumbnail? [y/N] ' cnvrtmkv ;; esac
+    read -rp 'Extra args: ' args
+
+    unset audiofmt name remuxopt
+    videofmt=yes
+    thmbopt=--embed-thumbnail
+
     case $res in
         q) exit ;;
         b) res='' name=Best ;;
-        a) res='' fmt=bestaudio name=Audio ;;
+        a)
+            name=Audio audiofmt=bestaudio
+            unset res videofmt
+            case $cnvrtmkv in
+                y|Y) remuxopt='--remux-video mkv' ;;
+                *) unset thmbopt ;;
+            esac
+        ;;
         '') res=480 ;;
         *) [ "$res" -eq "$res" ] || res=480 ;;
     esac
@@ -41,11 +54,11 @@ gen_opts() {
 
     # the options that are passed to yt-dlp
     OPTS=(
-        -S "${res:++}res${res:+:$res},codec,abr~$((${res:-1800}/6))"
-        -f "${fmt:-bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best}"
-        --no-mtime --add-metadata --embed-thumbnail --sub-lang=en --write-sub
+        -S "${res:++}res${res:+:$res},codec,abr${videofmt:+~$((${res:-1800}/6))}"
+        -f "${audiofmt:-bestvideo[height>=$minres]+bestaudio/bestvideo+bestaudio/best[height>=$minres]/best}"
+        --no-mtime --embed-metadata $thmbopt $remuxopt --sub-lang=en --write-sub
         --write-auto-sub --embed-subs --compat-option no-keep-subs --downloader aria2c
-        --downloader-args aria2c:'--async-dns=false --lowest-speed-limit=5K'
+        --downloader-args aria2c:'--async-dns=false --lowest-speed-limit=1K'
     )
 }
 
@@ -70,7 +83,7 @@ download_all() {
 }
 
 download() {
-    $(getproxy "$URL") yt-dlp "${OPTS[@]}" -P temp:$TMP "$URL"
+    $(getproxy "$URL") yt-dlp "${OPTS[@]}" -P temp:$TMP $args -- "$URL"
 }
 
 get_title() {
@@ -90,15 +103,14 @@ report_failure() {
 }
 
 summary() {
-    left=$(( ntotal - ( ${#SUCCEEDED[@]} + ${#FAILED[@]} ) ))
-    echo "[ytdl] $left Left, ${#SUCCEEDED[@]} Done, ${#FAILED[@]} Failed out of $ntotal"
+    left=$(( NTOTAL - ( ${#SUCCEEDED[@]} + ${#FAILED[@]} ) ))
+    echo "[ytdl] ${#SUCCEEDED[@]} Done, ${#FAILED[@]} Failed, $left Left out of $NTOTAL"
 }
 
 summary_end() {
     # report a summary
-    [ $ntotal -le 1 ] && exit
     echo
-    echo "[ytdl] Summary: $ntotal Total Downloads, ${#FAILED[@]} Failed."
+    echo "[ytdl] Summary: $NTOTAL Total Downloads, ${#FAILED[@]} Failed."
     [ ${#FAILED[@]} -lt 1 ] && exit
     echo 'Failed Downloads:'
     printf '- %s\n' "${FAILED[@]}"
