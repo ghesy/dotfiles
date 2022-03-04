@@ -1,25 +1,14 @@
 #!/bin/sh
 # set wallpaper.
 # option -n : only set the wallpaper, no pywal.
-
-case "$1" in
+case $1 in
     -n) feh --bg-fill -- "$2"; return ;;
     *)
-        wal -s -t -i "$1" -a 88 || return 1
+        wal -s -t -i "$1" -a 88 || exit 1
 
-        # run my dunstinit script to reset dunst
-        dunstinit &
-
-        # reload firefox colors
-        pywalfox update 2>/dev/null &
+        # copy xresources pywal colors to it's place
+        cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors
 
         # reload dwm colors
-        xdotool key super+F12 &
-
-        # copy zathura and xresources pywal colors to their place
-        cp ~/.cache/wal/zathura ~/.config/zathura/pywal-colors &
-        cp ~/.cache/wal/colors.Xresources ~/.config/X11/pywal-colors &
-
-        wait
-    ;;
+        xdotool key super+F12
 esac
