@@ -11,5 +11,6 @@ if [ "$1" = -a ]; then
     TMUX= exec ${SHELL:-}
 else
     path=${1:-$PWD}
-    setsid -f ${TERMINAL:?} -e "$0" -a "${1:-$PWD}" >/dev/null 2>&1
+    [ -d "$path" ] && path=${path%/}/
+    setsid -f ${TERMINAL:?} -e "$0" -a "$path" >/dev/null 2>&1
 fi
