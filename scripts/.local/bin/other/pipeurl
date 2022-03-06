@@ -21,7 +21,7 @@ main() {
         youtube.com/watch*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
         hooktube.com/watch*|bitchute.com/video/*|odysee.com/*:*|khanacademy.org/*/v/*|v.redd.it/*|\
         tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|videos.lukesmith.xyz/w/*|streamff.com/v/*|\
-        mixture.gg/v/*|streamgg.com/v/*|clippituser.tv/c/*|streamable.com/*|streamja.com/*) stream ;;
+        mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|streamable.com/*|streamja.com/*) stream ;;
         reddit.com*|redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
         news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
