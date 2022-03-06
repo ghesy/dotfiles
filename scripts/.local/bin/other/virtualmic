@@ -52,9 +52,11 @@ pacmd update-sink-input-proplist "$module_input" media.name="$NAME"
 module_sink=$(pactl list sinks | tac | tr '\n' ' ' |
     grep -Po "Owner Module: ${module:?}\s.*?Sink #\K\d+") || exit 4
 
-# get remap's source.
+# get remap's source and change it's class and name.
 module_source=$(pactl list sources | tac | tr '\n' ' ' |
     grep -Po "Owner Module: ${module:?}\s.*?Source #\K\d+") || exit 5
+pacmd update-source-proplist "$module_source" device.class=sound
+pacmd update-source-proplist "$module_source" device.description="$NAME"
 
 # start mpv.
 mpv --no-config --load-scripts=no --no-terminal --audio-client-name="$NAME" \
