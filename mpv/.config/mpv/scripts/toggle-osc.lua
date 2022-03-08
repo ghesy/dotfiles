@@ -5,4 +5,6 @@ local isauto = true  -- we can't read the osc mode, so we assume it starts in au
 mp.add_key_binding("b", "osc-toggle", function()
     isauto = not isauto
     mp.command("script-message osc-visibility " .. (isauto and "auto" or "always"))
+    mp.add_timeout(0.001,  function() mp.osd_message("") end)
+    mp.add_timeout(0.01,   function() mp.osd_message("") end)
 end)
