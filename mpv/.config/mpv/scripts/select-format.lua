@@ -1,9 +1,6 @@
--- Change ytdl video quality on the fly.
--- Diplays a menu that lets you switch to different ytdl-format settings while
--- you're in the middle of a video (just like you were using the web player).
--- Bound to ctrl+f by default.
-
--- Source: https://github.com/jgreco/mpv-youtube-quality
+-- diplay a menu that lets you switch to different youtube-dl format.
+-- source: https://github.com/jgreco/mpv-youtube-quality
+--
 -- I improved this version based on some of the open pull requests on this plugin's github page:
 -- Improved to support extractors other than YouTube (ex. PeerTube),
 -- Automatically fetch formats on video start,

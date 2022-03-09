@@ -1,18 +1,18 @@
+-- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
 -- fetch and show video description, comments, likes, dislikes etc.
 -- requires yt-dlp (youtube-dl can't fetch comments) and curl.
--- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
 
------ CONFIG -----
-KEY = 'ctrl+d' -- binding to open the file containing the description, comments etc.
+-- config
+KEY = "ctrl+d" -- binding to open the file containing the description, comments etc.
 TRY_PROXYCHAINS = true -- try to use proxychains for connection if normal connection is not possible. requires proxychains.
 MAX_COMMENTS = 10 -- limit the number of comments to fetch.
 MAX_REPLIES = 5 -- limit the number of replies per comment to fetch.
 MAX_WIDTH = 70 -- wrap lines longer that this many characters.
-COMMENT_PREFIX = '│' -- the string appearing before each line of the comments
+COMMENT_PREFIX = "│" -- the string appearing before each line of the comments
 SECTION_SEPARATOR = "\n"..string.rep("=", 75).."\n\n" -- the string appearing between each section (description, comments etc.)
 CACHE_DIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description" -- where to save the files
 DISLIKE_API_BASE = "https://returnyoutubedislikeapi.com/votes?videoId=" -- base URL of the returnyoutubedislike API
-------------------
+--
 
 local mp = require 'mp'
 local utils = require 'mp.utils'
