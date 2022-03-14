@@ -47,6 +47,11 @@ _b() {
 compdef _b b
 alias bm=b
 
+d() {
+    cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
+        sort -u | fzf)"
+}
+
 # bindings
 bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
 bindctrl o lf
@@ -93,7 +98,6 @@ alias speed='speedtest-cli --bytes'
 alias shch='shellcheck'
 alias logview='${PAGER:-less} /var/log/everything.log '
 alias loglive='tail -n 20 -f /var/log/everything.log'
-alias d=vimdict
 alias sdl='search /media/downloads'
 alias sf='search /media /mnt'
 alias sd='search ~/.config ~/.local/bin ~/.dots ~/Documents/Notes ~/Repositories'
