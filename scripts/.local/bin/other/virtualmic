@@ -1,94 +1,116 @@
 #!/bin/sh
-# detect an audio stream on the local network or on an android phone
-# connected via cable through adb, and set it up as a pulseaudio input device.
-# requires GNU coreutils, mpv, libnotify, curl, android-tools (for wired connection using adb).
+# setup a LAN audio stream as a microphone for pulseaudio.
+# requires: dmenu, ffmpeg.
 
 # config
-PORT=8080
-subnet=$(set -- $(ip r); echo "${3%.*}")
-HOST=http://${subnet:?}.[0-255]:${PORT:?}
-PIDFILE=${XDG_RUNTIME_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}}/virtualmic.pid
 NAME=VirtualMic
+PIDFILE=${XDG_RUNTIME_DIR:?}/virtualmic
+DIR=${XDG_CACHE_HOME:-$HOME/.cache}/virtualmic
 
-# if virtualmicmic is already running, kill and cleanup everything and exit.
-if [ -e "${PIDFILE:?}" ]; then
-    pkill -F "${PIDFILE:?}"
-    exit
-elif pidof -qxo%PPID "${0##*/}"; then
-    notify-send -u low virtualmic "Another instance is trying to connect."
-    exit
-fi
+main() {
+    if [ -f "${PIDFILE:?}" ]; then
+        case $(printf 'No\nYes\n' | dmenu -p 'Disconnect?') in
+            Yes) pkill -F "${PIDFILE:?}" ;;
+        esac
+    else
+        connect_lan
+    fi
+}
 
-# notify the failure.
-trap 'notify-send -u low virtualmic "Could not connect."' EXIT
+connect_lan() {
+    host=$(ask_host) || return 1
+    connect "$host"
+}
 
-# find the host using curl.
-host=$(curl -ZIsw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
-    --parallel-max 25 -- "${HOST:?}" | grep -Pom1 '^audio/\S+ \K.*')
-# if not found, try finding it using adb.
-[ -z "$host" ] && host=$(
-    command -v adb >/dev/null || exit 1
-    for dev in $(adb devices | sed 1d | cut -f1); do
-        p=$(adb -s "$dev" forward tcp:0 tcp:"${PORT:?}") || continue
-        curl -Isw'\n%{content_type} %{url}\n' --connect-timeout 0.5 -m3 \
-            "http://localhost:$p" | grep -Pom1 '^audio/\S+ \K.*' ||
-            adb -s "$dev" forward --remove tcp:$p
+connect()
+{
+    trap 'notify-send -u low virtualmic "could not connect."' EXIT
+    configure_pulse_module
+
+    # detect the host's protocol
+    host=$(curl -Isw'\n %{exitcode} %{url}\n' "{rtsp,https,http}://${1:?}" |
+        grep ' 0 ' | cut -d' ' -f3)
+
+    # start ffplay
+    ffplay -nodisp -loglevel quiet "${host:?}" &
+    ffplay_pid=$!
+    echo "$ffplay_pid" > "${PIDFILE:?}"
+
+    # cleanup upon failure
+    ( (
+        pwait -F "${PIDFILE:?}"
+        pacmd unload-module "$module"
+        rm "${PIDFILE:?}"
+        notify-send virtualmic disconnected.
+    ) & ) >/dev/null 2>&1
+    trap 'kill $ffplay_pid' EXIT
+
+    # get ffplay's sink-input as soon as it appears
+    i=0
+    until ffplay_input=$(pacmd list-sink-inputs | get_index_by_pid "$ffplay_pid"); do
+        sleep 0.2
+        i=$((i+1))
+        [ $i -gt 80 ] && exit 6
     done
-)
-# if not found, exit.
-[ -z "$host" ] && exit 1
 
-# load the remap-sink module.
-module=$(pactl load-module module-remap-sink \
-    sink_name="$NAME" sink_properties=device.description="$NAME") || exit 2
+    # change ffplay's sink-input's name
+    pacmd update-sink-input-proplist "$ffplay_input" media.name="$NAME"
 
-# get remap's sink input, then mute it and change it's name.
-module_input=$(pactl list sink-inputs | tac | tr '\n' ' ' |
-    grep -Po "Owner Module: ${module:?}\s.*?Sink Input #\K\d+") || exit 3
-pactl set-sink-input-mute "$module_input" 1
-pacmd update-sink-input-proplist "$module_input" media.name="$NAME"
+    # move ffplay's sink-input to remap's sink.
+    stream_restore_module=$(pactl list short modules | grep module-stream-restore | cut -f2-)
+    [ -n "$stream_restore_module" ] && pacmd unload-module module-stream-restore
+    pacmd move-sink-input "$ffplay_input" "$module_sink" || exit 7
+    [ -n "$stream_restore_module" ] && eval pacmd load-module "${stream_restore_module:?}"
 
-# get remap's sink.
-module_sink=$(pactl list sinks | tac | tr '\n' ' ' |
-    grep -Po "Owner Module: ${module:?}\s.*?Sink #\K\d+") || exit 4
+    # make remap's source the default.
+    pacmd set-default-source "$module_source" || exit 8
 
-# get remap's source and change it's class and name.
-module_source=$(pactl list sources | tac | tr '\n' ' ' |
-    grep -Po "Owner Module: ${module:?}\s.*?Source #\K\d+") || exit 5
-pacmd update-source-proplist "$module_source" device.class=sound
-pacmd update-source-proplist "$module_source" device.description="$NAME"
+    # notify the success.
+    notify-send -u low virtualmic connected.
 
-# start mpv.
-mpv --no-config --load-scripts=no --no-terminal --audio-client-name="$NAME" \
-    --no-video --profile=low-latency --no-cache -- "$host" >/dev/null 2>&1 &
-mpv_pid=$!
-echo "$mpv_pid" > "${PIDFILE:?}"
-sleep 2
+    # clear the trap
+    trap - EXIT
+}
 
-# cleanup upon failure.
-( (pwait -F "${PIDFILE:?}"; pactl unload-module "$module"
-    rm "${PIDFILE:?}"; notify-send virtualmic Disconnected.)&) >/dev/null 2>&1
-trap 'kill $mpv_pid' EXIT
+configure_pulse_module()
+{
+    # load the remap-sink module
+    module=$(pactl load-module module-remap-sink \
+        sink_name="$NAME" sink_properties=device.description="$NAME") || exit 2
 
-# get mpv's sink input.
-mpv_input=$(pactl list sink-inputs | tac | tr '\n' ' ' |
-    grep -Po "application\.process\.id = \"${mpv_pid:?}\"\s.*?Sink Input #\K\d+") || exit 6
+    # get the modules's sink-input, then mute it and change it's name
+    module_input=$(pacmd list-sink-inputs | get_index_by_module "${module:?}") || exit 3
+    pacmd set-sink-input-mute "$module_input" 1
+    pacmd update-sink-input-proplist "$module_input" media.name="$NAME"
 
-# move mpv's sink input to remap's sink.
-pactl move-sink-input "$mpv_input" "$module_sink" || exit 7
+    # get the module's sink
+    module_sink=$(pacmd list-sinks | get_index_by_module "${module:?}") || exit 4
 
-# make remap's source the default.
-pactl set-default-source "$module_source" || exit 8
+    # get the module's source and change it's class and name
+    module_source=$(pacmd list-sources | get_index_by_module "${module:?}") || exit 5
+    pacmd update-source-proplist "$module_source" device.description="$NAME" device.class=sound
+}
 
-# notify the success.
-notify-send -u low virtualmic Connected.
+ask_host() {
+    last_ip=${DIR:?}/last-ip last_port=${DIR:?}/last-port
+    mkdir -pm700 "${DIR:?}"
+    touch "$last_ip" "$last_port"
 
-# if "module-stream-restore" is loaded, add the "restore_device=false" option to it,
-# to prevent this module from moving all mpv inputs under the remap module's sink.
-args=$(pactl list short modules | grep module-stream-restore | cut -f2- |
-    grep -v 'restore_device=false' | sed 's/$/restore_device=false/')
-[ -n "$args" ] && pactl unload-module module-stream-restore &&
-    pactl load-module $args >/dev/null
+    ip=$(dmenu -p 'Enter IP or Host (no port)' < "$last_ip") || return 1
+    port=$(dmenu -p 'Enter Port' < "$last_port") || return 1
 
-# clear the trap.
-trap - EXIT
+    echo "${ip:?}" > "$last_ip"
+    echo "${port:?}" > "$last_port"
+
+    echo "$ip:$port"
+}
+
+get_index_by_module() {
+    tac | tr '\n' ' ' | grep -Po "\tmodule: \Q${1:?}\E .*?index: \K\d+"
+}
+
+get_index_by_pid() {
+    tac | tr '\n' ' ' | grep -Po "\Qapplication.process.id = \"${1:?}\"\E .*?index: \K\d+"
+}
+
+main "$@"
