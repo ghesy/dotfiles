@@ -3,10 +3,10 @@
 # $1: image, $2: image width, $3: image height
 fs=' | '
 exec 2>/dev/null
-geom="${2}x${3}"
+geom=${2}x${3}
 name=$(basename -- "$1")
 size=$(du -Hh -- "$1" | cut -f1)
-make="$(exiv2 -Pv -gImage.Make -- "$1")"
-model="$(exiv2 -Pv -gImage.Model -- "$1")"
-date="$(exiv2 -Pv -gPhoto.DateTimeOriginal -- "$1" || exiv2 -Pv -gImage.DateTime -- "$1")"
-echo "${size}${fs}${geom}${fs}${date}${date:+$fs}${make}${make:+$fs}${model}${model:+$fs}${name}"
+make=$(exiv2 -Pv -gImage.Make -- "$1")
+model=$(exiv2 -Pv -gImage.Model -- "$1")
+date=$(exiv2 -Pv -gPhoto.DateTimeOriginal -- "$1" || exiv2 -Pv -gImage.DateTime -- "$1")
+printf '%s\n' "${size}${fs}${geom}${fs}${date}${date:+$fs}${make}${make:+$fs}${model}${model:+$fs}${name}"
