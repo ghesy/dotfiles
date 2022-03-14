@@ -5,7 +5,7 @@
 pacman -Q firejail >/dev/null || pacman -S --needed firejail || exit 1
 
 # add symlinks
-for n in discord teamspeak3 anydesk everdo wine; do
+for n in discord teamspeak3 anydesk everdo; do
     ln -fs /usr/bin/firejail /usr/local/bin/$n
 done
 
