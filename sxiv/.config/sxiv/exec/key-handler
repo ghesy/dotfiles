@@ -9,8 +9,7 @@ main()
 
     case $1 in
         h) help ;;
-        w) wallpaper "$first" ;;
-        W) wallpaper -n "$first" ;;
+        w) feh --bg-fill -- "$first" ;;
         g) x setsid -f gimp -- ;;
         p) x dprint ;;
         D) x dragon-drag-and-drop -a -x ;;
@@ -65,7 +64,6 @@ f)   flip horizontally
 g)   open in gimp
 p)   print
 w)   set as wallpaper
-W)   set as wallpaper, no pywal
 t)   trash
 d)   permanently delete
 h)   show this help message

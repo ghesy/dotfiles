@@ -1,5 +1,5 @@
 #!/bin/sh
-# install firefox, pywalfox and a privacy-oriented user.js.
+# install firefox and a privacy-oriented user.js.
 
 # install firefox
 command -v firefox >/dev/null || pacman -S --needed firefox || exit 1
@@ -11,13 +11,3 @@ group=$(id -gn "$SUDO_USER")
 # install the user.js file
 printf '%s\n' "$HOME"/.mozilla/firefox/*.*/ |
     xargs -d'\n' -L1 install -DCvm644 -o "$SUDO_USER" -g "${group:-nobody}" user.js -t
-
-# install pywalfox
-pacman -Q python-pywalfox >/dev/null 2>&1 || {
-    echo Please install python-pywalfox form the AUR and run this again to install it\'s config files.
-    exit 1
-}
-f="${HOME:?}"/.mozilla/native-messaging-hosts/pywalfox.json
-[ -f "$f" ] && grep -q lib/"$(basename "$(readlink -f /bin/python)")" "$f" ||
-    runuser -u "$SUDO_USER" -g "${group:-nobody}" pywalfox install | grep -v permi
-chmod -c 755 $(pacman -Qql python-pywalfox | grep main.sh)

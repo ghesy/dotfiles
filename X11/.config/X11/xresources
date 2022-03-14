@@ -8,8 +8,3 @@
 #if defined __has_include && __has_include ("dpi")
 #include "dpi"
 #endif
-
-! include pywal colors file if it exists
-#if defined __has_include && __has_include ("pywal-colors")
-#include "pywal-colors"
-#endif
