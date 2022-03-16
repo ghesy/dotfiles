@@ -6,25 +6,28 @@
 list=~/.local/share/bm/bookmarks
 
 main () {
+    if [ "$1" == --help ]; then help; exit; fi
     fn=resolve
-    while getopts arlm opt; do case $opt in
+    while getopts arlmh opt; do case $opt in
         a) fn=add ;;
         r) fn=remove ;;
         l) fn=list ;;
         m) fn=menu ;;
+        h) help; exit ;;
         ?) exit 1 ;;
     esac; done
     shift $((OPTIND-1))
     [ -z "$*" ] && set -- "$(basename "$PWD")"
     for bm; do
-        bm="$(printf '%s\n' "$bm" | tr '[:blank:]' '_')"
+        bm=$(printf '%s\n' "$bm" | tr '[:blank:]' '_')
         $fn
     done
 }
 
 menu() {
-    bm="$(list | dmenu -p 'Go Where?')" || return 1
-    exec xdg-open "$(resolve)"
+    bm=$(list | dmenu -p 'Go Where?') || return 1
+    command -v termopen >/dev/null && opener=termopen || opener=xdg-open
+    exec "$opener" "$(resolve)"
 }
 
 list() {
@@ -45,6 +48,10 @@ resolve() {
     d=$(awk -v bm="$bm" 'tolower($1) == tolower(bm) {print $2}' "$list")
     case $d in '~'*) d=$HOME${d#'~'} ;; esac
     printf '%s\n' "$d"
+}
+
+help() {
+    printf -- 'a script for bookmarking paths\n-a  add\n-r  remove\n-l  list\n-m  dmenu\n-h  help\n'
 }
 
 main "$@"
