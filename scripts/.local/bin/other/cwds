@@ -1,0 +1,7 @@
+#!/bin/sh
+# show a list of active CWDs of processes to open.
+# useful for eg. opening a terminal in the same dir as your text editor.
+command -v termopen >/dev/null && opener=termopen || opener=xdg-open
+readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
+    sort -u | sed "s|^$HOME|~|" | dmenu -p CWDs -l 30 | sed "s|^~/|$HOME/|" |
+    ifne xargs -d'\n' -L1 "$opener"
