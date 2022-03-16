@@ -65,7 +65,7 @@ set undofile
 
 " on save, deletes all trailing whitespace and newlines at end of file.
 function s:NoTrailing()
-    " if the file is binary, don't do anything
+    " if the file is a binary, don't do anything
     if !!search('\%u0000', 'wn') | return | endif
     let line = line(".")
     let col = col(".")
@@ -75,19 +75,14 @@ function s:NoTrailing()
 endf
 autocmd BufWritePre * call <SID>NoTrailing()
 
-" open a terminal in vim's pwd
-nnoremap <silent>U :silent !termopen<CR>
+" buffer navigation
+nnoremap <silent> <C-n> :bnext<CR>
+nnoremap <silent> <C-p> :bprev<CR>
 
 " center the cursor horizontally
-nnoremap <silent> z. zs5zh
-
-" go to start/end of line
-nnoremap H ^
-nnoremap L $
+nnoremap <silent> z. zs10zh
 
 " indent
-nmap <C-h> vip<
-nmap <C-l> vip>
 vmap <C-h> <gv4h
 vmap <C-l> >gv4l
 
@@ -105,16 +100,9 @@ map <C-v> "+P
 " clear search
 nnoremap <silent><Leader>cs :nohlsearch<CR>
 
-" compile markdown
-function MarkdownMaps()
-    nnoremap <Leader>cc :!pandoc -s --pdf-engine=wkhtmltopdf -o %:r:S.pdf %:S<CR>
-    nnoremap <Leader>vv :silent !setsid -f zathura %:r:S.pdf<CR>
-endf
-autocmd FileType markdown call MarkdownMaps()
-
-" fugitive
-nmap <Leader>gs :G<CR>
-nmap <Leader>gt :Git log --oneline --graph --decorate --all <CR>
+" compile markdown to pdf
+nnoremap <Leader>cc :!pandoc -s --pdf-engine=wkhtmltopdf -o %:r:S.pdf %:S<CR>
+nnoremap <Leader>vv :silent !setsid -f zathura %:r:S.pdf<CR>
 
 " diff
 nmap <Leader>gh :diffget //2<CR>
@@ -172,25 +160,24 @@ function UndoTreeRun()
     endif
 endf
 
-nnoremap <silent> <C-n> :bnext<CR>
-nnoremap <silent> <C-p> :bprev<CR>
-
 " vim-bufferline
 let g:bufferline_show_bufnr = 0
 
 " floaterm
-let g:floaterm_keymap_toggle = '<C-x>'
+let g:floaterm_keymap_toggle = '<C-b>'
 let g:floaterm_keymap_new    = '<F12>'
-let g:floaterm_keymap_next   = '<C-b>'
-let g:floaterm_keymap_kill   = '<C-w>'
+let g:floaterm_keymap_next   = '<F11>'
+let g:floaterm_keymap_kill   = '<F10>'
 let g:floaterm_width = 0.9
 let g:floaterm_height = 0.9
 let g:floaterm_autoclose = 2
 
 " colors and appearance
 let g:gruvbox_material_better_performance = 1
+let g:gruvbox_material_background = 'hard'
 let g:everforest_better_performance = 1
-colorscheme off
+let g:everforest_background = 'hard'
+colorscheme gruvbox-material
 
 " set a constant horizontal line between splits
 let g:HorizLine1='─'
@@ -200,16 +187,3 @@ function FillStatus()
 endf
 set statusline=%{FillStatus()}
 exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
-
-function TransparentBg()
-    hi StatusLine guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
-    hi StatusLineNC guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
-    hi VertSplit guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
-    hi EndOfBuffer guifg=#404040 ctermfg=darkgrey guibg=NONE ctermbg=NONE
-    hi Normal guibg=NONE ctermbg=NONE
-    hi LineNr guibg=NONE ctermbg=NONE
-    hi CursorLineNr guibg=NONE ctermbg=NONE
-    hi SignColumn guibg=NONE ctermbg=NONE
-endf
-autocmd ColorScheme * call TransparentBg()
-call TransparentBg()
