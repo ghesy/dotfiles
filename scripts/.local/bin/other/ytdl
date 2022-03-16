@@ -22,15 +22,15 @@ main() {
 ask_res() {
     # ask the user what resolution to download
     read -rp 'Enter resolution [ 480 (Default) / 720 / ... / b (Best) / a (Audio) / q (Quit) ]: ' res
+    [ "$res" = q ] && exit
     case $res in a) read -rp 'Convert audio to MKV to embed thumbnail? [y/N] ' cnvrtmkv ;; esac
-    read -rp 'Extra args: ' args
+    read -rp 'Extra Args: ' args
 
     unset audiofmt name remuxopt
     videofmt=yes
     thmbopt=--embed-thumbnail
 
     case $res in
-        q) exit ;;
         b) res='' name=Best ;;
         a)
             name=Audio audiofmt=bestaudio
