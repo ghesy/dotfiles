@@ -3,14 +3,16 @@
 -- source: https://github.com/oltodosel/mpv-scripts
 
 -- config
-HOTKEY = 'ctrl+x'
-CHAPTERS_TO_SHOW = 30
-FONT_SCALE = 40 -- in % from osd-font-size
-FONT_SCALE_inactive_chapters = 35
-FONT_ALPHA_inactive_chapters = 60
----
+local opts = {
+    chapters_to_show = 30,
+    -- scales are in % from osd-font-size
+    font_scale = 40,
+    font_scale_inactive_chapters = 35,
+    font_alpha_inactive_chapters = 60,
+}
+(require 'mp.options').read_options(opts)
 
-local assdraw = require('mp.assdraw')
+local assdraw = require 'mp.assdraw'
 
 function disp_time(time)
     local hours = math.floor(time/3600)
@@ -39,8 +41,8 @@ function show_chapters()
     ass:an(1)
 
     -- font scale
-    ass:append('{\\fscx' .. tostring(FONT_SCALE) .. '}')
-    ass:append('{\\fscy' .. tostring(FONT_SCALE) .. '}')
+    ass:append('{\\fscx' .. tostring(opts.font_scale) .. '}')
+    ass:append('{\\fscy' .. tostring(opts.font_scale) .. '}')
 
     local ch_index = mp.get_property_number("chapter")
     local ch_total = mp.get_property_osd("chapter-list/count")
@@ -52,7 +54,7 @@ function show_chapters()
         if ch_index == 0 then
             start_from = 0
         else
-            shift = ch_total - CHAPTERS_TO_SHOW - ch_index - 1
+            shift = ch_total - opts.chapters_to_show - ch_index - 1
             start_from = -1
         end
 
@@ -60,7 +62,7 @@ function show_chapters()
             start_from = shift
         end
 
-        for i_ch = start_from, CHAPTERS_TO_SHOW + start_from do
+        for i_ch = start_from, opts.chapters_to_show + start_from do
             if tonumber(ch_total) == ch_index + i_ch then
                 break
             end
@@ -77,12 +79,12 @@ function show_chapters()
 
             if i_ch == 0 then
                 ass:append("{\\alpha&H" .. '00' .. "}")
-                ass:append('{\\fscx' .. tostring(FONT_SCALE) .. '}')
-                ass:append('{\\fscy' .. tostring(FONT_SCALE) .. '}')
+                ass:append('{\\fscx' .. tostring(opts.font_scale) .. '}')
+                ass:append('{\\fscy' .. tostring(opts.font_scale) .. '}')
             else
-                ass:append("{\\alpha&H" .. tostring(FONT_ALPHA_inactive_chapters) .. "}")
-                ass:append('{\\fscx' .. tostring(FONT_SCALE_inactive_chapters) .. '}')
-                ass:append('{\\fscy' .. tostring(FONT_SCALE_inactive_chapters) .. '}')
+                ass:append("{\\alpha&H" .. tostring(opts.font_alpha_inactive_chapters) .. "}")
+                ass:append('{\\fscx' .. tostring(opts.font_scale_inactive_chapters) .. '}')
+                ass:append('{\\fscy' .. tostring(opts.font_scale_inactive_chapters) .. '}')
             end
 
             -- removing paths
@@ -104,7 +106,7 @@ function show_chapters()
     mp.set_osd_ass(osd_w, osd_h, ass.text)
 end
 
-function show_hide()
+function toggle()
     if running == true then
         running = false
         observation_active = false
@@ -118,4 +120,4 @@ end
 
 observation_active = false
 
-mp.add_forced_key_binding(HOTKEY, 'show_hide', show_hide, {repeatable=true})
+mp.add_key_binding(nil, "toggle", toggle)
