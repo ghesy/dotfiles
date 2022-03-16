@@ -2,19 +2,18 @@
 -- fetch and show video description, comments, likes, dislikes etc.
 -- requires yt-dlp (youtube-dl can't fetch comments) and curl.
 
--- config
-KEY = "ctrl+d" -- binding to open the file containing the description, comments etc.
-TRY_PROXYCHAINS = true -- try to use proxychains for connection if normal connection is not possible. requires proxychains.
-MAX_COMMENTS = 10 -- limit the number of comments to fetch.
-MAX_REPLIES = 5 -- limit the number of replies per comment to fetch.
-MAX_WIDTH = 70 -- wrap lines longer that this many characters.
-COMMENT_PREFIX = "│" -- the string appearing before each line of the comments
-SECTION_SEPARATOR = "\n"..string.rep("=", 75).."\n\n" -- the string appearing between each section (description, comments etc.)
-CACHE_DIR = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description" -- where to save the files
-DISLIKE_API_BASE = "https://returnyoutubedislikeapi.com/votes?videoId=" -- base URL of the returnyoutubedislike API
---
+local opts = {
+    try_proxychains = true, -- try to use proxychains for connection if normal connection is not possible. requires proxychains.
+    max_comments = 10, -- limit the number of comments to fetch.
+    max_replies = 5, -- limit the number of replies per comment to fetch.
+    max_width = 70, -- wrap lines longer that this many characters.
+    comment_prefix = "│", -- the string appearing before each line of the comments
+    section_separator = "\n"..string.rep("=", 75).."\n\n", -- the string appearing between each section (description, comments etc.)
+    cache_dir = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description", -- where to save the files
+    dislike_api_base = "https://returnyoutubedislikeapi.com/votes?videoId=", -- base URL of the returnyoutubedislike API
+}
+(require 'mp.options').read_options(opts)
 
-local mp = require 'mp'
 local utils = require 'mp.utils'
 descfile = {}
 
@@ -80,19 +79,19 @@ function getlines(s)
     return s:gmatch("(.-)\n")
 end
 
--- wrap lines of the given string to MAX_WIDTH columns.
+-- wrap lines of the given string to opts.max_width columns.
 function wrap(s)
     local w = {}
     for line in getlines(s) do
-        if #line <= MAX_WIDTH then
+        if #line <= opts.max_width then
             w[#w + 1] = line .. "\n"
         else
-            -- find the position of the first space character before the MAX_WIDTHth column
-            local brk = line:sub(1, MAX_WIDTH):reverse():find("%s")
+            -- find the position of the first space character before the opts.max_widthth column
+            local brk = line:sub(1, opts.max_width):reverse():find("%s")
             if brk ~= nil then
-                brk = MAX_WIDTH - (brk - 1)
+                brk = opts.max_width - (brk - 1)
             else
-                brk = MAX_WIDTH
+                brk = opts.max_width
             end
             w[#w + 1] = string.sub(line, 1, brk) .. "\n"
             w[#w + 1] = wrap(string.sub(line, brk+1, -1))
@@ -143,12 +142,12 @@ function opendesc()
     end
 end
 
--- save the description and comments fetched by fetchdesc() to CACHE_DIR
+-- save the description and comments fetched by fetchdesc() to opts.cache_dir
 function savedesc(success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
     if not json then return end
-    if not exec{"mkdir", "-pm700", CACHE_DIR} then return end
+    if not exec{"mkdir", "-pm700", opts.cache_dir} then return end
     local url = geturl()
 
     -- if no important info is available, do not proceed
@@ -166,7 +165,7 @@ function savedesc(success, result, error)
         if json.extractor then f:write(json.extractor) end
         if json.extractor_key then f:write(" - ", json.extractor_key) end
         if json.webpage_url_domain then f:write(" - ", json.webpage_url_domain) end
-        f:write("\n", SECTION_SEPARATOR)
+        f:write("\n", opts.section_separator)
     end
 
     -- write title, channel name, like and view count etc.
@@ -176,7 +175,7 @@ function savedesc(success, result, error)
 
     -- if it's a youtube video, get the dislike count from returnyoutubedislike's API
     if not json.dislike_count and isyoutube(url) then
-        local success, stdout = exec{"curl", "-fsL", "--", DISLIKE_API_BASE..json.id}
+        local success, stdout = exec{"curl", "-fsL", "--", opts.dislike_api_base..json.id}
         if success == true and stdout ~= "" then
             json.dislike_count = utils.parse_json(stdout).dislikes
         end
@@ -197,18 +196,18 @@ function savedesc(success, result, error)
         f:write("        ", percent, "%\n", progressbar(percent), "\n")
     end
 
-    f:write(SECTION_SEPARATOR)
+    f:write(opts.section_separator)
 
     -- write description
     if json.description then
-        f:write(wrap(json.description), SECTION_SEPARATOR)
+        f:write(wrap(json.description), opts.section_separator)
     end
 
     -- format and write the comments to cache
     if json.comments then
         for i,v in ipairs(json.comments) do
-            local op = "" local fav = "" local indent = COMMENT_PREFIX
-            if v.parent ~= "root" then indent = "   "..COMMENT_PREFIX end
+            local op = "" local fav = "" local indent = opts.comment_prefix
+            if v.parent ~= "root" then indent = "   "..opts.comment_prefix end
             if v.author_is_uploader then op = " " end
             if v.is_favorited then fav = " " end
             local text = indent .. v.author .. op .. fav .. "   " .. "﨓" ..
@@ -237,14 +236,14 @@ function fetchdesc()
 
     -- set the path of cache files
     local id = genid(url)
-    descfile[url] = CACHE_DIR.."/"..id..".txt"
+    descfile[url] = opts.cache_dir.."/"..id..".txt"
     if isfile(descfile[url]) then return end
 
     -- get the video's infojson using yt-dlp and send it's result to formatdesc()
     local args = {"yt-dlp", "--no-playlist", "-j", "--write-comments", "--extractor-args",
-        "youtube:comment_sort=top;max_comments=all,"..MAX_COMMENTS..",all,"..MAX_REPLIES, "--", url}
+        "youtube:comment_sort=top;max_comments=all,"..opts.max_comments..",all,"..opts.max_replies, "--", url}
 
-    if TRY_PROXYCHAINS then
+    if opts.try_proxychains then
         local success, stdout = exec{"curl", "-sLIm8", "--", url}
         if success == false or stdout == "" then
             args = {"proxychains", "-q", table.unpack(args)}
@@ -253,5 +252,5 @@ function fetchdesc()
     execasync(savedesc, args)
 end
 
-mp.add_forced_key_binding(KEY, "show_description", opendesc)
 mp.register_event("start-file", fetchdesc)
+mp.add_key_binding(nil, "show", opendesc)
