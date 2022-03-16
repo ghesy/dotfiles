@@ -1,39 +1,35 @@
 -- cut and save fragments of videos.
 -- source: https://github.com/snylonue/mpv_slicing_copy
 
--- bindings
-SLICING_MARK = 'C'
-SLICING_MARK_CLEAR = 'c'
----
-
-local msg = require "mp.msg"
-local utils = require "mp.utils"
-local options = require "mp.options"
-
-local cut_pos = nil
-local command_template = {
-    ss = "$shift",
-    t = "$duration",
-}
-local o = {
+local opts = {
     ffmpeg_path = "ffmpeg",
     target_dir = "~/Documents/Fragments",
     overwrite = false, -- whether to overwrite existing files
     vcodec = "copy",
     acodec = "copy",
 }
+(require 'mp.options').read_options(opts)
 
-Command = { }
+local msg = require "mp.msg"
+local utils = require "mp.utils"
+
+local cut_pos = nil
+local command_template = {
+    ss = "$shift",
+    t = "$duration",
+}
+
+Command = {}
 
 function Command:new(name)
     local o = {}
     setmetatable(o, self)
     self.__index = self
-    o.name = ""
-    o.args = { "" }
+    opts.name = ""
+    opts.args = { "" }
     if name then
-        o.name = name
-        o.args[1] = name
+        opts.name = name
+        opts.args[1] = name
     end
     return o
 end
@@ -92,14 +88,14 @@ end
 local function cut(shift, endpos)
     local inpath = mp.get_property("stream-open-filename")
     local outpath = utils.join_path(
-        o.target_dir,
+        opts.target_dir,
         get_outname(shift, endpos)
     )
     local ua = mp.get_property('user-agent')
     local referer = mp.get_property('referrer')
-    local cmds = Command:new(o.ffmpeg_path)
+    local cmds = Command:new(opts.ffmpeg_path)
         :arg("-v", "warning")
-        :arg(o.overwrite and "-y" or "-n")
+        :arg(opts.overwrite and "-y" or "-n")
         :arg("-stats")
     if ua and ua ~= '' and ua ~= 'libmpv' then
         cmds:arg('-user_agent', ua)
@@ -110,8 +106,8 @@ local function cut(shift, endpos)
     cmds:arg("-ss", (command_template.ss:gsub("$shift", shift)))
         :arg("-i", inpath)
         :arg("-t", (command_template.t:gsub("$duration", endpos - shift)))
-        :arg("-c:v", o.vcodec)
-        :arg("-c:a", o.acodec)
+        :arg("-c:v", opts.vcodec)
+        :arg("-c:a", opts.acodec)
         :arg(outpath)
     msg.info("Run commands: " .. cmds:as_str())
     local res, err = cmds:run()
@@ -152,15 +148,14 @@ local function clear_toggle_mark()
     info("Cleared cut fragment")
 end
 
-options.read_options(o)
-o.target_dir = o.target_dir:gsub('"', "")
-file, _ = utils.file_info(mp.command_native({ "expand-path", o.target_dir }))
+opts.target_dir = opts.target_dir:gsub('"', "")
+file, _ = utils.file_info(mp.command_native({ "expand-path", opts.target_dir }))
 if not file then
-    os.execute("mkdir -p " .. o.target_dir)
+    os.execute("mkdir -p " .. opts.target_dir)
 elseif not file.is_dir then
     osd("target_dir is a file")
-    msg.warn(string.format("target_dir `%s` is a file", o.target_dir))
+    msg.warn(string.format("target_dir `%s` is a file", opts.target_dir))
 end
-o.target_dir = mp.command_native({ "expand-path", o.target_dir })
-mp.add_key_binding(SLICING_MARK, "slicing_mark", toggle_mark)
-mp.add_key_binding(SLICING_MARK_CLEAR, "clear_slicing_mark", clear_toggle_mark)
+opts.target_dir = mp.command_native({ "expand-path", opts.target_dir })
+mp.add_key_binding(nil, "slicing-mark", toggle_mark)
+mp.add_key_binding(nil, "slicing-mark-clear", clear_toggle_mark)
