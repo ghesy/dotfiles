@@ -8,7 +8,6 @@
 -- Improved font scaling and visibility,
 -- Other minor improvements.
 
-local mp = require 'mp'
 local utils = require 'mp.utils'
 local msg = require 'mp.msg'
 local assdraw = require 'mp.assdraw'
@@ -47,27 +46,11 @@ local opts = {
     text_padding_x = 5,
     text_padding_y = 5,
 
-    --other
     menu_timeout = 10,
 
-    --use youtube-dl to fetch a list of available formats (overrides quality_strings)
-    fetch_formats = true,
-
-    --default menu entries
-    quality_strings=[[ [
-    { "4320p" : "bestvideo[height<=?4320p]+bestaudio/best" },
-    { "2160p" : "bestvideo[height<=?2160]+bestaudio/best" },
-    { "1440p" : "bestvideo[height<=?1440]+bestaudio/best" },
-    { "1080p" : "bestvideo[height<=?1080]+bestaudio/best" },
-    { "720p"  : "bestvideo[height<=?720]+bestaudio/best" },
-    { "480p"  : "bestvideo[height<=?480]+bestaudio[abr<=?70]/best" },
-    { "360p"  : "bestvideo[height<=?360]+bestaudio[abr<=?70]/best" },
-    { "240p"  : "bestvideo[height<=?240]+bestaudio[abr<=?70]/best" },
-    { "144p"  : "bestvideo[height<=?144]+bestaudio[abr<=?70]/best" }
-    ] ]],
+    youtube_dl_path = "yt-dlp",
 }
-(require 'mp.options').read_options(opts, "ytdl-quality")
-opts.quality_strings = utils.parse_json(opts.quality_strings)
+(require 'mp.options').read_options(opts)
 
 local destroyer = nil
 
@@ -79,22 +62,9 @@ function show_menu()
     local num_options = 0
     local options = {}
 
-    if opts.fetch_formats then
-        options, num_options = download_formats()
-    end
+    options, num_options = download_formats()
 
-    if next(options) == nil then
-        for i,v in ipairs(opts.quality_strings) do
-            num_options = num_options + 1
-            for k,v2 in pairs(v) do
-                options[i] = {label = k, format=v2}
-                if v2 == current_ytdl_format then
-                    active = i
-                    selected = active
-                end
-            end
-        end
-    end
+    if next(options) == nil then mp.osd_message("No formats...", 60) end
 
     --set the cursor to the currently format
     for i,v in ipairs(options) do
@@ -321,18 +291,8 @@ function download_formats()
         local formats = format_cache[url]
         return formats, table_size(formats)
     end
-    -- mp.osd_message("Fetching formats...", 60)
 
-    if not (ytdl.searched) then
-        local ytdl_mcd = mp.find_config_file("youtube-dl")
-        if not (ytdl_mcd == nil) then
-            msg.verbose("found youtube-dl at: " .. ytdl_mcd)
-            ytdl.path = ytdl_mcd
-        end
-        ytdl.searched = true
-    end
-
-    local command = {ytdl.path, "--no-warnings", "--no-playlist", "-j"}
+    local command = {opts.youtube_dl_path, "--no-warnings", "--no-playlist", "-j"}
     table.insert(command, url)
     local es, json, result = exec(command)
 
