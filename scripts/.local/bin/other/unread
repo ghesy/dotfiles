@@ -43,6 +43,7 @@ unread()
     notify-send -t 30000 -u low " $(basename "$1")" "$notif"
 }
 
+notify-send -u low 'Fetching Emails...'
 for f in "${mutt_accounts_dir:?}"/*; do
     [ -f "$f" ] && unread "$f"
 done
