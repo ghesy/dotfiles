@@ -1,10 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 # run "remaps" when new input devices are connected.
+exec {sleepfd}<> <(:)
+rsleep() { read -t "$1" -u $sleepfd ;}
 unset p
 trap 'pkill -P$$' HUP INT TERM
 udevadm monitor -usinput | while IFS= read -r line; do
     kill -0 $p && continue
-    sleep 1 & p=$!
-    (sleep 0.5; remaps) &
+    rsleep 1 & p=$!
+    (rsleep 0.5; remaps) &
 done &
 wait
