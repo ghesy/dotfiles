@@ -3,6 +3,8 @@
 set -eE
 trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
 
+f() { "$@" || kill $$ ;}
+
 pushd /media/syncthing/Main >/dev/null
     basename "$PWD"
     ./install.sh
@@ -10,12 +12,12 @@ popd >/dev/null
 
 pushd ~/.dots >/dev/null
     basename "$PWD"
-    if [ "$(git branch --show)" != master ]; then
+    if [ "$(f git branch --show)" != master ]; then
         echo dotfiles is not on the proper branch
-    elif [ -n "$(git status --porcelain)" ]; then
+    elif [ -n "$(f git status --porcelain)" ]; then
         echo dotfiles contains uncommited changes
     else
-        [ "$(git pull)" != 'Already up to date.' ] &&
+        [ "$(f git pull)" != 'Already up to date.' ] &&
             echo y | ./install.sh && echo
     fi
 popd >/dev/null
@@ -23,12 +25,12 @@ popd >/dev/null
 for dir in ~/Repositories/suckless/*/; do
     pushd "$dir" >/dev/null
         basename "$PWD"
-        if [[ $(git branch --show) != my-* ]]; then
+        if [[ $(f git branch --show) != my-* ]]; then
             echo "$(basename "$dir") is not on the proper branch"
-        elif [ -n "$(git status --porcelain)" ]; then
+        elif [ -n "$(f git status --porcelain)" ]; then
             echo "$(basename "$dir") contains uncommited changes"
         else
-            [ "$(git pull)" != 'Already up to date.' ] &&
+            [ "$(f git pull)" != 'Already up to date.' ] &&
                 make && sudo make install
         fi
     popd >/dev/null
