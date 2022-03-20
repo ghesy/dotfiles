@@ -100,7 +100,7 @@ map <C-v> "+P
 " clear search
 nnoremap <silent><Leader>cs :nohlsearch<CR>
 
-" compile markdown to pdf
+" compile markdown to pdf (requires pandoc and wkhtmltopdf-static)
 nnoremap <Leader>cc :!pandoc -s --pdf-engine=wkhtmltopdf -o %:r:S.pdf %:S<CR>
 nnoremap <Leader>vv :silent !setsid -f zathura %:r:S.pdf<CR>
 
