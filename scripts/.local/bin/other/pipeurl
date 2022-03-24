@@ -14,6 +14,7 @@ main() {
 
     site=${url#*://}
     site=${site#www.}
+    site=${site%/}
     case $site in
         *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp|*.gif) dl ;;
         reddit.com/gallery*|i.redd.it*|imgur.com/*|gfycat.com/*) gdl ;;
