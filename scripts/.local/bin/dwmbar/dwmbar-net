@@ -38,7 +38,7 @@ print_net_type() {
         *bluetooth*) echo  ;;
         *wireless*|*wifi*) echo 直; prnt "$ssid" ;;
         *ethernet*) is_usb && echo 禍 || echo  ;;
-        *) echo ? ;;
+        *) echo '?' ;;
     esac
 }
 
