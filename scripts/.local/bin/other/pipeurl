@@ -18,11 +18,18 @@ main() {
     case $site in
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif) dl ;;
         reddit.com/gallery*|i.redd.it*|imgur.com/*|gfycat.com/*) gdl ;;
-        *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|\
-        youtube.com/watch*|youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|\
-        youtu.be/*|hooktube.com/watch*|bitchute.com/video/*|odysee.com/*:*|khanacademy.org/*/v/*|v.redd.it/*|\
-        tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|videos.lukesmith.xyz/w/*|streamff.com/v/*|\
-        mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|streamable.com/*|streamja.com/*) stream ;;
+        *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|youtube.com/watch*|\
+        youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
+        hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')|\
+        khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
+        streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
+        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*) stream ;;
+        */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
+                r='[\da-fA-F]'
+                printf '%s\n' "$site" |
+                    grep -Pq "^[^/]+/(videos/(watch|embed)|w(/p)?)/([\da-zA-Z]{22}|$r{8}(-$r{4}){3}-$r{12})\??" &&
+                    stream
+        ;;
         reddit.com*|redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
         *) exec xdg-open "$url" ;;
     esac
@@ -61,6 +68,12 @@ dl() {
             --async-dns=false -d"$cache" -o"$file" -- "$url" || return 1
     fi
     exec xdg-open "$cache/$file"
+}
+
+rep() {
+    for i in $(seq 1 "$1"); do
+        printf %s "$2"
+    done
 }
 
 main "$@"
