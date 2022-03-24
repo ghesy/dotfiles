@@ -1,8 +1,8 @@
 #!/bin/sh
 # extract and open URLs from the contents of stdin.
 # requires dmenu, xurls, libnotify, mpv (+youtube-dl), aria2,
-# moreutils, gallery-dl, tuir (for reading reddit posts),
-# and haxor-news (for reading hacker-news comments).
+# moreutils, gallery-dl, tuir (for reading reddit posts) and
+# my getproxy script (for circumventing censorship).
 
 # config
 cache=~/.cache/gallery-dl
@@ -24,7 +24,6 @@ main() {
         tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|videos.lukesmith.xyz/w/*|streamff.com/v/*|\
         mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|streamable.com/*|streamja.com/*) stream ;;
         reddit.com*|redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
-        news.ycombinator.com/*) $(getproxy 'hacker-news.firebaseio.com') hn view -c "${url##*id=}" | ${PAGER:-less} ;;
         *) exec xdg-open "$url" ;;
     esac
 }
