@@ -16,7 +16,7 @@ main() {
     site=${site#www.}
     site=${site%/}
     case $site in
-        *.pdf|*.cbz|*.cbr|*.jpg|*.png|*.webp|*.gif) dl ;;
+        *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif) dl ;;
         reddit.com/gallery*|i.redd.it*|imgur.com/*|gfycat.com/*) gdl ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|\
         youtube.com/watch*|youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|\
