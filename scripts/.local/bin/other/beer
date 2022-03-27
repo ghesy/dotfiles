@@ -128,7 +128,7 @@ select_program_pfx() {
     local sel=$(
         while IFS= read -r p; do
             printf '%s\t%s\n' "$(basename "${p%.exe}")" "$p" |
-                column -t -s'	' -o ' -- '
+                column -t -s'	' -o' -- '
         done < "$PFX"/programs |
             ifne fzf --prompt='Select program to run > ' --info=inline
     ) && [ -n "$sel" ] || return 1
