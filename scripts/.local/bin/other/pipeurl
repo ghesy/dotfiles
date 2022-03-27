@@ -11,15 +11,18 @@
 #   -d, --download    download the contents of the URL instead of opening it.
 #                     (ex. videos will be passed to my ytdl script to be downloaded).
 #   -l, --listen      listen to the clipboard for one minute and use the first URL that is copied there.
+#   -a, --ask         use dmenu to ask wether to open, download or copy.
 #
 # usage:
-#   pipeurl [--listen] [--copy|--download] [TEXT_CONTAINING_URL]
+#   pipeurl [--listen] [--copy|--download|--ask] [TEXT_CONTAINING_URL]
 #
 # dependencies:
 #   moreutils, dmenu, libnotify, mpv, aria2,
 #   gallery-dl, tuir (for opening reddit URLs),
 #   my getproxy script (for circumventing censorship) and
 #   my ytdl script (for downloading videos).
+#
+# TODO: write the print_help() function
 
 
 # =================
@@ -46,12 +49,19 @@ main()
 {
     ACTION=open listen=false
     for a; do case $a in
+        -a|--ask) shift; ACTION=ask ;;
         -c|--copy) shift; ACTION=copy ;;
         -d|--download) shift; ACTION=dl ;;
+        -H|--history) ACTION=history ;;
         -l|--listen) shift; listen=true ;;
         -h|--help) print_help; exit ;;
         *) break ;;
     esac; done
+
+    if [ $ACTION = history ]; then
+        show_history
+        exit
+    fi
 
     if [ $listen = true ]; then
         URL=$(cliplisten)
@@ -59,17 +69,23 @@ main()
         URL=$(geturl "$@")
     fi
 
-    [ -z "$URL" ] && exit
+    [ -z "$URL" ] && exit 1
 
-    if [ $ACTION = copy ]; then
-        copy_to_clipboard
-    else
-        handle_url
+    if [ $ACTION = ask ]; then
+        ACTION=$(ask_action) || exit 1
     fi
+
+    handle_url
 }
 
 handle_url() {
-    case $(gettype)/$ACTION in
+    if [ $ACTION = copy ]; then
+        copy_to_clipboard
+        return
+    fi
+    type=$(gettype)
+    printf '%s\t%s\n' "$type" "$URL" >> "$CACHE_DIR/history"
+    case $type/$ACTION in
         file/open) file_dl_to_cache_and_open ;;
         file/dl)   file_dl_to_dldir ;;
         stream/open) stream_open ;;
@@ -77,6 +93,15 @@ handle_url() {
         reddit/*) reddit_open ;;
         other/*) exec xdg-open "$URL" ;;
     esac
+}
+
+show_history() {
+    sel=$(column -t -s'	' -o' -- ' "$CACHE_DIR/history" | uniq | tac |
+        dmenu $W -l 30 -p 'PipeURL History') || return 1
+    [ -z "$sel" ] && return 1
+    URL=${sel#* -- }
+    ACTION=$(ask_action) || return 1
+    handle_url
 }
 
 cliplisten() {
@@ -96,10 +121,17 @@ cliplisten() {
 }
 
 geturl() {
+    w=${WINDOWID:+-w $WINDOWID}
     if [ -n "$1" ]; then
         prnt "$1" | findurls | head -1
     else
-        findurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
+        case $ACTION in
+            open) action_name=Open ;;
+            copy) action_name=Copy ;;
+            dl) action_name=Download ;;
+        esac
+        findurls | sort -u |
+            ifne dmenu $W -p "Select URL to $action_name" -l 10
     fi
 }
 
@@ -136,11 +168,17 @@ $msg"
 }
 
 file_dl_to_dldir() {
-    get_file_proxy_and_urls
+    orig_url=$URL
+    get_file_proxy_and_urls || return 1
+    [ -z "$URL" ] && return 1
     prnt "$URL" | while IFS= read -r u; do
         $P aria2c -q -x10 -s10 -k1M -m1 --no-conf \
-            --async-dns=false -d"$(getdldir)" -- "$u" || return 1
+            --async-dns=false -d"$(getdldir)" -- "$u" || {
+                notify-send PipeURL "Failed: $orig_url"
+                return 1
+            }
     done
+    notify-send PipeURL "Done: $orig_url"
 }
 
 file_dl_to_cache_and_open() {
@@ -152,7 +190,8 @@ file_dl_to_cache_and_open() {
 }
 
 file_dl_to_cache() {
-    get_file_proxy_and_urls
+    get_file_proxy_and_urls || return 1
+    [ -z "$URL" ] && return 1
     n=1
     prnt "$URL" | while IFS= read -r u; do
         $P aria2c -q -x10 -s10 -k1M -m1 --no-conf --auto-file-renaming=false \
@@ -162,12 +201,12 @@ file_dl_to_cache() {
 }
 
 get_file_proxy_and_urls() {
-    p=$(getproxy "$URL")
+    P=$(getproxy "$URL")
     # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
     case $(getsimpleurl) in
         *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
-            URL=$($p gallery-dl -G -- "$URL")
+            URL=$($P gallery-dl -G -- "$URL") || return 1
             P=$(getproxy "$(prnt "$URL" | head -1)")
         ;;
     esac
@@ -195,6 +234,15 @@ gettype()
                 grep -Pq "^[^/]+/(videos/(watch|embed)|w(/p)?)/([\da-zA-Z]{22}|$r{8}(-$r{4}){3}-$r{12})\??" &&
                 echo stream ;;
         *) echo other ;;
+    esac
+}
+
+ask_action() {
+    case $(printf 'Open\nDownload\nCopy\n' | dmenu $W -p 'Choose Action') in
+        Open) echo open ;;
+        Download) echo dl ;;
+        Copy) echo copy ;;
+        *) return 1 ;;
     esac
 }
 
@@ -226,4 +274,5 @@ prnt() {
     printf '%s\n' "$@"
 }
 
+W=${WINDOWID:+-w $WINDOWID}
 main "$@"
