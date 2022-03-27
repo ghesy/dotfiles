@@ -1,2 +1,3 @@
 #!/bin/sh
+# cleaner for sxip.
 kill -- $(cat "${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/sxip.sxiv.${id:-${1:?}}".*)

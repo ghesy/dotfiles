@@ -9,7 +9,7 @@ x=${4:?}
 y=${5:?}
 ID=${6:-${id:?}}
 
-# if pid is given, check wether it's an integer
+# if pid is given, check if it's an integer
 pid=${7:-$id}
 [ -z "$pid" ] || [ "$pid" -eq "$pid" ] || exit 1
 
