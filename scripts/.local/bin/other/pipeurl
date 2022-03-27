@@ -1,79 +1,229 @@
 #!/bin/sh
-# extract and open URLs from the contents of stdin.
-# requires dmenu, xurls, libnotify, mpv (+youtube-dl), aria2,
-# moreutils, gallery-dl, tuir (for reading reddit posts) and
-# my getproxy script (for circumventing censorship).
+# find and open URLs using different programs and methods.
+# URLs can be extracted from a string supplied from the command line or standard input.
+# if the string is given via stdin, you will be asked to choose one URL using dmenu.
+# otherwise, the first URL that is found will be chosen.
+# this script detects censorship and bypasses it using proxychains(1).
+#
+# options:
+#   no options:       open the URL (ex. open videos using mpv).
+#   -c, --copy        copy the URL to clipboard and exit.
+#   -d, --download    download the contents of the URL instead of opening it.
+#                     (ex. videos will be passed to my ytdl script to be downloaded).
+#   -l, --listen      listen to the clipboard for one minute and use the first URL that is copied there.
+#
+# usage:
+#   pipeurl [--listen] [--copy|--download] [TEXT_CONTAINING_URL]
+#
+# dependencies:
+#   moreutils, dmenu, libnotify, mpv, aria2,
+#   gallery-dl, tuir (for opening reddit URLs),
+#   my getproxy script (for circumventing censorship) and
+#   my ytdl script (for downloading videos).
 
-# config
-cache=~/.cache/gallery-dl
 
-main() {
-    [ -n "$1" ] && url="$(printf '%s\n' "$1" | xurls | head -n1)" ||
-        url="$(xurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID})"
-    [ -z "$url" ] && exit
+# =================
+# = config
+# =================
 
-    site=${url#*://}
-    site=${site#www.}
-    site=${site%/}
-    case $site in
-        *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif) dl ;;
-        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*) gdl ;;
-        *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|youtube.com/watch*|\
-        youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
-        hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')|\
-        khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
-        streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*) stream ;;
-        */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
-                r='[\da-fA-F]'
-                printf '%s\n' "$site" |
-                    grep -Pq "^[^/]+/(videos/(watch|embed)|w(/p)?)/([\da-zA-Z]{22}|$r{8}(-$r{4}){3}-$r{12})\??" &&
-                    stream
-        ;;
-        reddit.com*|redd.it*) exec tuir $(printf '%s\n' "$url" | sed -E 's|.*/r/([^/]+)/?$|-s \1|') ;;
-        *) exec xdg-open "$url" ;;
+# a list of download directories. the first accessible one will be chosen.
+DL_DIRS="
+/media/downloads
+$HOME/Downloads
+"
+
+# storage of cached images and files
+CACHE_DIR=~/.cache/pipeurl
+
+# =================
+# = end of config
+# =================
+
+
+# note: variables that are used globally (by multiple functions) are in capitol letters.
+
+main()
+{
+    ACTION=open listen=false
+    for a; do case $a in
+        -c|--copy) shift; ACTION=copy ;;
+        -d|--download) shift; ACTION=dl ;;
+        -l|--listen) shift; listen=true ;;
+        -h|--help) print_help; exit ;;
+        *) break ;;
+    esac; done
+
+    if [ $listen = true ]; then
+        URL=$(cliplisten)
+    else
+        URL=$(geturl "$@")
+    fi
+
+    [ -z "$URL" ] && exit
+
+    if [ $ACTION = copy ]; then
+        copy_to_clipboard
+    else
+        handle_url
+    fi
+}
+
+handle_url() {
+    case $(gettype)/$ACTION in
+        file/open) file_dl_to_cache_and_open ;;
+        file/dl)   file_dl_to_dldir ;;
+        stream/open) stream_open ;;
+        stream/dl)   stream_dl ;;
+        reddit/*) reddit_open ;;
+        other/*) exec xdg-open "$URL" ;;
     esac
 }
 
-stream() {
+cliplisten() {
+    notify-send -t 1000 -u low PipeURL 'Listening to Clipboard...'
+    ( ( sleep 1m; pkill -xP$$ clipnotify ) & ) >/dev/null 2>&1
+    while :; do
+        echo PipeURL | xclip -selection clipboard
+        clipnotify || return 1
+        clip=$(xclip -o -selection clipboard)
+        [ "$clip" = PipeURL ] && continue
+        url=$(prnt "$clip" | findurls | head -1)
+        [ -z "$url" ] && continue
+        notify-send -t 1000 -u low PipeURL 'Got it.'
+        prnt "$url"
+        break
+    done
+}
+
+geturl() {
+    if [ -n "$1" ]; then
+        prnt "$1" | findurls | head -1
+    else
+        findurls | sort -u | ifne dmenu -p 'Select URL' -l 10 ${WINDOWID:+-w $WINDOWID}
+    fi
+}
+
+copy_to_clipboard() {
+    prnt "$URL" | xclip -r -selection clipboard
+}
+
+reddit_open() {
+    [ -t 1 ] && unset term || term="${TERMINAL:?} -e"
+    exec $term tuir $(prnt "$URL" | sed -E 's|.*/r/([^/]+)/?$|-s \1|')
+}
+
+stream_dl() {
+    exec setsid -f ${TERMINAL:?} -e ytdl "$URL" >/dev/null 2>&1
+}
+
+stream_open() {
     error=false
     notify-send -u low -t 1000 PipeURL 'Opening video...'
-    msg=$($(getproxy "$url") mpv --msg-level=all=error -- "$url" 2>&1)
+    msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
-            proxychains -q mpv --msg-level=all=error -- "$url" || error=true ;;
+            proxychains -q mpv --msg-level=all=error -- "$URL" || error=true ;;
         0/*) ;;
-        *) error=true; printf '%s\n' "$msg" ;;
+        *) error=true; prnt "$msg" ;;
     esac
     if [ "$error" = true ]; then
         msg=${msg#* ERROR: }
         msg=${msg%%(caused*}
-        msg=$(printf '%s\n' "$msg" | head -1)
+        msg=$(prnt "$msg" | head -1)
         notify-send PipeURL "Failed to open the video${msg:+:}
 $msg"
     fi
 }
 
-gdl() {
-    p=$(getproxy "$url")
-    p=$(getproxy "$($p gallery-dl -G -- "$url" | head -n1)")
-    imgs=$($p gallery-dl --no-mtime -d "$cache" -- "$url" 2>/dev/null) || return 1
-    printf '%s\n' "$imgs" | sed 's/^# //' | xargs -d'\n' sh -c 'sxiv -a -- "$@" || mpv -quiet -- "$@"' ''
+file_dl_to_dldir() {
+    get_file_proxy_and_urls
+    prnt "$URL" | while IFS= read -r u; do
+        $P aria2c -q -x10 -s10 -k1M -m1 --no-conf \
+            --async-dns=false -d"$(getdldir)" -- "$u" || return 1
+    done
 }
 
-dl() {
-    file=$(printf '%s\n' "$url" | md5sum | cut -d' ' -f1)
-    if [ ! -r "$cache/$file" ]; then
-        $(getproxy "$url") aria2c -q -x10 -s10 -k1M -m1 --no-conf \
-            --async-dns=false -d"$cache" -o"$file" -- "$url" || return 1
+file_dl_to_cache_and_open() {
+    ID=$(prnt "$URL" | md5sum | cut -d' ' -f1)
+    if [ ! -d "$CACHE_DIR" ] || [ -z "$(find "$CACHE_DIR" -name "$ID-*")" ]; then
+        file_dl_to_cache || return 1
     fi
-    exec xdg-open "$cache/$file"
+    sxiv -a -- "$CACHE_DIR"/$ID-* || mpv -quiet -- "$CACHE_DIR"/$ID-*
+}
+
+file_dl_to_cache() {
+    get_file_proxy_and_urls
+    n=1
+    prnt "$URL" | while IFS= read -r u; do
+        $P aria2c -q -x10 -s10 -k1M -m1 --no-conf --auto-file-renaming=false \
+            --async-dns=false -d"$CACHE_DIR" -o"$ID-$n" -- "$u" || return 1
+         n=$((n+1))
+    done
+}
+
+get_file_proxy_and_urls() {
+    p=$(getproxy "$URL")
+    # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
+    case $(getsimpleurl) in
+        *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
+        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
+            URL=$($p gallery-dl -G -- "$URL")
+            P=$(getproxy "$(prnt "$URL" | head -1)")
+        ;;
+    esac
+}
+
+gettype()
+{
+    case $(getsimpleurl) in
+        *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
+            echo file ;;
+        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
+            echo file ;;
+        *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|*.m3u8|youtube.com/watch*|\
+        youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
+        hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')|\
+        khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
+        streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
+        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*)
+            echo stream ;;
+        reddit.com*|redd.it*)
+            echo reddit ;;
+        */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
+            r='[\da-fA-F]'
+            getsimpleurl |
+                grep -Pq "^[^/]+/(videos/(watch|embed)|w(/p)?)/([\da-zA-Z]{22}|$r{8}(-$r{4}){3}-$r{12})\??" &&
+                echo stream ;;
+        *) echo other ;;
+    esac
+}
+
+findurls() {
+    grep -Po '(ht|f)tps?://(www\.)?[a-zA-Z0-9-.]+(:\d+(?=(/|$)))?(/[a-zA-Z0-9\.,:;\?'\''\\\+&%\$#=~_-]+)*'
+}
+
+getsimpleurl() {
+    site=${URL#*://} site=${site#www.} site=${site%%'?'*} site=${site%/}
+    prnt "$site"
+}
+
+getdldir() {
+    prnt "$DL_DIRS" | while IFS= read -r dir; do
+        [ -d "$dir" ] && [ -r "$dir" ] && [ -w "$dir" ] || continue
+        prnt "$dir"
+        return
+    done
+    echo ~
 }
 
 rep() {
     for i in $(seq 1 "$1"); do
         printf %s "$2"
     done
+}
+
+prnt() {
+    printf '%s\n' "$@"
 }
 
 main "$@"
