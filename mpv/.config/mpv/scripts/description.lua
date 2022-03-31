@@ -11,6 +11,7 @@ local opts = {
     section_separator = "\n"..string.rep("=", 75).."\n\n", -- the string appearing between each section (description, comments etc.)
     cache_dir = (os.getenv("XDG_CACHE_HOME") or os.getenv("HOME").."/.cache").."/description", -- where to save the files
     dislike_api_base = "https://returnyoutubedislikeapi.com/votes?videoId=", -- base URL of the returnyoutubedislike API
+    ytdlp_path = "yt-dlp"
 }
 (require 'mp.options').read_options(opts)
 
@@ -86,7 +87,7 @@ function wrap(s)
         if #line <= opts.max_width then
             w[#w + 1] = line .. "\n"
         else
-            -- find the position of the first space character before the opts.max_widthth column
+            -- find the position of the first space character before the opts.max_width-th column
             local brk = line:sub(1, opts.max_width):reverse():find("%s")
             if brk ~= nil then
                 brk = opts.max_width - (brk - 1)
@@ -130,7 +131,7 @@ function progressbar(percent)
         string.rep(' ', nempty) .. "<"
 end
 
--- open description or comments in a pager in a terminal window
+-- open the description file in a pager inside a terminal window.
 function opendesc()
     local file = descfile[geturl()]
     if not isfile(file) then return end
@@ -142,15 +143,14 @@ function opendesc()
     end
 end
 
--- save the description and comments fetched by fetchdesc() to opts.cache_dir
-function savedesc(success, result, error)
+-- save the info fetched by fetchdesc() to opts.cache_dir.
+function savedesc(url, success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
     if not json then return end
     if not exec{"mkdir", "-pm700", opts.cache_dir} then return end
-    local url = geturl()
 
-    -- if no important info is available, do not proceed
+    -- if none of the important info are available, do not proceed
     if (not json.description) and (not json.comments) and
        (not json.like_count)  and (not json.dislike_count) then
         return
@@ -203,7 +203,7 @@ function savedesc(success, result, error)
         f:write(wrap(json.description), opts.section_separator)
     end
 
-    -- format and write the comments to cache
+    -- format and write comments
     if json.comments then
         for i,v in ipairs(json.comments) do
             local op = "" local fav = "" local indent = opts.comment_prefix
@@ -219,28 +219,26 @@ function savedesc(success, result, error)
     f:close()
 end
 
--- generate a unique ID for the given URL
+-- generate a unique ID for the given URL, suitable for use as a filename
 function genid(url)
-    local id = url:gsub("^.-[^:/]/", "")
-    if isyoutube(url) then
-        id = id:gsub("^watch%?v=", "")
-    end
-    return id:gsub("[^%w%-_]", "")
+    return url:gsub("^.-[^:/]/", ""):gsub("^watch%?v=", ""):gsub("[^%w%-_]", "-")
 end
 
--- download description and comments and hand it to savedesc()
+-- download the info asyncronously and hand them to savedesc()
 function fetchdesc()
     -- return if no URL is associated with the video
     local url = geturl()
     if url == nil or url == "" then return end
 
-    -- set the path of cache files
+    -- set the path of the cache file
     local id = genid(url)
     descfile[url] = opts.cache_dir.."/"..id..".txt"
+
+    -- return if the info is already downloaded and saved
     if isfile(descfile[url]) then return end
 
     -- get the video's infojson using yt-dlp and send it's result to formatdesc()
-    local args = {"yt-dlp", "--no-playlist", "-j", "--write-comments", "--extractor-args",
+    local args = {opts.ytdlp_path, "--no-playlist", "-j", "--write-comments", "--extractor-args",
         "youtube:comment_sort=top;max_comments=all,"..opts.max_comments..",all,"..opts.max_replies, "--", url}
 
     if opts.try_proxychains then
@@ -249,7 +247,7 @@ function fetchdesc()
             args = {"proxychains", "-q", table.unpack(args)}
         end
     end
-    execasync(savedesc, args)
+    execasync(function(a, b, c) savedesc(url, a, b, c) end, args)
 end
 
 mp.register_event("start-file", fetchdesc)
