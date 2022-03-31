@@ -10,9 +10,6 @@ setopt histreduceblanks # remove superfluous blanks from history
 setopt histignorespace # don't put commands starting with space into history
 setopt histignoredups # don't put duplicate commands into history
 
-# start tmux
-source ~/.config/zsh/tmux.zsh
-
 # other settings
 setopt ignoreeof # don't exit by ctrl-d
 setopt autocd # cd to paths typed in the shell, without the cd command
