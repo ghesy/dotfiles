@@ -56,6 +56,7 @@ set laststatus=0
 set noshowmode
 set noruler
 set mouse=a
+set cursorline
 
 " other
 let g:netrw_dirhistmax = 0
@@ -63,7 +64,11 @@ set shortmess+=ac
 set noswapfile
 set undofile
 
-" on save, deletes all trailing whitespace and newlines at end of file.
+" show cursorline only on the active window
+autocmd WinEnter * set cursorline
+autocmd WinLeave * set nocursorline
+
+" upon save, delete all trailing whitespace and newlines at the end of the file.
 function s:NoTrailing()
     " if the file is a binary, don't do anything
     if !!search('\%u0000', 'wn') | return | endif
