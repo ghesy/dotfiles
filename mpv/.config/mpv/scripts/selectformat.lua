@@ -24,14 +24,16 @@ local opts = {
     bottom_binding = "G",
     select_binding = "ENTER",
 
-    --formatting / cursors ○●▷▶
-    selected_and_active     = "● ",
-    selected_and_inactive   = "● ",
-    unselected_and_active   = "○ ",
-    unselected_and_inactive = ". ",
+    --  ▷ ▶
+    symbols = {
+        cursor_selformat = "● ",
+        cursor           = "● ",
+        selformat        = "○ ",
+        normal           = ". ",
+    },
 
-    --font size scales by window, if false requires larger font and padding sizes
-    scale_playlist_by_window=true,
+    -- font size scales by window. if false, requires larger font and padding sizes.
+    scale_by_window = true,
 
     --playlist ass style overrides inside curly brackets, \keyvalue is one field, extra \ for escape in lua
     --example {\\fnUbuntu\\fs10\\b0\\bord1} equals: font=Ubuntu, size=10, bold=no, border=1
@@ -48,60 +50,60 @@ local opts = {
 
     menu_timeout = 10,
 
-    youtube_dl_path = "yt-dlp",
+    youtube_dl_path = "youtube-dl",
 }
 (require 'mp.options').read_options(opts)
 
+format_cache = {}
 local destroyer = nil
 
 function show_menu()
-    local selected = 1
-    local active = 0
+    local cursor = 1
+    local selformat = 0
     local current_ytdl_format = mp.get_property("ytdl-format")
     msg.verbose("current ytdl-format: "..current_ytdl_format)
     local num_options = 0
     local options = {}
 
-    options, num_options = download_formats()
+    options = fetch_formats()
+    num_options = table_size(options)
 
-    if next(options) == nil then mp.osd_message("No formats...", 60) end
+    if not next(options) then mp.osd_message("no formats") end
 
     --set the cursor to the currently format
-    for i,v in ipairs(options) do
+    for i, v in ipairs(options) do
         if v.format == current_ytdl_format then
-            active = i
-            selected = active
+            selformat = i
+            cursor = selformat
             break
         end
     end
 
-    function selected_move(amt)
-        selected = selected + amt
-        if selected < 1 then selected = num_options
-        elseif selected > num_options then selected = 1 end
+    function cursor_move(amt)
+        cursor = cursor + amt
+        if cursor < 1 then cursor = num_options
+        elseif cursor > num_options then cursor = 1 end
         timeout:kill()
         timeout:resume()
         draw_menu()
     end
-    function selected_top()
-        selected = 1
+    function cursor_top()
+        cursor = 1
         timeout:kill()
         timeout:resume()
         draw_menu()
     end
-    function selected_bottom()
-        selected = num_options
+    function cursor_bottom()
+        cursor = num_options
         timeout:kill()
         timeout:resume()
         draw_menu()
     end
     function choose_prefix(i)
-        if     i == selected and i == active then return opts.selected_and_active
-        elseif i == selected then return opts.selected_and_inactive end
-
-        if     i ~= selected and i == active then return opts.unselected_and_active
-        elseif i ~= selected then return opts.unselected_and_inactive end
-        return "> " --shouldn't get here.
+        if     i == cursor and i == selformat then return opts.symbols.cursor_selformat
+        elseif i == cursor and i ~= selformat then return opts.symbols.cursor
+        elseif i ~= cursor and i == selformat then return opts.symbols.selformat
+        else return opts.symbols.normal end
     end
 
     function draw_menu()
@@ -110,18 +112,18 @@ function show_menu()
         ass:pos(opts.text_padding_x, opts.text_padding_y)
         ass:append(opts.style_ass_tags)
 
-        for i,v in ipairs(options) do
+        for i, v in ipairs(options) do
             ass:append(choose_prefix(i)..v.label.."\\N")
         end
 
         local w, h = mp.get_osd_size()
-        if opts.scale_playlist_by_window then w,h = 0, 0 end
+        if opts.scale_by_window then w, h = 0, 0 end
         mp.set_osd_ass(w, h, ass.text)
     end
 
     function destroy()
         timeout:kill()
-        mp.set_osd_ass(0,0,"")
+        mp.set_osd_ass(0, 0, "")
         mp.remove_key_binding("move_up")
         mp.remove_key_binding("page_up")
         mp.remove_key_binding("move_down")
@@ -136,16 +138,16 @@ function show_menu()
     timeout = mp.add_periodic_timer(opts.menu_timeout, destroy)
     destroyer = destroy
 
-    mp.add_forced_key_binding(opts.up_binding,     "move_up",     function() selected_move(-1) end, {repeatable=true})
-    mp.add_forced_key_binding(opts.pgup_binding,   "page_up",     function() selected_move(-5) end, {repeatable=true})
-    mp.add_forced_key_binding(opts.down_binding,   "move_down",   function() selected_move(1)  end, {repeatable=true})
-    mp.add_forced_key_binding(opts.pgdown_binding, "page_down",   function() selected_move(5)  end, {repeatable=true})
-    mp.add_forced_key_binding(opts.top_binding,    "move_top",    function() selected_top()    end, {repeatable=true})
-    mp.add_forced_key_binding(opts.bottom_binding, "move_bottom", function() selected_bottom() end, {repeatable=true})
+    mp.add_forced_key_binding(opts.up_binding,     "move_up",     function() cursor_move(-1) end, {repeatable=true})
+    mp.add_forced_key_binding(opts.pgup_binding,   "page_up",     function() cursor_move(-5) end, {repeatable=true})
+    mp.add_forced_key_binding(opts.down_binding,   "move_down",   function() cursor_move(1)  end, {repeatable=true})
+    mp.add_forced_key_binding(opts.pgdown_binding, "page_down",   function() cursor_move(5)  end, {repeatable=true})
+    mp.add_forced_key_binding(opts.top_binding,    "move_top",    function() cursor_top()    end, {repeatable=true})
+    mp.add_forced_key_binding(opts.bottom_binding, "move_bottom", function() cursor_bottom() end, {repeatable=true})
     mp.add_forced_key_binding(opts.select_binding, "select",
         function()
             destroy()
-            mp.set_property("ytdl-format", options[selected].format)
+            mp.set_property("ytdl-format", options[cursor].format)
             reload_resume()
         end
     )
@@ -155,12 +157,6 @@ function show_menu()
     draw_menu()
     return
 end
-
-local ytdl = {
-    path = "youtube-dl",
-    searched = false,
-    blacklisted = {}
-}
 
 -- shorten and format the given number (eg. 4560 -> 4.5K)
 function numshorten(n)
@@ -268,28 +264,27 @@ function pri_hdr(s)
     end
 end
 
-format_cache={}
-function download_formats()
+function table_size(t)
+    s = 0
+    for i, v in ipairs(t) do
+        s = s + 1
+    end
+    return s
+end
+
+function fetch_formats()
     local function exec(args)
         local ret = utils.subprocess({capture_stderr = true, args = args})
         return ret.status, ret.stdout, ret
     end
 
-    local function table_size(t)
-        s = 0
-        for i,v in ipairs(t) do
-            s = s+1
-        end
-        return s
-    end
-
     local url = mp.get_property("path")
-    url = string.gsub(url, "ytdl://", "") -- Strip possible ytdl:// prefix.
+    url = string.gsub(url, "ytdl://", "") -- strip possible ytdl:// prefix.
 
     -- don't fetch the format list if we already have it
     if format_cache[url] ~= nil then
         local formats = format_cache[url]
-        return formats, table_size(formats)
+        return formats
     end
 
     local command = {opts.youtube_dl_path, "--no-warnings", "--no-playlist", "-j"}
@@ -312,7 +307,7 @@ function download_formats()
 
     formats = {}
     msg.verbose("youtube-dl succeeded!")
-    for _,f in ipairs(json.formats) do
+    for _, f in ipairs(json.formats) do
 
         if ((f.vcodec == nil or f.vcodec == "none" or f.vcodec == "null") and
             (f.acodec == nil or f.acodec == "none" or f.acodec == "null") and
@@ -416,7 +411,7 @@ function download_formats()
 
     -- mp.osd_message("", 0)
     format_cache[url] = formats
-    return formats, table_size(formats)
+    return formats
 end
 
 -- register script message to show menu
@@ -467,4 +462,4 @@ function reload_resume()
     end
 end
 
-mp.register_event("start-file", download_formats)
+mp.register_event("start-file", fetch_formats)
