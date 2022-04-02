@@ -52,9 +52,9 @@ main() {
         printf '\e[?1049h\e[2J\e[H'
         while :; do
             printf '\e[H'
-            echo 's: Show upcoming shows    l: List added shows'
-            echo 'a: Add new shows          r: Remove shows'
-            echo 'q: Quit'
+            echo 's: show upcoming shows    l: list added shows'
+            echo 'a: add new shows          r: remove shows'
+            echo 'q: quit'
             printf '━%.0s' {1..45}; echo
             printf 'Command: '
             printf '\e[s'
