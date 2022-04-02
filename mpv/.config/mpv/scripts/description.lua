@@ -39,8 +39,8 @@ end
 -- execute shell commands by escaping args and feeding them to os.execute()
 function shexec(args)
     local t = {}
-    for _,a in pairs(args) do
-        s = tostring(a)
+    for _, a in pairs(args) do
+        local s = tostring(a)
         if s:match("[^A-Za-z0-9_/:=-]") then
             s = "'"..s:gsub("'", "'\\''").."'"
         end
@@ -127,8 +127,8 @@ function progressbar(percent)
     local phasechar = phases[nphase+1]
     if percent == 100 then phasechar = '' end
 
-    return ">" .. string.rep(phases[#phases], nwhole) .. phasechar ..
-        string.rep(' ', nempty) .. "<"
+    return "─" .. string.rep(phases[#phases], nwhole) .. phasechar ..
+        string.rep(' ', nempty) .. "─"
 end
 
 -- open the description file in a pager inside a terminal window.
@@ -161,17 +161,18 @@ function savedesc(url, success, result, error)
 
     -- write extractor info
     if json.extractor or json.webpage_url_domain then
-        f:write("Source: ")
-        if json.extractor then f:write(json.extractor) end
+        f:write("source: ")
+        if json.webpage_url then f:write(json.webpage_url) end
+        if json.extractor then f:write(" - ", json.extractor) end
         if json.extractor_key then f:write(" - ", json.extractor_key) end
-        if json.webpage_url_domain then f:write(" - ", json.webpage_url_domain) end
         f:write("\n", opts.section_separator)
     end
 
     -- write title, channel name, like and view count etc.
-    if json.title      then f:write("Title: ",   json.title,   "\n") end
-    if json.channel    then f:write("Channel: ", json.channel, "\n") end
-    if json.view_count then f:write(numshorten(json.view_count), " views\n") end
+    if json.title       then f:write("title:   ",   json.title,   "\n") end
+    if json.channel     then f:write("channel: ", json.channel, "\n") end
+    if json.upload_date then f:write("date:    ", formatdate(json.upload_date), "\n") end
+    if json.view_count  then f:write("views:   ", numshorten(json.view_count), "\n") end
 
     -- if it's a youtube video, get the dislike count from returnyoutubedislike's API
     if not json.dislike_count and isyoutube(url) then
@@ -217,6 +218,15 @@ function savedesc(url, success, result, error)
         end
     end
     f:close()
+end
+
+function formatdate(date)
+    local date = os.time{
+        year = date:match("^%d%d%d%d"),
+        month = date:match("(%d%d)%d%d$"),
+        day = date:match("%d%d$")
+    }
+    return os.date("%Y-%m-%d", date)
 end
 
 -- generate a unique ID for the given URL, suitable for use as a filename
