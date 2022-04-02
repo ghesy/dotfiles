@@ -1,3 +1,6 @@
+-- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
+-- select the video's youtube-dl format via a menu.
+
 local opts = {
     youtubedl_path = "yt-dlp",
     prefix_cursor      = "● ",
