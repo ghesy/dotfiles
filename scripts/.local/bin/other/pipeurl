@@ -55,6 +55,7 @@ main()
         -H|--history) ACTION=history ;;
         -l|--listen) shift; listen=true ;;
         -h|--help) print_help; exit ;;
+        --findurls) findurls; exit ;; # for internal use
         *) break ;;
     esac; done
 
@@ -105,19 +106,27 @@ show_history() {
 }
 
 cliplisten() {
-    notify-send -t 1000 -u low PipeURL 'Listening to Clipboard...'
-    ( ( sleep 1m; pkill -xP$$ clipnotify ) & ) >/dev/null 2>&1
-    while :; do
-        echo PipeURL | xclip -selection clipboard
-        clipnotify || return 1
-        clip=$(xclip -o -selection clipboard)
-        [ "$clip" = PipeURL ] && continue
-        url=$(prnt "$clip" | findurls | head -1)
-        [ -z "$url" ] && continue
-        notify-send -t 1000 -u low PipeURL 'Got it.'
-        prnt "$url"
-        break
-    done
+    r=string:x-canonical-private-synchronous:pipeurl
+    pids=$(pgrep timeout -P"$(printf %s "$(pgrep "${0##*/}")" | tr '\n' ,)")
+    if [ -n "$pids" ]; then
+        kill $pids
+        notify-send -h $r -t 1000 -u low PipeURL 'Stopped Listening to Clipboard.'
+        exit
+    fi
+    notify-send -h $r -t 1000 -u low PipeURL 'Listening to Clipboard...'
+    scriptpath=$0 timeout 1m sh <<- 'eof'
+        while :; do
+            xclip -selection clipboard </dev/null
+            clipnotify || return 1
+            clip=$(xclip -o -selection clipboard)
+            [ -z "$clip" ] && continue
+            url=$(printf '%s\n' "$clip" | "$scriptpath" --findurls | head -1)
+            [ -z "$url" ] && continue
+            notify-send -t 1000 -u low PipeURL 'Got it.'
+            printf '%s\n' "$url"
+            break
+        done
+	eof
 }
 
 geturl() {
@@ -168,13 +177,12 @@ $msg"
 }
 
 file_dl_to_dldir() {
-    orig_url=$URL
     get_file_proxy_and_urls || return 1
     [ -z "$URL" ] && return 1
     prnt "$URL" | while IFS= read -r u; do
         $P aria2c -q -x10 -s10 -k1M -m1 --no-conf \
             --async-dns=false -d"$(getdldir)" -- "$u" || {
-                notify-send PipeURL "Failed: $orig_url"
+                notify-send PipeURL "Failed: ${ORIGURL:-$URL}"
                 return 1
             }
     done
@@ -184,7 +192,11 @@ file_dl_to_dldir() {
 file_dl_to_cache_and_open() {
     ID=$(prnt "$URL" | md5sum | cut -d' ' -f1)
     if [ ! -d "$CACHE_DIR" ] || [ -z "$(find "$CACHE_DIR" -name "$ID-*")" ]; then
-        file_dl_to_cache || return 1
+        file_dl_to_cache || {
+            notify-send PipeURL "Failed: ${ORIGURL:-$URL}"
+            rm -- "${CACHE_DIR:?}"/$ID-*
+            return 1
+        }
     fi
     sxiv -a -- "$CACHE_DIR"/$ID-* || mpv -quiet -- "$CACHE_DIR"/$ID-*
 }
@@ -201,6 +213,7 @@ file_dl_to_cache() {
 }
 
 get_file_proxy_and_urls() {
+    ORIGURL=$URL
     P=$(getproxy "$URL")
     # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
     case $(getsimpleurl) in
