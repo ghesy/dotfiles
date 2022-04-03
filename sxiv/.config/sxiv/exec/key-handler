@@ -12,7 +12,7 @@ main()
         w) feh --bg-fill -- "$first" ;;
         g) x setsid -f gimp -- ;;
         p) x dprint ;;
-        D) x dragon-drag-and-drop -a -x ;;
+        D) x dragon-drop -a -x ;;
         t) ask Trash &&
             x trash-put -- &&
             notif Trashed

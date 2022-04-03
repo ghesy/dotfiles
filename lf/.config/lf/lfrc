@@ -40,7 +40,7 @@ map <c-n> togglenum
 map <c-f> finder
 map W &feh --bg-fill -- $f
 map V push $$EDITOR<space>
-map R &dragon-drag-and-drop -a -x $fx
+map R &dragon-drop -a -x $fx
 map S getdirsize
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
 map o &readlink -f -- $f | lfselect # follow symlinks

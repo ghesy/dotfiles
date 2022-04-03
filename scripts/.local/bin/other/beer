@@ -1,7 +1,7 @@
 #!/bin/bash
 # A wine bottle manager.
 # Dependencies: wine, fzf, moreutils, findutils, coreutils.
-# Optional Deps: zenity, dragon-drag-and-drop.
+# Optional Deps: zenity, dragon-drop.
 #
 # If you use ArchLinux, I recommend you install
 # 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
@@ -173,7 +173,7 @@ run_executable() {
     case $ans in
         q|'') return ;;
         g) exe=$(zenity --file-selection --title='Select an executable') || return 1 ;;
-        d) exe=$(dragon-drag-and-drop -t -x | grep -Po '^file://\K.*') || return 1 ;;
+        d) exe=$(dragon-drop -t -x | grep -Po '^file://\K.*') || return 1 ;;
         *) exe=$ans ;;
     esac
 
