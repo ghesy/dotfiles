@@ -32,6 +32,7 @@ local url = ""
 -- fetch the formats using youtube-dl asyncronously and hand them to formats_save()
 function formats_fetch()
     if not update_url() then return end
+    if data[url] then return end
     local args = {opts.youtubedl_path, "--no-playlist", "-j", "--", url}
     execasync(function(a, b, c) formats_save(url, a, b, c) end, args)
 end
@@ -139,10 +140,10 @@ function menu_cursor_move(i)
 end
 
 function menu_select()
+    menu_hide()
     local sel = data[url].cursor_pos
     data[url].selected_pos = sel
     mp.set_property("ytdl-format", data[url].formats[sel].ytdl_format)
-    menu_hide()
     reload_resume()
 end
 
