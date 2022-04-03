@@ -42,8 +42,7 @@ function formats_save(url, success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
     if (not json) or (not json.formats) then return end
-    data[url] = {}
-    data[url].formats = {}
+    data[url] = {formats = {}}
     for _, fmt in ipairs(json.formats) do
         if is_format_valid(fmt) then
             fmt.label = build_format_label(fmt)
@@ -288,11 +287,11 @@ end
 
 -- update the global url variable with the URL of the currently playing video
 function update_url()
-    local path = string.gsub(mp.get_property("path"), "ytdl://", "")
-    if isfile(path) then
+    local path = mp.get_property("path")
+    if (not path) or isfile(path) then
         return false
     else
-        url = path
+        url = path:gsub("ytdl://", "")
         return true
     end
 end
@@ -308,8 +307,10 @@ end
 
 -- test wether the given path is a file
 function isfile(path)
-   local f = io.open(path, "r")
-   if f ~= nil then io.close(f) return true else return false end
+    if     path:find("^archive://") then return true
+    elseif path:find("^ytdl://")    then return false end
+    local f = io.open(path, "r")
+    if f then io.close(f) return true else return false end
 end
 
 function isempty(var)
