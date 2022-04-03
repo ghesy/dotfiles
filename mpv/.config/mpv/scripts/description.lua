@@ -51,27 +51,38 @@ end
 
 -- test wether the given path is a file
 function isfile(path)
-   local f = io.open(path, "r")
-   if f ~= nil then io.close(f) return true else return false end
+    if path:find("^ytdl://") then return false end
+    local f = io.open(path, "r")
+    if f then io.close(f) return true else return false end
 end
 
 -- get the source URL of a downloaded video file from it's metadata
 function getfileurl(path)
     local success, url = exec{"ffprobe", "-loglevel", "error",
-        "-show_entries", "format_tags=purl", "-of", "default=nk=1:nw=1", path}
-    if success == false or url == nil then url = "" end
+        "-show_entries", "format_tags=purl", "-of", "default=nk=1:nw=1", "--", path}
+    if success == false or (not url) then url = "" end
     return url:gsub("\n", "")
 end
 
 -- get the URL of the currently playing video
 function geturl()
-    local url = string.gsub(mp.get_property("path"), "ytdl://", "")
-    if isfile(url) then return getfileurl(url) else return url end
+    local path = mp.get_property("path")
+    if (not path) or path:find("^archive://") then
+        return false
+    elseif isfile(path) then
+        return getfileurl(path)
+    else
+        return url:gsub("^ytdl://", "")
+    end
 end
 
 -- test wether the given URL belongs to youtube
 function isyoutube(url)
-    return url:find("://youtu%.be/") ~= nil or url:find("://w*%.?youtube%.com/") ~= nil
+    local patterns = {"w*%.?youtu%.be/", "w*%.?youtube%.com/"}
+    for _, pattern in ipairs(patterns) do
+        if url:gsub("^https?://", ""):find(pattern) then return true end
+    end
+    return false
 end
 
 -- separate the given string into lines.
@@ -89,7 +100,7 @@ function wrap(s)
         else
             -- find the position of the first space character before the opts.max_width-th column
             local brk = line:sub(1, opts.max_width):reverse():find("%s")
-            if brk ~= nil then
+            if brk then
                 brk = opts.max_width - (brk - 1)
             else
                 brk = opts.max_width
@@ -133,7 +144,9 @@ end
 
 -- open the description file in a pager inside a terminal window.
 function opendesc()
-    local file = descfile[geturl()]
+    local url = geturl()
+    if (not url) or url == "" then return end
+    local file = descfile[url]
     if not isfile(file) then return end
     local term = os.getenv("TERMINAL")
     if term then
@@ -148,7 +161,7 @@ function savedesc(url, success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
     if not json then return end
-    if not exec{"mkdir", "-pm700", opts.cache_dir} then return end
+    if not exec{"mkdir", "-pm700", "--", opts.cache_dir} then return end
 
     -- if none of the important info are available, do not proceed
     if (not json.description) and (not json.comments) and
@@ -169,13 +182,13 @@ function savedesc(url, success, result, error)
     end
 
     -- write title, channel name, like and view count etc.
-    if json.title       then f:write("title:   ",   json.title,   "\n") end
+    if json.title       then f:write("title:   ", json.title,   "\n") end
     if json.channel     then f:write("channel: ", json.channel, "\n") end
     if json.upload_date then f:write("date:    ", formatdate(json.upload_date), "\n") end
     if json.view_count  then f:write("views:   ", numshorten(json.view_count), "\n") end
 
     -- if it's a youtube video, get the dislike count from returnyoutubedislike's API
-    if not json.dislike_count and isyoutube(url) then
+    if (not json.dislike_count) and isyoutube(url) then
         local success, stdout = exec{"curl", "-fsL", "--", opts.dislike_api_base..json.id}
         if success == true and stdout ~= "" then
             json.dislike_count = utils.parse_json(stdout).dislikes
@@ -238,7 +251,7 @@ end
 function fetchdesc()
     -- return if no URL is associated with the video
     local url = geturl()
-    if url == nil or url == "" then return end
+    if (not url) or url == "" then return end
 
     -- set the path of the cache file
     local id = genid(url)
