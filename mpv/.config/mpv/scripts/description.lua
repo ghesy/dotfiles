@@ -72,7 +72,7 @@ function geturl()
     elseif isfile(path) then
         return getfileurl(path)
     else
-        return url:gsub("^ytdl://", "")
+        return path:gsub("^ytdl://", "")
     end
 end
 
