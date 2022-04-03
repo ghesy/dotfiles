@@ -6,4 +6,4 @@
     *) exit 1 ;;
 esac
 export FZF_DEFAULT_OPTS='--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top'
-exec ${TERMINAL:?} -e sh -c 'exec $(getproxy https://www.youtube.com) ytfzf "$@" ${0:+"$0"}' ${s:+"$s"} "$@"
+exec ${TERMINAL:?} -e sh -c 'exec $(getproxy https://vid.puffyan.us) ytfzf "$@" ${0:+"$0"}' ${s:+"$s"} "$@"

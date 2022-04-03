@@ -2,6 +2,11 @@ is_loop=1
 enable_hist=1
 show_thumbnails=1
 
+video_player() {
+    sxipc "$YTFZF_PID"
+    pipeurl "$@"
+}
+
 thumbnail_quality=high
 thumbnail_viewer=img_display_function
 img_display_function() {
