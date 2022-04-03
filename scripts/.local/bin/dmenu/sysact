@@ -11,20 +11,27 @@ actions='鈴 Sleep
 colors='-sb #660066 -shb #660066 -sf white -shf red'
 
 main() {
+    set -e
     action=$1
     [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'System Action:' $colors)
-    case $(echo $action | tr A-Z a-z) in
-        *sleep) loginctl_chvt suspend$(can_hibernate && echo -then-hibernate) ;;
-        *poweroff) ask 'Poweroff?' && loginctl poweroff ;;
-        *logout) ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole) ;;
-        *hibernate)
+    case $action in
+        *' Sleep'|sleep|suspend)
+            loginctl_chvt suspend$(can_hibernate && echo -then-hibernate)
+        ;;
+        *' Poweroff'|poweroff|shutdown)
+            ask 'Poweroff?' && loginctl poweroff
+        ;;
+        *' Logout'|logout)
+            ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole)
+        ;;
+        *' Hibernate'|hibernate)
             if can_hibernate; then
                 ask 'Hibernate?' && loginctl_chvt hibernate
             else
                 notify-send 'Hibernation is not enabled on this machine.'
             fi
         ;;
-        *reboot)
+        *' Reboot'|reboot)
             unset os
             command -v grub-reboot >/dev/null &&
                 command -v grub-entries >/dev/null &&
