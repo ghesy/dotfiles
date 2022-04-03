@@ -234,7 +234,7 @@ gettype()
             echo file ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|*.m3u8|youtube.com/watch*|\
         youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
-        hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')|\
+        hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
         streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*)
