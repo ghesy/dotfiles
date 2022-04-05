@@ -12,6 +12,7 @@ local opts = {
     menu_padding_y = 5,
     ass_style = "{\\fnmonospace\\fs8}",
 }
+(require 'mp.options').read_options(opts)
 
 local keys = {
     { {"UP",    "k"},       "up",     function() menu_cursor_move(-1) end, {repeatable=true} },
@@ -42,8 +43,7 @@ function formats_save(url, success, result, error)
     if (not success) or (result.status ~= 0) then return end
     local json = utils.parse_json(result.stdout)
     if (not json) or (not json.formats) then return end
-    data[url] = {}
-    data[url].formats = {}
+    data[url] = {formats = {}}
     for _, fmt in ipairs(json.formats) do
         if is_format_valid(fmt) then
             fmt.label = build_format_label(fmt)
@@ -228,19 +228,19 @@ end
 -- rate the given parameter value based on it's precedence
 function get_param_precedence(param, value)
     local order = {
-        ["dynamic_range"] = {
+        dynamic_range = {
             {"sdr"}, {"^$"},  {"hlg"},  {"h?d?r?10$"},  {"h?d?r?10%+"},
             {"h?d?r?12"}, {"dv"}
         },
-        ["vcodec"] = {
+        vcodec = {
             {"theora"}, {"mp4v", "h263"}, {"vp0?8"}, {"[hx]264", "avc"},
             {"[hx]265", "he?vc"}, {"vp0?9$"}, {"vp0?9%.2"}, {"av0?1"},
         },
-        ["acodec"] = {
+        acodec = {
             {"dts"}, {"^ac%-?3"}, {"e%-?a?c%-?3"}, {"mp3"}, {"mp?4a?"}, {"avc"},
             {"vorbis", "ogg"}, {"opus"}
         },
-        ["protocol"] = {
+        protocol = {
             {"f4"}, {"ws", "websocket$"}, {"mms", "rtsp"}, {"^$"}, {"rtmpe?"},
             {"websocket_frag"}, {".*dash"}, {"m3u8.*"}, {"http$", "ftp$"},
             {"https", "ftps"},
@@ -254,7 +254,7 @@ function get_param_precedence(param, value)
     local n = 1
     for _, patternlist in ipairs(order[param]) do
         for _, pattern in ipairs(patternlist) do
-            if value:find(pattern) then
+            if value:lower():find(pattern) then
                 return n
             end
         end
@@ -288,11 +288,11 @@ end
 
 -- update the global url variable with the URL of the currently playing video
 function update_url()
-    local path = string.gsub(mp.get_property("path"), "ytdl://", "")
-    if isfile(path) then
+    local path = mp.get_property("path")
+    if (not path) or isfile(path) then
         return false
     else
-        url = path
+        url = path:gsub("ytdl://", "")
         return true
     end
 end
@@ -308,8 +308,10 @@ end
 
 -- test wether the given path is a file
 function isfile(path)
-   local f = io.open(path, "r")
-   if f ~= nil then io.close(f) return true else return false end
+    if     path:find("^archive://") then return true
+    elseif path:find("^ytdl://")    then return false end
+    local f = io.open(path, "r")
+    if f then io.close(f) return true else return false end
 end
 
 function isempty(var)

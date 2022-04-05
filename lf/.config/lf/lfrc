@@ -79,7 +79,6 @@ map <tab> :echo
 
 cmd q quit
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
-cmd archive $apack $1 $(realpath -s --relative-base=$PWD -- $fx)
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
 cmd togglenum push :set<space>number!;set<space>relativenumber!<enter>
 
@@ -87,7 +86,8 @@ cmd open $~/.config/lf/opener
 cmd openall $~/.config/lf/opener -a
 
 cmd mkdir %{{
-    printf ' '
+    set -e
+    printf ' mkdir '
     read dir
     mkdir -p -- $dir
     lf -remote 'send load'
@@ -122,6 +122,13 @@ cmd finder ${{
         .*) lf -remote "send $id set hidden" ;;
     esac
     printf '%s\n' $f | lfselect
+}}
+
+cmd archive ${{
+    printf '\e[?1049h\e[H'
+    apack $1 $(realpath -s --relative-base=$PWD -- $fx) ||
+        { read -p 'Press enter to continue'; exit; }
+    printf '%s\n' $1 | lfselect
 }}
 
 cmd extract ${{
