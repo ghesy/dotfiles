@@ -1,3 +1,14 @@
-l right-scroll
-h left-scroll
-U pipe .pipeurl -a\r
+l  right-scroll
+h  left-scroll
+c  clear-search
+^n next-file
+^p prev-file
+
+# toggle wrapping long lines
+w  toggle-option ^PS
+
+# toggle line numbers
+^l toggle-option ^PN
+
+# find and open URLs using pipeurl
+U  pipe .pipeurl -a\r
