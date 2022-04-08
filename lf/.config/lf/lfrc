@@ -30,6 +30,7 @@ map gh
 map g top
 map zz center
 map L openall
+map t preview-toggle
 map E extract
 map a push :archive<space>
 map U &termopen
@@ -55,15 +56,10 @@ map I push :rename<enter><c-a>
 map i push :rename<enter><a-b><a-b><a-f> # before extention
 map C push :rename<enter><c-u> # new rename
 
-# toggle the preview pane by pressing 't' or mouse-click
-map t preview-on
-map <m-1> push t
-cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;<space>load;map<space>t<space>preview-off<enter>
-cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;map<space>t<space>preview-on;<space>&sxipc<enter>
-
 # mouse mappings
 map <m-down> down
 map <m-up> up
+map <m-1> preview-toggle
 
 # remove bookmark maps
 map "'"
@@ -84,6 +80,10 @@ cmd togglenum push :set<space>number!;set<space>relativenumber!<enter>
 
 cmd open $~/.config/lf/opener
 cmd openall $~/.config/lf/opener -a
+
+cmd preview-toggle preview-on
+cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;load;cmd<space>preview-toggle<space>preview-off<enter>
+cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;cmd<space>preview-toggle<space>preview-on;&sxipc<enter>
 
 cmd mkdir %{{
     set -e
