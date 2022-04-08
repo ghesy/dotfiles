@@ -12,3 +12,7 @@ w  toggle-option ^PS
 
 # find and open URLs using pipeurl
 U  pipe .pipeurl -a\r
+
+#env
+LESS = -RSMi
+LESSHISTFILE = -
