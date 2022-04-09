@@ -7,7 +7,9 @@ set nopreview
 set period 1
 set ratios 1
 set dircounts
-set timefmt   "2006-01-02 15:04"
+set timefmt        "2006-01-02 15:04"
+set infotimefmtnew "2006-01-02 15:04"
+set infotimefmtold "2006-01-02 15:04"
 set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
@@ -31,6 +33,7 @@ map g top
 map zz center
 map L openall
 map t preview-toggle
+map T tag-toggle
 map E extract
 map a push :archive<space>
 map U &termopen
