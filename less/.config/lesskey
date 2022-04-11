@@ -11,7 +11,7 @@ w  toggle-option ^PS
 ^l toggle-option ^PN
 
 # find and open URLs using pipeurl
-U  pipe .pipeurl -a\r
+U  pipe .pipeurl ask\r
 
 #env
 LESS = -RSMi

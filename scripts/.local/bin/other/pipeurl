@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # find and open URLs using different programs and methods.
 # URLs can be extracted from a string supplied from the command line or standard input.
 # if the string is given via stdin, you will be asked to choose one URL using dmenu.
@@ -11,7 +11,8 @@
 #   -d, --download    download the contents of the URL instead of opening it.
 #                     (ex. videos will be passed to my ytdl script to be downloaded).
 #   -l, --listen      listen to the clipboard for one minute and use the first URL that is copied there.
-#   -a, --ask         use dmenu to ask wether to open, download or copy.
+#   -a, --ask         ask wether to open, download or copy the URL using dmenu.
+#   -H, --history     select and open an item from the history using dmenu.
 #
 # usage:
 #   pipeurl [--listen] [--copy|--download|--ask] [TEXT_CONTAINING_URL]
@@ -42,124 +43,135 @@ CACHE_DIR=~/.cache/pipeurl
 # = end of config
 # =================
 
+set -E -o functrace
+failure() { local lineno=$1; local msg=$2; echo "Failed at $lineno: $msg" ;}
+trap 'failure $LINENO "$BASH_COMMAND"' ERR
 
 # note: variables that are used globally (by multiple functions) are in capitol letters.
 
 main()
 {
-    ACTION=open listen=false
-    for a; do case $a in
-        -a|--ask) shift; ACTION=ask ;;
-        -c|--copy) shift; ACTION=copy ;;
-        -d|--download) shift; ACTION=dl ;;
-        -H|--history) ACTION=history ;;
-        -l|--listen) shift; listen=true ;;
-        -h|--help) print_help; exit ;;
-        --findurls) findurls; exit ;; # for internal use
+    # global variables
+    ACTION=open
+    CLIPBOARD=false
+    URL=''
+    URL_TYPE=''
+    readonly WID=${WINDOWID:+-w $WINDOWID}
+    readonly REP='string:x-canonical-private-synchronous:pipeurl'
+
+    for arg; do case $1 in
+        -h|--help) print_help; return ;;
+        -c|--clipboard) shift; CLIPBOARD=true ;;
+        --urlgrep) urlgrep; return ;; # for internal use
+        --) shift; break ;;
+        -*) echo "${0##*/}: invalid option: $arg"; return ;;
         *) break ;;
     esac; done
 
-    if [ $ACTION = history ]; then
-        show_history
-        exit
-    fi
+    case $1 in
+        c|copy) shift; ACTION=copy ;;
+        d|dl|download) shift; ACTION=download ;;
+        b|browse) shift; ACTION=browse ;;
+        a|ask) shift; ACTION='' ;;
+        h|history) history_menu; return ;;
+    esac
 
-    if [ $listen = true ]; then
-        URL=$(cliplisten)
-    else
-        URL=$(geturl "$@")
-    fi
-
-    [ -z "$URL" ] && exit 1
-
-    if [ $ACTION = ask ]; then
-        ACTION=$(ask_action) || exit 1
-    fi
-
+    update_url "$@" || return
     handle_url
 }
 
-handle_url() {
-    if [ $ACTION = copy ]; then
-        copy_to_clipboard
-        return
+update_url()
+{
+    if [ -n "$URL" ]; then
+        return 0
+    elif [ -n "$1" ]; then
+        URL=$(prnt "$1" | urlgrep | head -1)
+    elif [ "$CLIPBOARD" = true ]; then
+        URL=$(get_url_from_clipboard) || return
+    else
+        URL=$(ask_url_stdin) || return
     fi
-    type=$(gettype)
-    printf '%s\t%s\n' "$type" "$URL" >> "$CACHE_DIR/history"
-    case $type/$ACTION in
+    [ -n "$URL" ] && return 0 || return 1
+}
+
+ask_url_stdin()
+{
+    urlgrep | sort -u | ifne dmenu $WID -l 30 -p "Select URL${ACTION:+ to $ACTION}"
+}
+
+handle_url()
+{
+    update_url_type
+    update_action || return
+    [ "$ACTION" = copy ] && { copy_to_clipboard; return ;}
+    printf '%s\t%s\n' "$URL_TYPE" "$URL" >> "$CACHE_DIR/history"
+    case $URL_TYPE/$ACTION in
         file/open) file_dl_to_cache_and_open ;;
-        file/dl)   file_dl_to_dldir ;;
+        file/download) file_dl_to_dldir ;;
         stream/open) stream_open ;;
-        stream/dl)   stream_dl ;;
-        reddit/*) reddit_open ;;
-        other/*) exec xdg-open "$URL" ;;
+        stream/download) stream_dl ;;
+        reddit/open) reddit_open ;;
+        other/open) exec xdg-open "$URL" ;;
+        */browse) exec ${BROWSER:-xdg-open} "$URL" ;;
+        *) echo "the specified action is invalid for this URL.: $ACTION" >&2 ;;
     esac
 }
 
-show_history() {
+history_menu()
+{
+    local sel
     sel=$(column -t -s'	' -o' -- ' "$CACHE_DIR/history" | uniq | tac |
-        dmenu $W -l 30 -p 'PipeURL History') || return 1
+        dmenu $WID -l 30 -p 'PipeURL History') || return
     [ -z "$sel" ] && return 1
     URL=${sel#* -- }
-    ACTION=$(ask_action) || return 1
     handle_url
 }
 
-cliplisten() {
-    r=string:x-canonical-private-synchronous:pipeurl
-    pids=$(pgrep timeout -P"$(printf %s "$(pgrep "${0##*/}")" | tr '\n' ,)")
+get_url_from_clipboard()
+{
+    local pids=$(pgrep timeout -P"$(pgrep -d, "${0##*/}")")
     if [ -n "$pids" ]; then
         kill $pids
-        notify-send -h $r -t 1000 -u low PipeURL 'Stopped Listening to Clipboard.'
-        exit
+        notify-send -h $REP -t 1000 -u low PipeURL 'Stopped Listening to Clipboard.'
+        return 1
     fi
-    notify-send -h $r -t 1000 -u low PipeURL 'Listening to Clipboard...'
-    scriptpath=$0 timeout 1m sh <<- 'eof'
+    notify-send -h $REP -t 1000 -u low PipeURL 'Listening to Clipboard...'
+    scriptpath=$0 rep=$REP timeout 1m sh << 'eof'
         while :; do
             xclip -selection clipboard </dev/null
-            clipnotify || return 1
+            clipnotify || exit
             clip=$(xclip -o -selection clipboard)
             [ -z "$clip" ] && continue
-            url=$(printf '%s\n' "$clip" | "$scriptpath" --findurls | head -1)
+            url=$(printf '%s\n' "$clip" | "$scriptpath" --urlgrep | head -1)
             [ -z "$url" ] && continue
-            notify-send -t 1000 -u low PipeURL 'Got it.'
+            notify-send -h $rep -t 1000 -u low PipeURL 'Got it.'
             printf '%s\n' "$url"
             break
         done
-	eof
+eof
 }
 
-geturl() {
-    w=${WINDOWID:+-w $WINDOWID}
-    if [ -n "$1" ]; then
-        prnt "$1" | findurls | head -1
-    else
-        case $ACTION in
-            open) action_name=Open ;;
-            copy) action_name=Copy ;;
-            dl) action_name=Download ;;
-        esac
-        findurls | sort -u |
-            ifne dmenu $W -p "Select URL to $action_name" -l 10
-    fi
-}
-
-copy_to_clipboard() {
+copy_to_clipboard()
+{
     prnt "$URL" | xclip -r -selection clipboard
 }
 
-reddit_open() {
+reddit_open()
+{
+    local term
     [ -t 1 ] && unset term || term="${TERMINAL:?} -e"
     exec $term tuir $(prnt "$URL" | sed -E 's|.*/r/([^/]+)/?$|-s \1|')
 }
 
-stream_dl() {
+stream_dl()
+{
     exec setsid -f ${TERMINAL:?} -e ytdl "$URL" >/dev/null 2>&1
 }
 
-stream_open() {
-    error=false
-    notify-send -u low -t 1000 PipeURL 'Opening video...'
+stream_open()
+{
+    local msg error=false
+    notify-send -h $REP -u low -t 1000 PipeURL 'Opening video...'
     msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
@@ -171,25 +183,27 @@ stream_open() {
         msg=${msg#* ERROR: }
         msg=${msg%%(caused*}
         msg=$(prnt "$msg" | head -1)
-        notify-send PipeURL "Failed to open the video${msg:+:}
-$msg"
+        notify-send PipeURL "Failed to open the video${msg:+:
+$msg}"
     fi
 }
 
-file_dl_to_dldir() {
-    get_file_proxy_and_urls || return 1
+file_dl_to_dldir()
+{
+    get_file_proxy_and_urls || return
     [ -z "$URL" ] && return 1
     prnt "$URL" | while IFS= read -r u; do
-        $P aria2c -q -x10 -s10 -k1M -m1 --no-conf \
-            --async-dns=false -d"$(getdldir)" -- "$u" || {
+        $PXY aria2c -q -x10 -s10 -k1M -m1 --no-conf \
+            --async-dns=false -d"$(get_dl_dir)" -- "$u" || {
                 notify-send PipeURL "Failed: ${ORIGURL:-$URL}"
                 return 1
             }
     done
-    notify-send PipeURL "Done: $orig_url"
+    notify-send PipeURL "Done: $ORIGURL"
 }
 
-file_dl_to_cache_and_open() {
+file_dl_to_cache_and_open()
+{
     ID=$(prnt "$URL" | md5sum | cut -d' ' -f1)
     if [ ! -d "$CACHE_DIR" ] || [ -z "$(find "$CACHE_DIR" -name "$ID-*")" ]; then
         file_dl_to_cache || {
@@ -201,74 +215,93 @@ file_dl_to_cache_and_open() {
     sxiv -a -- "$CACHE_DIR"/$ID-* || mpv -quiet -- "$CACHE_DIR"/$ID-*
 }
 
-file_dl_to_cache() {
-    get_file_proxy_and_urls || return 1
+file_dl_to_cache()
+{
+    get_file_proxy_and_urls || return
     [ -z "$URL" ] && return 1
-    n=1
+    local n=1
     prnt "$URL" | while IFS= read -r u; do
-        $P aria2c -q -x10 -s10 -k1M -m1 --no-conf --auto-file-renaming=false \
-            --async-dns=false -d"$CACHE_DIR" -o"$ID-$n" -- "$u" || return 1
+        $PXY aria2c -q -x10 -s10 -k1M -m1 --no-conf --auto-file-renaming=false \
+            --async-dns=false -d"$CACHE_DIR" -o"$ID-$n" -- "$u" || return
          n=$((n+1))
     done
 }
 
-get_file_proxy_and_urls() {
+get_file_proxy_and_urls()
+{
     ORIGURL=$URL
     P=$(getproxy "$URL")
     # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
-    case $(getsimpleurl) in
+    case $(get_simple_url) in
         *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
-            URL=$($P gallery-dl -G -- "$URL") || return 1
+            URL=$($PXY gallery-dl -G -- "$URL") || return
             P=$(getproxy "$(prnt "$URL" | head -1)")
         ;;
     esac
 }
 
-gettype()
+update_url_type()
 {
-    case $(getsimpleurl) in
+    case $(get_simple_url) in
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
-            echo file ;;
+            URL_TYPE=file
+        ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
-            echo file ;;
+            URL_TYPE=file
+        ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|*.m3u8|youtube.com/watch*|\
         youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
         streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*)
-            echo stream ;;
+            URL_TYPE=stream
+        ;;
         reddit.com*|redd.it*)
-            echo reddit ;;
+            URL_TYPE=reddit
+        ;;
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
-            r='[\da-fA-F]'
-            getsimpleurl |
-                grep -Pq "^[^/]+/(videos/(watch|embed)|w(/p)?)/([\da-zA-Z]{22}|$r{8}(-$r{4}){3}-$r{12})\??" &&
-                echo stream ;;
-        *) echo other ;;
+            local uidchar='[0-9a-fA-F]'
+            local ptrn="^[^/]+/(videos/(watch|embed)|w(/p)?)/([0-9a-zA-Z]{22}|$a{8}(-$a{4}){3}-$a{12})($|(\?|#)\S+)"
+            get_simple_url | grep -Pq "$ptrn" && URL_TYPE=stream
+        ;;
+        *) URL_TYPE=other ;;
     esac
 }
 
-ask_action() {
-    case $(printf 'Open\nDownload\nCopy\n' | dmenu $W -p 'Choose Action') in
-        Open) echo open ;;
-        Download) echo dl ;;
-        Copy) echo copy ;;
-        *) return 1 ;;
+update_action()
+{
+    [ -n "$ACTION" ] && return 0
+    local action actions='Open\nDownload\nCopy\nBrowse\n'
+    case $URL_TYPE in
+        reddit) actions='Open\nCopy\nBrowse\n' ;;
+        other)  actions='Copy\nBrowse\n' ;;
+    esac
+    action=$(printf "$actions" | dmenu $WID -p 'Choose Action') || return
+    case $action in
+        Open|Copy|Download|Browse) ACTION=${action,,} ;;
+        *)
+            echo "the specified action doesn't exist." >&2
+            return 1 ;;
     esac
 }
 
-findurls() {
-    grep -Po '(ht|f)tps?://(www\.)?[a-zA-Z0-9-.]+(:\d+(?=(/|$)))?(/[a-zA-Z0-9\.,:;!\?'\''\\\+\*&%\$#=~_@()-]+)*'
+urlgrep()
+{
+    local domainchar='[a-zA-Z\d\.-]'
+    local urlchar='[a-zA-Z0-9\.,:;!\?'\''\\\+\*&%\$#=~_@()-]'
+    grep -Po "(ht|f)tps?://(www\.)?$domainchar+(:\d+(?=(/|$)))?(/$urlchar+)*" | sed "s/[\)']$//"
 }
 
-getsimpleurl() {
-    site=${URL#*://} site=${site#www.} site=${site%%'?'*} site=${site%/}
+get_simple_url()
+{
+    local site=${URL#*://}; site=${site#www.} site=${site%%'?'*} site=${site%/}
     prnt "$site"
 }
 
-getdldir() {
+get_dl_dir()
+{
     prnt "$DL_DIRS" | while IFS= read -r dir; do
         [ -d "$dir" ] && [ -r "$dir" ] && [ -w "$dir" ] || continue
         prnt "$dir"
@@ -277,15 +310,14 @@ getdldir() {
     echo ~
 }
 
-rep() {
-    for i in $(seq 1 "$1"); do
-        printf %s "$2"
-    done
+rep()
+{
+    printf "$2%.0s" $(eval echo {1..$1})
 }
 
-prnt() {
+prnt()
+{
     printf '%s\n' "$@"
 }
 
-W=${WINDOWID:+-w $WINDOWID}
 main "$@"
