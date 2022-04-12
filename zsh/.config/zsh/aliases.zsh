@@ -7,7 +7,8 @@ alias ls='command ls -AF --color=always --group-directories-first'
 
 lf() {
     pgrep -xs0 lf >/dev/null && exit
-    local tmp="$(mktemp)"
+    local tmp
+    tmp=$(mktemp) || return
     command lf -last-dir-path="$tmp" "$@"
     [ ! -f "$tmp" ] && return
     local dir="$(cat "$tmp")"

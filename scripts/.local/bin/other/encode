@@ -3,7 +3,7 @@
 # usage: encode FILE...
 
 # safely make a fifo
-d=$(mktemp -d)
+d=$(mktemp -d) || exit
 trap exit INT TERM
 trap 'rm -r "$d"' EXIT
 fifo=$d/fifo

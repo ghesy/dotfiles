@@ -2,7 +2,7 @@
 # open the given path in lf.
 if [ "$1" = -a ]; then
     shift
-    tmp=$(mktemp)
+    tmp=$(mktemp) || exit
     lf -last-dir-path="$tmp" "$@"
     [ ! -f "$tmp" ] && exit
     dir=$(cat "$tmp")
