@@ -64,7 +64,7 @@ map <m-down> down
 map <m-up> up
 map <m-1> preview-toggle
 
-# remove bookmark maps
+# remove bookmark mappings
 map "'"
 map '"'
 
@@ -99,7 +99,7 @@ cmd mkdir %{{
 
 cmd trash &{{
     lf -remote "send $id echo Trashing..."
-    msg=$(mktemp)
+    msg=$(mktemp) || exit
     trap 'rm -f "$msg"' EXIT
     if trash-put $fx >$msg 2>&1; then
         lf -remote "send $id echo Trashing Done."
@@ -143,6 +143,8 @@ cmd extract ${{
 cmd paste ${{
     printf '\e[?1049h\e[H'
     list=~/.local/share/lf/files
+    [ ! -f $list ] || [ $(wc -l <$list) -le 1 ] &&
+        { lf -remote "send $id echo nothing to paste."; exit ;}
     mode=$(head -n1 $list)
     srcs=$(sed 1d $list)
     tput civis
@@ -160,8 +162,8 @@ cmd paste ${{
 
 cmd center &{{
     n=$(stty size </dev/"$(ps -o tty= -p $$)" | cut -d' ' -f1)
-    lf -remote "send set scrolloff $(( (n - 3) / 2 ))"
-    lf -remote 'send push jk:scrolloff<enter>'
+    lf -remote "send $id set scrolloff $(( (n - 3) / 2 ))"
+    lf -remote "send $id push jk:scrolloff<enter>"
 }}
 
 # vim:ft=conf
