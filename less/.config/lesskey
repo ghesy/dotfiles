@@ -13,6 +13,9 @@ w  toggle-option ^PS
 # find and open URLs using pipeurl
 U  pipe .pipeurl ask\r
 
+# pipe the text through fribidi and show it
+x  pipe \^fribidi | less\r
+
 #env
-LESS = -RSMi
+LESS = -RSMWi --incsearch --line-num-width=3 --mouse --wheel-lines=3
 LESSHISTFILE = -
