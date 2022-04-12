@@ -230,13 +230,13 @@ file_dl_to_cache()
 get_file_proxy_and_urls()
 {
     ORIGURL=$URL
-    P=$(getproxy "$URL")
+    PXY=$(getproxy "$URL")
     # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
     case $(get_simple_url) in
         *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
             URL=$($PXY gallery-dl -G -- "$URL") || return
-            P=$(getproxy "$(prnt "$URL" | head -1)")
+            PXY=$(getproxy "$(prnt "$URL" | head -1)")
         ;;
     esac
 }
@@ -262,8 +262,8 @@ update_url_type()
             URL_TYPE=reddit
         ;;
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
-            local uidchar='[0-9a-fA-F]'
-            local ptrn="^[^/]+/(videos/(watch|embed)|w(/p)?)/([0-9a-zA-Z]{22}|$a{8}(-$a{4}){3}-$a{12})($|(\?|#)\S+)"
+            local u='[0-9a-fA-F]' # match a UID character
+            local ptrn="^[^/]+/(videos/(watch|embed)|w(/p)?)/([0-9a-zA-Z]{22}|$u{8}(-$u{4}){3}-$u{12})($|(\?|#)\S+)"
             get_simple_url | grep -Pq "$ptrn" && URL_TYPE=stream
         ;;
         *) URL_TYPE=other ;;
@@ -312,7 +312,7 @@ get_dl_dir()
 
 rep()
 {
-    printf "$2%.0s" $(eval echo {1..$1})
+    printf "$2%.0s" $(eval echo "{1..$1}")
 }
 
 prnt()
