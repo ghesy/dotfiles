@@ -10,20 +10,20 @@ lf() {
     local tmp
     tmp=$(mktemp) || return
     command lf -last-dir-path="$tmp" "$@"
-    [ ! -f "$tmp" ] && return
-    local dir="$(cat "$tmp")"
+    [ -f "$tmp" ] || return
+    local dir=$(<"$tmp")
     rm -f "$tmp"
-    [ -d "$dir" ] && [ "$dir" != "$(pwd)" ] && cd "$dir"
+    [ -d "$dir" ] && [ "$dir" != "$PWD" ] && cd "$dir"
 }
 
 search() {
-    F="$(finder "$@")" || return 1
-    if [[ "$(basename -- "$F")" == .* ]]; then
-        lf -command 'set hidden' -- "$F"
+    local f
+    f="$(finder "$@")" || return
+    if [[ "$(basename -- "$f")" == .* ]]; then
+        lf -command 'set hidden' -- "$f"
     else
-        lf -- "$F"
+        lf -- "$f"
     fi
-    unset F
 }
 
 paru() {
