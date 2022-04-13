@@ -22,5 +22,17 @@ pos=$(printf 'same-as\nright-of\nleft-of\nabove\nbelow\n' | dmenu $w -p "Choose 
 rel=$(xrandr | grep ' connected' | cut -d' ' -f1 | grep -Fwv "$mon")
 [ $(echo "$rel" | wc -l) -gt 1 ] && { rel=$(echo "$rel" | dmenu $w -p "Put $mon $pos which monitor?") || exit ;}
 
+# if the monitor was already enabled, don't wait for it again
+xrandr --listmonitors | grep -Fwq "$mon" && wait=false || wait=true
+
 # apply the selected settings
 xrandr --output "${mon:?}" --auto ${type:+--"$type"} ${rel:+--"$pos" "$rel"} || exit
+
+# disable the monitor upon disconnection
+[ "$wait" != true ] && exit
+( xev -event randr -root -1 | while IFS= read -r line; do
+    case $line in *" ${mon:?},"*' RR_Disconnected,'*)
+        xrandr --output "${mon:?}" --auto
+        exit ;;
+    esac
+done &) >/dev/null 2>&1
