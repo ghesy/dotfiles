@@ -113,7 +113,7 @@ summary_end() {
     echo "[ytdl] Summary: $NTOTAL Total Downloads, ${#FAILED[@]} Failed."
     [ ${#FAILED[@]} -lt 1 ] && exit
     echo 'Failed Downloads:'
-    printf '- %s\n' "${FAILED[@]}"
+    printf -- '- %s\n' "${FAILED[@]}"
 }
 
 main "$@"
