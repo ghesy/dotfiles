@@ -43,28 +43,23 @@ CACHE_DIR=~/.cache/pipeurl
 # = end of config
 # =================
 
-set -E -o functrace
-failure() { local lineno=$1; local msg=$2; echo "Failed at $lineno: $msg" ;}
-trap 'failure $LINENO "$BASH_COMMAND"' ERR
-
-# note: variables that are used globally (by multiple functions) are in capitol letters.
-
 main()
 {
-    # global variables
+    # === global variables
     ACTION=open
     CLIPBOARD=false
     URL=''
     URL_TYPE=''
     readonly WID=${WINDOWID:+-w $WINDOWID}
     readonly REP='string:x-canonical-private-synchronous:pipeurl'
+    # ===
 
     for arg; do case $1 in
         -h|--help) print_help; return ;;
         -c|--clipboard) shift; CLIPBOARD=true ;;
         --urlgrep) urlgrep; return ;; # for internal use
         --) shift; break ;;
-        -*) echo "${0##*/}: invalid option: $arg"; return ;;
+        -*) echo "${0##*/}: invalid option: $arg" >&2; return 1 ;;
         *) break ;;
     esac; done
 
@@ -103,18 +98,31 @@ handle_url()
 {
     update_url_type
     update_action || return
-    [ "$ACTION" = copy ] && { copy_to_clipboard; return ;}
-    printf '%s\t%s\n' "$URL_TYPE" "$URL" >> "$CACHE_DIR/history"
+    case $ACTION in
+        copy|browse) ;; *) add_to_history ;;
+    esac
     case $URL_TYPE/$ACTION in
+        # urltype-based actions
         file/open) file_dl_to_cache_and_open ;;
         file/download) file_dl_to_dldir ;;
-        stream/open) stream_open ;;
-        stream/download) stream_dl ;;
+        video/open) stream_open ;;
+        video/download) stream_dl ;;
         reddit/open) reddit_open ;;
-        other/open) exec xdg-open "$URL" ;;
+        # default actions
+        */copy) copy_to_clipboard ;;
+        */download) file_dl_to_dldir ;;
+        */stream) stream_open ;;
         */browse) exec ${BROWSER:-xdg-open} "$URL" ;;
-        *) echo "the specified action is invalid for this URL.: $ACTION" >&2 ;;
+        */xdg-open|*/open) exec xdg-open "$URL" ;;
+        *)
+            echo "${0##*/} invalid url type or action: $ACTION" >&2
+            return 1 ;;
     esac
+}
+
+add_to_history()
+{
+    printf '%s\t%s\n' "$URL_TYPE" "$URL" >> "$CACHE_DIR/history"
 }
 
 history_menu()
@@ -247,18 +255,18 @@ update_url_type()
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
             URL_TYPE=file
         ;;
-        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
-            URL_TYPE=file
-        ;;
         *.mp4|*.mp4?*|*.webm|*.gifv|*.mkv|*.mp3|*.mp3?*|*.flac|*.opus|*.ogg|*.m3u8|youtube.com/watch*|\
         youtube.com/v/*|youtube.com/playlist*|youtube.com/embed/*|youtube.com/shorts/*|youtu.be/*|\
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*)
-            URL_TYPE=stream
+        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*)
+            URL_TYPE=video
         ;;
-        reddit.com*|redd.it*)
+        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
+            URL_TYPE=file
+        ;;
+        reddit.com/*|redd.it/*)
             URL_TYPE=reddit
         ;;
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
@@ -273,16 +281,17 @@ update_url_type()
 update_action()
 {
     [ -n "$ACTION" ] && return 0
-    local action actions='Open\nDownload\nCopy\nBrowse\n'
+    local actlist='Open\nDownload\nStream\nCopy\nBrowse\nxdg-open\n'
     case $URL_TYPE in
-        reddit) actions='Open\nCopy\nBrowse\n' ;;
-        other)  actions='Copy\nBrowse\n' ;;
+        video) actlist='Stream\nDownload\nCopy\nBrowse\nxdg-open\n' ;;
+        other)  actlist='Browse\nStream\nCopy\nDownload\nxdg-open\n' ;;
     esac
-    action=$(printf "$actions" | dmenu $WID -p 'Choose Action') || return
+    local action
+    action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
     case $action in
-        Open|Copy|Download|Browse) ACTION=${action,,} ;;
+        Open|Download|Stream|Copy|Browse|xdg-open) ACTION=${action,,} ;;
         *)
-            echo "the specified action doesn't exist." >&2
+            echo "${0##*/}: invalid action: $action" >&2
             return 1 ;;
     esac
 }
