@@ -50,6 +50,8 @@ Bash Mount: tui bashmount
 Dictionary: tui dictfzf
 Calculator : tui calc
 TV Shows: tui tv
+Transmission, Torrenting: tui tremc
+Download Manager, aria2p: tui aria2p
 
 Autolock : autolock
 No Autolock : autolock -p
