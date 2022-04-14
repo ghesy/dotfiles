@@ -176,6 +176,7 @@ let g:floaterm_keymap_kill   = '<F10>'
 let g:floaterm_width = 0.9
 let g:floaterm_height = 0.9
 let g:floaterm_autoclose = 2
+autocmd VimResized * FloatermUpdate
 
 " colors and appearance
 let g:gruvbox_material_better_performance = 1
