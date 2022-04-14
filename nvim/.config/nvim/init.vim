@@ -137,9 +137,6 @@ nnoremap <silent><Leader>eq :wincmd =<CR>
 nnoremap <silent><Leader>wq :wincmd q<CR>
 nnoremap <silent><Leader>on :only<CR>
 
-" equalize window sizes upon vim resize
-au VimResized * wincmd =
-
 " search for the visually selected text
 vnoremap <silent> // :<C-U>
   \ let old_reg=getreg('"')<Bar>let old_regtype=getregtype('"')<CR>
@@ -150,6 +147,12 @@ vnoremap <silent> // :<C-U>
 " perform replace on visually-selected text
 vnoremap <C-r> "hy:%s/<C-r><C-r>=escape(@h, '/\.*$^~[')<CR>
   \//gc<left><left><left>
+
+" equalize window sizes upon vim resize
+autocmd VimResized * wincmd = |
+
+" set the compiler to shellcheck on shell scripts
+autocmd FileType sh,bash compiler shellcheck
 
 " recognise double-slash cpp-style comments in json files
 autocmd FileType json syntax match Comment +\/\/.\+$+
