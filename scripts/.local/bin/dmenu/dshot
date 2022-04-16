@@ -1,43 +1,52 @@
-#!/bin/sh
-# an elaborated version of luke smith's screenshot script.
-# requires maim and dmenu.
-# it lets you choose the kind of screenshot to take,
-# including copying the image or even highlighting an area to copy.
-# scrotcucks on suicidewatch right now.
+#!/bin/bash
+# screenshot using maim and dmenu.
+# "it lets you choose the kind of screenshot to take,
+#  including copying the image or even highlighting an area to copy.
+#  scrotcucks on suicidewatch right now." - Luke Smith
 
 # config
 dir=~/Documents/Screenshots
 savemode='Save '
 copymode='Copy '
-mode=$savemode # initial mode (possible values: Save, Clipboard)
+mode=$savemode # initial mode
 delay=0.2
 
 while :; do
-    fn="$(
+    sel=$(
         printf '%s\n' \
-            "Mode = $mode" Fullscreen 'Select Area' 'Current Window' |
+            "Mode = $mode" 'Fullscreen' 'Select Area' 'Current Window' |
             dmenu -p Screenshot ${WINDOWID:+-w $WINDOWID}
-    )" || exit 1
-    case "$fn" in
-        Mode*) [ "$mode" = "$savemode" ] && mode="$copymode" || mode="$savemode" ;;
+    ) || exit 1
+    case $sel in
+        'Mode = '*)
+            [ "$mode" = "$savemode" ] && mode=$copymode || mode=$savemode ;;
         *) break ;;
     esac
 done
 
 mkdir -p "$dir" || dir=~
-case $mode in
-    "$savemode") a="$(date +"$dir"/%y%m%d-%H%M%S).png" ;;
-    "$copymode") a="| xclip -selection clipboard -t image/png" ;;
-esac
+
+[ "$mode" = "$savemode" ] && img=$dir/$(date +%y%m%d-%H%M%S).png || unset img
 
 sleep $delay
-case "$fn" in
-    Full*) eval maim -u "$a" ;;
-    Select*) eval maim -us "$a" ;;
-    Current*) eval maim -ui $(xdotool getactivewindow) "$a" ;;
-esac
 
-[ $? -eq 0 ] && case "$mode" in
-    "$savemode") notify-send -i "$a" 'Screenshot Saved.' ;;
+case $sel in
+    'Fullscreen') maim -u ${img:+"$img"} ;;
+    'Select Area') maim -us ${img:+"$img"} ;;
+    'Current Window') maim -ui "$(xdotool getactivewindow)" ${img:+"$img"} ;;
+    *) [ -n '' ]
+esac | { [ "$mode" = "$copymode" ] && xclip -selection clipboard -t image/png ;}
+
+[ ${PIPESTATUS[0]} -ne 0 ] && {
+    notify-send 'Failed to Screenshot.'
+    exit 1
+}
+
+case $mode in
     "$copymode") notify-send 'Screenshot Copied to Clipboard.' ;;
+    "$savemode")
+        cmd=$(dunstify  'Screenshot Saved.' -i "$img" -A open,Open) ||
+            notify-send 'Screenshot Saved.' -i "$img"
+        [ "$cmd" = open ] || exit 0
+        termopen "$img" || xdg-open "$img"
 esac
