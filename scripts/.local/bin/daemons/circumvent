@@ -1,57 +1,114 @@
-#!/bin/sh
+#!/bin/bash
 # configure and start the psiphon proxy client.
-# requires psiphon-console-client(AUR), curl, firejail, firejail's circumvent profile and libnotify(optional).
+# requires psiphon-console-client(AUR), curl, firejail and libnotify(optional).
 
 # Config
 # ==========
 # ports
-SOCKS_PORT=9050
-HTTP_PORT=8585
+PORT_SOCKS=9050
+PORT_HTTP=8585
 # where to put the psiphon binary and configs
-DATA_DIR=~/.local/share/circumvent
+DATADIR=~/.local/share/circumvent
 # ==========
 
-main() {
-    unset VERBOSE
-    case $1 in -v|--verbose) VERBOSE=true ;; esac
-    wait_for_internet
-    gen_psiphon_configs
-    start_psiphon
+# steps:
+# - wait for internet
+# - start psiphon
+# - while psiphon is running, check connectivity
+#   - shutdown psiphon if there is no internet
+#   - restart it if internet is back
+
+PSIPHON_PID=''
+
+rsleep()
+{
+    local IFS
+    [ -n "$sleepfd" ] || { exec {sleepfd}<> <(:); readonly sleepfd ;}
+    read -t "$1" -u ${sleepfd:?} || :
 }
 
-# if NetworkManager is available, use it to wait until we have internet
-wait_for_internet() {
-    if [ "$1" != -n ] && command -v nmcli >/dev/null && pidof -q NetworkManager; then
-        echo waiting for internet connectivity...
-        while :; do
-            case $(nmcli -g general.ip4-connectivity dev show) in *full*) break ;; esac
-            sleep 30
-        done
-    fi
+main()
+{
+    while :; do
+        wait_for_internet & wait
+        psiphon_start
+        wait_for_no_internet & wait
+        psiphon_start
+    done
+}
+
+wait_for_internet()
+{
+    until have_internet; do rsleep 1m; done
+}
+
+wait_for_no_internet()
+{
+    until ! have_internet; do rsleep 3m; done
+}
+
+have_internet()
+{
+    case $(nmcli -g general.ip4-connectivity dev show) in *full*) return 0 ;; esac
+    curl -s icanhazip.com >/dev/null && return 0 || return 1
+}
+
+psiphon_start()
+{
+    psiphon &
+    PSIPHON_PID=$$
+}
+
+psiphon_stop()
+{
+    kill $PSIPHON_PID
 }
 
 # start psiphon
-start_psiphon() {
+psiphon()
+{
     echo starting psiphon...
-    pidof -qx psiphon-console-client && die 'another instance of psiphon-console-client is running.'
-    trap 'echo exiting...; pkill -P$$' HUP INT TERM
-    firejail --profile=circumvent psiphon-console-client -config "$DATA_DIR"/config.json -dataRootDirectory "$DATA_DIR" 2>&1 |
-        while IFS= read -r line; do
-            [ "$VERBOSE" = true ] && printf '%s\n' "$line"
-            case $line in
-            *Tunnels*)
-                curl -s --socks5 localhost:$SOCKS_PORT ping.archlinux.org >/dev/null && {
-                    echo psiphon connected.
-                    notify-send Circumvent Connected.
-                }
-            ;;
-            *PortInUse*)
-                die "one of the ports ($SOCKS_PORT, $HTTP_PORT) is in use, probably by Tor."
-            ;;
-            esac
-    done &
+
+    pidof -qx psiphon-console-client &&
+        die 'another instance of psiphon-console-client is running.'
+
+    trap 'echo exiting...; pkill -P$BASHPID' HUP INT TERM
+
     echo psiphon started, connecting...
-    wait
+
+    sandbox psiphon-console-client \
+        -config "$DATADIR"/config.json \
+        -dataRootDirectory "$DATADIR" 2>&1 |
+        psiphon_process_stdout
+}
+
+sandbox()
+{
+    firejail --profile=<(print_firejail_profile)
+}
+
+psiphon_process_stdout() {
+    while IFS= read -r line; do
+        [ "$VERBOSE" = true ] && printf '%s\n' "$line"
+        case $line in
+        *Tunnels*)
+            is_proxy_working && {
+                echo psiphon connected.
+                notify-send Circumvent Connected.
+            }
+        ;;
+        *PortInUse*)
+            die "one of the ports ($PORT_SOCKS, $PORT_HTTP) is in use, probably by Tor."
+        ;;
+        esac
+    done
+}
+
+is_proxy_working() {
+    for a in ping.archlinux.org icanhazip.com; do
+        curl -s --socks5 "127.0.0.1:$PORT_SOCKS" "$a" >/dev/null && return 0
+    done
+    return 1
 }
 
 die() {
@@ -63,10 +120,10 @@ die() {
 # generate psiphon's config file
 gen_psiphon_configs() {
     echo writing the config file...
-    cat << EOF > "$DATA_DIR"/config.json || die "failed to write psiphon's config."
+    cat << EOF > "$DATADIR"/config.json || die "failed to write psiphon's config."
 {
-    "LocalHttpProxyPort": $HTTP_PORT,
-    "LocalSocksProxyPort": $SOCKS_PORT,
+    "LocalHttpProxyPort": $PORT_HTTP,
+    "LocalSocksProxyPort": $PORT_SOCKS,
     "SponsorId": "FFFFFFFFFFFFFFFF",
     "PropagationChannelId": "FFFFFFFFFFFFFFFF",
     "RemoteServerListSignaturePublicKey": "MIICIDANBgkqhkiG9w0BAQEFAAOCAg0AMIICCAKCAgEAt7Ls+/39r+T6zNW7GiVpJfzq/xvL9SBH5rIFnk0RXYEYavax3WS6HOD35eTAqn8AniOwiH+DOkvgSKF2caqk/y1dfq47Pdymtwzp9ikpB1C5OfAysXzBiwVJlCdajBKvBZDerV1cMvRzCKvKwRmvDmHgphQQ7WfXIGbRbmmk6opMBh3roE42KcotLFtqp0RRwLtcBRNtCdsrVsjiI1Lqz/lH+T61sGjSjQ3CHMuZYSQJZo/KrvzgQXpkaCTdbObxHqb6/+i1qaVOfEsvjoiyzTxJADvSytVtcTjijhPEV6XskJVHE1Zgl+7rATr/pDQkw6DPCNBS1+Y6fy7GstZALQXwEDN/qhQI9kWkHijT8ns+i1vGg00Mk/6J75arLhqcodWsdeG/M/moWgqQAnlZAGVtJI1OgeF5fsPpXu4kctOfuZlGjVZXQNW34aOzm8r8S0eVZitPlbhcPiR4gT/aSMz/wd8lZlzZYsje/Jr8u/YtlwjjreZrGRmG8KMOzukV3lLmMppXFMvl4bxv6YFEmIuTsOhbLTwFgh7KYNjodLj/LsqRVfwz31PgWQFTEPICV7GCvgVlPRxnofqKSjgTWI4mxDhBpVcATvaoBl1L/6WLbFvBsoAUBItWwctO2xalKxF5szhGm8lccoc5MZr8kfE0uxMgsxz4er68iCID+rsCAQM=",
@@ -93,6 +150,35 @@ gen_psiphon_configs() {
         }
     ]
 }
+EOF
+}
+
+print_firejail_profile() {
+    cat << EOF
+include globals.local
+include disable-common.inc
+include disable-devel.inc
+include disable-interpreters.inc
+machine-id
+netfilter
+no3d
+nodvd
+nogroups
+noinput
+nonewprivs
+nosound
+notv
+nou2f
+novideo
+protocol unix,inet,inet6
+seccomp
+shell none
+x11 none
+disable-mnt
+private-tmp
+private-dev
+mkdir "$DATADIR"
+whitelist "$DATADIR"
 EOF
 }
 
