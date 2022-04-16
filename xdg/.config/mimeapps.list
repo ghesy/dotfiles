@@ -4,6 +4,7 @@ inode/directory=file.desktop
 
 text/plain=text.desktop
 text/x-shellscript=text.desktop
+text/x-Algol68=text.desktop
 application/json=text.desktop
 
 image/png=img.desktop
