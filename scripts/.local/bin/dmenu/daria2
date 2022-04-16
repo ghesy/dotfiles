@@ -1,26 +1,34 @@
-#!/bin/sh
-# change aria2 server options via dmenu.
+#!/bin/bash
+host='http://localhost:6800/rpc'
 
-# config
-host=http://localhost:6800/rpc
-opts='max-concurrent-downloads
-max-overall-download-limit
-optimize-concurrent-downloads'
+opts=(
+    max-concurrent-downloads
+    max-overall-download-limit
+    optimize-concurrent-downloads
+)
 
-getval() {
-    printf '%s\n' "${o:?}" | grep -A1 "${1:?}" | tail -n1 | cut -d"'" -f2
-}
-w=${WINDOWID:+-w $WINDOWID}
-unset msg
+# getval() {
+#     printf '%s\n' "${o:?}" | grep -FA1 "'${1:?}'" | tail -1 | cut -d"'" -f2
+# }
+# s=$(for opt in $opts; do printf '%s: %s\n' "$opt" "$(getval "$opt")"; done)
+# echo "$s"
+
+# xmlrpc "${host:?}" aria2.getGlobalOption | while IFS= read -r line; do
+#     case $line in
+#         "  Key:   String: '"
+#     esac
+# done
+
+opts=("${opts[@]/#/  Key:   String: \'}")
+opts=("${opts[@]/%/\'|}")
+ptrn=$(printf '%s' "${opts[@]}")
+
 while :; do
-    o=$(xmlrpc "${host:?}" aria2.getGlobalOption) || exit 1
-    s=$(for opt in $opts; do printf '%s: %s\n' "$opt" "$(getval "$opt")"; done |
-        dmenu $w -l 10 ${msg:+-p "$msg"}) || exit 0
-    val=$(dmenu $w -p 'new value:' <&-) || exit 0
-    val=$(echo "$val" | sed 's/:/\\:/g')
-    case $(xmlrpc "${host:?}" \
-        aria2.changeGlobalOption struct/"{${s%%:*}:$val}") in
-        *"'OK'"*) msg=Success. ;;
-        *) msg=Failed. ;;
-    esac
+    o=$(xmlrpc "${host:?}" aria2.getGlobalOption) || exit
+    sel=$(
+        printf '%s\n' "$o" |
+            grep -EA1 "${ptrn%|}" | cut -d"'" -f2 |
+            sed -z 's/\n/: /g;s/: --: /\n/g;s/:.$/\n/g' | dmenu -l 30
+    ) || exit
+    val=$(dmenu $w -p 'new value:' <&-) || exit
 done
