@@ -5,25 +5,14 @@
 # otherwise, the first URL that is found will be chosen.
 # this script detects censorship and bypasses it using proxychains(1).
 #
-# options:
-#   no options:       open the URL (ex. open videos using mpv).
-#   -c, --copy        copy the URL to clipboard and exit.
-#   -d, --download    download the contents of the URL instead of opening it.
-#                     (ex. videos will be passed to my ytdl script to be downloaded).
-#   -l, --listen      listen to the clipboard for one minute and use the first URL that is copied there.
-#   -a, --ask         ask wether to open, download or copy the URL using dmenu.
-#   -H, --history     select and open an item from the history using dmenu.
-#
 # usage:
-#   pipeurl [--listen] [--copy|--download|--ask] [TEXT_CONTAINING_URL]
+#   pipeurl [-c|--clipboard] [open|copy|download|browse|ask|history] URL
 #
 # dependencies:
 #   moreutils, dmenu, libnotify, mpv, aria2,
 #   gallery-dl, tuir (for opening reddit URLs),
 #   my getproxy script (for circumventing censorship) and
 #   my ytdl script (for downloading videos).
-#
-# TODO: write the print_help() function
 
 
 # =================
@@ -64,6 +53,7 @@ main()
     esac; done
 
     case $1 in
+        o|open) shift; ACTION=open ;;
         c|copy) shift; ACTION=copy ;;
         d|dl|download) shift; ACTION=download ;;
         b|browse) shift; ACTION=browse ;;
@@ -102,18 +92,16 @@ handle_url()
         copy|browse) ;; *) add_to_history ;;
     esac
     case $URL_TYPE/$ACTION in
-        # type specific actions
         file/open) file_dl_to_cache_and_open ;;
-        reddit/open) reddit_open ;;
-        # default actions
+        reddit/tuir|reddit/open) reddit_open ;;
+        */stream|video/open) stream_open ;;
+        */browse|other/open) exec ${BROWSER:-xdg-open} "$URL" ;;
+        */aria2|file/download) file_dl_to_dldir ;;
+        */ytdl|video/download) stream_dl ;;
         */copy) copy_to_clipboard ;;
-        */stream) stream_open ;;
-        */ytdl) stream_dl ;;
-        */aria2) file_dl_to_dldir ;;
-        */browse) exec ${BROWSER:-xdg-open} "$URL" ;;
         */xdg-open) exec xdg-open "$URL" ;;
         *)
-            echo "${0##*/} invalid url type or action: $ACTION" >&2
+            echo "${0##*/} invalid url type or action: $URL_TYPE/$ACTION" >&2
             return 1 ;;
     esac
 }
@@ -164,9 +152,11 @@ copy_to_clipboard()
 
 reddit_open()
 {
-    local term
+    local term sub
     [ -t 1 ] && unset term || term="${TERMINAL:?} -e"
-    exec $term tuir $(prnt "$URL" | sed -E 's|.*/r/([^/]+)/?$|-s \1|')
+    URL=$(prnt "$URL" | sed -E 's|^(https?://)?(www\.)?(libreddit\.[^/]+)(\S*)|\1reddit.com\4|')
+    sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+/?') && URL=$sub || unset sub
+    exec $term tuir ${sub:+-s} "${URL%/}"
 }
 
 stream_dl()
@@ -264,7 +254,7 @@ update_url_type()
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
             URL_TYPE=file
         ;;
-        reddit.com/*|redd.it/*)
+        reddit.com/*|redd.it/*|libreddit.*/*)
             URL_TYPE=reddit
         ;;
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
@@ -281,14 +271,14 @@ update_action()
     [ -n "$ACTION" ] && return 0
     local actlist action
     case $URL_TYPE in
-        file) aclist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
-        reddit) aclist='Open\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        video) actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        other) actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
+        file)   aclist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
+        reddit) actlist='tuir\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
+        video)  actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
+        other)  actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
     esac
     action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
     case $action in
-        Open|Stream|Copy|Browse|ytdl|aria2|xdg-open) ACTION=${action,,} ;;
+        Open|Stream|Copy|Browse|ytdl|aria2|tuir|xdg-open) ACTION=${action,,} ;;
         *)
             echo "${0##*/}: invalid action: $action" >&2
             return 1 ;;
@@ -326,6 +316,21 @@ rep()
 prnt()
 {
     printf '%s\n' "$@"
+}
+
+print_help()
+{
+    cat << 'EOF'
+usage:
+  pipeurl [-c|--clipboard] [open|copy|download|browse|ask|history] URL
+
+options:
+  -c, --clipboard  get the url from the clipboard
+  -h, --help       print this help message and exit
+
+the first parameter after the options is the
+action that will be performed on the URL.
+EOF
 }
 
 main "$@"
