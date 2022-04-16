@@ -18,7 +18,6 @@ TS3 : trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 Ripcord : trayrun ripcord
 Discord : discord
 Telegram : telegram-desktop
-Whatsapp : if command -v whatsapp-for-linux; then whatsapp-for-linux; else web https://web.whatsapp.com; fi
 AnyDesk : trayrun anydesk
 Printers : system-config-printer
 Gimp : gimp
@@ -26,9 +25,11 @@ Reset Tor : restor
 VirtualMic : virtualmic
 Syncthing : syncthingopen
 Footabll Streams: fstream
+Whatsapp : if command -v whatsapp-for-linux; then whatsapp-for-linux; \
+    else web https://web.whatsapp.com; fi
 
-OBS, Recorder : m=$(pactl load-module module-remap-sink \
-    sink_name=OBSSink sink_properties=device.description=OBSSink); obs; pactl unload-module $m
+OBS, Recorder : m=$(pactl load-module module-remap-sink sink_name=OBSSink \
+    sink_properties=device.description=OBSSink); obs; pactl unload-module $m
 
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
