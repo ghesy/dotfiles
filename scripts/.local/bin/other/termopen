@@ -3,7 +3,9 @@
 if [ "$1" = -a ]; then
     shift
     tmp=$(mktemp) || exit
-    lf -last-dir-path="$tmp" "$@"
+    unset ishidden
+    case $1 in .*) ishidden=true ;; esac
+    lf ${ishidden:+-command 'set hidden'} -last-dir-path="$tmp" -- "$1"
     [ ! -f "$tmp" ] && exit
     dir=$(cat "$tmp")
     rm -f "$tmp"
