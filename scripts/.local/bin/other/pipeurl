@@ -102,18 +102,16 @@ handle_url()
         copy|browse) ;; *) add_to_history ;;
     esac
     case $URL_TYPE/$ACTION in
-        # urltype-based actions
+        # type specific actions
         file/open) file_dl_to_cache_and_open ;;
-        file/download) file_dl_to_dldir ;;
-        video/open) stream_open ;;
-        video/download) stream_dl ;;
         reddit/open) reddit_open ;;
         # default actions
         */copy) copy_to_clipboard ;;
-        */download) file_dl_to_dldir ;;
         */stream) stream_open ;;
+        */ytdl) stream_dl ;;
+        */aria2) file_dl_to_dldir ;;
         */browse) exec ${BROWSER:-xdg-open} "$URL" ;;
-        */xdg-open|*/open) exec xdg-open "$URL" ;;
+        */xdg-open) exec xdg-open "$URL" ;;
         *)
             echo "${0##*/} invalid url type or action: $ACTION" >&2
             return 1 ;;
@@ -281,15 +279,16 @@ update_url_type()
 update_action()
 {
     [ -n "$ACTION" ] && return 0
-    local actlist='Open\nDownload\nStream\nCopy\nBrowse\nxdg-open\n'
+    local actlist action
     case $URL_TYPE in
-        video) actlist='Stream\nDownload\nCopy\nBrowse\nxdg-open\n' ;;
-        other)  actlist='Browse\nStream\nCopy\nDownload\nxdg-open\n' ;;
+        file) aclist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
+        reddit) aclist='Open\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
+        video) actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
+        other) actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
     esac
-    local action
     action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
     case $action in
-        Open|Download|Stream|Copy|Browse|xdg-open) ACTION=${action,,} ;;
+        Open|Stream|Copy|Browse|ytdl|aria2|xdg-open) ACTION=${action,,} ;;
         *)
             echo "${0##*/}: invalid action: $action" >&2
             return 1 ;;
