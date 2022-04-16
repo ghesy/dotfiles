@@ -3,12 +3,12 @@
 
 # config
 conf=~/.config/gimme
-local=~/.local/share/local/gimme
+localconf=~/.local/share/local/gimme
 
 main()
 {
     source_functions
-    case "$1" in
+    case $1 in
         -l) list_aliases; return ;;
         -m) menu; return ;;
         '') return 1 ;;
@@ -19,8 +19,8 @@ main()
 menu()
 {
     # the -shb and -shf dmenu options require dmenu's fuzzyhighlight patch.
-    a="$(list_aliases | dmenu -p 'Choose Your Poison:' -sb '#006000' \
-        -shb '#006000' -sf white -shf green)" || return 1
+    a=$(list_aliases | dmenu -p 'Choose Your Poison:' -sb '#006000' \
+        -shb '#006000' -sf white -shf green) || return 1
     eval "$(get_cmd "$a")"
 }
 
@@ -36,7 +36,7 @@ get_cmd()
 
 get_entries()
 {
-    for f in $conf/aliases $local/aliases.d/*; do
+    for f in "$conf/aliases" "$localconf/aliases.d"/*; do
         [ -r "$f" ] && set -- "$@" "$f"
     done
 
@@ -46,7 +46,7 @@ get_entries()
 
 source_functions()
 {
-    for f in $conf/functions $local/functions.d/*; do
+    for f in "$conf/functions" "$localconf/functions.d"/*; do
         [ -r "$f" ] && . "$f"
     done
 }
