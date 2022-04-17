@@ -40,13 +40,12 @@ main()
     URL=''
     URL_TYPE=''
     readonly WID=${WINDOWID:+-w $WINDOWID}
-    readonly REP='string:x-canonical-private-synchronous:pipeurl'
+    readonly NOTIFREP='string:x-canonical-private-synchronous:pipeurl'
     # ===
 
     for arg; do case $1 in
         -h|--help) print_help; return ;;
         -c|--clipboard) shift; CLIPBOARD=true ;;
-        --urlgrep) urlgrep; return ;; # for internal use
         --) shift; break ;;
         -*) echo "${0##*/}: invalid option: $arg" >&2; return 1 ;;
         *) break ;;
@@ -123,26 +122,14 @@ history_menu()
 
 get_url_from_clipboard()
 {
-    local pids=$(pgrep timeout -P"$(pgrep -d, "${0##*/}")")
-    if [ -n "$pids" ]; then
-        kill $pids
-        notify-send -h $REP -t 1000 -u low PipeURL 'Stopped Listening to Clipboard.'
+    local url=$(xclip -o -selection clipboard 2>/dev/null | urlgrep | head -1)
+    if [ -z "$url" ]; then
+        notify-send -t 1000 PipeURL 'No URLs found in the clipboard.'
         return 1
+    else
+        notify-send -h "$NOTIFREP" -t 1000 PipeURL 'Found a URL in the clipboard.'
+        prnt "$url"
     fi
-    notify-send -h $REP -t 1000 -u low PipeURL 'Listening to Clipboard...'
-    scriptpath=$0 rep=$REP timeout 1m sh << 'eof'
-        while :; do
-            xclip -selection clipboard </dev/null
-            clipnotify || exit
-            clip=$(xclip -o -selection clipboard)
-            [ -z "$clip" ] && continue
-            url=$(printf '%s\n' "$clip" | "$scriptpath" --urlgrep | head -1)
-            [ -z "$url" ] && continue
-            notify-send -h $rep -t 1000 -u low PipeURL 'Got it.'
-            printf '%s\n' "$url"
-            break
-        done
-eof
 }
 
 copy_to_clipboard()
@@ -167,7 +154,7 @@ stream_dl()
 stream_open()
 {
     local msg error=false
-    notify-send -h $REP -u low -t 1000 PipeURL 'Opening video...'
+    notify-send -h "$NOTIFREP" -u low -t 1000 PipeURL 'Opening video...'
     msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
