@@ -100,7 +100,7 @@ handle_url()
         */copy) copy_to_clipboard ;;
         */xdg-open) exec xdg-open "$URL" ;;
         *)
-            echo "${0##*/} invalid url type or action: $URL_TYPE/$ACTION" >&2
+            echo "${0##*/}: invalid url type or action: $URL_TYPE/$ACTION" >&2
             return 1 ;;
     esac
 }
@@ -226,6 +226,7 @@ get_file_proxy_and_urls()
 
 update_url_type()
 {
+    [ -n "$URL_TYPE" ] && return 0
     case $(get_simple_url) in
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
             URL_TYPE=file
@@ -247,7 +248,7 @@ update_url_type()
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
             local u='[0-9a-fA-F]' # match a UID character
             local ptrn="^[^/]+/(videos/(watch|embed)|w(/p)?)/([0-9a-zA-Z]{22}|$u{8}(-$u{4}){3}-$u{12})($|(\?|#)\S+)"
-            get_simple_url | grep -Pq "$ptrn" && URL_TYPE=stream
+            get_simple_url | grep -Pq "$ptrn" && URL_TYPE=video
         ;;
         *) URL_TYPE=other ;;
     esac
@@ -258,7 +259,7 @@ update_action()
     [ -n "$ACTION" ] && return 0
     local actlist action
     case $URL_TYPE in
-        file)   aclist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
+        file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
         reddit) actlist='tuir\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
         video)  actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
         other)  actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
