@@ -34,7 +34,7 @@ local url = ""
 function formats_fetch()
     if not update_url() then return end
     if data[url] then return end
-    local args = {opts.youtubedl_path, "--no-playlist", "-j", "--", url}
+    local args = {opts.youtubedl_path, "--no-playlist", "-j", "--", (url:gsub("^ytdl://", ""))}
     execasync(function(a, b, c) formats_save(url, a, b, c) end, args)
 end
 
@@ -292,7 +292,7 @@ function update_url()
     if (not path) or isfile(path) then
         return false
     else
-        url = path:gsub("ytdl://", "")
+        url = path
         return true
     end
 end
