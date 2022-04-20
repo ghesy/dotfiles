@@ -277,7 +277,7 @@ urlgrep()
 {
     local domainchar='[a-zA-Z\d\.-]'
     local urlchar='[a-zA-Z0-9\.,:;!\?'\''\\\+\*&%\$#=~_@()-]'
-    grep -Po "(ht|f)tps?://(www\.)?$domainchar+(:\d+(?=(/|$)))?(/$urlchar+)*" | sed "s/[\)']$//"
+    grep -Po "(ht|f)tps?://(www\.)?$domainchar+(:\d+(?=(/|$)))?(/$urlchar+)*" | sed "s/[\)',.]$//"
 }
 
 get_simple_url()
