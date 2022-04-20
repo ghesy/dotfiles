@@ -12,17 +12,17 @@ local opts = {
     menu_padding_y = 5,
     ass_style = "{\\fnmonospace\\fs8}",
 }
-(require 'mp.options').read_options(opts)
+(require "mp.options").read_options(opts)
 
 local keys = {
-    { {"UP",    "k"},       "up",     function() menu_cursor_move(-1) end, {repeatable=true} },
-    { {"DOWN",  "j"},       "down",   function() menu_cursor_move( 1) end, {repeatable=true} },
-    { {"PGUP",  "ctrl+u"},  "pgup",   function() menu_cursor_move(-5) end, {repeatable=true} },
-    { {"PGDWN", "ctrl+d"},  "pgdwn",  function() menu_cursor_move( 5) end, {repeatable=true} },
-    { {"g"},                "top",    function() menu_cursor_move("top")    end },
-    { {"G"},                "bottom", function() menu_cursor_move("bottom") end },
-    { {"ENTER"},            "select", function() menu_select() end },
-    { {"ESC"},              "quit",   function() menu_hide()   end },
+    { {"UP",    "k"},      "up",     function() menu_cursor_move(-1) end, {repeatable=true} },
+    { {"DOWN",  "j"},      "down",   function() menu_cursor_move( 1) end, {repeatable=true} },
+    { {"PGUP",  "ctrl+u"}, "pgup",   function() menu_cursor_move(-5) end, {repeatable=true} },
+    { {"PGDWN", "ctrl+d"}, "pgdwn",  function() menu_cursor_move( 5) end, {repeatable=true} },
+    { {"g", "HOME"},       "top",    function() menu_cursor_move("top")    end },
+    { {"G", "END"},        "bottom", function() menu_cursor_move("bottom") end },
+    { {"l", "ENTER"},      "select", function() menu_select() end },
+    { {"q", "ESC"},        "quit",   function() menu_hide()   end },
 }
 
 local utils = require "mp.utils"
@@ -64,7 +64,7 @@ function menu_show()
     if no_formats_available() then return end
     menu_init_vars()
     menu_draw()
-    menu_keys("bind")
+    menu_keys_bind()
 end
 
 function menu_init_vars()
@@ -78,13 +78,13 @@ function menu_init_vars()
 end
 
 function no_formats_available()
-    return (not data[url]) or (not data[url].formats) or (#data[url].formats < 0)
+    return (not data[url]) or (not data[url].formats) or (#data[url].formats == 0)
 end
 
 function menu_hide()
-    data[url].timer:kill()
     mp.set_osd_ass(0, 0, "")
-    menu_keys("unbind")
+    menu_keys_unbind()
+    menu_timer_stop()
 end
 
 function menu_draw()
@@ -109,16 +109,19 @@ function menu_get_prefix(i)
     end
 end
 
--- bind/unbind the menu movement/action keys
-function menu_keys(action)
+-- bind the menu movement/action keys
+function menu_keys_bind()
     for _, i in ipairs(keys) do
-        if action == "bind" then
-            for _, key in ipairs(i[1]) do
-                mp.add_forced_key_binding(key, i[2], i[3], i[4])
-            end
-        elseif action == "unbind" then
-            mp.remove_key_binding(i[2])
+        for _, key in ipairs(i[1]) do
+            mp.add_forced_key_binding(key, i[2], i[3], i[4])
         end
+    end
+end
+
+-- unbind the menu movement/action keys
+function menu_keys_unbind()
+    for _, i in ipairs(keys) do
+        mp.remove_key_binding(i[2])
     end
 end
 
@@ -150,6 +153,10 @@ end
 function menu_timer_restart()
     data[url].timer:kill()
     data[url].timer:resume()
+end
+
+function menu_timer_stop()
+    data[url].timer:kill()
 end
 
 function is_menu_active()
@@ -229,22 +236,18 @@ end
 function get_param_precedence(param, value)
     local order = {
         dynamic_range = {
-            {"sdr"}, {"^$"},  {"hlg"},  {"h?d?r?10$"},  {"h?d?r?10%+"},
-            {"h?d?r?12"}, {"dv"}
-        },
+            {"sdr"}, {"^$"}, {"hlg"}, {"h?d?r?10$"}, {"h?d?r?10%+"},
+            {"h?d?r?12"}, {"dv"} },
         vcodec = {
             {"theora"}, {"mp4v", "h263"}, {"vp0?8"}, {"[hx]264", "avc"},
-            {"[hx]265", "he?vc"}, {"vp0?9$"}, {"vp0?9%.2"}, {"av0?1"},
-        },
+            {"[hx]265", "he?vc"}, {"vp0?9$"}, {"vp0?9%.2"}, {"av0?1"}, },
         acodec = {
             {"dts"}, {"^ac%-?3"}, {"e%-?a?c%-?3"}, {"mp3"}, {"mp?4a?"}, {"avc"},
-            {"vorbis", "ogg"}, {"opus"}
-        },
+            {"vorbis", "ogg"}, {"opus"} },
         protocol = {
             {"f4"}, {"ws", "websocket$"}, {"mms", "rtsp"}, {"^$"}, {"rtmpe?"},
             {"websocket_frag"}, {".*dash"}, {"m3u8.*"}, {"http$", "ftp$"},
-            {"https", "ftps"},
-        },
+            {"https", "ftps"}, },
     }
     if isempty(order[param]) then
         return tonumber(value) or 0
@@ -324,36 +327,31 @@ function execasync(fn, args)
         capture_stdout = true, capture_stderr = true}, fn)
 end
 
--- this segment is taken from reload.lua (https://github.com/4e6/mpv-reload, commit c1219b6)
-function reload(time_pos)
-    if not time_pos then
-        mp.commandv("loadfile", url, "replace")
-    else
-        mp.commandv("loadfile", url, "replace", "start=+" .. time_pos)
-    end
-end
+-- this segment is taken from reload.lua's reload_resume function
+-- https://github.com/4e6/mpv-reload, commit c1219b6
 function reload_resume()
     local time_pos = mp.get_property("time-pos")
     local reload_duration = mp.get_property_native("duration")
     local playlist_count = mp.get_property_number("playlist/count")
     local playlist_pos = mp.get_property_number("playlist-pos")
     local playlist = {}
-    for i = 0, playlist_count-1 do
+    for i = 0, playlist_count - 1 do
         playlist[i] = mp.get_property("playlist/" .. i .. "/filename")
     end
     if reload_duration and reload_duration >= 0 then
-        reload(time_pos)
+        mp.commandv("loadfile", url, "replace", "start=+" .. time_pos)
     else
-        reload()
+        mp.commandv("loadfile", url, "replace")
     end
-    for i = 0, playlist_pos-1 do
+    for i = 0, playlist_pos - 1 do
         mp.commandv("loadfile", playlist[i], "append")
     end
-    mp.commandv("playlist-move", 0, playlist_pos+1)
-    for i = playlist_pos+1, playlist_count-1 do
+    mp.commandv("playlist-move", 0, playlist_pos + 1)
+    for i = playlist_pos + 1, playlist_count - 1 do
         mp.commandv("loadfile", playlist[i], "append")
     end
 end
 
 mp.register_event("start-file", formats_fetch)
+mp.register_event("end-file", menu_hide)
 mp.add_key_binding(nil, "menu", menu_toggle)
