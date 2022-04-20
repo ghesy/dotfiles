@@ -34,18 +34,21 @@ local url = ""
 function formats_fetch()
     if not update_url() then return end
     if data[url] then return end
+    data[url] = "fetching"
     local args = {opts.youtubedl_path, "--no-playlist", "-j", "--", (url:gsub("^ytdl://", ""))}
     execasync(function(a, b, c) formats_save(url, a, b, c) end, args)
 end
 
 -- process the formats fetched by fetch_formats()
 function formats_save(url, success, result, error)
-    if (not success) or (result.status ~= 0) then return end
+    data[url] = nil
+    if (not success) or result.status ~= 0 then return end
     local json = utils.parse_json(result.stdout)
-    if (not json) or (not json.formats) then return end
+    if (not istable(json)) or (not istable(json.formats)) then return end
     data[url] = {formats = {}}
     for _, fmt in ipairs(json.formats) do
         if is_format_valid(fmt) then
+            fmt = sanitize_format(fmt)
             fmt.label = build_format_label(fmt)
             fmt.ytdl_format = build_ytdl_format_str(fmt)
             table.insert(data[url].formats, fmt)
@@ -61,7 +64,13 @@ function menu_toggle()
 end
 
 function menu_show()
-    if no_formats_available() then return end
+    if is_fetch_in_progress() then
+        mp.osd_message("Formats are being fetched...")
+        return
+    elseif no_formats_available() then
+        mp.osd_message("No formats available.")
+        return
+    end
     menu_init_vars()
     menu_draw()
     menu_keys_bind()
@@ -77,11 +86,9 @@ function menu_init_vars()
     if not data[url].selected_pos then data[url].selected_pos = 0 end
 end
 
-function no_formats_available()
-    return (not data[url]) or (not data[url].formats) or (#data[url].formats == 0)
-end
-
 function menu_hide()
+    if not update_url() then return end
+    if not is_menu_active() then return end
     mp.set_osd_ass(0, 0, "")
     menu_keys_unbind()
     menu_timer_stop()
@@ -99,10 +106,10 @@ function menu_draw()
     mp.set_osd_ass(0, 0, ass.text)
 end
 
-function menu_get_prefix(i)
-    if i == data[url].cursor_pos then
+function menu_get_prefix(pos)
+    if pos == data[url].cursor_pos then
         return opts.prefix_cursor
-    elseif i == data[url].selected_pos then
+    elseif pos == data[url].selected_pos then
         return opts.prefix_norm_sel
     else
         return opts.prefix_norm
@@ -111,17 +118,17 @@ end
 
 -- bind the menu movement/action keys
 function menu_keys_bind()
-    for _, i in ipairs(keys) do
-        for _, key in ipairs(i[1]) do
-            mp.add_forced_key_binding(key, i[2], i[3], i[4])
+    for _, v in ipairs(keys) do
+        for _, key in ipairs(v[1]) do
+            mp.add_forced_key_binding(key, v[2], v[3], v[4])
         end
     end
 end
 
 -- unbind the menu movement/action keys
 function menu_keys_unbind()
-    for _, i in ipairs(keys) do
-        mp.remove_key_binding(i[2])
+    for _, v in ipairs(keys) do
+        mp.remove_key_binding(v[2])
     end
 end
 
@@ -163,6 +170,16 @@ function is_menu_active()
     return data[url] and data[url].timer and data[url].timer:is_enabled() or false
 end
 
+function is_fetch_in_progress()
+    return data[url] == "fetching"
+end
+
+function no_formats_available()
+    return not istable(data[url]) or
+           not istable(data[url].formats) or
+           #data[url].formats == 0
+end
+
 -- build the youtube-dl format option for the given format
 function build_ytdl_format_str(fmt)
     if is_format_audioonly(fmt) then
@@ -181,35 +198,28 @@ function build_format_label(fmt)
     local res, codec, br, formatstr
     if is_format_audioonly(fmt) then
         res = "audio-only"
-        codec = fmt.acodec or ""
-        br = fmt.abr or fmt.tbr or ""
+        codec = fmt.acodec
+        br = fmt.abr or fmt.tbr
     else
         res = (fmt.width or "?").."x"..(fmt.height or "?")
-        codec = fmt.vcodec or ""
-        br = fmt.vbr or fmt.tbr or ""
+        codec = fmt.vcodec
+        br = fmt.vbr or fmt.tbr
     end
-    if codec ~= "" then
+    if codec then
         codec = codec:gsub("%..*", ""):gsub("av01", "av1")
         codec = codec:gsub("avc1", "h264"):gsub("h265", "hevc")
     end
-    if br ~= "" and tonumber(br) then
-        br = numshorten(br*10^3)
-    end
-    return label_formatfn(
-        res,
-        fmt.fps or "",
-        codec,
-        br,
-        fmt.asr and numshorten(fmt.asr) or "",
-        fmt.protocol or ""
+    return strfmt_label(
+        res, fmt.fps or "", codec or "", br and numshorten(br * 10^3) or "",
+        fmt.asr and numshorten(fmt.asr) or "", fmt.protocol or ""
     )
 end
 
 function get_menu_header()
-    return label_formatfn("Resolution", "FPS", "Codec", "BR", "ASR", "Proto")
+    return strfmt_label("Resolution", "FPS", "Codec", "BR", "ASR", "Proto")
 end
 
-function label_formatfn(...)
+function strfmt_label(...)
     return string.format("%-10s %-3s %-5s %-4s %-4s %s", ...)
 end
 
@@ -223,13 +233,13 @@ function format_sort_fn(a, b)
     b.res = (b.width or 1) * (b.height or 1)
     if     a.res > b.res then return true
     elseif a.res < b.res then return false end
-    for _, param in ipairs(params) do
-        local x = get_param_precedence(param, a[param])
-        local y = get_param_precedence(param, b[param])
+    for _, p in ipairs(params) do
+        local x = isnum(x) and x or get_param_precedence(p, a[p])
+        local y = isnum(y) and y or get_param_precedence(p, b[p])
         if     x > y then return true
         elseif x < y then return false end
     end
-    return tostring(a.format_id) > tostring(b.format_id)
+    return a.format_id > b.format_id
 end
 
 -- rate the given parameter value based on it's precedence
@@ -266,18 +276,49 @@ function get_param_precedence(param, value)
     return 0
 end
 
--- test wether the format contains any usable information
+-- test wether the given format contains the bare minimum of information
 function is_format_valid(fmt)
-    if fmt.ext == "mhtml" or fmt.protocol == "mhtml" then
+    if (not istable(fmt)) or fmt.ext == "mhtml" or fmt.protocol == "mhtml" then
         return false
     end
-    local params = {"vcodec", "acodec", "width", "height", "vbr", "abr", "tbr"}
-    for _, param in ipairs(params) do
-        if is_param_valid(fmt[param]) then
+    local params = {
+        "format_id", "vcodec", "acodec", "width", "height", "vbr", "abr", "tbr"
+    }
+    for _, p in ipairs(params) do
+        if is_param_valid(fmt[p]) then
             return true
         end
     end
     return false
+end
+
+-- convert the parameters of the given format to their own appropriate type
+function sanitize_format(fmt)
+    local numeric_params = {
+        "width", "height", "fps", "tbr", "vbr", "abr", "asr"
+    }
+    local string_params = {
+        "format_id", "dynamic_range", "vcodec", "acodec", "protocol"
+    }
+    for _, p in ipairs(numeric_params) do
+        if pempty(fmt[p]) then
+            fmt[p] = nil
+        elseif isstr(fmt[p]) then
+            fmt[p] = tonumber(fmt[p])
+        elseif not isnum(fmt[p]) then
+            fmt[p] = nil
+        end
+    end
+    for _, p in ipairs(string_params) do
+        if pempty(fmt[p]) then
+            fmt[p] = nil
+        elseif isnum(fmt[p]) then
+            fmt[p] = tostring(fmt[p])
+        elseif not isstr(fmt[p]) then
+            fmt[p] = nil
+        end
+    end
+    return fmt
 end
 
 -- test wether the given format only contains an audio stream
@@ -286,39 +327,46 @@ function is_format_audioonly(fmt)
 end
 
 function is_param_valid(p)
-    return p and p ~= "none" and p ~= "null"
+    return isnum(p) or (isstr(p) and (not pempty(p)))
+end
+
+-- test wether the given format parameter is empty
+function pempty(p)
+    return isempty(p) or p == "none" or p == "null"
 end
 
 -- update the global url variable with the URL of the currently playing video
 function update_url()
     local path = mp.get_property("path")
-    if (not path) or isfile(path) then
-        return false
-    else
+    if isstr(path) and is_network_stream(path) then
         url = path
         return true
+    else
+        return false
     end
 end
 
 -- shorten and format the given number (eg. 4560 -> 4.5K)
 function numshorten(n)
-    n = tonumber(n)
-    if     n >= 10^9 then return string.format("%dG", n/10^9)
-    elseif n >= 10^6 then return string.format("%dM", n/10^6)
-    elseif n >= 10^3 then return string.format("%dK", n/10^3)
+    if     n >= 10^9 then return string.format("%dG", n / 10^9)
+    elseif n >= 10^6 then return string.format("%dM", n / 10^6)
+    elseif n >= 10^3 then return string.format("%dK", n / 10^3)
     else                  return string.format("%d" , n) end
 end
 
--- test wether the given path is a file
-function isfile(path)
-    if     path:find("^archive://") then return true
-    elseif path:find("^ytdl://")    then return false end
-    local f = io.open(path, "r")
-    if f then io.close(f) return true else return false end
+function is_network_stream(path)
+    local netprotos = mkset{
+        "http", "https", "ytdl", "rtmp", "rtmps", "rtmpe", "rtmpt", "rtmpts",
+        "rtmpte", "rtsp", "rtsps", "mms", "mmst", "mmsh", "mmshttp", "rtp",
+        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"}
+    local proto = path:match("^(%a+)://")
+    return proto and netprotos[proto]
 end
 
-function isempty(var)
-    return (not var) or var == ""
+function mkset(list)
+    local set = {}
+    for _, v in ipairs(list) do set[v] = true end
+    return set
 end
 
 -- asynchronously execute shell commands using mpv's subprocess command
@@ -330,26 +378,42 @@ end
 -- this segment is taken from reload.lua's reload_resume function
 -- https://github.com/4e6/mpv-reload, commit c1219b6
 function reload_resume()
-    local time_pos = mp.get_property("time-pos")
-    local reload_duration = mp.get_property_native("duration")
-    local playlist_count = mp.get_property_number("playlist/count")
-    local playlist_pos = mp.get_property_number("playlist-pos")
+    local pos = mp.get_property("time-pos")
+    local duration = mp.get_property_native("duration")
+    local plcount = mp.get_property_number("playlist-count")
+    local plpos = mp.get_property_number("playlist-pos")
     local playlist = {}
-    for i = 0, playlist_count - 1 do
-        playlist[i] = mp.get_property("playlist/" .. i .. "/filename")
+    for i = 0, plcount - 1 do
+        playlist[i] = mp.get_property("playlist/"..i.."/filename")
     end
-    if reload_duration and reload_duration >= 0 then
-        mp.commandv("loadfile", url, "replace", "start=+" .. time_pos)
+    if pos and isnum(duration) and duration >= 0 then
+        mp.commandv("loadfile", url, "replace", "start=+"..pos)
     else
         mp.commandv("loadfile", url, "replace")
     end
-    for i = 0, playlist_pos - 1 do
+    for i = 0, plpos - 1 do
         mp.commandv("loadfile", playlist[i], "append")
     end
-    mp.commandv("playlist-move", 0, playlist_pos + 1)
-    for i = playlist_pos + 1, playlist_count - 1 do
+    mp.commandv("playlist-move", 0, plpos + 1)
+    for i = plpos + 1, plcount - 1 do
         mp.commandv("loadfile", playlist[i], "append")
     end
+end
+
+function isempty(var)
+    return var == nil or var == ""
+end
+
+function isnum(var)
+    return type(var) == "number"
+end
+
+function isstr(var)
+    return type(var) == "string"
+end
+
+function istable(var)
+    return type(var) == "table"
 end
 
 mp.register_event("start-file", formats_fetch)
