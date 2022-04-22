@@ -34,7 +34,7 @@ map zz center
 map L openall
 map t preview-toggle
 map T tag-toggle
-map E extract
+map x extract
 map a push :archive<space>
 map U &termopen
 map D push :trash<space>
@@ -51,6 +51,7 @@ map o &readlink -f -- $f | lfselect # follow symlinks
 map H push :mark-load<enter>' # jump back to previous dir
 map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
+map E sudoedit
 
 # renaming
 map b bulkrename
@@ -115,7 +116,7 @@ cmd delete ${{
     echo 'Permanently Deleting Files:'; echo
     printf '  %s\n' $fx ""
     read -p 'Delete? [y/N] ' ans
-    case "$ans" in y|Y) rm -rfv --one-file-system -- $fx ;;
+    case $ans in y|Y) rm -rfv --one-file-system -- $fx ;;
     esac || read -p 'Press enter to continue'
 }}
 
@@ -138,6 +139,12 @@ cmd extract ${{
     printf '\e[?1049h\e[H'
     aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
     f=${f%.*}; printf '%s\n' ${f%.tar} | lfselect
+}}
+
+cmd sudoedit ${{
+    printf '\e[?1049h\e[H'
+    SUDO_COMMAND="sudoedit $f" sudoedit -- $f ||
+        { read -p 'Press enter to continue'; exit ;}
 }}
 
 cmd paste ${{
