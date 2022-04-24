@@ -72,5 +72,6 @@ Sound Card Profiles, dPaProfile: dpaprofile
 dRandr, Monitors, HDMI : drandr
 NetworkManager, Wi-Fi : networkmanager_dmenu
 Last Notification : dunstctl history-pop
+YouTube : yt
 
 # vim:ft=conf
