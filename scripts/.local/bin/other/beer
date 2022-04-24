@@ -1,7 +1,7 @@
 #!/bin/bash
 # A wine bottle manager.
 # Dependencies: wine, fzf, moreutils, findutils, coreutils.
-# Optional Deps: zenity, dragon-drop.
+# Optional Deps: zenity, dragon-drop, dmenu.
 #
 # If you use ArchLinux, I recommend you install
 # 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
@@ -14,8 +14,10 @@
 DIR=~/.local/share/beer
 export WINEDEBUG=fixme-all,err-wineboot # make wine less verbose
 export PULSE_LATENCY_MSEC=60
+DIR_ALIAS='~BEER~'
 
-main() {
+main()
+{
     unset PFX
 
     case $1 in
@@ -32,6 +34,7 @@ main() {
     [ -n "$*" ] && return
 
     echo Beer
+    help
     while :; do
         local cmd
         printf '\e[5 q'
@@ -59,31 +62,35 @@ main() {
     done
 }
 
-help() {
-    echo
-    echo "n  new bottle"
-    echo "r  remove a bottle"
-    echo
-    echo "x  run an executable in bottle"
-    echo "p  run one of the predefined programs"
-    echo "e  edit the list of predefined programs"
-    echo
-    echo "c  winecfg"
-    echo "s  run shell"
-    echo "t  winetricks"
-    echo "T  theme selection"
-    echo "o  open bottle's path"
-    echo
-    echo "S  select bottle"
-    echo "d  deselect bottle"
-    echo
-    echo "h  help"
-    echo "C  clear the screen"
-    echo "q  quit"
-    echo
+help()
+{
+    cat <<- 'eof'
+
+	n  new bottle
+	r  remove a bottle
+
+	x  run an executable in bottle
+	p  run one of the predefined programs
+	e  edit the list of predefined programs
+
+	c  winecfg
+	s  run shell
+	t  winetricks
+	T  theme selection
+	o  open bottle's path
+
+	S  select bottle
+	d  deselect bottle
+
+	h  help
+	C  clear the screen
+	q  quit
+
+	eof
 }
 
-select_program() {
+select_program()
+{
     if [ -n "$PFX" ]; then
         select_program_pfx
     else
@@ -91,35 +98,43 @@ select_program() {
     fi
 }
 
-select_program_all() {
-    local sel=$(list_all_programs |
+select_program_all()
+{
+    local sel
+    sel=$(list_all_programs |
         ifne fzf --prompt='Select program to run > ' --info=inline) || return 1
     printf '%s\n' "$sel" | run_selected_program_all
 }
 
-list_all_programs() {
+list_all_programs()
+{
+    local b p
     for b in "$DIR"/*; do
         [ ! -d "$b" ] && continue
         [ ! -s "$b"/programs ] && continue
-        local p
         while IFS= read -r p; do
             printf '%s\t%s\t%s\n' \
-                "$(basename "${p%.exe}")" "$(basename "$b")" "$p" |
+                "$(basename "${p%.exe}")" \
+                "$(basename "$b")" \
+                "${p/#"$DIR"/"$DIR_ALIAS"}" |
                 column -t -s'	' -o' -- '
         done < "$b"/programs
     done
 }
 
-run_selected_program_all() {
+run_selected_program_all()
+{
     local sel=$(cat)
     local pfx=${sel#* -- }
     pfx=$DIR/${pfx% -- *}
     local path=${sel##* -- }
+    path=${path/#"$DIR_ALIAS"/"$DIR"}
     [ -d "$pfx" ] && [ -f "$pfx"/system.reg ] && [ -f "$path" ] || return 1
     WINEPREFIX=$pfx WINEARCH=$(PFX=$pfx get_arch) wine "$path"
 }
 
-select_program_pfx() {
+select_program_pfx()
+{
     check_pfx || return 1
     if [ ! -s "$PFX"/programs ]; then
         echo "There aren't any predefined programs."
@@ -135,7 +150,8 @@ select_program_pfx() {
     WINEPREFIX=$PFX WINEARCH=$(get_arch) wine "${sel#* -- }"
 }
 
-run_shell() {
+run_shell()
+{
     if pgrep -xs0 "${0##*/}" | grep -qv "^$$$"; then
         echo "We're already in a shell started by beer."
         return 1
@@ -145,7 +161,8 @@ run_shell() {
     WINEPREFIX=$PFX WINEARCH=$(get_arch) ${SHELL:-sh}
 }
 
-select_bottle() {
+select_bottle()
+{
     if [ ! -d "${DIR:?}" ] || [ -z "$(ls -A "$DIR"/)" ]; then
         echo "There aren't any bottles."
         return 1
@@ -153,16 +170,20 @@ select_bottle() {
     local sel=$(
         for d in "$DIR"/*; do
             [ -d "$d" ] && basename "$d"
-        done | ifne fzf --prompt="Select bottle ${1:+$1 }> " --info=inline | xargs -I{} echo "$DIR"/{}
+        done |
+            ifne fzf --prompt="Select bottle ${1:+$1 }> " --info=inline |
+            xargs -I{} echo "$DIR"/{}
     )
     [ -d "$sel" ] && PFX=$sel || return 1
 }
 
-deselect_bottle() {
+deselect_bottle()
+{
     unset PFX
 }
 
-run_executable() {
+run_executable()
+{
     check_pfx 'for running executables' || return 1
     local ans exe f
     echo "Enter the executable's path,"
@@ -188,9 +209,11 @@ run_executable() {
     done <<< "$exe"
 }
 
-edit_programs() {
+edit_programs()
+{
     check_pfx "to edit it's list of programs" || return 1
-    local f=$(mktemp) || return 1
+    local f
+    f=$(mktemp) || return 1
     [ -f "$PFX"/programs ] && cat "$PFX"/programs > "$f"
     printf '\n%s\n' '# Executable files found:' >> "$f"
     find "$PFX"/drive_c -type f -name '*.exe' \
@@ -199,31 +222,56 @@ edit_programs() {
         -not -path '*/Common Files/*' -not -path '*/ProgramData/*' \
         -not -path '*/windows/*' -not -path '*/Program Files*/Windows *' \
         -not -path '*/Internet Explorer/*' -not -path '*/InstallShield*/*' \
-        -not -iname '*unins*' -not -iname '*crashhandler*' -printf '#%p\n' >> "$f"
+        -not -iname '*unins*' -not -iname '*crashhandler*' -printf '#%p\n' \
+        >> "$f"
     ${EDITOR:-xdg-open} "$f" &&
         grep -vE '^(#|$)' "$f" > "$PFX"/programs
 }
 
-new_bottle() {
-    local arch name d
+new_bottle()
+{
+    local arch name ans d
+
     read -p 'Arch: [ 64 (Default) / 32 ] ' arch
+    case $arch in
+        ''|64|32) ;;
+        q) return ;;
+        *) echo 'Bad value given.'; return 1 ;;
+    esac
+
     read -p "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox
+    case $sandbox in
+        ''|h|f|n) ;;
+        q) return ;;
+        *) echo 'Bad value given.'; return 1 ;;
+    esac
+
     read -p 'Name: ' name
-    [ -z "$name" ] && return 1
-    name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]*//g')
+    case $name in
+        '') echo 'Name must be non-empty.'; return 1 ;;
+        q) return ;;
+    esac
+
+    name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]/_/g')
+
+    read -p "Create bottle named \"$name\"? [Y/n] " ans
+    case $ans in ''|y|Y) ;; *) return ;; esac
+
     d=${DIR:?}/$name
     mkdir -p "$d" || return 1
-    echo "win${arch:-64}" > "$d"/arch
-    WINEPREFIX=$d WINEARCH=win${arch:-64} wine regedit <(theme_dark_background)
+    arch=${arch:-64}
+    echo "win$arch" > "$d"/arch
+    WINEPREFIX=$d WINEARCH=win$arch wine regedit <(theme_dark_background)
     case $sandbox in
         n) ;;
-        ''|h) WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks isolate_home ;;
-        f)    WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks sandbox ;;
+        ''|h) WINEPREFIX=$d WINEARCH=win$arch winetricks isolate_home ;;
+        f)    WINEPREFIX=$d WINEARCH=win$arch winetricks sandbox ;;
     esac
     PFX=$d
 }
 
-remove_bottle() {
+remove_bottle()
+{
     check_pfx 'to remove' || return 1
     local ans
     read -p "REMOVE \"$(basename "$PFX")\"? [y/N] " ans
@@ -232,17 +280,20 @@ remove_bottle() {
     deselect_bottle
 }
 
-run_winecfg() {
+run_winecfg()
+{
     check_pfx 'for running winecfg' || return 1
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winecfg
 }
 
-open_bottle() {
+open_bottle()
+{
     check_pfx 'to open' || return 1
     xdg-open "$PFX"
 }
 
-tricks() {
+tricks()
+{
     check_pfx 'for running winetricks' || return 1
     local args
     echo "'q' to go back."
@@ -251,12 +302,14 @@ tricks() {
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winetricks $args
 }
 
-check_pfx() {
+check_pfx()
+{
     [ -n "$PFX" ] && return
     select_bottle "$1" || return 1
 }
 
-get_arch() {
+get_arch()
+{
     [ -z "$PFX" ] && { echo invalid; return 1 ;}
     if [ -f "$PFX"/system.reg ]; then
         grep -Pom1 '#\s*arch=\K.*' "$PFX"/system.reg
@@ -268,7 +321,8 @@ get_arch() {
     fi
 }
 
-select_theme() {
+select_theme()
+{
     check_pfx 'for themeing' || return 1
     local ans
     read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit : ' ans
@@ -282,11 +336,13 @@ select_theme() {
 
 }
 
-apply_theme() {
+apply_theme()
+{
     [ -n "$1" ] && WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <($1)
 }
 
-theme_dark_background() {
+theme_dark_background()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
@@ -323,7 +379,8 @@ theme_dark_background() {
 	eof
 }
 
-theme_breeze_dark() {
+theme_breeze_dark()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
@@ -360,7 +417,8 @@ theme_breeze_dark() {
 	eof
 }
 
-theme_default() {
+theme_default()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
