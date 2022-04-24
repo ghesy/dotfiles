@@ -235,7 +235,7 @@ update_url_type()
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*)
+        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*|v.fodder.gg/v/*)
             URL_TYPE=video
         ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
