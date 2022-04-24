@@ -1,4 +1,4 @@
 #!/bin/sh
-( xdotool sleep 0.5 search --class stalonetray \
-    set_window --overrideredirect 1 windowunmap windowmap &)
+(xdotool sleep 0.5 search --class stalonetray \
+    set_window --overrideredirect 1 windowunmap windowmap >/dev/null 2>&1 &)
 exec stalonetray
