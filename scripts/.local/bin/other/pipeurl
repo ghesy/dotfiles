@@ -94,11 +94,10 @@ handle_url()
         file/open) file_dl_to_cache_and_open ;;
         reddit/tuir|reddit/open) reddit_open ;;
         */stream|video/open) stream_open ;;
-        */browse|other/open) exec ${BROWSER:-xdg-open} "$URL" ;;
+        */browse|other/open) exec xdg-open "$URL" ;;
         */aria2|file/download) file_dl_to_dldir ;;
         */ytdl|video/download) stream_dl ;;
         */copy) copy_to_clipboard ;;
-        */xdg-open) exec xdg-open "$URL" ;;
         *)
             echo "${0##*/}: invalid url type or action: $URL_TYPE/$ACTION" >&2
             return 1 ;;
@@ -259,14 +258,14 @@ update_action()
     [ -n "$ACTION" ] && return 0
     local actlist action
     case $URL_TYPE in
-        file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
-        reddit) actlist='tuir\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        video)  actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        other)  actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
+        file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\n' ;;
+        reddit) actlist='tuir\nytdl\nCopy\nBrowse\n' ;;
+        video)  actlist='Stream\nytdl\nCopy\nBrowse\n' ;;
+        other)  actlist='Browse\nStream\nCopy\nytdl\naria2\n' ;;
     esac
     action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
     case $action in
-        Open|Stream|Copy|Browse|ytdl|aria2|tuir|xdg-open) ACTION=${action,,} ;;
+        Open|Stream|Copy|Browse|ytdl|aria2|tuir) ACTION=${action,,} ;;
         *)
             echo "${0##*/}: invalid action: $action" >&2
             return 1 ;;
