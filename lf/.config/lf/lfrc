@@ -20,6 +20,10 @@ scrolloff
 set previewer ~/.config/lf/previewer
 set cleaner sxipc
 
+# change the terminal title to lf and reset it on exit
+$printf '\033[22t\033]0;lf\a'
+cmd on-quit $printf '\033[23t'
+
 # ============
 # = mappings
 # ============

@@ -57,6 +57,7 @@ set noshowmode
 set noruler
 set mouse=a
 set cursorline
+set title titlestring=nvim
 
 " other
 let g:netrw_dirhistmax = 0

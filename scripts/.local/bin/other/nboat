@@ -9,6 +9,9 @@ export=$r/$(uname -n)-$(cat /etc/machine-id)
 import=$d/read-combined
 u=$d/urls
 
+# save and change the terminal window title
+printf '\033[22t\033]0;newsboat\007'
+
 # exit if newsboat is running
 if pidof -q newsboat; then
     echo an instance of Newsboat is already running. >&2
@@ -27,4 +30,7 @@ newsboat -u "$u" -I "$import"
 newsboat -u "$u" -E "$export" ) & ) >/dev/null 2>&1
 
 # lauch newsboat
-exec newsboat -u "$u" "$@"
+newsboat -u "$u" "$@"
+
+# recover the previous terminal window title
+printf '\033[23t'
