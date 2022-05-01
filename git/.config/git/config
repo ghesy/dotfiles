@@ -12,3 +12,7 @@
     defaultBranch = master
 [commit]
     gpgsign = true
+[merge]
+    ff = no
+[pull]
+    rebase = no
