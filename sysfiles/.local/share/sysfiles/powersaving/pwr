@@ -29,7 +29,7 @@ noturbo=$cpu/intel_pstate/no_turbo
 case $1 in
     high)
         write 0 $noturbo
-        write performance $energy
+        write balance_performance $energy
     ;;
     low)
         write 1 $noturbo
