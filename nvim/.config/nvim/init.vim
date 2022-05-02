@@ -197,3 +197,12 @@ function FillStatus()
 endf
 set statusline=%{FillStatus()}
 exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
+
+" persian langmap
+set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
+set langmap+=ضq,صw,ثe,قr,فt,غy,عu,هi,خo,حp,ج[,چ]
+set langmap+=شa,سs,یd,بf,لg,اh,تj,نk,مl,ک\\;,گ'
+set langmap+=ظz,طx,زc,رv,ذb,دn,پm,و\\,
+set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,]O,[P
+set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
+set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
