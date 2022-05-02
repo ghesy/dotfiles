@@ -1,18 +1,20 @@
 #!/bin/sh
 # do various things to firefox.
 
+# config
+key_gotourgent='super+u' # key that makes the wm focus the urgent windown
+key_togglefloating='super+F' # key that makes tiled windows floating
+
 main() {
     set -e
-    [ "$(xdotool getactivewindow getwindowclassname)" = firefox ]
-    case $1 in
-        showhistory|fixfocus|merge) $1 ;;
+    wid=$(xdotool getactivewindow)
+    [ "$(xdotool getwindowclassname "$wid")" = firefox ] || return
+    # clearmodifiers
+    case $(printf 'Fix Focus\nMerge\nShow History\n' | dmenu -w "$wid") in
+        'Fix Focus') fixfocus ;;
+        'Merge') merge ;;
+        'Show History') showhistory ;;
     esac
-}
-
-# open dwm's history side panel and put the selection on the first item.
-showhistory() {
-    xdotool key --clearmodifiers --delay 100 \
-    ctrl+b ctrl+h Tab Tab Down Up
 }
 
 # if you use a vi-like extention for firefox (ex. trydactyl),
@@ -26,6 +28,12 @@ fixfocus() {
     mousemove_relative -- -20 -20 click 1 mousemove 0 0
 }
 
+# open dwm's history side panel and put the selection on the first item.
+showhistory() {
+    xdotool key --clearmodifiers --delay 100 \
+    ctrl+b ctrl+h Tab Tab Down Up
+}
+
 # this function puts all the tabs of the currently active firefox window
 # into another firefox window that is in the same desktop or dwm tag.
 # note: your window manager needs to support the _NET_WM_DESKTOP hint.
@@ -34,23 +42,42 @@ fixfocus() {
 merge() {
     ff1=$(xdotool getactivewindow)
     ff2=$(xdotool search --desktop $(xdotool get_desktop) --class firefox | grep -Fvm1 "$ff1")
+
+    s='sleep 0.1' d='--delay 100' c=--clearmodifiers
+
+    timeout 0.3 xdotool \
+        windowstate --remove FULLSCREEN "$ff1" \
+        windowsize --sync "$ff1" 400 400 \
+        windowmove --sync "$ff1" 1000 500 \
+    || timeout 5 xdotool \
+        key $c "${key_togglefloating:?}" $s \
+        windowsize --sync "$ff1" 400 400 \
+        windowmove --sync "$ff1" 1000 500
+
     geom=$(xdotool getwindowgeometry --shell "$ff2")
     eval "$geom"
-    s='sleep 0.1' d='--delay 100' c=--clearmodifiers
-    timeout 5 xdotool mousemove --window "$ff1" 50 10 \
-        key $c $d ctrl+shift+Tab ctrl+Tab \
-        click $c 3 \
-        key $c $d s Escape \
-        mousedown $c 1 \
+
+    timeout 5 xdotool \
+        windowactivate "$ff2" $s \
+        key $c "${key_gotourgent:?}" \
+        windowactivate --sync "$ff2" \
+        mousemove --window "$ff1" 50 10 $s \
+        key $c $d ctrl+shift+Tab ctrl+Tab $s \
+        click $c 3 $s \
+        key $c $d s Escape $s \
+        mousedown $c 1 $s \
         mousemove $((X+WIDTH-100)) $((Y+20)) $s \
         mousemove_relative -- -5 0 $s \
         mouseup $c 1 $s \
-        mousemove 0 0 $s \
-        mousemove --window "$ff2" --polar 0 0 \
-        windowactivate --sync "$ff2" $s \
         key $c $d ctrl+shift+Tab ctrl+Tab
 
     xdotool keyup Shift_L Shift_R Control_L Control_R
+}
+
+clearmodifiers() {
+    xdotool keyup \
+        Shift_L Shift_R Control_L Control_R Meta_L Meta_R \
+        Alt_L Alt_R Super_L Super_R Hyper_L Hyper_R
 }
 
 main "$@"
