@@ -64,10 +64,6 @@ alias cp='advcp -ig'
 alias mv='advmv -ig'
 alias rm='rm -Iv --one-file-system'
 
-# man-pages in vim
-alias man=vman
-compdef vman=man
-
 # pacman
 alias p='sudo pacman'
 alias pl='paclast -t | head'
