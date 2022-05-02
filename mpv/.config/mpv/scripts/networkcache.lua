@@ -2,7 +2,7 @@
 -- set mpv's cache-secs to a different value on network videos.
 
 local opts = {
-    cache_secs = 120
+    cache_secs = 200
 }
 (require "mp.options").read_options(opts)
 
