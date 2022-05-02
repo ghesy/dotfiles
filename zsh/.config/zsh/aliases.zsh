@@ -1,12 +1,7 @@
 # zsh's aliases, functions and bindings.
 
-# add fzf's ctrl-r and ctrl-t functions
-source /usr/share/fzf/key-bindings.zsh
-
-alias ls='command ls -AF --color=always --group-directories-first'
-
 lf() {
-    pgrep -xs0 lf >/dev/null && exit
+    [[ -n $LF_LEVEL ]] && exit
     local tmp
     tmp=$(mktemp) || return
     command lf -last-dir-path="$tmp" "$@"
@@ -19,7 +14,7 @@ lf() {
 search() {
     local f
     f="$(finder "$@")" || return
-    if [[ "$(basename -- "$f")" == .* ]]; then
+    if [[ ${f##*/} == .* ]]; then
         lf -command 'set hidden' -- "$f"
     else
         lf -- "$f"
@@ -33,7 +28,7 @@ paru() {
 
 # bookmarks
 b() {
-    case "$1" in
+    case $1 in
         --) shift ;;
         -*) command bm "$@"; return ;;
     esac
@@ -42,11 +37,9 @@ b() {
     [ -z "$p" ] && return
     cd "$p"
 }
-_b() {
-    compadd $(command bm -l)
-}
+_b() { compadd $(command bm -l) }
 compdef _b b
-alias bm=b
+alias b='bm'
 
 d() {
     cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
@@ -59,6 +52,7 @@ bindctrl o lf
 bindctrl f search
 
 # basic stuff
+alias ls='command ls -AF --color=always --group-directories-first'
 alias mk='mkdir -pv'
 alias cp='advcp -ig'
 alias mv='advmv -ig'
@@ -103,4 +97,4 @@ alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
-alias x='proxychains'
+alias pxy='proxychains'
