@@ -41,26 +41,33 @@ showhistory() {
 # the above patch is based on this patch: https://github.com/wor/abs-repo/blob/master/dwm-git/dwm-6.1-netwmdesktop.patch
 merge() {
     ff1=$(xdotool getactivewindow)
-    ff2=$(xdotool search --desktop $(xdotool get_desktop) --class firefox | grep -Fvm1 "$ff1")
+    ff2=$(xdotool search --onlyvisible --desktop $(xdotool get_desktop) --class firefox | grep -Fvm1 "$ff1")
+
+    geom=$(xdotool getwindowgeometry --shell "$ff2")
+    eval "$geom"
 
     s='sleep 0.1' d='--delay 100' c=--clearmodifiers
 
     timeout 0.3 xdotool \
         windowstate --remove FULLSCREEN "$ff1" \
         windowsize --sync "$ff1" 400 400 \
-        windowmove --sync "$ff1" 1000 500 \
-    || timeout 5 xdotool \
-        key $c "${key_togglefloating:?}" $s \
+        windowmove --sync "$ff1" $((WIDTH/2+X)) $((HEIGHT/2+Y)) \
+    || {
+        xdotool key $c "${key_togglefloating:?}" $s
+        geom=$(xdotool getwindowgeometry --shell "$ff2")
+        eval "$geom"
+        timeout 5 xdotool \
         windowsize --sync "$ff1" 400 400 \
-        windowmove --sync "$ff1" 1000 500
-
-    geom=$(xdotool getwindowgeometry --shell "$ff2")
-    eval "$geom"
+        windowmove --sync "$ff1" $((WIDTH/2+X)) $((HEIGHT/2+Y))
+    }
 
     timeout 5 xdotool \
         windowactivate "$ff2" $s \
         key $c "${key_gotourgent:?}" \
         windowactivate --sync "$ff2" \
+        windowactivate "$ff1" $s \
+        key $c "${key_gotourgent:?}" \
+        windowactivate --sync "$ff1" \
         mousemove --window "$ff1" 50 10 $s \
         key $c $d ctrl+shift+Tab ctrl+Tab $s \
         click $c 3 $s \
