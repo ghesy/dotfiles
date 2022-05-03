@@ -44,6 +44,11 @@ d() {
         sort -u | fzf)"
 }
 
+h() {
+    [[ $# -eq 1 ]] && set -- "$1" --help
+    "$@" | ifne ${PAGER:-less}
+}
+
 # bindings
 bindctrl() { bindkey -s "^$1" '\eddi '"$2"'\n' }
 bindctrl o lf
@@ -93,6 +98,6 @@ alias sd='search ~/.config ~/.local/bin ~/.dots ~/Documents/Notes ~/Repositories
 alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
-alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
+alias shit='$EDITOR ~/.config/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
 alias pxy='proxychains'
