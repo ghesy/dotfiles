@@ -1,0 +1,14 @@
+#!/bin/sh
+# a wrapper for fre
+# usage: freq --menu or freq PATH
+if [ "$1" = --menu ]; then
+    fre --sorted | sed "s|^$HOME|~|" | ifne dmenu -l 10 -p freq |
+        sed "s|^~|$HOME|" | xargs -rd'\n' termopen
+    exit
+fi
+[ $# -ne 1 ] && exit
+command -v fre >/dev/null || exit
+case $1 in /|"$HOME"|"${HOME%/}/") exit ;; esac
+p=$(realpath -- "$1")
+[ -d "$p" ] && p="${p%/}/"
+fre --add "$p"
