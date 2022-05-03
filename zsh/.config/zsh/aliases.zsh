@@ -1,45 +1,43 @@
 # zsh's aliases, functions and bindings.
 
 lf() {
+    [[ $1 = -s ]] && shift || repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
     [[ -n $LF_LEVEL ]] && exit
     local tmp
     tmp=$(mktemp) || return
     command lf -last-dir-path="$tmp" "$@"
-    [ -f "$tmp" ] || return
+    [[ -f $tmp ]] || return
     local dir=$(<"$tmp")
     rm -f "$tmp"
-    [ -d "$dir" ] && [ "$dir" != "$PWD" ] && cd "$dir"
+    [[ -d $dir ]] && [[ $dir != $PWD ]] && cd "$dir"
 }
 
 search() {
+    repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
     local f
-    f="$(finder "$@")" || return
+    f=$(finder "$@") || return
     if [[ ${f##*/} == .* ]]; then
-        lf -command 'set hidden' -- "$f"
+        lf -s -command 'set hidden' -- "$f"
     else
-        lf -- "$f"
+        lf -s -- "$f"
     fi
 }
 
 paru() {
-    [ $# -eq 0 ] && sudo -v && artixnews
+    [[ $# -eq 0 ]] && sudo -v && artixnews
     command paru "$@"
 }
 
 # bookmarks
 b() {
-    case $1 in
-        --) shift ;;
-        -*) command bm "$@"; return ;;
-    esac
-
-    local p="$(command bm "$@")"
-    [ -z "$p" ] && return
+    case $1 { --) shift ;; -*) command bm "$@"; return ;; }
+    local p=$(command bm "$@")
+    [[ -z $p ]] && return
     cd "$p"
 }
 _b() { compadd $(command bm -l) }
 compdef _b b
-alias b='bm'
+alias bm=b
 
 d() {
     cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
@@ -47,7 +45,7 @@ d() {
 }
 
 # bindings
-bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
+bindctrl() { bindkey -s "^$1" '\eddi '"$2"'\n' }
 bindctrl o lf
 bindctrl f search
 
