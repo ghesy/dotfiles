@@ -5,6 +5,7 @@
 [credential]
     helper = cache
 [alias]
+    b = checkout -b
     up = pull --rebase --autostash
     tree = log --oneline --graph --decorate --all
     upstr = rebase --rebase-merges --autostash
