@@ -64,10 +64,6 @@ alias cp='advcp -ig'
 alias mv='advmv -ig'
 alias rm='rm -Iv --one-file-system'
 
-# man-pages in vim
-alias man=vman
-compdef vman=man
-
 # pacman
 alias p='sudo pacman'
 alias pl='paclast -t | head'
@@ -107,3 +103,4 @@ alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
 alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
+alias x='proxychains'

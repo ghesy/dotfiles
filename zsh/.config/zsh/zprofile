@@ -62,7 +62,7 @@ export QT_QPA_PLATFORMTHEME=$qtenv
 
 # run keychain (an ssh-agent manager)
 keychain --dir ~/.local/share/keychain >/dev/null 2>&1
-source ~/.local/share/keychain/"$(uname -n)"-sh
+source ~/.local/share/keychain/"$HOST"-sh
 
 # set machine's chassis type
 case $(</sys/class/dmi/id/chassis_type) in
@@ -76,5 +76,5 @@ for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
 done
 
 # start X if we're on tty1
-[ -z "$DISPLAY" ] && [ "$(tty)" = /dev/tty1 ] &&
+[ -z "$DISPLAY" ] && [ "$TTY" = /dev/tty1 ] &&
     startx "${XINITRC:?}" -- -nolisten tcp -nolisten local >/dev/null 2>&1

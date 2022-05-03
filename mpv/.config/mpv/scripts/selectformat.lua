@@ -19,10 +19,10 @@ local keys = {
     { {"DOWN",  "j"},      "down",   function() menu_cursor_move( 1) end, {repeatable=true} },
     { {"PGUP",  "ctrl+u"}, "pgup",   function() menu_cursor_move(-5) end, {repeatable=true} },
     { {"PGDWN", "ctrl+d"}, "pgdwn",  function() menu_cursor_move( 5) end, {repeatable=true} },
-    { {"g", "HOME"},       "top",    function() menu_cursor_move("top")    end },
-    { {"G", "END"},        "bottom", function() menu_cursor_move("bottom") end },
-    { {"l", "ENTER"},      "select", function() menu_select() end },
-    { {"q", "ESC"},        "quit",   function() menu_hide()   end },
+    { {"HOME",  "g"},      "top",    function() menu_cursor_move("top")    end },
+    { {"END",   "G"},      "bottom", function() menu_cursor_move("bottom") end },
+    { {"ENTER", "l"},      "select", function() menu_select() end },
+    { {"ESC",   "q"},      "quit",   function() menu_hide()   end },
 }
 
 local utils = require "mp.utils"
@@ -35,8 +35,7 @@ function formats_fetch()
     if not update_url() then return end
     if data[url] then return end
     data[url] = "fetching"
-    local args = {opts.youtubedl_path, "--no-playlist", "-j", "--", (url:gsub("^ytdl://", ""))}
-    execasync(function(a, b, c) formats_save(url, a, b, c) end, args)
+    execasync(function(a, b, c) formats_save(url, a, b, c) end, get_ytdl_cmdline())
 end
 
 -- process the formats fetched by fetch_formats()
@@ -46,6 +45,7 @@ function formats_save(url, success, result, error)
     local json = utils.parse_json(result.stdout)
     if (not istable(json)) or (not istable(json.formats)) then return end
     data[url] = {formats = {}}
+    data[url].initial_format_id = json.format_id
     for _, fmt in ipairs(json.formats) do
         if is_format_valid(fmt) then
             fmt = sanitize_format(fmt)
@@ -54,6 +54,7 @@ function formats_save(url, success, result, error)
             table.insert(data[url].formats, fmt)
         end
     end
+    if no_formats_available() then return end
     table.sort(data[url].formats, format_sort_fn)
 end
 
@@ -77,13 +78,28 @@ function menu_show()
 end
 
 function menu_init_vars()
-    if data[url].timer then
-        data[url].timer:resume()
-    else
+    if data[url].timer == nil then
         data[url].timer = mp.add_periodic_timer(opts.menu_timeout_sec, menu_hide)
+    else
+        data[url].timer:resume()
     end
-    if not data[url].cursor_pos then data[url].cursor_pos = 1 end
-    if not data[url].selected_pos then data[url].selected_pos = 0 end
+    if data[url].cursor_pos == nil or data[url].selected_pos == nil then
+        data[url].cursor_pos = 1
+        data[url].selected_pos = 0
+        menu_init_cursor_pos()
+    end
+end
+
+function menu_init_cursor_pos()
+    local f = data[url].initial_format_id
+    if isempty(f) or not isstr(f) then return end
+    f = f:match("^(.*)%+") or f
+    for idx, fmt in ipairs(data[url].formats) do
+        if fmt.format_id == f then
+            data[url].cursor_pos = idx
+            data[url].selected_pos = idx
+        end
+    end
 end
 
 function menu_hide()
@@ -119,8 +135,8 @@ end
 -- bind the menu movement/action keys
 function menu_keys_bind()
     for _, v in ipairs(keys) do
-        for _, key in ipairs(v[1]) do
-            mp.add_forced_key_binding(key, v[2], v[3], v[4])
+        for i, key in ipairs(v[1]) do
+            mp.add_forced_key_binding(key, v[2]..i, v[3], v[4])
         end
     end
 end
@@ -128,7 +144,9 @@ end
 -- unbind the menu movement/action keys
 function menu_keys_unbind()
     for _, v in ipairs(keys) do
-        mp.remove_key_binding(v[2])
+        for i in ipairs(v[1]) do
+            mp.remove_key_binding(v[2]..i)
+        end
     end
 end
 
@@ -321,9 +339,41 @@ function sanitize_format(fmt)
     return fmt
 end
 
+function get_ytdl_cmdline()
+    local args = { opts.youtubedl_path, "--no-playlist", "-j",
+        table.unpack(get_ytdl_format_args()) }
+    table.insert(args, "--")
+    table.insert(args, (url:gsub("^ytdl://", "")))
+    return args
+end
+
+function get_ytdl_format_args()
+    local args = {}
+    local fmtopt = mp.get_property("ytdl-format")
+    local rawopts = mp.get_property_native("ytdl-raw-options")
+    if isempty(fmtopt) then
+        fmtopt = is_loaded_file_audioonly() and
+            "bestaudio/best" or
+            "bestvideo+bestaudio/best"
+    end
+    if fmtopt ~= "ytdl" then
+        table.insert(args, "--format")
+        table.insert(args, fmtopt)
+    end
+    if istable(rawopts) and isstr(rawopts["format-sort"]) then
+        table.insert(args, "--format-sort")
+        table.insert(args, rawopts["format-sort"])
+    end
+    return args
+end
+
 -- test wether the given format only contains an audio stream
 function is_format_audioonly(fmt)
     return is_param_valid(fmt.acodec) and (not is_param_valid(fmt.vcodec))
+end
+
+function is_loaded_file_audioonly()
+    return mp.get_property("video") == "no"
 end
 
 function is_param_valid(p)
@@ -346,7 +396,7 @@ function update_url()
     end
 end
 
--- shorten and format the given number (eg. 4560 -> 4.5K)
+-- shorten and format the given number (eg. 4560 -> 4K)
 function numshorten(n)
     if     n >= 10^9 then return string.format("%dG", n / 10^9)
     elseif n >= 10^6 then return string.format("%dM", n / 10^6)
@@ -354,19 +404,18 @@ function numshorten(n)
     else                  return string.format("%d" , n) end
 end
 
+-- test wether the given path or URL is a network stream.
+-- works by checking the given URL's protocol.
 function is_network_stream(path)
-    local netprotos = mkset{
+    local proto = path:match("^(%a+)://")
+    if not proto then return false end
+    for _, p in ipairs{
         "http", "https", "ytdl", "rtmp", "rtmps", "rtmpe", "rtmpt", "rtmpts",
         "rtmpte", "rtsp", "rtsps", "mms", "mmst", "mmsh", "mmshttp", "rtp",
-        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"}
-    local proto = path:match("^(%a+)://")
-    return proto and netprotos[proto]
-end
-
-function mkset(list)
-    local set = {}
-    for _, v in ipairs(list) do set[v] = true end
-    return set
+        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"} do
+        if proto == p then return true end
+    end
+    return false
 end
 
 -- asynchronously execute shell commands using mpv's subprocess command
@@ -375,7 +424,7 @@ function execasync(fn, args)
         capture_stdout = true, capture_stderr = true}, fn)
 end
 
--- this segment is taken from reload.lua's reload_resume function
+-- this function is a modified version of mpv-reload's reload_resume()
 -- https://github.com/4e6/mpv-reload, commit c1219b6
 function reload_resume()
     local pos = mp.get_property("time-pos")
@@ -414,6 +463,11 @@ end
 
 function istable(var)
     return type(var) == "table"
+end
+
+-- if table.unpack() isn't available, use unpack() instead
+if not table.unpack then
+    table.unpack = unpack
 end
 
 mp.register_event("start-file", formats_fetch)

@@ -1,9 +1,13 @@
 #!/bin/sh
 # search for words and see their definitions using dict and fzf.
+histfile=~/.cache/dictfzf/history
+mkdir -p "${histfile%/*}"
 echo dictfzf
-cmd="{ dict -mfssubstring -- {q}; dict -mfslev -- {q} ;} | \
-    cut -f4 | awk NF | sort -uf"
+cmd='{ dict -mfsexact -- {q}; dict -mfslev -- {q}; dict -mfssubstring -- {q} ;} | \
+    cut -f4 | cat -n | sort -ufk2 | sort -n | cut -f2- | awk NF'
 printf '\033[5 q'
 sleep 0.01
-word=$(:|fzf --disabled --bind="change:reload:$cmd") &&
-    dict "${word:?}" | "${PAGER:-less}"
+while :; do
+    word=$(:|fzf --disabled --bind="change:reload:$cmd" --history="$histfile") &&
+        dict "${word:?}" | "${PAGER:-less}"
+done

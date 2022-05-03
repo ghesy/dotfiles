@@ -1,6 +1,0 @@
-#!/bin/sh
-# Prompt the user for an action.
-ans="$(printf "No\\nYes" | dmenu -p "$1" ${WINDOWID:+-w $WINDOWID} -nb darkred -sb maroon -sf white -nf darkgray)" || exit 1
-[ "$ans" != Yes ] && exit 1
-[ -z "$2" ] && exit 0
-exec sh -c "$2"
