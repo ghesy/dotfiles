@@ -9,14 +9,16 @@ setopt ignoreeof nullglob interactivecomments autocd
 
 # shell prompt
 autoload -U colors && colors
-precmd() {
-    local git cwd
+precmd_prompt() {
+    local cwd branch host rc="%{$reset_color%}"
     cwd=${PWD/#$HOME/'~'}
     cwd=${${(j:/:)${(A)${(s./.)cwd}}[-3,$]}:-$cwd}
-    [[ -d .git ]] && git=$(command git branch --show-current 2>/dev/null)
-    git=${git:+"%{$reset_color%}at %{$fg[yellow]%}$git"}
-    PS1="%{$fg[cyan]%}%n %{$reset_color%}in $cwd $git%{$reset_color%}"$'\n'"➜ "
+    [[ -d .git ]] && branch=$(command git branch --show-current 2>/dev/null)
+    branch=${branch:+" on %{$fg[yellow]%}$branch$rc"}
+    [[ -n $SSH_CONNECTION ]] && host=" at %{$fg[blue]%}%M$rc"
+    PS1="%{$fg[cyan]%}%n$rc${host} in $cwd$branch"$'\n'"➜ "
 }
+precmd_functions+=(precmd_prompt)
 
 # tab complete options
 autoload -U compinit
@@ -55,7 +57,8 @@ zle-keymap-select() {
 }
 zle -N zle-line-init
 zle-line-init() { echo -ne '\e[5 q' }
-preexec() { zle-line-init }
+preexec_cursor() { zle-line-init }
+preexec_functions+=(preexec_cursor)
 
 # add bracket and quote pair support to zsh's vi mode
 # this adds the "ciX", "caX", "diX", etc. bindings
@@ -82,6 +85,10 @@ bindkey -a cs change-surround
 bindkey -a ds delete-surround
 bindkey -a ys add-surround
 bindkey -M visual S add-surround
+
+# add visited directories to fre[q]
+chpwd_fre() { freq "$PWD" }
+chpwd_functions+=(chpwd_fre)
 
 # source fzf's ctrl+r and ctrl+t functions
 source /usr/share/fzf/key-bindings.zsh
