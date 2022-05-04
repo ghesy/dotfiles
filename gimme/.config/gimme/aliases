@@ -25,6 +25,7 @@ Reset Tor : restor
 VirtualMic : virtualmic
 Syncthing : syncthingopen
 Footabll Streams: fstream
+Clock : dclock -bg black -led_off black -nofade -seconds -bell -slope 50
 Whatsapp : if command -v whatsapp-for-linux; then whatsapp-for-linux; \
     else web https://web.whatsapp.com; fi
 
