@@ -21,27 +21,21 @@ precmd_prompt() {
 precmd_functions+=(precmd_prompt)
 
 # tab complete options
-autoload -U compinit
-zstyle ':completion:*' completer _complete _ignored _correct _approximate
-zstyle ':completion:*' max-errors 2
-zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # use LS_COLORS to colorize names of files and dirs
+zstyle ':completion:*' file-sort modification # sort the matched files and dirs by modification time
 zstyle ':completion:*' hosts ''
-zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' \
-    'm:{a-zA-Z}={A-Za-z} r:|[._-]=** r:|=**' \
-    'm:{a-zA-Z}={A-Za-z} r:|[._-]=** r:|=** l:|=*'
-zmodload zsh/complist && compinit
 _comp_options+=(globdots)
+autoload -U compinit && compinit
+
+# make tab complete the word AND list the choices
+zle-complete-and-list() { zle complete-word && zle list-choices }
+zle -N zle-complete-and-list
+bindkey '\t' zle-complete-and-list
 
 # ctrl+e: edit the current cmdline in the editor
 autoload edit-command-line && zle -N edit-command-line
 bindkey '^e' edit-command-line
-
-# navigate the tab-completion menu using vi keys
-bindkey -M menuselect 'h' vi-backward-char
-bindkey -M menuselect 'k' vi-up-line-or-history
-bindkey -M menuselect 'l' vi-forward-char
-bindkey -M menuselect 'j' vi-down-line-or-history
-bindkey -v '^?' backward-delete-char
 
 # enable vi mode
 bindkey -v
@@ -77,21 +71,19 @@ done }
 
 # add surround bindings ("ys", "cs", "ds") to the vim mode
 # from /usr/share/zsh/functions/Zle/surround
-autoload -Uz surround
-zle -N delete-surround surround
-zle -N add-surround surround
-zle -N change-surround surround
-bindkey -a cs change-surround
-bindkey -a ds delete-surround
-bindkey -a ys add-surround
+autoload -U surround
+zle -N delete-surround surround && bindkey -a ds delete-surround
+zle -N change-surround surround && bindkey -a cs change-surround
+zle -N add-surround surround && bindkey -a ys add-surround
 bindkey -M visual S add-surround
 
 # add visited directories to fre[q]
 chpwd_fre() { freq "$PWD" }
 chpwd_functions+=(chpwd_fre)
 
-# source fzf's ctrl+r and ctrl+t functions
+# source some useful fzf stuff
 source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
 
 # source the aliases
 source ~/.config/zsh/aliases.zsh
