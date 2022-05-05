@@ -7,5 +7,7 @@ ytdl-format=bestvideo[height>=360]+bestaudio/bestvideo+bestaudio/best[height>=36
 alang=jpn,eng,en,per,fa
 slang=eng,en,per,fa
 no-sub-visibility
-force-window=yes
+force-window=immediate
 keep-open=yes
+osd-font='Sansita Light'
+sub-font='Lato Light'
