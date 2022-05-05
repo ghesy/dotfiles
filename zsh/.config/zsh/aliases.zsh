@@ -1,7 +1,11 @@
 # zsh's aliases, functions and bindings.
 
+rmcmd() {
+    repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
+}
+
 lf() {
-    [[ $1 = -s ]] && shift || repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
+    [[ $1 = -s ]] && shift || rmcmd
     [[ -n $LF_LEVEL ]] && exit
     local tmp
     tmp=$(mktemp) || return
@@ -13,7 +17,7 @@ lf() {
 }
 
 search() {
-    repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
+    rmcmd
     local f
     f=$(finder "$@") || return
     if [[ ${f##*/} == .* ]]; then
@@ -39,7 +43,17 @@ _b() { compadd $(command bm -l) }
 compdef _b b
 alias bm=b
 
-d() {
+f() {
+    rmcmd
+    local p
+    p=$(fre --sorted | sed "s|^$HOME|~|" | fzf) || return 1
+    p=${p/#'~'/"$HOME"}
+    [ -f "$p" ] && p=${p%/*}
+    cd "$p"
+}
+
+c() {
+    rmcmd
     cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
         sort -u | fzf)"
 }
