@@ -3,18 +3,20 @@
 # Dependencies: wine, fzf, moreutils, findutils, coreutils.
 # Optional Deps: zenity, dragon-drop, dmenu.
 #
-# If you use ArchLinux, I recommend you install
-# 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
-# to get wine plus all of it's optional dependencies.
+# If you use ArchLinux, I recommend you install these two packages from
+# the AUR to get a nice patched wine plus all of it's optional dependencies:
+# 'wine-ge-custom' and 'lutris-wine-meta'
 
-# TODO: make our list of programs just be shell commands with support for quoting and args
+# TODO: make the "list of programs" just be shell commands with support for quoting and args
 # TODO: make new_bottle() cleaner and split it into more functions
 
 # config
 DIR=~/.local/share/beer
+HISTFILE=~/.cache/beer/history
 export WINEDEBUG=fixme-all,err-wineboot # make wine less verbose
-export PULSE_LATENCY_MSEC=60
+export PULSE_LATENCY_MSEC=60 # fix some audio problems
 DIR_ALIAS='~BEER~'
+VI_MODE=true
 
 main()
 {
@@ -35,10 +37,19 @@ main()
 
     echo Beer
     help
+
+    mkdir -pm700 "${HISTFILE%/*}" || return 1 # make HISTFILE's directory
+
+    # load the command history from HISTFILE and save to HISTFILE on exit
+    history -r
+    trap 'history -w' EXIT
+
+    read_init # initialize some read-related stuff
+
     while :; do
         local cmd
-        printf '\e[5 q'
-        read -p "${PFX:+$(basename "$PFX") }> " cmd
+        readfn -rep "${PFX:+$(basename "$PFX") }> " cmd
+        history -s -- "$cmd" # add the entered command to history
         case $cmd in
             n) new_bottle ;;
             r) remove_bottle ;;
@@ -190,7 +201,7 @@ run_executable()
     echo "or 'g' for GTK file selector,"
     echo "or 'd' for drag and drop,"
     echo "or 'q' to go back."
-    read -p '>> ' ans
+    readfn -rep '>> ' ans || return 1
     case $ans in
         q|'') return ;;
         g) exe=$(zenity --file-selection --title='Select an executable') || return 1 ;;
@@ -201,7 +212,7 @@ run_executable()
     printf '\nThese files will be executed:\n\n'
     while IFS= read -r f; do echo "  $f"; done <<< "$exe"
     printf '\nContinue? [Y/n] '
-    read ans
+    readfn -rep ans || return 1
     case $ans in ''|y|Y) ;; *) return 1 ;; esac
 
     while IFS= read -r f; do
@@ -232,29 +243,26 @@ new_bottle()
 {
     local arch name ans d
 
-    read -p 'Arch: [ 64 (Default) / 32 ] ' arch
+    readfn -rep 'Arch: [ 64 (Default) / 32 ] ' arch || return 1
     case $arch in
         ''|64|32) ;;
-        q) return ;;
-        *) echo 'Bad value given.'; return 1 ;;
+        *) echo 'Invalid selection'; return 1 ;;
     esac
 
-    read -p "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox
+    readfn -rep "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox || return 1
     case $sandbox in
         ''|h|f|n) ;;
-        q) return ;;
-        *) echo 'Bad value given.'; return 1 ;;
+        *) echo 'Invalid selection'; return 1 ;;
     esac
 
-    read -p 'Name: ' name
+    readfn -rep 'Name: ' name || return 1
     case $name in
         '') echo 'Name must be non-empty.'; return 1 ;;
-        q) return ;;
     esac
 
     name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]/_/g')
 
-    read -p "Create bottle named \"$name\"? [Y/n] " ans
+    readfn -rep "Create bottle named \"$name\"? [Y/n] " ans || return 1
     case $ans in ''|y|Y) ;; *) return ;; esac
 
     d=${DIR:?}/$name
@@ -274,7 +282,7 @@ remove_bottle()
 {
     check_pfx 'to remove' || return 1
     local ans
-    read -p "REMOVE \"$(basename "$PFX")\"? [y/N] " ans
+    readfn -rep "REMOVE \"$(basename "$PFX")\"? [y/N] " ans || return 1
     case $ans in y|Y) ;; *) return ;; esac
     rm -r --one-file-system "$PFX"
     deselect_bottle
@@ -297,7 +305,7 @@ tricks()
     check_pfx 'for running winetricks' || return 1
     local args
     echo "'q' to go back."
-    read -p '$ winetricks ' args
+    readfn -rep '$ winetricks ' args || return 1
     [ "$args" = q ] && return
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winetricks $args
 }
@@ -325,12 +333,12 @@ select_theme()
 {
     check_pfx 'for themeing' || return 1
     local ans
-    read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit : ' ans
+    readfn -rep '(d)ark-background / (b)reeze-dark / (D)efault : ' ans || return 1
     case $ans in
         d) theme=theme_dark_background ;;
         b) theme=theme_breeze_dark ;;
         D) theme=theme_default ;;
-        *) return ;;
+        *) echo 'Invalid selection.' ;;
     esac
     apply_theme $theme
 
@@ -339,6 +347,40 @@ select_theme()
 apply_theme()
 {
     [ -n "$1" ] && WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <($1)
+}
+
+read_init()
+{
+    # if configured, enable vi mode for easier command line editing
+    [ "$VI_MODE" = true ] && set -o vi
+    # make ctrl+c and ctrl+d clear the input and send EOF
+    bind '"\C-q": kill-whole-line'
+    bind '"\C-c": "\C-q\C-d"'
+    bind '"\C-d": "\C-c"'
+    # make ctrl+c send SIGINT to the running programs without exiting the script
+    trap 'kill -INT 0' INT
+    # some other readline bindings
+    bind '"\C-l": clear-screen'
+    bind '"\C-p": previous-history'
+    bind '"\C-n": next-history'
+}
+
+readfn()
+{
+    printf '\e[5 q' # set cursor's shape to beam
+
+    # rebind interrupt from ctrl+c to something else to allow the bindings
+    # that were set in read_init() to be interpreted
+    stty intr '^]'
+
+    read "$@"
+    local ret=$?
+
+    # rebind interrupt back to ctrl+c to allow the trap that was
+    # set in read_init() to be interpreted
+    stty intr '^c'
+
+    return $ret
 }
 
 theme_dark_background()
