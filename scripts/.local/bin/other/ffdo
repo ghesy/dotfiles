@@ -69,7 +69,6 @@ merge() {
         key $c "${key_gotourgent:?}" \
         windowactivate --sync "$ff1" \
         mousemove --window "$ff1" 50 10 $s \
-        key $c $d ctrl+shift+Tab ctrl+Tab $s \
         click $c 3 $s \
         key $c $d s Escape $s \
         mousedown $c 1 $s \
