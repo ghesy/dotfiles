@@ -26,11 +26,9 @@ VirtualMic : virtualmic
 Syncthing : syncthingopen
 Footabll Streams: fstream
 Clock : dclock -bg black -led_off black -nofade -seconds -bell -slope 50
+OBS, Recorder : obs
 Whatsapp : if command -v whatsapp-for-linux; then whatsapp-for-linux; \
     else web https://web.whatsapp.com; fi
-
-OBS, Recorder : m=$(pactl load-module module-remap-sink sink_name=OBSSink \
-    sink_properties=device.description=OBSSink); obs; pactl unload-module $m
 
 CUPS : web localhost:631
 Router : web $(set -- $(ip r); echo "$3")
