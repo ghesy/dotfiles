@@ -41,6 +41,7 @@ Reddit : tui tuir
 CPU, htop : tui htop
 Net Top : tuiroot nethogs -l
 Disk Top, IOTop : tuiroot iotop
+i7z : tuiroot i7z
 Reset Router : tui resrouter
 lsusb, Devices : tui watchusb
 Mixer : tui pulsemixer
