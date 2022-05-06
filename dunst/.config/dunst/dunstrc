@@ -17,7 +17,7 @@
     idle_threshold = 10
     show_age_threshold = 60
     hide_duplicate_count = true
-    dmenu = "/usr/local/bin/dmenu -p dunst -l 30"
+    dmenu = "/usr/local/bin/dmenu -p dunst -l 10"
 
 [urgency_low]
     background = "#151515"

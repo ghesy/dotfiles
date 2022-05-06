@@ -27,7 +27,7 @@ main()
         -l) list_all_programs ;;
         -r) run_selected_program_all ;;
         -d) list_all_programs |
-            dmenu ${2:+-p "$2"} -l 30 |
+            dmenu ${2:+-p "$2"} -l 10 |
             run_selected_program_all
             return ;;
         '') ;;

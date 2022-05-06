@@ -80,7 +80,7 @@ update_url()
 
 ask_url_stdin()
 {
-    urlgrep | sort -u | ifne dmenu $WID -l 30 -p "Select URL${ACTION:+ to $ACTION}"
+    urlgrep | sort -u | ifne dmenu $WID -l 10 -p "Select URL${ACTION:+ to $ACTION}"
 }
 
 handle_url()
@@ -113,7 +113,7 @@ history_menu()
 {
     local sel
     sel=$(column -t -s'	' -o' -- ' "$CACHE_DIR/history" | uniq | tac |
-        dmenu $WID -l 30 -p 'PipeURL History') || return
+        dmenu $WID -l 10 -p 'PipeURL History') || return
     [ -z "$sel" ] && return 1
     URL=${sel#* -- }
     handle_url
