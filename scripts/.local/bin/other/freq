@@ -1,16 +1,90 @@
 #!/bin/sh
-# a wrapper for fre
-# usage: freq --menu or freq PATH
-[ $# -ne 1 ] && exit
-command -v fre >/dev/null || exit
-case $1 in
-    --menu)
-        fre --sorted | sed "s|^$HOME|~|" | ifne dmenu -l 10 -p freq |
-            sed "s|^~|$HOME|" | xargs -rd'\n' termopen
-    ;;
-    /|"$HOME"|"${HOME%/}/") ;;
-    *)
-        p=$(realpath -- "$1")
-        [ -d "$p" ] && p="${p%/}/"
-        fre --add "$p"
-esac
+# list and open frequent, recent, already open, and bookmarked paths.
+# requires fre (https://github.com/camdencheek/fre) for tracking
+# recent and frequent paths.
+#
+# options:
+#   -m [menu_prog [args...]]  ask for a path using dmenu or the given menu program (eg. fzf)
+#   -l  list all the paths.
+#
+
+# config
+bookmarks=~/.local/share/fre/bookmarks
+
+main()
+{
+    case $1 in
+        -l) list ;;
+        -m) shift; menu "$@" ;;
+        -a) add "${2:?}" ;;
+        -b) bookmark "${2:?}" ;;
+        -h) printhelp ;;
+        -c) cleanup ;;
+    esac
+}
+
+list()
+{
+    { getcwds; fre --sorted; [ -f "$bookmarks" ] && cat "$bookmarks" ;} |
+        sed "s|^$HOME|~|" | cat -n | sort -ufk2 | sort -n | cut -f2- | awk NF
+}
+
+menu()
+{
+    [ $# -eq 0 ] && set -- dmenu -l 10 -p freq
+    p=$(list | "$@") || return 1
+    p=$(printf '%s\n' "$p" | sed "s|^~|$HOME|")
+    [ -e "$p" ] && termopen "$p"
+    [ -e "$p" ] || cleanup
+}
+
+getcwds()
+{
+    readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/"
+}
+
+add()
+{
+    case $1 in
+        '/'|"$HOME"|"${HOME%/}/")
+            return ;;
+    esac
+    p=$(realpath -- "$1")
+    [ -d "$p" ] && p="${p%/}/"
+    fre --add "$p"
+}
+
+bookmark()
+{
+    p=$1
+    [ -e "$p" ] || return 1
+    [ -d "$p" ] && p="${p%/}/"
+    printf '%s\n' "$p" >> "$bookmarks"
+}
+
+cleanup()
+{
+    fre --sorted | while IFS= read -r p; do
+        [ ! -e "$p" ] && fre --delete "$p"
+    done
+}
+
+printhelp()
+{
+    cat << 'EOF'
+list and open frequent, recent, already open, and bookmarked paths.
+requires fre (https://github.com/camdencheek/fre) for tracking
+recent and frequent paths.
+
+options:
+  -m [CMD [ARGS...]]    ask for a path using dmenu or
+                            the given menu program (eg. fzf)
+  -l                    list all the paths
+  -a <PATH>             register the given path as frequently accessed
+  -b <PATH>             bookmark the given path
+  -c                    purge nonexistent paths from recent paths
+  -h                    print this help message
+EOF
+}
+
+main "$@"

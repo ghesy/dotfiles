@@ -78,7 +78,7 @@ zle -N add-surround surround && bindkey -a ys add-surround
 bindkey -M visual S add-surround
 
 # add visited directories to fre[q]
-chpwd_fre() { freq "$PWD" }
+chpwd_fre() { freq -a "$PWD" }
 chpwd_functions+=(chpwd_fre)
 
 # source some useful fzf stuff

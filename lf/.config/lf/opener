@@ -13,8 +13,8 @@ trap 'sleep 0.01' EXIT
 # go to the alternate buffer and clear the screen
 printf '\e[?1049h\e[H'
 
-# add the file to fre[q]
-[ -f "$1" ] && freq "$1"
+# add the file to freq
+[ -f "$1" ] && freq -a "$1"
 
 ext=true
 case ${1,,} in

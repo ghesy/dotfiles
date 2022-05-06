@@ -32,30 +32,13 @@ paru() {
     command paru "$@"
 }
 
-# bookmarks
-b() {
-    case $1 { --) shift ;; -*) command bm "$@"; return ;; }
-    local p=$(command bm "$@")
-    [[ -z $p ]] && return
-    cd "$p"
-}
-_b() { compadd $(command bm -l) }
-compdef _b b
-alias bm=b
-
 f() {
     rmcmd
     local p
-    p=$(fre --sorted | sed "s|^$HOME|~|" | fzf) || return 1
+    p=$(freq -m fzf) || return 1
     p=${p/#'~'/"$HOME"}
     [ -f "$p" ] && p=${p%/*}
     cd "$p"
-}
-
-c() {
-    rmcmd
-    cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
-        sort -u | fzf)"
 }
 
 h() {
