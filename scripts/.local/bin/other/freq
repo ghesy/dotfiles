@@ -20,6 +20,7 @@ main()
         -b) bookmark "${2:?}" ;;
         -h) printhelp ;;
         -c) cleanup ;;
+         *) printhelp; return 1 ;;
     esac
 }
 
@@ -31,16 +32,21 @@ list()
 
 menu()
 {
-    [ $# -eq 0 ] && set -- dmenu -l 10 -p freq
+    [ $# -eq 0 ] && open=true && set -- dmenu -l 10 -p freq || open=false
     p=$(list | "$@") || return 1
     p=$(printf '%s\n' "$p" | sed "s|^~|$HOME|")
-    [ -e "$p" ] && termopen "$p"
-    [ -e "$p" ] || cleanup
+    if [ $open = true ]; then
+        [ -e "$p" ] && termopen "$p"
+        [ -e "$p" ] || { cleanup && echo FFFUUUCK ;}
+    else
+        printf '%s\n' "$p"
+    fi
 }
 
 getcwds()
 {
-    readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/"
+    readlink /proc/*/cwd |
+        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/sv/|/TelegramDesktop| \(deleted\)$'
 }
 
 add()
@@ -75,6 +81,9 @@ printhelp()
 list and open frequent, recent, already open, and bookmarked paths.
 requires fre (https://github.com/camdencheek/fre) for tracking
 recent and frequent paths.
+
+if an external menu program is specified using the -m option,
+freq will print the selected item to stdout instead of opening it.
 
 options:
   -m [CMD [ARGS...]]    ask for a path using dmenu or
