@@ -1,18 +1,14 @@
 #!/bin/sh
 # open the given path in lf.
-if [ "$1" = -a ]; then
-    shift
-    tmp=$(mktemp) || exit
-    unset ishidden
-    case $1 in .*|*/.*) ishidden=true ;; esac
-    lf ${ishidden:+-command 'set hidden'} -last-dir-path="$tmp" -- "$1"
-    [ ! -f "$tmp" ] && exit
-    dir=$(cat "$tmp")
-    rm -f "$tmp"
-    [ -d "$dir" ] && cd "$dir"
-    TMUX= exec ${SHELL:-}
+set -e
+path=${1:-$PWD}
+if   [ -d "$path" ]; then
+    cd "$path"
+    setsid -f ${TERMINAL:?} >/dev/null 2>&1
+elif [ -f "$path" ]; then
+    case $path in */*) cd "${path%/*}" ;; esac
+    setsid -f ${TERMINAL:?} -e sh -c 'ls -F --color=always -- "$0"; exec "$SHELL"' "${path##*/}" >/dev/null 2>&1
+    printf '%s\n' "${path##*/}" | xclip -r -selection clipboard
 else
-    path=${1:-$PWD}
-    [ -d "$path" ] && path=${path%/}/
-    setsid -f ${TERMINAL:?} -e "$0" -a "$path" >/dev/null 2>&1
+    exit 1
 fi
