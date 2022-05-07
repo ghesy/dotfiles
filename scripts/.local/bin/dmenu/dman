@@ -16,27 +16,36 @@ prnt() {
 }
 
 if [ "$1" = '-' ]; then
-    list=$(sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g' |
-        grep -Eo '[0-9a-zA-Z_-]+\(([1-9nl]|[0-3]p)\)' |
-        cat -n | sort -ufk2 | sort -n | cut -f2-)
+
+    # make a list of referenced man pages from stdin
+    list=$(
+        sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g' |
+            grep -Eo '[0-9a-zA-Z_-]+\([0-9nl][a-zA-Z]*\)' |
+            cat -n | sort -ufk2 | sort -n | cut -f2-
+    )
+
+    # ask for a man page from the user
     [ -n "$list" ] && man=$(prnt "$list" | menu)
+
 else
-    # get the list of available man pages
+
+    # make a list of available man pages
     list=$(
         IFS=:
-        find $(man -w) -type f \
-            -iname '*.[1-9nl]' -or -iname '*.[1-9nl].gz' -or \
-            -iname '*.[0-3]p' -or -iname '*.[0-3]p.gz'
+        for d in $(man -w); do
+            find -L "$d"/man[0-9nl]* -type f
+        done
     )
 
     # ask for a man page from the user
     man=$(prnt "$list" | rev | cut -d/ -f1 | rev | cut -d. -f1 | sort -u | menu)
 
     # get the available sections of the selected man page
-    sec=$(prnt "$list" | grep -Po "^.*/\Q${man:?}\E\.\K[0-9nl]p?(?=(\.gz)?)" | sort)
+    sec=$(prnt "$list" | grep -Po "^.*/\Q${man:?}\E\.\K[0-9nl][a-zA-Z]*(?=(\.gz)?)" | sort)
 
     # if the man page has multiple sections, ask the user to select one of them
     [ "$(prnt "$sec" | wc -l)" -gt 1 ] && sec=$(prnt "$sec" | menu)
+
 fi
 
 # open the man page in a terminal window
