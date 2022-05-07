@@ -1,4 +1,4 @@
-# zsh's aliases, functions and bindings.
+# custom commands aliases for zsh.
 
 rmcmd() {
     repeat ${#${(f)PS1}} { echo -ne '\e[A\e[2K' }
@@ -59,9 +59,9 @@ alias mv='advmv -ig'
 alias rm='rm -Iv --one-file-system'
 
 # pacman
-alias p='sudo pacman'
+alias p='paru'
+alias P='pacman'
 alias pl='paclast -t | head'
-alias pa=paru
 
 # vim
 alias v=nvim
