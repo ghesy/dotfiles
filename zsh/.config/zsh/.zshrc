@@ -38,7 +38,7 @@ autoload edit-command-line && zle -N edit-command-line
 bindkey '^e' edit-command-line
 
 # enable vi mode
-bindkey -v
+bindkey -v '^?' backward-delete-char
 KEYTIMEOUT=1
 
 # change the cursor shape in different vi modes
