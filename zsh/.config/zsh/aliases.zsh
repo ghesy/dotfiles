@@ -83,6 +83,13 @@ alias gcm='g commit -m'
 alias gl3='g -P log --oneline -n3'
 gp() { g push "$@" && gl3 || figlet failed }
 
+# atool
+aunpack='command aunpack -De'
+apack() {
+    local name=$1; shift
+    apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
+}
+
 # other
 alias startx='command startx "$XINITRC"'
 alias speed='speedtest-cli --bytes'
