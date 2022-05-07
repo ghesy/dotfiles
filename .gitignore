@@ -5,3 +5,4 @@ zsh/**/*compdump
 transmission/**/history.json
 safeeyes/**/style/
 tuir/**/tuir.cfg
+mpv/**/selectformat.lua
