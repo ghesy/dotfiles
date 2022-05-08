@@ -44,13 +44,15 @@ lf() {
 }
 
 # basic stuff
-alias l='command ls -AFt --color=always --group-directories-first'
-alias 1='l -1'
+alias a='command ls -AFt --color=always --group-directories-first'
+alias A='a -l'
+alias t='tree -laFtrC --dirsfirst -L 2'
+alias 1='t -L 1 -i --noreport'
 alias md='mkdir -pv'
 alias cp='advcp -ig'
 alias mv='advmv -ig'
+alias T='trash-put'
 alias rm='rm -Iv --one-file-system'
-alias t='trash-put'
 alias v=nvim
 
 # pacman
