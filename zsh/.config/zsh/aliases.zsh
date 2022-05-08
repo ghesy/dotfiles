@@ -1,4 +1,4 @@
-# zsh's aliases, functions and bindings.
+# custom commands aliases for zsh.
 
 # remove the called command from the terminal's output
 rmcmd() {
@@ -53,9 +53,9 @@ alias t='trash-put'
 alias v=nvim
 
 # pacman
-alias p='sudo pacman'
+alias p='paru'
+alias P='pacman'
 alias pl='paclast -t | head'
-alias pa=paru
 
 # editor
 sv() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
@@ -63,6 +63,13 @@ sv() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 # git
 alias gssh='ssh-add ~/.ssh/keys/github'
 alias g='git'
+
+# atool
+aunpack='command aunpack -De'
+apack() {
+    local name=$1; shift
+    apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
+}
 
 # other
 alias startx='command startx "$XINITRC"'

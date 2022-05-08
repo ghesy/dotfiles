@@ -1,0 +1,4 @@
+#!/bin/sh
+p=/tmp/fontpreview-ueberzug-fifo
+[ -p "$p" ] && rm "$p"
+FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height=100%" exec fontpreview-ueberzug

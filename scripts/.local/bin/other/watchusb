@@ -1,3 +1,3 @@
 #!/bin/sh
-# show cleaned-up output of lsusb periodically. requires usbutils.
-watch -d -t -n 0.5 "lsusb | grep -vi 'root hub$'"
+# show a cleaned-up output of lsusb periodically. requires usbutils.
+watch -d -t -n 0.5 "lsusb | grep -v ' root hub$'"

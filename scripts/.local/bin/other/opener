@@ -1,5 +1,5 @@
 #!/bin/bash
-# a file opener script for lf.
+# a file opener script.
 # note: sxiv's -F option requires the START_FROM_FILE_PATCH from sxiv-flexipatch,
 # and the -E option requires this patch:
 # https://github.com/soystemd/sxiv-flexipatch/commit/7422f2c?diff=unified
@@ -9,9 +9,6 @@
 # delay before exit to keep lf from crashing due to a racing issue:
 # https://github.com/gokcehan/lf/issues/621#issuecomment-841576897
 trap 'sleep 0.01' EXIT
-
-# go to the alternate buffer and clear the screen
-printf '\e[?1049h\e[H'
 
 # add the file to freq
 [ -f "$1" ] && freq -a "$1"

@@ -24,7 +24,7 @@ precmd_functions+=(precmd_prompt)
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # use LS_COLORS to colorize names of files and dirs
 zstyle ':completion:*' file-sort modification # sort the matched files and dirs by modification time
-zstyle ':completion:*' hosts ''
+zstyle ':completion:*' hosts off
 _comp_options+=(globdots)
 autoload -U compinit && compinit
 
@@ -38,7 +38,7 @@ autoload edit-command-line && zle -N edit-command-line
 bindkey '^e' edit-command-line
 
 # enable vi mode
-bindkey -v
+bindkey -v '^?' backward-delete-char
 KEYTIMEOUT=1
 
 # change the cursor shape in different vi modes

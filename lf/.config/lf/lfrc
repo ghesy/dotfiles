@@ -96,8 +96,8 @@ cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
 cmd togglenum push :set<space>number!;set<space>relativenumber!<enter>
 
-cmd open $~/.config/lf/opener $f
-cmd openall $~/.config/lf/opener $fx
+cmd open $opener $f
+cmd openall $opener $fx
 
 cmd preview-toggle preview-on
 cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;load;cmd<space>preview-toggle<space>preview-off<enter>
