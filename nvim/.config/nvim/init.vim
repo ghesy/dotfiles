@@ -15,18 +15,19 @@ set termguicolors
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
 Plug 'drmikehenry/vim-headerguard'
+Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
-Plug 'justinmk/vim-sneak'
-Plug 'chaoren/vim-wordmotion'
+Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
-Plug 'bling/vim-bufferline'
-Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
-Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-unimpaired'
+Plug 'bling/vim-bufferline'
+Plug 'chaoren/vim-wordmotion'
+Plug 'easymotion/vim-easymotion'
 Plug 'voldikss/vim-floaterm'
+Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 " colorschemes
 Plug 'sainnhe/everforest'
 Plug 'pbrisbin/vim-colors-off'
@@ -52,12 +53,13 @@ set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
-set laststatus=0
-set noshowmode
-set noruler
 set mouse=a
 set cursorline
 set title titlestring=nvim
+set wildmenu
+set wildignorecase
+set wildmode=longest,list,full
+set path+=**
 
 " other
 let g:netrw_dirhistmax = 0
@@ -169,8 +171,9 @@ function UndoTreeRun()
     endif
 endf
 
-" vim-bufferline
-let g:bufferline_show_bufnr = 0
+" easymotion
+nmap s <Plug>(easymotion-s2)
+let g:EasyMotion_smartcase = 1
 
 " floaterm
 let g:floaterm_keymap_toggle = '<C-b>'
@@ -188,15 +191,6 @@ let g:gruvbox_material_background = 'hard'
 let g:everforest_better_performance = 1
 let g:everforest_background = 'hard'
 colorscheme gruvbox-material
-
-" set a constant horizontal line between splits
-let g:HorizLine1='─'
-let g:HorizLine2=''
-function FillStatus()
-    return repeat(g:HorizLine1, winwidth('%'))
-endf
-set statusline=%{FillStatus()}
-exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
 
 " persian langmap
 set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
