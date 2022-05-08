@@ -20,11 +20,21 @@ precmd_prompt() {
 }
 precmd_functions+=(precmd_prompt)
 
+# print a list of files on cd
+chpwd_ls() {
+    local ls=$(ls -AFCtxw$COLUMNS --color=always --group-directories-first)
+    [[ ${#${(f)ls}} -gt 3 ]] && ls=${(F)${(f)ls}[#,3]}'  ...'
+    printf '%s\n' "$ls"
+}
+chpwd_functions+=(chpwd_ls)
+
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # use LS_COLORS to colorize names of files and dirs
-zstyle ':completion:*' file-sort modification # sort the matched files and dirs by modification time
-zstyle ':completion:*' hosts off
+zstyle ':completion:*' hosts off # don't match against /etc/hosts entries
+zstyle ':completion:*' file-sort modification
+zstyle ':completion:*' list-dirs-first true
+zstyle ':completion:*' list-rows-first true
 _comp_options+=(globdots)
 autoload -U compinit && compinit
 
@@ -77,8 +87,8 @@ zle -N change-surround surround && bindkey -a cs change-surround
 zle -N add-surround surround && bindkey -a ys add-surround
 bindkey -M visual S add-surround
 
-# add visited directories to fre[q]
-chpwd_fre() { freq -a "$PWD" }
+# add visited directories to freq on cd
+chpwd_fre() { ( freq -a "$PWD" & ) }
 chpwd_functions+=(chpwd_fre)
 
 # source some useful fzf stuff
