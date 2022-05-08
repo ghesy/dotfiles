@@ -23,7 +23,7 @@ precmd_functions+=(precmd_prompt)
 # print a list of files on cd
 chpwd_ls() {
     local ls=$(ls -AFCtxw$COLUMNS --color=always --group-directories-first)
-    [[ ${#${(f)ls}} -gt 3 ]] && ls=${(F)${(f)ls}[#,3]}'  ...'
+    [[ ${#${(fA)ls}} -gt 3 ]] && ls=${(F)${(f)ls}[#,3]}'  ...'
     printf '%s\n' "$ls"
 }
 chpwd_functions+=(chpwd_ls)
@@ -31,7 +31,7 @@ chpwd_functions+=(chpwd_ls)
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # use LS_COLORS to colorize names of files and dirs
-zstyle ':completion:*' hosts off # don't match against /etc/hosts entries
+zstyle ':completion:*' hosts '' # don't match against /etc/hosts entries
 zstyle ':completion:*' file-sort modification
 zstyle ':completion:*' list-dirs-first true
 zstyle ':completion:*' list-rows-first true
