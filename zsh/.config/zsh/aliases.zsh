@@ -67,6 +67,9 @@ sv() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 alias gssh='ssh-add ~/.ssh/keys/github'
 alias g='git'
 
+# run vim-fugitive
+alias fu='git rev-parse --git-dir >/dev/null 2>&1 && nvim -c Git -c only'
+
 # atool
 aunpack='command aunpack -De'
 apack() {
@@ -80,7 +83,6 @@ alias speed='speedtest-cli --bytes'
 alias shch='shellcheck'
 alias logview='${PAGER:-less} /var/log/everything.log '
 alias loglive='tail -n 20 -f /var/log/everything.log'
-alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
 alias al='$EDITOR ~/.config/zsh/aliases.zsh'
