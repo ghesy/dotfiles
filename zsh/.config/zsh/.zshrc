@@ -12,7 +12,7 @@ autoload -U colors && colors
 precmd_prompt() {
     local cwd branch host rc="%{$reset_color%}"
     cwd=${PWD/#$HOME/'~'}
-    cwd=${${(j:/:)${(A)${(s./.)cwd}}[-3,$]}:-$cwd}
+    cwd=${${(j:/:)${(s:/:)cwd}[-3,$]}:-$cwd}
     [[ -d .git ]] && branch=$(command git branch --show-current 2>/dev/null)
     branch=${branch:+" on %{$fg[yellow]%}$branch$rc"}
     [[ -n $SSH_CONNECTION ]] && host=" at %{$fg[blue]%}%M$rc"
