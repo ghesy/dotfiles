@@ -5,6 +5,8 @@
 [credential]
     helper = cache
 [alias]
+    s = status
+    l = log --oneline
     b = checkout -b
     up = pull --rebase --autostash
     tree = log --oneline --graph --decorate --all
