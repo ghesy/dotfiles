@@ -44,7 +44,8 @@ lf() {
 }
 
 # basic stuff
-alias l='command ls -AF --color=always --group-directories-first'
+alias l='command ls -AFt --color=always --group-directories-first'
+alias 1='l -1'
 alias md='mkdir -pv'
 alias cp='advcp -ig'
 alias mv='advmv -ig'
@@ -68,7 +69,7 @@ alias g='git'
 aunpack='command aunpack -De'
 apack() {
     local name=$1; shift
-    apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
+    command apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
 }
 
 # other
