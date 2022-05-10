@@ -1,8 +1,8 @@
 # vim:ft=zsh
 
-# add all of ~/.local/bin's immediate subdirectories to PATH.
-localpaths="$(find ~/.local/bin -mindepth 1 -maxdepth 1 -printf ":%p")"
-export PATH="${PATH}${localpaths}"
+# add all of ~/.local/bin's immediate subdirectories to $PATH
+paths=(~/.local/bin/*(ND-/))
+export PATH=$PATH${paths:+:}${(j.:.)paths}
 
 # default programs
 export TERMINAL=st
@@ -71,10 +71,10 @@ case $(</sys/class/dmi/id/chassis_type) in
 esac
 
 # load machine-specific configs
-for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
+for f in ~/.local/share/local/profile.d/**/*(ND-.); do
     source "$f"
 done
 
 # start X if we're on tty1
-[ -z "$DISPLAY" ] && [ "$TTY" = /dev/tty1 ] &&
-    startx "${XINITRC:?}" -- -nolisten tcp -nolisten local >/dev/null 2>&1
+[[ -z $DISPLAY ]] && [[ $TTY = /dev/tty1 ]] && [[ -f $XINITRC ]] &&
+    startx "$XINITRC" -- -nolisten tcp -nolisten local >/dev/null 2>&1
