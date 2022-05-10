@@ -39,7 +39,7 @@ call plug#end()
 set ignorecase
 set smartcase
 set hidden
-set updatetime=700
+set updatetime=2000
 set visualbell
 set number
 set relativenumber
@@ -53,12 +53,15 @@ set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
+set laststatus=0
+set noshowmode
+set noruler
 set mouse=a
 set cursorline
 set title titlestring=nvim
 set wildmenu
 set wildignorecase
-set wildmode=longest,list,full
+set wildmode=longest:full,full
 set path+=**
 
 " other
@@ -171,6 +174,9 @@ function UndoTreeRun()
     endif
 endf
 
+" vim-bufferline
+let g:bufferline_show_bufnr = 0
+
 " easymotion
 nmap s <Plug>(easymotion-s2)
 let g:EasyMotion_smartcase = 1
@@ -191,6 +197,15 @@ let g:gruvbox_material_background = 'hard'
 let g:everforest_better_performance = 1
 let g:everforest_background = 'hard'
 colorscheme gruvbox-material
+
+" set a constant horizontal line between splits
+let g:HorizLine1='─'
+let g:HorizLine2=''
+function FillStatus()
+    return repeat(g:HorizLine1, winwidth('%'))
+endf
+set statusline=%{FillStatus()}
+exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
 
 " persian langmap
 set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
