@@ -91,6 +91,15 @@ bindkey -M visual S add-surround
 chpwd_fre() { ( freq -a "$PWD" & ) }
 chpwd_functions+=(chpwd_fre)
 
+# add files and dir in the executed commands to freq
+preexec_fre() {
+    for arg in ${(Q)${(Z:C:)1}}; do
+        [[ -e $arg ]] || arg=${(e)arg}
+        [[ -e $arg ]] && freq -a "${arg:a}"
+    done
+}
+preexec_functions+=(preexec_fre)
+
 # source some useful fzf stuff
 source /usr/share/fzf/key-bindings.zsh
 source /usr/share/fzf/completion.zsh
