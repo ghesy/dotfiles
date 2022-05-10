@@ -77,7 +77,9 @@ map C push :rename<enter><c-u> # new rename
 # mouse mappings
 map <m-down> down
 map <m-up> up
-map <m-1> preview-toggle
+map <m-1> open
+map <m-2> updir
+map <m-3> preview-toggle
 
 # remove bookmark mappings
 map "'"
