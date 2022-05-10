@@ -26,10 +26,10 @@ cmd on-quit $printf '\033[23t'
 
 # show the git branch in the prompt
 cmd on-cd &{{
-    if [ -d .git ] && b=$(git branch --show-current) && [ -n "$b" ]; then
-        lf -remote "send $id set promptfmt \"\033[2m%d at $b\""
-    elif [[ $lf_promptfmt == '* at *' ]]; then
-        lf -remote "send $id set promptfmt \"\033[2m%d\""
+    if b=$(git branch --show-current) && [ -n "$b" ]; then
+        lf -remote 'send '$id' set promptfmt "\033[2m%d at \033[33m'"$b"'"'
+    elif [[ $lf_promptfmt == *' at '* ]]; then
+        lf -remote 'send '$id' set promptfmt "\033[2m%d"'
     fi
 }}
 on-cd
