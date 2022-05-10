@@ -3,7 +3,7 @@
 HISTSIZE=10000000
 SAVEHIST=10000000
 HISTFILE=~/.cache/zsh/history
-[[ ! -d ${HISTFILE%/*} ]] && mkdir -pm700 ${HISTFILE%/*}
+[[ ! -d ${HISTFILE:h} ]] && mkdir -pm700 ${HISTFILE:h}
 setopt sharehistory histreduceblanks histignoredups
 setopt ignoreeof nullglob interactivecomments autocd
 
@@ -13,16 +13,16 @@ precmd_prompt() {
     local cwd branch host rc="%{$reset_color%}"
     cwd=${PWD/#$HOME/'~'}
     cwd=${${(j:/:)${(s:/:)cwd}[-3,$]}:-$cwd}
-    [[ -d .git ]] && branch=$(command git branch --show-current 2>/dev/null)
+    branch=$(command git branch --show-current 2>/dev/null)
     branch=${branch:+" on %{$fg[yellow]%}$branch$rc"}
     [[ -n $SSH_CONNECTION ]] && host=" at %{$fg[blue]%}%M$rc"
     PS1="%{$fg[cyan]%}%n$rc${host} in $cwd$branch"$'\n'"➜ "
 }
 precmd_functions+=(precmd_prompt)
 
-# print a list of files on cd
+# run ls on cd (only print the last 3 lines)
 chpwd_ls() {
-    local ls=$(ls -AFCtxw$COLUMNS --color=always --group-directories-first)
+    local ls=$(ls -AFCtxw"$COLUMNS" --color=always --group-directories-first)
     [[ ${#${(fA)ls}} -gt 3 ]] && ls=${(F)${(f)ls}[#,3]}'  ...'
     printf '%s\n' "$ls"
 }
@@ -30,7 +30,7 @@ chpwd_functions+=(chpwd_ls)
 
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS} # use LS_COLORS to colorize names of files and dirs
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}" # use LS_COLORS to colorize names of files and dirs
 zstyle ':completion:*' hosts '' # don't match against /etc/hosts entries
 zstyle ':completion:*' file-sort modification
 zstyle ':completion:*' list-dirs-first true
@@ -66,7 +66,7 @@ preexec_functions+=(preexec_cursor)
 
 # add bracket and quote pair support to zsh's vi mode
 # this adds the "ciX", "caX", "diX", etc. bindings
-# from /usr/share/zsh/functions/Zle/select-{bracketed,quoted}
+# taken from /usr/share/zsh/functions/Zle/select-{bracketed,quoted}
 autoload -U select-bracketed && zle -N select-bracketed
 autoload -U select-quoted && zle -N select-quoted
 () { local mode char
@@ -80,14 +80,14 @@ for mode in visual viopp; do
 done }
 
 # add surround bindings ("ys", "cs", "ds") to the vim mode
-# from /usr/share/zsh/functions/Zle/surround
+# taken from /usr/share/zsh/functions/Zle/surround
 autoload -U surround
 zle -N delete-surround surround && bindkey -a ds delete-surround
 zle -N change-surround surround && bindkey -a cs change-surround
 zle -N add-surround surround && bindkey -a ys add-surround
 bindkey -M visual S add-surround
 
-# add visited directories to freq on cd
+# add visited directories to freq
 chpwd_fre() { ( freq -a "$PWD" & ) }
 chpwd_functions+=(chpwd_fre)
 
