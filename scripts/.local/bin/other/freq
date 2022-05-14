@@ -1,23 +1,18 @@
-#!/bin/sh
+#!/bin/bash
 # list and open frequent, recent, already open, and bookmarked paths.
-# requires fre (https://github.com/camdencheek/fre) for tracking
-# recent and frequent paths.
-#
-# options:
-#   -m [menu_prog [args...]]  ask for a path using dmenu or the given menu program (eg. fzf)
-#   -l  list all the paths.
-#
+# requires fre (https://github.com/camdencheek/fre) for
+# tracking recent and frequent paths.
 
 # config
 bookmarks=~/.local/share/fre/bookmarks
 
 main()
 {
+    set -e
     case $1 in
         -l) list ;;
         -m) shift; menu "$@" ;;
         -a) add "${2:?}" ;;
-        -b) bookmark "${2:?}" ;;
         -h) printhelp ;;
         -c) cleanup ;;
          *) printhelp; return 1 ;;
@@ -26,7 +21,7 @@ main()
 
 list()
 {
-    { getcwds; fre --sorted; [ -f "$bookmarks" ] && cat "$bookmarks" ;} |
+    { getcwds; fre --sorted; bookmarks ;} |
         sed "s|^$HOME|~|" | cat -n | sort -ufk2 | sort -n | cut -f2- | awk NF
 }
 
@@ -37,7 +32,7 @@ menu()
     p=$(printf '%s\n' "$p" | sed "s|^~|$HOME|")
     if [ $open = true ]; then
         [ -e "$p" ] && termopen "$p"
-        [ -e "$p" ] || { cleanup && echo FFFUUUCK ;}
+        [ -e "$p" ] || cleanup
     else
         printf '%s\n' "$p"
     fi
@@ -46,7 +41,25 @@ menu()
 getcwds()
 {
     readlink /proc/*/cwd |
-        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/sv/|/TelegramDesktop| \(deleted\)$'
+        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/sv/|/TelegramDesktop| \(deleted\)$' |
+        sed 's|$|/|'
+}
+
+bookmarks()
+{
+    local bm a depth path
+    readarray -t bm < "${bookmarks:?}"
+    for line in "${bm[@]}"; do
+        depth=${line%%$'\t'*}
+        path=${line#*$'\t'}
+        [ ! -e "$path" ] && continue
+        if [ "$depth" -eq 0 ]; then
+            printf '%s\n' "$path"
+            continue
+        fi
+        find -L "$path" -mindepth 1 -maxdepth "$depth" \
+            -type d -printf '%p/\n' -or -print
+    done
 }
 
 add()
@@ -58,14 +71,6 @@ add()
     p=$(realpath -- "$1")
     [ -d "$p" ] && p="${p%/}/"
     fre --add "$p"
-}
-
-bookmark()
-{
-    p=$1
-    [ -e "$p" ] || return 1
-    [ -d "$p" ] && p="${p%/}/"
-    printf '%s\n' "$p" >> "$bookmarks"
 }
 
 cleanup()
@@ -90,7 +95,6 @@ options:
                             the given menu program (eg. fzf)
   -l                    list all the paths
   -a <PATH>             register the given path as frequently accessed
-  -b <PATH>             bookmark the given path
   -c                    purge nonexistent paths from recent paths
   -h                    print this help message
 EOF
