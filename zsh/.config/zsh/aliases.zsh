@@ -2,26 +2,38 @@
 
 # remove the called command from the terminal's output
 rmcmd() {
+    ((rmcmdstate)) && return
+    rmcmdstate=1
     repeat "${#${(f)PS1}}" { echo -ne '\e[A\e[2K' }
 }
+precmd_rmcmd() { rmcmdstate=0 }
+precmd_functions+=(precmd_rmcmd)
 
-# search the filesystem using fzf
-s() {
-    #rmcmd
-    local p
-    p=$(finder) || return 1
-    [[ -f $p ]] && p=${p:h}
-    [[ ${p:A} != ${PWD:A} ]] && cd "$p"
+lf() {
+    rmcmd
+    local hidden
+    [[ -n $LF_LEVEL ]] && exit
+    [[ $1 == .* ]] && hidden=(-command 'set hidden')
+    local tmp
+    tmp=$(mktemp) || return
+    command lf -last-dir-path="$tmp" ${hidden:+"$hidden[@]"} "$@"
+    local dir=$(<"$tmp")
+    rm "$tmp"
+    [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
 }
 
-# search frequent files using fzf
-f() {
-    #rmcmd
+# search the filesystem
+search() {
+    rmcmd
     local p
-    p=$(freq -m fzf) || return 1
-    p=${p/#'~'/"$HOME"}
-    [[ -f $p ]] && p=${p:h}
-    [[ ${p:A} != ${PWD:A} ]] && cd "$p"
+    p=$(finder) && lf "$p"
+}
+
+# search frequent files
+frequent() {
+    rmcmd
+    local p
+    p=$(freq -m fzf) && lf "$p"
 }
 
 # show the help message of the given program in the pager
@@ -35,16 +47,19 @@ paru() {
     command paru "$@"
 }
 
-lf() {
-    #rmcmd
-    [[ -n $LF_LEVEL ]] && exit
-    local tmp
-    tmp=$(mktemp) || return
-    command lf -last-dir-path="$tmp" "$@"
-    local dir=$(<"$tmp")
-    rm "$tmp"
-    [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
+# rerun the last command and pipe to pager
+P() {
+    local cmd=${history[$((HISTCMD-1))]}
+    [[ $cmd =~ '^rm |^T |^trash-put' ]] && return 1
+    read -q "?$ $cmd | less"$'\n''execute [yn]? ' \
+        && echo || { echo; return 1 }
+    eval "$cmd | ${PAGER:-less}"
 }
+
+bindctrl() { bindkey -s "^$1" '\eddi '"$2"'\n' }
+bindctrl n lf
+bindctrl o frequent
+bindctrl f search
 
 # basic stuff
 alias a='command ls -AFt --color=always --group-directories-first'
@@ -57,13 +72,12 @@ alias md='mkdir -pv'
 alias cp='advcp -ig'
 alias mv='advmv -ig'
 alias T='trash-put'
-alias rm='rm -Iv --one-file-system'
+alias rm='rm -iv --one-file-system'
 alias v='nvim'
 alias vi='nvim'
 
 # pacman
 alias p='paru'
-alias P='pacman'
 alias pl='paclast -t | head'
 
 # editor

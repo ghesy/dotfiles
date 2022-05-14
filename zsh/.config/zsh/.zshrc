@@ -10,23 +10,41 @@ setopt ignoreeof nullglob interactivecomments autocd
 # shell prompt
 autoload -U colors && colors
 precmd_prompt() {
-    local cwd branch host rc="%{$reset_color%}"
+    local cwd branch host
     cwd=${PWD/#$HOME/'~'}
     cwd=${${(j:/:)${(s:/:)cwd}[-3,$]}:-$cwd}
     branch=$(command git branch --show-current 2>/dev/null)
-    branch=${branch:+" on %{$fg[yellow]%}$branch$rc"}
-    [[ -n $SSH_CONNECTION ]] && host=" at %{$fg[blue]%}%M$rc"
-    PS1="%{$fg[cyan]%}%n$rc${host} in $cwd$branch"$'\n'"➜ "
+    branch=${branch:+" on $fg[yellow]$branch$reset_color"}
+    [[ -n $SSH_CONNECTION ]] && host=" at $fg[blue]%M$reset_color"
+    PS1="$fg[cyan]%n$reset_color${host} in $cwd$branch $(cwddiff)"$'\n'"➜ "
+    cwddiffupdate
 }
 precmd_functions+=(precmd_prompt)
 
-# run ls on cd (only print the last 3 lines)
-chpwd_ls() {
-    local ls=$(ls -AFCtxw"$COLUMNS" --color=always --group-directories-first)
-    [[ ${#${(fA)ls}} -gt 3 ]] && ls=${(F)${(f)ls}[#,3]}'  ...'
-    printf '%s\n' "$ls"
+# facilities to show the changed files and directories in the prompt
+cwddiffupdate() { cwdfiles=($PWD *(NDTom)) }
+cwddiff() {
+    [[ $cwdfiles[1] != $PWD ]] && return
+    local i j skip a=(*(NDTom)) new=() del=()
+    for i in $a[@]; do
+        skip=0
+        for j in $cwdfiles[2,$]; do
+            [[ $i == $j ]] && { skip=1; break }
+        done
+        (($skip)) || new+=("$i")
+    done
+    for i in $cwdfiles[2,$]; do
+        skip=0
+        for j in $a[@]; do
+            [[ $i == $j ]] && { skip=1; break }
+        done
+        (($skip)) || del+=("$i")
+    done
+    (($#new)) || (($#del)) && echo
+    (($#new)) && echo -ne "$fg[green]" && printf '+%s ' "$new[@]"
+    (($#del)) && echo -ne "$fg[red]"   && printf '-%s ' "$del[@]"
+    printf '%s\n' "$reset_color"
 }
-chpwd_functions+=(chpwd_ls)
 
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
@@ -94,7 +112,6 @@ chpwd_functions+=(chpwd_fre)
 # add files and dir in the executed commands to freq
 preexec_fre() {
     for arg in ${(Q)${(Z:C:)1}}; do
-        [[ -e $arg ]] || arg=${(e)arg}
         [[ -e $arg ]] && freq -a "${arg:a}"
     done
 }
