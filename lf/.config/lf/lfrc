@@ -26,8 +26,8 @@ cmd on-quit $printf '\033[23t'
 
 # show the git branch in the prompt
 cmd on-cd &{{
-    if b=$(git branch --show-current) && [ -n "$b" ]; then
-        lf -remote 'send '$id' set promptfmt "\033[2m%d at \033[33m'"$b"'"'
+    if b=$(git branch --show-current) && [ -n $b ]; then
+        lf -remote 'send '$id' set promptfmt "\033[2m%d at \033[33m'$b'"'
     elif [[ $lf_promptfmt == *' at '* ]]; then
         lf -remote 'send '$id' set promptfmt "\033[2m%d"'
     fi
@@ -41,7 +41,7 @@ on-cd
 map ~ cd ~
 map . set hidden!
 map * push :glob-select<space>
-map P paste simple
+map P push :paste<space>""<left>
 map gh
 map g top
 map zz center
@@ -56,6 +56,7 @@ map X !$f
 map m mkdir
 map <c-n> togglenum
 map <c-f> finder
+map <c-o> freq
 map W &feh --bg-fill -- $f
 map V push $$EDITOR<space>
 map R &dragon-drop -a -x $fx
@@ -66,11 +67,12 @@ map H push :mark-load<enter>' # jump back to previous dir
 map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
 map E sudoedit
+map <c-n> $$SHELL
 
 # renaming
 map b bulkrename
 map A rename
-map I push :rename<enter><c-a>
+map I push :rename<enter><home>
 map i push :rename<enter><a-b><a-b><a-f> # before extention
 map C push :rename<enter><c-u> # new rename
 
@@ -111,17 +113,18 @@ cmd mkdir %{{
     read dir
     mkdir -p -- $dir
     lf -remote 'send load'
-    printf '%s\n' $dir | lfselect
+    lfselect $dir
 }}
 
 cmd trash &{{
     lf -remote "send $id echo Trashing..."
-    msg=$(mktemp) || exit
-    trap 'rm -f "$msg"' EXIT
-    if trash-put $fx >$msg 2>&1; then
+    if msg=$(trash-put $fx 2>&1); then
         lf -remote "send $id echo Trashing Done."
     else
-        lf -remote "send $id !printf '\e[?1049h\e[H'; cat \"$msg\""
+        tmp=$(mktemp)
+        trap 'rm -f "$msg"' EXIT
+        printf '%s\n' "$msg" > $tmp
+        lf -remote "send $id !printf '\e[?1049h\e[H'; cat \"$tmp\""
         lf -remote "send $id echo Trashing Failed."
     fi
     lf -remote 'send load'
@@ -138,23 +141,31 @@ cmd delete ${{
 
 cmd finder ${{
     f=$(finder) || exit
-    case $(basename -- $f) in
+    case ${f##*/} in
         .*) lf -remote "send $id set hidden" ;;
     esac
-    printf '%s\n' $f | lfselect
+    lfselect $f
+}}
+
+cmd freq ${{
+    f=$(freq -m fzf) || exit
+    case ${f##*/} in
+        .*) lf -remote "send $id set hidden" ;;
+    esac
+    lfselect $f
 }}
 
 cmd archive ${{
     printf '\e[?1049h\e[H'
     apack $1 $(realpath -s --relative-base=$PWD -- $fx) ||
         { read -p 'Press enter to continue'; exit; }
-    printf '%s\n' $1 | lfselect
+    lfselect $1
 }}
 
 cmd extract ${{
     printf '\e[?1049h\e[H'
     aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
-    f=${f%.*}; printf '%s\n' ${f%.tar} | lfselect
+    f=${f%.*}; lfselect ${f%.tar}
 }}
 
 cmd sudoedit ${{
@@ -164,29 +175,42 @@ cmd sudoedit ${{
 }}
 
 cmd paste ${{
+    set +u
     printf '\e[?1049h\e[H'
     list=~/.local/share/lf/files
-    [ ! -f $list ] || [ $(wc -l <$list) -le 1 ] &&
+    count=$(wc -l <$list)
+    [ ! -f $list ] || [ $count -le 1 ] &&
         { lf -remote "send $id echo nothing to paste."; exit ;}
-    mode=$(head -n1 $list)
+    action=$(head -n1 $list)
     srcs=$(sed 1d $list)
-    tput civis
-    case $mode/${1:-adv} in
-        copy/adv) advcp -ag --backup=numbered -- ${srcs:?} . ;;
-        move/adv) advmv  -g --backup=numbered -- ${srcs:?} . ;;
-        copy/simple) cp -av --backup=numbered -- ${srcs:?} . ;;
-        move/simple) mv  -v --backup=numbered -- ${srcs:?} . ;;
+    printf '\e[?25l' # hide the cursor
+    [ "$1" = --simple ] && shift && mode=simple || mode=adv
+    case $action${mode:+-$mode} in
+        copy-adv) advcp -ag --backup=numbered -- ${srcs:?} ${1:-.} ;;
+        move-adv) advmv  -g --backup=numbered -- ${srcs:?} ${1:-.} ;;
+        copy-simple) cp -av --backup=numbered -- ${srcs:?} ${1:-.} ;;
+        move-simple) mv  -v --backup=numbered -- ${srcs:?} ${1:-.} ;;
     esac || { read -p 'Press enter to continue'; exit ;}
     rm $list
     lf -remote 'send clear'
     lf -remote 'send load'
-    tput cnorm
+    if [ -n "$1" ]; then
+        lfselect "$1"
+    elif [ $count -eq 2 ]; then
+        lfselect "${srcs##*/}"
+    fi
+    printf '\e[?25h' # show the cursor
 }}
 
 cmd center &{{
     n=$(stty size </dev/"$(ps -o tty= -p $$)" | cut -d' ' -f1)
     lf -remote "send $id set scrolloff $(( (n - 3) / 2 ))"
     lf -remote "send $id push jk:scrolloff<enter>"
+}}
+
+cmd ls ${{
+    [[ $lf_hidden = true ]] && args='-AFt' || args='-Ft'
+    ls $args --group-directories-first | fribidi --ltr | ${PAGER:-less}
 }}
 
 # vim:ft=conf
