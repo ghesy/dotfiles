@@ -6,15 +6,23 @@
 
 [ $# -eq 0 ] && exit 1
 
-# delay before exit to keep lf from crashing due to a racing issue:
-# https://github.com/gokcehan/lf/issues/621#issuecomment-841576897
-trap 'sleep 0.01' EXIT
+for arg; do
+    [ -d "$arg" ] && exit 1
+done
 
-# if this is started by lf, go to the alternate buffer and clear the screen
-[ -n "$LF_LEVEL" ] && printf '\e[?1049h\e[H'
+# if this script is called by lf:
+if [ -n "$LF_LEVEL" ]; then
+
+    # go to the alternate buffer and clear the screen
+    printf '\e[?1049h\e[H'
+
+    # delay before exit to keep lf from crashing due to a known race condition:
+    # https://github.com/gokcehan/lf/issues/621#issuecomment-841576897
+    trap 'sleep 0.01' EXIT
+fi
 
 # add the file to freq
-[ -f "$1" ] && freq -a "$1"
+freq -a "$1"
 
 ext=true
 case ${1,,} in
