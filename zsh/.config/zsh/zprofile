@@ -50,9 +50,9 @@ export LESS_TERMCAP_se=$'\E[0m' # reset reverse video
 export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 
 # fzf settings
-export FZF_DEFAULT_OPTS='--layout=reverse --height=40%
---bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top --color=dark
---color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
+export FZF_DEFAULT_OPTS='--layout=reverse --height=40% --scroll-off=5 --cycle
+--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:first,ctrl-s:jump-accept,change:first
+--color=dark --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
 --color=info:#83a598,prompt:#bdae93,spinner:#fabd2f
 --color=pointer:#83a598,marker:#fe8019,header:#665c54'
 
