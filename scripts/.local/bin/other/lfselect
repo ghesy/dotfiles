@@ -1,7 +1,7 @@
 #!/bin/bash
 # read filenames from stdin/args and select them in lf.
 IFS=$'\n'
-set -- $(cat)
+[ $# -eq 0 ] && set -- $(</dev/stdin)
 set -- "${@//\"/'\"'}"
 send() { lf -remote "send ${id:?} $*" ;}
 case $# in
