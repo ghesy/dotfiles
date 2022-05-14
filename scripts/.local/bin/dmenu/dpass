@@ -6,7 +6,7 @@ dir=${PASSWORD_STORE_DIR:-$HOME/.password-store}
 set -e
 cd "$dir"
 # the -shb and -shf dmenu options require dmenu's fuzzyhighlight patch.
-p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass -sb '#6f4307' -shb '#6f4307' -sf white -shf orange)
+p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass -sb '#6f4307' -shb '#6f4307' -shf orange)
 f=$(pass show "${p:?}")
 
 p() { printf '%s\n' "$*" ;}
