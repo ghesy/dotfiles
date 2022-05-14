@@ -1,19 +1,14 @@
 set selection-clipboard clipboard
-set window-title-basename 1
-set statusbar-basename 1
+set incremental-search true
+set scroll-page-aware true
+set scroll-step 100
+set scroll-hstep 400
 set guioptions sv
-set recolor
-
-map u scroll half-up
-map d scroll half-down
-map D toggle_page_mode
-map r reload
-map R rotate
-map K zoom in
-map J zoom out
-map i recolor
-map p print
-map g goto top
+set statusbar-basename true
+set window-title-basename true
+set recolor true
+set recolor-keephue true
+set highlight-transparency 0.75
 
 set recolor-lightcolor "#181818"
 set inputbar-bg "#181818"
@@ -24,3 +19,11 @@ set recolor-darkcolor "#aaaaaa"
 set statusbar-fg "#aaaaaa"
 set inputbar-fg "#aaaaaa"
 set notification-error-fg "#a95551"
+
+map g goto top
+map K zoom in
+map J zoom out
+map i recolor
+map r reload
+map R rotate
+map p print
