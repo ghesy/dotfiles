@@ -153,7 +153,6 @@ stream_dl()
 stream_open()
 {
     local msg error=false
-    notify-send -h "$NOTIFREP" -u low -t 1000 PipeURL 'Opening video...'
     msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
