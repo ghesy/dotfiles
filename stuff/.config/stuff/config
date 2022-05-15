@@ -23,6 +23,9 @@ Grub
 Email, Mutt
 	tui neomutt
 
+Unread Mail
+	unread
+
 Claws Mail
 	exec claws-mail --alternate-config-dir ~/.local/share/claws-mail
 
@@ -158,7 +161,7 @@ Cava, Visualizer
 Music
 	tui ncmpcpp
 
-Bash
+Bashmount
 	tui bashmount
 
 Dictionary
