@@ -1,0 +1,103 @@
+#!/bin/bash
+# list and open frequent, recent, already open, and bookmarked paths.
+# requires fre (https://github.com/camdencheek/fre) for
+# tracking recent and frequent paths.
+
+# config
+bookmarks=~/.local/share/fre/bookmarks
+
+main()
+{
+    set -e
+    case $1 in
+        -l) list ;;
+        -m) shift; menu "$@" ;;
+        -a) add "${2:?}" ;;
+        -h) printhelp ;;
+        -c) cleanup ;;
+         *) printhelp; return 1 ;;
+    esac
+}
+
+list()
+{
+    { getcwds; fre --sorted; bookmarks ;} |
+        sed "s|^$HOME|~|" | cat -n | sort -ufk2 | sort -n | cut -f2- | awk NF
+}
+
+menu()
+{
+    [ $# -eq 0 ] && open=true && set -- dmenu -l 10 -p freq || open=false
+    p=$(list | "$@") || return 1
+    p=$(printf '%s\n' "$p" | sed "s|^~|$HOME|")
+    if [ $open = true ]; then
+        [ -e "$p" ] && termopen "$p"
+        [ -e "$p" ] || cleanup
+    else
+        printf '%s\n' "$p"
+    fi
+}
+
+getcwds()
+{
+    readlink /proc/*/cwd |
+        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/sv/|/TelegramDesktop| \(deleted\)$' |
+        sed 's|$|/|'
+}
+
+bookmarks()
+{
+    local bm a depth path
+    readarray -t bm < "${bookmarks:?}"
+    for line in "${bm[@]}"; do
+        depth=${line%%$'\t'*}
+        path=${line#*$'\t'}
+        [ ! -e "$path" ] && continue
+        if [ "$depth" -eq 0 ]; then
+            printf '%s\n' "$path"
+            continue
+        fi
+        find -L "$path" -mindepth 1 -maxdepth "$depth" \
+            -type d -printf '%p/\n' -or -print
+    done
+}
+
+add()
+{
+    case $1 in
+        '/'|"$HOME"|"${HOME%/}/")
+            return ;;
+    esac
+    p=$(realpath -- "$1")
+    [ -d "$p" ] && p="${p%/}/"
+    fre --add "$p"
+}
+
+cleanup()
+{
+    fre --sorted | while IFS= read -r p; do
+        [ ! -e "$p" ] && fre --delete "$p"
+    done
+}
+
+printhelp()
+{
+    cat << 'EOF'
+list and open frequent, recent, already open, and bookmarked paths.
+requires fre (https://github.com/camdencheek/fre) for tracking
+recent and frequent paths.
+
+if an external menu program is specified using the -m option,
+freq will print the selected item to stdout instead of opening it.
+
+options:
+  -m [CMD [ARGS...]]    ask for a path using dmenu or
+                            the given menu program (eg. fzf)
+  -l                    list all the paths
+  -a <PATH>             register the given path as frequently accessed
+  -c                    purge nonexistent paths from recent paths
+  -h                    print this help message
+EOF
+}
+
+main "$@"

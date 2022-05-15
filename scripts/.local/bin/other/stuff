@@ -1,0 +1,46 @@
+#!/bin/bash
+# with this script, you can run stuff.
+
+# paths
+conf=~/.config/stuff/config
+localdir=~/.local/share/local/stuff.d
+
+shopt -s nullglob
+
+main()
+{
+    set -e
+    eval "$(parse INIT)"
+    case $1 in
+        -m)
+            sel=$(parse | dmenu -p Stuff \
+                -sb '#004d10' -shb '#004d10' -shf green)
+            eval "$(parse "${sel:?}")" ;;
+        *) parse "$@" ;;
+    esac
+}
+
+parse()
+{
+    awk -v alias="$1" '
+        BEGIN { FS = "[\t ]*,[\t ]*"; found = 0 }
+        /^[^\t #]/ {
+            for (i = 1; i <= NF; i++) {
+                if (length(alias) == 0 && $0 != "INIT") {
+                    printf("%s\n", $i)
+                } else if ($i == alias) {
+                    found = 1
+                    FS = ""
+                    next
+                }
+            }
+        }
+        found {
+            if ($1 !~ /^[\t ]$/)
+                exit
+            print
+        }
+    ' "$conf" "$localdir"/*
+}
+
+main "$@"

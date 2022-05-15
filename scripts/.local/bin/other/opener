@@ -1,0 +1,58 @@
+#!/bin/bash
+# a file opener script.
+# note: sxiv's -F option requires the START_FROM_FILE_PATCH from sxiv-flexipatch,
+# and the -E option requires this patch:
+# https://github.com/soystemd/sxiv-flexipatch/commit/7422f2c?diff=unified
+
+[ $# -eq 0 ] && exit 1
+
+for arg; do
+    [ -d "$arg" ] && exit 1
+done
+
+# if this script is called by lf:
+if [ -n "$LF_LEVEL" ]; then
+
+    # go to the alternate buffer and clear the screen
+    printf '\e[?1049h\e[H'
+
+    # delay before exit to keep lf from crashing due to a known race condition:
+    # https://github.com/gokcehan/lf/issues/621#issuecomment-841576897
+    trap 'sleep 0.01' EXIT
+fi
+
+# add the file to freq
+freq -a "$1"
+
+ext=true
+case ${1,,} in
+    *.pro) kicad "$@" ;;
+    *.kicad_pcb|*.kicad_pcb-bak) pcbnew "$@" ;;
+    *.sch|*.sch-bak) eeschema "$@" ;;
+    *.azw3|*.mobi|*.fb[23]) foliate "$@" ;;
+    *) ext=false ;;
+esac || read -p 'Press enter to continue'
+[ $ext = true ] && exit
+
+case $(file -b --mime-type --dereference -- "$@") in
+    */pdf) zathura -- "$@" ;;
+    */epub*) foliate "$@" ;;
+    */x-xcf|*photoshop) gimp -- "$@" ;;
+    video/*) mpv --really-quiet -- "$@" ;;
+    audio/*) mpvmusic -- "$@" ;;
+    image/*)
+        readarray -t paths <<< "$(realpath -- "$@")"
+        sxiv -aoEF "${paths[@]}" .
+    ;;
+    */x-sc) sc-im -- "$@" ;;
+    text/*|*/json) $EDITOR -- "$@" ;;
+
+    */vnd.ms*|*/msword|*/vnd.openxml*|*opendoc*|*officedoc*)
+        libreoffice "$@"
+    ;;
+
+    */x-archive|*/x-compress|*/x-cpio|*/x-tar|*/x-bzip2|*/gzip|*/x-lz*|\
+    */x-xz|*/zstd|*/x-7z*|*/x-ace*|*/x-rar*|*/x-gtar|*/zip)
+        atool -lp -- "$@"
+    ;;
+esac || read -p 'Press enter to continue'

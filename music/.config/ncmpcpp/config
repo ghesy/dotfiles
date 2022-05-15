@@ -13,3 +13,4 @@ main_window_color = white
 current_item_inactive_column_suffix = $/r$(end)
 current_item_inactive_column_prefix = $(magenta)$r
 song_status_format = $b{{$8"%t"}} $3by {$4%a{ $3in $7%b{ (%y)}} $3}|{$8%f}
+song_window_title_format = ncmpcpp

@@ -1,97 +1,101 @@
-# zsh's aliases, functions and bindings.
+# custom commands aliases for zsh.
 
-# add fzf's ctrl-r and ctrl-t functions
-source /usr/share/fzf/key-bindings.zsh
-
-alias ls='command ls -AF --color=always --group-directories-first'
+# remove the called command from the terminal's output
+rmcmd() {
+    ((rmcmdstate)) && return
+    rmcmdstate=1
+    repeat "${#${(f)PS1}}" { echo -ne '\e[A\e[2K' }
+}
+precmd_rmcmd() { rmcmdstate=0 }
+precmd_functions+=(precmd_rmcmd)
 
 lf() {
-    pgrep -xs0 lf >/dev/null && exit
+    rmcmd
+    local hidden
+    [[ -n $LF_LEVEL ]] && exit
+    [[ $1 == .* ]] && hidden=(-command 'set hidden')
     local tmp
     tmp=$(mktemp) || return
-    command lf -last-dir-path="$tmp" "$@"
-    [ -f "$tmp" ] || return
+    command lf -last-dir-path="$tmp" ${hidden:+"$hidden[@]"} "$@"
     local dir=$(<"$tmp")
-    rm -f "$tmp"
-    [ -d "$dir" ] && [ "$dir" != "$PWD" ] && cd "$dir"
+    rm "$tmp"
+    [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
 }
 
+# search the filesystem
 search() {
-    local f
-    f="$(finder "$@")" || return
-    if [[ "$(basename -- "$f")" == .* ]]; then
-        lf -command 'set hidden' -- "$f"
-    else
-        lf -- "$f"
-    fi
+    rmcmd
+    local p
+    p=$(finder) && lf "$p"
+}
+
+# search frequent files
+frequent() {
+    rmcmd
+    local p
+    p=$(freq -m fzf) && lf "$p"
+}
+
+# show the help message of the given program in the pager
+h() {
+    [[ $# -eq 1 ]] && set -- "$1" --help
+    "$@" | ifne ${PAGER:-less}
 }
 
 paru() {
-    [ $# -eq 0 ] && sudo -v && artixnews
+    [[ $# -eq 0 ]] && sudo -v && artixnews
     command paru "$@"
 }
 
-# bookmarks
-b() {
-    case "$1" in
-        --) shift ;;
-        -*) command bm "$@"; return ;;
-    esac
-
-    local p="$(command bm "$@")"
-    [ -z "$p" ] && return
-    cd "$p"
-}
-_b() {
-    compadd $(command bm -l)
-}
-compdef _b b
-alias bm=b
-
-d() {
-    cd "$(readlink /proc/*/cwd | grep -Ev "^$HOME$|^/$|^/proc/|/\.local/sv/" |
-        sort -u | fzf)"
+# rerun the last command and pipe to pager
+P() {
+    local cmd=${history[$((HISTCMD-1))]}
+    [[ $cmd =~ '^rm |^T |^trash-put' ]] && return 1
+    read -q "?$ $cmd | less"$'\n''execute [yn]? ' \
+        && echo || { echo; return 1 }
+    eval "$cmd | ${PAGER:-less}"
 }
 
-# bindings
-bindctrl() { bindkey -s "^$1" '\eddi '"${2}"'\n' }
-bindctrl o lf
+bindctrl() { bindkey -s "^$1" '\eddi '"$2"'\n' }
+bindctrl n lf
+bindctrl o frequent
 bindctrl f search
 
 # basic stuff
-alias mk='mkdir -pv'
+alias a='command ls -AFt --color=always --group-directories-first'
+alias A='a -l'
+alias l='a'
+alias L='A'
+alias t='tree -laFtrC --dirsfirst -L 2'
+alias 1='t -L 1 -i --noreport'
+alias md='mkdir -pv'
 alias cp='advcp -ig'
 alias mv='advmv -ig'
-alias rm='rm -Iv --one-file-system'
-
-# man-pages in vim
-alias man=vman
-compdef vman=man
+alias T='trash-put'
+alias rm='rm -iv --one-file-system'
+alias v='nvim'
+alias vi='nvim'
 
 # pacman
-alias p='sudo pacman'
+alias p='paru'
 alias pl='paclast -t | head'
-alias pa=paru
 
-# vim
-alias v=nvim
-alias vi=nvim
-alias vim=nvim
-svi() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
+# editor
+sv() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
 # git
-# add my github ssh key to ssh agent, only if it isn't already added
-alias gssh='ssh-add -l | grep -q "$(ssh-keygen -lf ~/.ssh/github | cut -d\  -f2)" || ssh-add ~/.ssh/github'
-alias g='gssh; command git'
-alias git=g
-alias gs='g status'
-alias gl='g log --oneline'
-alias ga='g add'
-alias gaa='g add -A'
-alias gc='g commit'
-alias gcm='g commit -m'
-alias gl3='g -P log --oneline -n3'
-gp() { g push "$@" && gl3 || figlet failed }
+alias gssh='ssh-add ~/.ssh/keys/github'
+alias g='git'
+
+# run vim-fugitive
+alias fu='git rev-parse --git-dir >/dev/null 2>&1 && nvim -c Git -c only'
+
+# atool
+aunpack='command aunpack -De'
+apack() {
+    local name=$1; shift
+    command apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
+}
 
 # other
 alias startx='command startx "$XINITRC"'
@@ -99,11 +103,9 @@ alias speed='speedtest-cli --bytes'
 alias shch='shellcheck'
 alias logview='${PAGER:-less} /var/log/everything.log '
 alias loglive='tail -n 20 -f /var/log/everything.log'
-alias sdl='search /media/downloads'
-alias sf='search /media /mnt'
-alias sd='search ~/.config ~/.local/bin ~/.dots ~/Documents/Notes ~/Repositories'
-alias fu='git rev-parse --git-dir >/dev/null 2>&1 && vim -c Git -c only'
 alias rg='rg -.Lg "!.git"'
 alias pvpn='sudo protonvpn'
-alias shit='$EDITOR $XDG_CONFIG_HOME/zsh/aliases.zsh'
+alias al='$EDITOR ~/.config/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
+alias pxy='proxychains'
+alias pacdiff='sudo DIFFPROG="nvim -d" DIFFSEARCHPATH="/etc /boot" pacdiff'

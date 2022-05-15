@@ -6,26 +6,29 @@ dir=${PASSWORD_STORE_DIR:-$HOME/.password-store}
 set -e
 cd "$dir"
 # the -shb and -shf dmenu options require dmenu's fuzzyhighlight patch.
-p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass -sb '#6f4307' -shb '#6f4307' -sf white -shf orange)
+p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass -sb '#6f4307' -shb '#6f4307' -shf orange)
 f=$(pass show "${p:?}")
 
 p() { printf '%s\n' "$*" ;}
 pass=$(p "${f:?}" | head -n1)
 user=$(p "${f:?}" | grep -Pio '^username:\s*\K.*') ||:
 
-# replace hint for notify-send
-r=string:x-canonical-private-synchronous:dpass
+# notification replace hint
+rep='string:x-canonical-private-synchronous:dpass'
+# notification frame color hints
+red='string:frcolor:#ff4444'
+blue='string:frcolor:#0099ff'
 
 if [ -n "$user" ]; then
-    notify-send -t 2000 -u low -h $r '' 'Username copied to clipboard.'
+    notify-send -t 2000 -u low -h $rep '' 'Username copied to clipboard.'
     p "$user" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
 fi
 
 if [ -n "$pass" ]; then
-    notify-send -t 2000 -u low -h $r '' 'Password copied to clipboard.'
+    notify-send -t 2000 -u low -h $rep -h $red '' 'Password copied to clipboard.'
     p "$pass" | timeout 45 xclip -r -quiet -loops 1 -selection clipboard
 fi
 
 p "$f" | grep -q '^otpauth://' &&
     pass otp code -c "$p" &&
-    notify-send -t 2000 -u low -h $r '' 'OTP copied to clipboard.'
+    notify-send -t 2000 -u low -h $rep -h $blue '' 'OTP copied to clipboard.'

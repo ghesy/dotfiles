@@ -1,0 +1,15 @@
+#!/bin/sh
+# list all pacman packages that are not required by and
+# only optional for other packages, and show which packages
+# they are optional for.
+pacman -Qid | awk '
+    $1 == "Name" { name = $3 }
+    $0 ~ "^Required By"  { if ($4 != "None") name = 0 }
+    $0 ~ "^Optional For" {
+        if (name && $4 != "None") {
+            printf("%s -> %s", name, $4)
+            for (i=5;i<=NF;i++) printf(", %s", $i)
+            print ""
+        }
+    }
+'

@@ -1,21 +1,25 @@
 #!/bin/bash
 # A wine bottle manager.
 # Dependencies: wine, fzf, moreutils, findutils, coreutils.
-# Optional Deps: zenity, dragon-drop.
+# Optional Deps: zenity, dragon-drop, dmenu.
 #
-# If you use ArchLinux, I recommend you install
-# 'wine-ge-custom' and 'lutris-wine-meta' from the AUR
-# to get wine plus all of it's optional dependencies.
+# If you use ArchLinux, I recommend you install these two packages from
+# the AUR to get a nice patched wine plus all of it's optional dependencies:
+# 'wine-ge-custom' and 'lutris-wine-meta'
 
-# TODO: make our list of programs just be shell commands with support for quoting and args
+# TODO: make the "list of programs" just be shell commands with support for quoting and args
 # TODO: make new_bottle() cleaner and split it into more functions
 
 # config
 DIR=~/.local/share/beer
+HISTFILE=~/.cache/beer/history
 export WINEDEBUG=fixme-all,err-wineboot # make wine less verbose
-export PULSE_LATENCY_MSEC=60
+export PULSE_LATENCY_MSEC=60 # fix some audio problems
+DIR_ALIAS='~BEER~'
+VI_MODE=true
 
-main() {
+main()
+{
     unset PFX
 
     case $1 in
@@ -23,7 +27,7 @@ main() {
         -l) list_all_programs ;;
         -r) run_selected_program_all ;;
         -d) list_all_programs |
-            dmenu ${2:+-p "$2"} -l 30 |
+            dmenu ${2:+-p "$2"} -l 10 |
             run_selected_program_all
             return ;;
         '') ;;
@@ -32,10 +36,20 @@ main() {
     [ -n "$*" ] && return
 
     echo Beer
+    help
+
+    mkdir -pm700 "${HISTFILE%/*}" || return 1 # make HISTFILE's directory
+
+    # load the command history from HISTFILE and save to HISTFILE on exit
+    history -r
+    trap 'history -w' EXIT
+
+    read_init # initialize some read-related stuff
+
     while :; do
         local cmd
-        printf '\e[5 q'
-        read -p "${PFX:+$(basename "$PFX") }> " cmd
+        readfn -rep "${PFX:+$(basename "$PFX") }> " cmd
+        history -s -- "$cmd" # add the entered command to history
         case $cmd in
             n) new_bottle ;;
             r) remove_bottle ;;
@@ -59,31 +73,35 @@ main() {
     done
 }
 
-help() {
-    echo
-    echo "n  new bottle"
-    echo "r  remove a bottle"
-    echo
-    echo "x  run an executable in bottle"
-    echo "p  run one of the predefined programs"
-    echo "e  edit the list of predefined programs"
-    echo
-    echo "c  winecfg"
-    echo "s  run shell"
-    echo "t  winetricks"
-    echo "T  theme selection"
-    echo "o  open bottle's path"
-    echo
-    echo "S  select bottle"
-    echo "d  deselect bottle"
-    echo
-    echo "h  help"
-    echo "C  clear the screen"
-    echo "q  quit"
-    echo
+help()
+{
+    cat <<- 'eof'
+
+	n  new bottle
+	r  remove a bottle
+
+	x  run an executable in bottle
+	p  run one of the predefined programs
+	e  edit the list of predefined programs
+
+	c  winecfg
+	s  run shell
+	t  winetricks
+	T  theme selection
+	o  open bottle's path
+
+	S  select bottle
+	d  deselect bottle
+
+	h  help
+	C  clear the screen
+	q  quit
+
+	eof
 }
 
-select_program() {
+select_program()
+{
     if [ -n "$PFX" ]; then
         select_program_pfx
     else
@@ -91,35 +109,43 @@ select_program() {
     fi
 }
 
-select_program_all() {
-    local sel=$(list_all_programs |
+select_program_all()
+{
+    local sel
+    sel=$(list_all_programs |
         ifne fzf --prompt='Select program to run > ' --info=inline) || return 1
     printf '%s\n' "$sel" | run_selected_program_all
 }
 
-list_all_programs() {
+list_all_programs()
+{
+    local b p
     for b in "$DIR"/*; do
         [ ! -d "$b" ] && continue
         [ ! -s "$b"/programs ] && continue
-        local p
         while IFS= read -r p; do
             printf '%s\t%s\t%s\n' \
-                "$(basename "${p%.exe}")" "$(basename "$b")" "$p" |
+                "$(basename "${p%.exe}")" \
+                "$(basename "$b")" \
+                "${p/#"$DIR"/"$DIR_ALIAS"}" |
                 column -t -s'	' -o' -- '
         done < "$b"/programs
     done
 }
 
-run_selected_program_all() {
+run_selected_program_all()
+{
     local sel=$(cat)
     local pfx=${sel#* -- }
     pfx=$DIR/${pfx% -- *}
     local path=${sel##* -- }
+    path=${path/#"$DIR_ALIAS"/"$DIR"}
     [ -d "$pfx" ] && [ -f "$pfx"/system.reg ] && [ -f "$path" ] || return 1
     WINEPREFIX=$pfx WINEARCH=$(PFX=$pfx get_arch) wine "$path"
 }
 
-select_program_pfx() {
+select_program_pfx()
+{
     check_pfx || return 1
     if [ ! -s "$PFX"/programs ]; then
         echo "There aren't any predefined programs."
@@ -135,7 +161,8 @@ select_program_pfx() {
     WINEPREFIX=$PFX WINEARCH=$(get_arch) wine "${sel#* -- }"
 }
 
-run_shell() {
+run_shell()
+{
     if pgrep -xs0 "${0##*/}" | grep -qv "^$$$"; then
         echo "We're already in a shell started by beer."
         return 1
@@ -145,7 +172,8 @@ run_shell() {
     WINEPREFIX=$PFX WINEARCH=$(get_arch) ${SHELL:-sh}
 }
 
-select_bottle() {
+select_bottle()
+{
     if [ ! -d "${DIR:?}" ] || [ -z "$(ls -A "$DIR"/)" ]; then
         echo "There aren't any bottles."
         return 1
@@ -153,23 +181,27 @@ select_bottle() {
     local sel=$(
         for d in "$DIR"/*; do
             [ -d "$d" ] && basename "$d"
-        done | ifne fzf --prompt="Select bottle ${1:+$1 }> " --info=inline | xargs -I{} echo "$DIR"/{}
+        done |
+            ifne fzf --prompt="Select bottle ${1:+$1 }> " --info=inline |
+            xargs -I{} echo "$DIR"/{}
     )
     [ -d "$sel" ] && PFX=$sel || return 1
 }
 
-deselect_bottle() {
+deselect_bottle()
+{
     unset PFX
 }
 
-run_executable() {
+run_executable()
+{
     check_pfx 'for running executables' || return 1
     local ans exe f
     echo "Enter the executable's path,"
     echo "or 'g' for GTK file selector,"
     echo "or 'd' for drag and drop,"
     echo "or 'q' to go back."
-    read -p '>> ' ans
+    readfn -rep '>> ' ans || return 1
     case $ans in
         q|'') return ;;
         g) exe=$(zenity --file-selection --title='Select an executable') || return 1 ;;
@@ -180,7 +212,7 @@ run_executable() {
     printf '\nThese files will be executed:\n\n'
     while IFS= read -r f; do echo "  $f"; done <<< "$exe"
     printf '\nContinue? [Y/n] '
-    read ans
+    readfn -rep ans || return 1
     case $ans in ''|y|Y) ;; *) return 1 ;; esac
 
     while IFS= read -r f; do
@@ -188,9 +220,11 @@ run_executable() {
     done <<< "$exe"
 }
 
-edit_programs() {
+edit_programs()
+{
     check_pfx "to edit it's list of programs" || return 1
-    local f=$(mktemp) || return 1
+    local f
+    f=$(mktemp) || return 1
     [ -f "$PFX"/programs ] && cat "$PFX"/programs > "$f"
     printf '\n%s\n' '# Executable files found:' >> "$f"
     find "$PFX"/drive_c -type f -name '*.exe' \
@@ -199,64 +233,91 @@ edit_programs() {
         -not -path '*/Common Files/*' -not -path '*/ProgramData/*' \
         -not -path '*/windows/*' -not -path '*/Program Files*/Windows *' \
         -not -path '*/Internet Explorer/*' -not -path '*/InstallShield*/*' \
-        -not -iname '*unins*' -not -iname '*crashhandler*' -printf '#%p\n' >> "$f"
+        -not -iname '*unins*' -not -iname '*crashhandler*' -printf '#%p\n' \
+        >> "$f"
     ${EDITOR:-xdg-open} "$f" &&
         grep -vE '^(#|$)' "$f" > "$PFX"/programs
 }
 
-new_bottle() {
-    local arch name d
-    read -p 'Arch: [ 64 (Default) / 32 ] ' arch
-    read -p "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox
-    read -p 'Name: ' name
-    [ -z "$name" ] && return 1
-    name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]*//g')
+new_bottle()
+{
+    local arch name ans d
+
+    readfn -rep 'Arch: [ 64 (Default) / 32 ] ' arch || return 1
+    case $arch in
+        ''|64|32) ;;
+        *) echo 'Invalid selection'; return 1 ;;
+    esac
+
+    readfn -rep "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox || return 1
+    case $sandbox in
+        ''|h|f|n) ;;
+        *) echo 'Invalid selection'; return 1 ;;
+    esac
+
+    readfn -rep 'Name: ' name || return 1
+    case $name in
+        '') echo 'Name must be non-empty.'; return 1 ;;
+    esac
+
+    name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]/_/g')
+
+    readfn -rep "Create bottle named \"$name\"? [Y/n] " ans || return 1
+    case $ans in ''|y|Y) ;; *) return ;; esac
+
     d=${DIR:?}/$name
     mkdir -p "$d" || return 1
-    echo "win${arch:-64}" > "$d"/arch
-    WINEPREFIX=$d WINEARCH=win${arch:-64} wine regedit <(theme_dark_background)
+    arch=${arch:-64}
+    echo "win$arch" > "$d"/arch
+    WINEPREFIX=$d WINEARCH=win$arch wine regedit <(theme_dark_background)
     case $sandbox in
         n) ;;
-        ''|h) WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks isolate_home ;;
-        f)    WINEPREFIX=$d WINEARCH=win${arch:-64} winetricks sandbox ;;
+        ''|h) WINEPREFIX=$d WINEARCH=win$arch winetricks isolate_home ;;
+        f)    WINEPREFIX=$d WINEARCH=win$arch winetricks sandbox ;;
     esac
     PFX=$d
 }
 
-remove_bottle() {
+remove_bottle()
+{
     check_pfx 'to remove' || return 1
     local ans
-    read -p "REMOVE \"$(basename "$PFX")\"? [y/N] " ans
+    readfn -rep "REMOVE \"$(basename "$PFX")\"? [y/N] " ans || return 1
     case $ans in y|Y) ;; *) return ;; esac
     rm -r --one-file-system "$PFX"
     deselect_bottle
 }
 
-run_winecfg() {
+run_winecfg()
+{
     check_pfx 'for running winecfg' || return 1
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winecfg
 }
 
-open_bottle() {
+open_bottle()
+{
     check_pfx 'to open' || return 1
     xdg-open "$PFX"
 }
 
-tricks() {
+tricks()
+{
     check_pfx 'for running winetricks' || return 1
     local args
     echo "'q' to go back."
-    read -p '$ winetricks ' args
+    readfn -rep '$ winetricks ' args || return 1
     [ "$args" = q ] && return
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winetricks $args
 }
 
-check_pfx() {
+check_pfx()
+{
     [ -n "$PFX" ] && return
     select_bottle "$1" || return 1
 }
 
-get_arch() {
+get_arch()
+{
     [ -z "$PFX" ] && { echo invalid; return 1 ;}
     if [ -f "$PFX"/system.reg ]; then
         grep -Pom1 '#\s*arch=\K.*' "$PFX"/system.reg
@@ -268,25 +329,62 @@ get_arch() {
     fi
 }
 
-select_theme() {
+select_theme()
+{
     check_pfx 'for themeing' || return 1
     local ans
-    read -p '(d)ark-background / (b)reeze-dark / (D)efault / (q)uit : ' ans
+    readfn -rep '(d)ark-background / (b)reeze-dark / (D)efault : ' ans || return 1
     case $ans in
         d) theme=theme_dark_background ;;
         b) theme=theme_breeze_dark ;;
         D) theme=theme_default ;;
-        *) return ;;
+        *) echo 'Invalid selection.' ;;
     esac
     apply_theme $theme
 
 }
 
-apply_theme() {
+apply_theme()
+{
     [ -n "$1" ] && WINEPREFIX=$PFX WINEARCH=$(get_arch) wine regedit <($1)
 }
 
-theme_dark_background() {
+read_init()
+{
+    # if configured, enable vi mode for easier command line editing
+    [ "$VI_MODE" = true ] && set -o vi
+    # make ctrl+c and ctrl+d clear the input and send EOF
+    bind '"\C-q": kill-whole-line'
+    bind '"\C-c": "\C-q\C-d"'
+    bind '"\C-d": "\C-c"'
+    # make ctrl+c send SIGINT to the running programs without exiting the script
+    trap 'kill -INT 0' INT
+    # some other readline bindings
+    bind '"\C-l": clear-screen'
+    bind '"\C-p": previous-history'
+    bind '"\C-n": next-history'
+}
+
+readfn()
+{
+    printf '\e[5 q' # set cursor's shape to beam
+
+    # rebind interrupt from ctrl+c to something else to allow the bindings
+    # that were set in read_init() to be interpreted
+    stty intr '^]'
+
+    read "$@"
+    local ret=$?
+
+    # rebind interrupt back to ctrl+c to allow the trap that was
+    # set in read_init() to be interpreted
+    stty intr '^c'
+
+    return $ret
+}
+
+theme_dark_background()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
@@ -323,7 +421,8 @@ theme_dark_background() {
 	eof
 }
 
-theme_breeze_dark() {
+theme_breeze_dark()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]
@@ -360,7 +459,8 @@ theme_breeze_dark() {
 	eof
 }
 
-theme_default() {
+theme_default()
+{
     cat <<- 'eof'
 	Windows Registry Editor Version 5.00
 	[HKEY_CURRENT_USER\Control Panel\Colors]

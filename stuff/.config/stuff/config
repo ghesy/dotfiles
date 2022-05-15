@@ -1,0 +1,237 @@
+# stuff's config
+
+# ============
+# = Functions
+# ============
+
+INIT
+	root()    { exec sudo -A "$@" ;}
+	tui()     { exec ${TERMINAL:?} -e "$@" ;}
+	tuiroot() { exec ${TERMINAL:?} -e sudo -A "$@" ;}
+	web()     { exec ${BROWSER:-xdg-open} "$@" ;}
+
+# ============
+# = GUI stuff
+# ============
+
+Firefox, Browser
+	exec firefox
+
+Grub
+	root grub-customizer
+
+Email, Mutt
+	tui neomutt
+
+Unread Mail
+	unread
+
+Claws Mail
+	exec claws-mail --alternate-config-dir ~/.local/share/claws-mail
+
+GParted, Partitioning
+	root gparted
+
+Ventoy, ISO
+	root ventoygui
+
+Book Reader, Foliate
+	exec foliate
+
+aRandr
+	exec arandr
+
+Miracast
+	exec gnome-network-displays
+
+Steam
+	export HOME=~/.local/share/SteamHome && mkdir -p ~ && exec steam
+
+TS3
+	trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
+
+Ripcord
+	trayrun ripcord
+
+Discord
+	exec discord
+
+Telegram
+	exec telegram-desktop
+
+AnyDesk
+	trayrun anydesk
+
+Printers
+	exec system-config-printer
+
+Gimp
+	exec gimp
+
+Reset Tor
+	exec restor
+
+VirtualMic
+	exec virtualmic
+
+Syncthing
+	exec syncthingopen
+
+Footabll
+	exec fstream
+
+Clock
+	exec dclock -bg black -led_off black -nofade -seconds -bell -slope 50
+
+OBS, Recorder
+	exec obs
+
+Color Picker
+	exec gcolor3
+
+KiCad, PCB
+	exec kicad
+
+Symphytum
+	exec symphytum
+
+Pavucontrol
+	exec pavucontrol
+
+# ============
+# = Web stuff
+# ============
+
+Whatsapp
+	if command -v whatsapp-for-linux; then
+		exec whatsapp-for-linux
+	else
+		web https://web.whatsapp.com
+	fi
+
+CUPS
+	web localhost:631
+
+Router
+	web $(set -- $(ip r); echo "$3")
+
+Github
+	web https://github.com/soystemd
+
+AUR
+	web "https://aur.archlinux.org/packages/?O=0&SeB=m&K=soystemd&outdated=&SB=p&SO=d&PP=250&do_Search=Go"
+
+Tailscale Management
+	web https://tailscale.com/admin
+
+# ============
+# = TUI stuff
+# ============
+
+Newsboat, RSS
+	tui nboat
+
+Reddit
+	tui tuir
+
+CPU, htop
+	tui htop
+
+Net Top
+	tuiroot nethogs -l
+
+Disk Top, IOTop
+	tuiroot iotop
+
+i7z
+	tuiroot i7z
+
+Reset Router
+	tui resrouter
+
+lsusb, Devices
+	tui watchusb
+
+Mixer
+	tui pulsemixer
+
+Cava, Visualizer
+	tui cava
+
+Music
+	tui ncmpcpp
+
+Bashmount
+	tui bashmount
+
+Dictionary
+	tui dictfzf
+
+Calculator
+	tui calc
+
+TV
+	tui tv
+
+Transmission, Torrents
+	tui tremc
+
+Download Manager,
+	tui aria2p
+
+# ==============
+# = dmenu stuff
+# ==============
+
+Autolock
+	exec autolock
+
+No Autolock
+	exec autolock -p
+
+Wine Programs
+	exec beer -d
+
+Beer, Wine Management
+	tui beer
+
+FTP
+	exec dftp
+
+SFTP
+	exec dsftp
+
+Screenshot
+	exec dshot
+
+Emojies
+	exec demoji
+
+VPN
+	exec dvpn
+
+Sound Card Profiles
+	exec dpaprofile
+
+dRandr, Monitors, HDMI
+	exec drandr
+
+NetworkManager, Wi-Fi
+	exec networkmanager_dmenu
+
+Last Notification
+	exec dunstctl history-pop
+
+YouTube
+	exec yt
+
+Passwords
+	exec dpass
+
+aria2 Config, daria2
+	exec daria2
+
+Manuals
+	exec dman
+
+# vim:noexpandtab

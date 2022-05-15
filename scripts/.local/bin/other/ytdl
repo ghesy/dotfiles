@@ -83,11 +83,19 @@ download_all() {
 }
 
 download() {
-    $(getproxy "$URL") yt-dlp "${OPTS[@]}" -P temp:$TMP $args -- "$URL"
+    $(get_proxy) yt-dlp "${OPTS[@]}" -P temp:$TMP $args -- "$URL"
 }
 
 get_title() {
-    $(getproxy "$URL") yt-dlp --print title "$URL"
+    $(get_proxy) yt-dlp --get-title -- "$URL"
+}
+
+get_proxy() {
+    local url
+    url=$($(getproxy "$URL") yt-dlp --get-url -- "$URL" 2>/dev/null) ||
+        url=$(proxychains -q yt-dlp --get-url -- "$URL" 2>/dev/null)
+    url=$(printf '%s\n' "$url" | head -1)
+    getproxy "$url"
 }
 
 report_success() {
@@ -103,7 +111,7 @@ report_failure() {
 }
 
 summary() {
-    left=$(( NTOTAL - ( ${#SUCCEEDED[@]} + ${#FAILED[@]} ) ))
+    local left=$(( NTOTAL - ( ${#SUCCEEDED[@]} + ${#FAILED[@]} ) ))
     echo "[ytdl] ${#SUCCEEDED[@]} Done, ${#FAILED[@]} Failed, $left Left out of $NTOTAL"
 }
 

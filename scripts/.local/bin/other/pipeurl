@@ -40,13 +40,12 @@ main()
     URL=''
     URL_TYPE=''
     readonly WID=${WINDOWID:+-w $WINDOWID}
-    readonly REP='string:x-canonical-private-synchronous:pipeurl'
+    readonly NOTIFREP='string:x-canonical-private-synchronous:pipeurl'
     # ===
 
     for arg; do case $1 in
         -h|--help) print_help; return ;;
         -c|--clipboard) shift; CLIPBOARD=true ;;
-        --urlgrep) urlgrep; return ;; # for internal use
         --) shift; break ;;
         -*) echo "${0##*/}: invalid option: $arg" >&2; return 1 ;;
         *) break ;;
@@ -81,7 +80,7 @@ update_url()
 
 ask_url_stdin()
 {
-    urlgrep | sort -u | ifne dmenu $WID -l 30 -p "Select URL${ACTION:+ to $ACTION}"
+    urlgrep | sort -u | ifne dmenu $WID -l 10 -p "Select URL${ACTION:+ to $ACTION}"
 }
 
 handle_url()
@@ -95,13 +94,12 @@ handle_url()
         file/open) file_dl_to_cache_and_open ;;
         reddit/tuir|reddit/open) reddit_open ;;
         */stream|video/open) stream_open ;;
-        */browse|other/open) exec ${BROWSER:-xdg-open} "$URL" ;;
+        */browse|other/open) exec xdg-open "$URL" ;;
         */aria2|file/download) file_dl_to_dldir ;;
         */ytdl|video/download) stream_dl ;;
         */copy) copy_to_clipboard ;;
-        */xdg-open) exec xdg-open "$URL" ;;
         *)
-            echo "${0##*/} invalid url type or action: $URL_TYPE/$ACTION" >&2
+            echo "${0##*/}: invalid url type or action: $URL_TYPE/$ACTION" >&2
             return 1 ;;
     esac
 }
@@ -115,7 +113,7 @@ history_menu()
 {
     local sel
     sel=$(column -t -s'	' -o' -- ' "$CACHE_DIR/history" | uniq | tac |
-        dmenu $WID -l 30 -p 'PipeURL History') || return
+        dmenu $WID -l 10 -p 'PipeURL History') || return
     [ -z "$sel" ] && return 1
     URL=${sel#* -- }
     handle_url
@@ -123,26 +121,14 @@ history_menu()
 
 get_url_from_clipboard()
 {
-    local pids=$(pgrep timeout -P"$(pgrep -d, "${0##*/}")")
-    if [ -n "$pids" ]; then
-        kill $pids
-        notify-send -h $REP -t 1000 -u low PipeURL 'Stopped Listening to Clipboard.'
+    local url=$(xclip -o -selection clipboard 2>/dev/null | urlgrep | head -1)
+    if [ -z "$url" ]; then
+        notify-send -t 1000 PipeURL 'No URLs found in the clipboard.'
         return 1
+    else
+        notify-send -h "$NOTIFREP" -t 1000 PipeURL 'Found a URL in the clipboard.'
+        prnt "$url"
     fi
-    notify-send -h $REP -t 1000 -u low PipeURL 'Listening to Clipboard...'
-    scriptpath=$0 rep=$REP timeout 1m sh << 'eof'
-        while :; do
-            xclip -selection clipboard </dev/null
-            clipnotify || exit
-            clip=$(xclip -o -selection clipboard)
-            [ -z "$clip" ] && continue
-            url=$(printf '%s\n' "$clip" | "$scriptpath" --urlgrep | head -1)
-            [ -z "$url" ] && continue
-            notify-send -h $rep -t 1000 -u low PipeURL 'Got it.'
-            printf '%s\n' "$url"
-            break
-        done
-eof
 }
 
 copy_to_clipboard()
@@ -167,7 +153,6 @@ stream_dl()
 stream_open()
 {
     local msg error=false
-    notify-send -h $REP -u low -t 1000 PipeURL 'Opening video...'
     msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
@@ -239,6 +224,7 @@ get_file_proxy_and_urls()
 
 update_url_type()
 {
+    [ -n "$URL_TYPE" ] && return 0
     case $(get_simple_url) in
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
             URL_TYPE=file
@@ -248,7 +234,7 @@ update_url_type()
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*)
+        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*|v.fodder.gg/v/*)
             URL_TYPE=video
         ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
@@ -260,7 +246,7 @@ update_url_type()
         */w/*|*/videos/watch/*|*/videos/embed/*) # detect peertube URLs
             local u='[0-9a-fA-F]' # match a UID character
             local ptrn="^[^/]+/(videos/(watch|embed)|w(/p)?)/([0-9a-zA-Z]{22}|$u{8}(-$u{4}){3}-$u{12})($|(\?|#)\S+)"
-            get_simple_url | grep -Pq "$ptrn" && URL_TYPE=stream
+            get_simple_url | grep -Pq "$ptrn" && URL_TYPE=video
         ;;
         *) URL_TYPE=other ;;
     esac
@@ -271,14 +257,14 @@ update_action()
     [ -n "$ACTION" ] && return 0
     local actlist action
     case $URL_TYPE in
-        file)   aclist='Open\naria2\nCopy\nBrowse\nytdl\nxdg-open\n' ;;
-        reddit) actlist='tuir\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        video)  actlist='Stream\nytdl\nCopy\nBrowse\nxdg-open\n' ;;
-        other)  actlist='Browse\nStream\nCopy\nytdl\naria2\nxdg-open\n' ;;
+        file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\n' ;;
+        reddit) actlist='tuir\nytdl\nCopy\nBrowse\n' ;;
+        video)  actlist='Stream\nytdl\nCopy\nBrowse\n' ;;
+        other)  actlist='Browse\nStream\nCopy\nytdl\naria2\n' ;;
     esac
     action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
     case $action in
-        Open|Stream|Copy|Browse|ytdl|aria2|tuir|xdg-open) ACTION=${action,,} ;;
+        Open|Stream|Copy|Browse|ytdl|aria2|tuir) ACTION=${action,,} ;;
         *)
             echo "${0##*/}: invalid action: $action" >&2
             return 1 ;;
@@ -289,7 +275,7 @@ urlgrep()
 {
     local domainchar='[a-zA-Z\d\.-]'
     local urlchar='[a-zA-Z0-9\.,:;!\?'\''\\\+\*&%\$#=~_@()-]'
-    grep -Po "(ht|f)tps?://(www\.)?$domainchar+(:\d+(?=(/|$)))?(/$urlchar+)*" | sed "s/[\)']$//"
+    grep -Po "(ht|f)tps?://(www\.)?$domainchar+(:\d+(?=(/|$)))?(/$urlchar+)*" | sed "s/[\)',.]$//"
 }
 
 get_simple_url()

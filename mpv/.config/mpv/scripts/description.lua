@@ -49,10 +49,21 @@ function shexec(args)
     return os.execute("setsid -f "..table.concat(t, " ").." >/dev/null 2>&1")
 end
 
+function isnetworkstream(path)
+    local proto = path:match("^(%a+)://")
+    if not proto then return false end
+    for _, p in ipairs{
+        "http", "https", "ytdl", "rtmp", "rtmps", "rtmpe", "rtmpt", "rtmpts",
+        "rtmpte", "rtsp", "rtsps", "mms", "mmst", "mmsh", "mmshttp", "rtp",
+        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"} do
+        if proto == p then return true end
+    end
+    return false
+end
+
 -- test wether the given path is a file
 function isfile(path)
-    if path:find("^ytdl://") then return false end
-    local f = io.open(path, "r")
+    local f = io.open((path:gsub("^file://", "")), "r")
     if f then io.close(f) return true else return false end
 end
 
@@ -71,7 +82,7 @@ function geturl()
         return false
     elseif isfile(path) then
         return getfileurl(path)
-    else
+    elseif isnetworkstream(path) then
         return path:gsub("^ytdl://", "")
     end
 end

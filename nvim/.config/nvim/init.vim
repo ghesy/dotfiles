@@ -15,18 +15,19 @@ set termguicolors
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
 Plug 'drmikehenry/vim-headerguard'
+Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
-Plug 'justinmk/vim-sneak'
-Plug 'chaoren/vim-wordmotion'
+Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
-Plug 'bling/vim-bufferline'
-Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
-Plug 'junegunn/fzf.vim'
-Plug 'tpope/vim-unimpaired'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-unimpaired'
+Plug 'bling/vim-bufferline'
+Plug 'chaoren/vim-wordmotion'
+Plug 'easymotion/vim-easymotion'
 Plug 'voldikss/vim-floaterm'
+Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
 " colorschemes
 Plug 'sainnhe/everforest'
 Plug 'pbrisbin/vim-colors-off'
@@ -38,7 +39,7 @@ call plug#end()
 set ignorecase
 set smartcase
 set hidden
-set updatetime=700
+set updatetime=2000
 set visualbell
 set number
 set relativenumber
@@ -57,6 +58,11 @@ set noshowmode
 set noruler
 set mouse=a
 set cursorline
+set title titlestring=nvim
+set wildmenu
+set wildignorecase
+set wildmode=longest:full,full
+set path+=**
 
 " other
 let g:netrw_dirhistmax = 0
@@ -171,6 +177,10 @@ endf
 " vim-bufferline
 let g:bufferline_show_bufnr = 0
 
+" easymotion
+nmap s <Plug>(easymotion-s2)
+let g:EasyMotion_smartcase = 1
+
 " floaterm
 let g:floaterm_keymap_toggle = '<C-b>'
 let g:floaterm_keymap_new    = '<F12>'
@@ -196,3 +206,12 @@ function FillStatus()
 endf
 set statusline=%{FillStatus()}
 exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
+
+" persian langmap
+set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
+set langmap+=ضq,صw,ثe,قr,فt,غy,عu,هi,خo,حp,ج[,چ]
+set langmap+=شa,سs,یd,بf,لg,اh,تj,نk,مl,ک\\;,گ'
+set langmap+=ظz,طx,زc,رv,ذb,دn,پm,و\\,
+set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,]O,[P
+set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
+set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?

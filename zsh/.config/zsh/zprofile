@@ -1,8 +1,8 @@
 # vim:ft=zsh
 
-# add all of ~/.local/bin's immediate subdirectories to PATH.
-localpaths="$(find ~/.local/bin -mindepth 1 -maxdepth 1 -printf ":%p")"
-export PATH="${PATH}${localpaths}"
+# add all of ~/.local/bin's immediate subdirectories to $PATH
+paths=(~/.local/bin/*(ND-/))
+export PATH=$PATH${paths:+:}${(j.:.)paths}
 
 # default programs
 export TERMINAL=st
@@ -50,9 +50,9 @@ export LESS_TERMCAP_se=$'\E[0m' # reset reverse video
 export LESS_TERMCAP_ue=$'\E[0m' # reset underline
 
 # fzf settings
-export FZF_DEFAULT_OPTS='--layout=reverse --height=40%
---bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:top --color=dark
---color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
+export FZF_DEFAULT_OPTS='--layout=reverse --height=40% --scroll-off=5 --cycle
+--bind=ctrl-d:half-page-down,ctrl-u:half-page-up,ctrl-g:first,ctrl-s:jump-accept,change:first
+--color=dark --color=fg:244,bg:-1,hl:#a07f32,fg+:#dedede,bg+:-1,hl+:#fabd2f
 --color=info:#83a598,prompt:#bdae93,spinner:#fabd2f
 --color=pointer:#83a598,marker:#fe8019,header:#665c54'
 
@@ -62,7 +62,7 @@ export QT_QPA_PLATFORMTHEME=$qtenv
 
 # run keychain (an ssh-agent manager)
 keychain --dir ~/.local/share/keychain >/dev/null 2>&1
-source ~/.local/share/keychain/"$(uname -n)"-sh
+source ~/.local/share/keychain/"$HOST"-sh
 
 # set machine's chassis type
 case $(</sys/class/dmi/id/chassis_type) in
@@ -71,10 +71,10 @@ case $(</sys/class/dmi/id/chassis_type) in
 esac
 
 # load machine-specific configs
-for f in $(find ~/.local/share/local/profile.d -type f 2>/dev/null); do
+for f in ~/.local/share/local/profile.d/**/*(ND-.); do
     source "$f"
 done
 
 # start X if we're on tty1
-[ -z "$DISPLAY" ] && [ "$(tty)" = /dev/tty1 ] &&
-    startx "${XINITRC:?}" -- -nolisten tcp -nolisten local >/dev/null 2>&1
+[[ -z $DISPLAY ]] && [[ $TTY = /dev/tty1 ]] && [[ -f $XINITRC ]] &&
+    startx "$XINITRC" -- -nolisten tcp -nolisten local >/dev/null 2>&1

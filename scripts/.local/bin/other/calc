@@ -1,9 +1,10 @@
 #!/bin/sh
 echo calculator
-printf '\033[6 q'
+printf '\033[22t\033[6 q\033]0;calculator\007'
 if command -v qalc >/dev/null; then
     trap exit HUP
     qalc
 else
-    exec bc -qi
+    bc -qi
 fi
+printf '\033[23t'

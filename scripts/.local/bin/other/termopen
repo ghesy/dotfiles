@@ -4,7 +4,7 @@ if [ "$1" = -a ]; then
     shift
     tmp=$(mktemp) || exit
     unset ishidden
-    case $1 in .*) ishidden=true ;; esac
+    case $1 in .*|*/.*) ishidden=true ;; esac
     lf ${ishidden:+-command 'set hidden'} -last-dir-path="$tmp" -- "$1"
     [ ! -f "$tmp" ] && exit
     dir=$(cat "$tmp")
@@ -14,5 +14,6 @@ if [ "$1" = -a ]; then
 else
     path=${1:-$PWD}
     [ -d "$path" ] && path=${path%/}/
+    command -v st >/dev/null && TERMINAL='st -t st'
     setsid -f ${TERMINAL:?} -e "$0" -a "$path" >/dev/null 2>&1
 fi

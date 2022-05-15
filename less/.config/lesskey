@@ -11,11 +11,14 @@ w  toggle-option ^PS
 ^l toggle-option ^PN
 
 # find and open URLs using pipeurl
-U  pipe .pipeurl ask\r
+U pipe .pipeurl ask\r
+
+# find referenced utilities and open their man pages
+m pipe .dman -\r
 
 # pipe the text through fribidi and show it
-x  pipe \^fribidi | less\r
+x pipe \^fribidi | less\r
 
 #env
-LESS = -RSMWi --incsearch --line-num-width=3 --mouse --wheel-lines=3
+LESS = -RSMWic --use-color --incsearch --line-num-width=3 --mouse --wheel-lines=3
 LESSHISTFILE = -
