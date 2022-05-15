@@ -9,6 +9,7 @@ shopt -s nullglob
 
 main()
 {
+    set -e
     eval "$(parse INIT)"
     case $1 in
         -m)
@@ -39,7 +40,6 @@ parse()
                 exit
             print
         }
-
     ' "$conf" "$localdir"/*
 }
 
