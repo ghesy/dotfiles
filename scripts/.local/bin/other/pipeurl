@@ -141,7 +141,7 @@ reddit_open()
     local term sub
     [ -t 1 ] && unset term || term="${TERMINAL:?} -e"
     URL=$(prnt "$URL" | sed -E 's|^(https?://)?(www\.)?(libreddit\.[^/]+)(\S*)|\1reddit.com\4|')
-    sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+/?') && URL=$sub || unset sub
+    sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+/?$') && URL=$sub || unset sub
     exec $term tuir ${sub:+-s} "${URL%/}"
 }
 
@@ -258,7 +258,7 @@ update_action()
     local actlist action
     case $URL_TYPE in
         file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\n' ;;
-        reddit) actlist='tuir\nytdl\nCopy\nBrowse\n' ;;
+        reddit) actlist='tuir\nStream\nytdl\nCopy\nBrowse\n' ;;
         video)  actlist='Stream\nytdl\nCopy\nBrowse\n' ;;
         other)  actlist='Browse\nStream\nCopy\nytdl\naria2\n' ;;
     esac
