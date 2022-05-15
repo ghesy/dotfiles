@@ -1,34 +1,42 @@
 #!/bin/bash
-host='http://localhost:6800/rpc'
 
+# config
+host='http://localhost:6800/rpc'
 opts=(
     max-concurrent-downloads
     max-overall-download-limit
     optimize-concurrent-downloads
 )
 
-# getval() {
-#     printf '%s\n' "${o:?}" | grep -FA1 "'${1:?}'" | tail -1 | cut -d"'" -f2
-# }
-# s=$(for opt in $opts; do printf '%s: %s\n' "$opt" "$(getval "$opt")"; done)
-# echo "$s"
-
-# xmlrpc "${host:?}" aria2.getGlobalOption | while IFS= read -r line; do
-#     case $line in
-#         "  Key:   String: '"
-#     esac
-# done
-
+# turn the list of given options into a grep pattern
 opts=("${opts[@]/#/  Key:   String: \'}")
 opts=("${opts[@]/%/\'|}")
 ptrn=$(printf '%s' "${opts[@]}")
+ptrn=${ptrn%|}
 
 while :; do
+
+    # get the array of aria2's globbal options
     o=$(xmlrpc "${host:?}" aria2.getGlobalOption) || exit
+
+    # separate the configured options and ask the user for one
     sel=$(
-        printf '%s\n' "$o" |
-            grep -EA1 "${ptrn%|}" | cut -d"'" -f2 |
-            sed -z 's/\n/: /g;s/: --: /\n/g;s/:.$/\n/g' | dmenu -l 30
+        printf '%s\n' "${o:?}" |
+            grep -EA1 "${ptrn:?}" | cut -d"'" -f2 |
+            sed -z 's/\n/: /g; s/: --: /\n/g; s/:.$/\n/g' |
+            dmenu -l 10 ${msg:+-p "$msg"}
     ) || exit
-    val=$(dmenu $w -p 'new value:' <&-) || exit
+
+    # ask for a new value for the selected option
+    val=$(dmenu $w -p 'new value:' <&-) || continue
+
+    # send the new value to aria2
+    msg=$(xmlrpc "${host:?}" \
+        aria2.changeGlobalOption struct/"{${sel%%:*}:${val/:/'\:'}}")
+
+    case $msg in
+        *"'OK'"*) msg=success. ;;
+        *) msg=failed. ;;
+    esac
+
 done
