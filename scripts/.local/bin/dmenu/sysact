@@ -8,7 +8,7 @@ actions='鈴 Sleep
  Logout'
 
 # the -shb and -shf dmenu color options require dmenu's fuzzyhighlight patch.
-colors='-sb #660066 -shb #660066 -shf red'
+colors='-sb #42214d'
 
 main() {
     set -e

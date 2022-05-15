@@ -13,8 +13,7 @@ main()
     eval "$(parse INIT)"
     case $1 in
         -m)
-            sel=$(parse | dmenu -p Stuff \
-                -sb '#004d10' -shb '#004d10' -shf green)
+            sel=$(parse | dmenu -p Stuff -sb '#104459')
             eval "$(parse "${sel:?}")" ;;
         *) parse "$@" ;;
     esac

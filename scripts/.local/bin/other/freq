@@ -27,7 +27,7 @@ list()
 
 menu()
 {
-    [ $# -eq 0 ] && open=true && set -- dmenu -l 10 -p freq || open=false
+    [ $# -eq 0 ] && open=true && set -- dmenu -l 10 -p Freq -sb '#234029' || open=false
     p=$(list | "$@") || return 1
     p=$(printf '%s\n' "$p" | sed "s|^~|$HOME|")
     if [ $open = true ]; then
