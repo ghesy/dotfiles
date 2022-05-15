@@ -14,5 +14,6 @@ if [ "$1" = -a ]; then
 else
     path=${1:-$PWD}
     [ -d "$path" ] && path=${path%/}/
+    command -v st >/dev/null && TERMINAL='st -t st'
     setsid -f ${TERMINAL:?} -e "$0" -a "$path" >/dev/null 2>&1
 fi
