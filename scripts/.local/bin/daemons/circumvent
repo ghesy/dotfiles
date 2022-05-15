@@ -11,40 +11,34 @@ PORT_HTTP=8585
 DATADIR=~/.local/share/circumvent
 # ==========
 
-# steps:
-# - wait for internet
-# - start psiphon
-# - while psiphon is running, check connectivity
-#   - shutdown psiphon if there is no internet
-#   - restart it if internet is back
-
-PSIPHON_PID=''
-
-rsleep()
-{
-    local IFS
-    [ -n "$sleepfd" ] || { exec {sleepfd}<> <(:); readonly sleepfd ;}
-    read -t "$1" -u ${sleepfd:?} || :
-}
+# a sleep function using the builtin read command
+exec {sleepfd}<> <(:)
+rsleep() { read -t "${1:?}" -u ${sleepfd:?} || : ;}
 
 main()
 {
+    [[ $1 == --verbose ]] && VERBOSE=true
+    trap exit HUP INT TERM
+    trap psiphon_stop EXIT
     while :; do
-        wait_for_internet & wait
+        wait_for_internet & wait $!
         psiphon_start
-        wait_for_no_internet & wait
-        psiphon_start
+        wait_for_no_internet & wait $!
+        psiphon_stop
     done
 }
 
 wait_for_internet()
 {
-    until have_internet; do rsleep 1m; done
+    echo waiting for internet connectivity...
+    until have_internet; do rsleep 120; done
+    echo internet connectivity detected.
 }
 
 wait_for_no_internet()
 {
-    until ! have_internet; do rsleep 3m; done
+    until ! have_internet; do rsleep 180; done
+    echo no internet connectivity detected.
 }
 
 have_internet()
@@ -55,13 +49,23 @@ have_internet()
 
 psiphon_start()
 {
-    psiphon &
-    PSIPHON_PID=$$
+    psiphon_start_loop &
 }
 
 psiphon_stop()
 {
-    kill $PSIPHON_PID
+    pkill -xs0 psiphon-console
+    pkill -P$BASHPID
+}
+
+psiphon_start_loop()
+{
+    trap exit HUP INT TERM
+    trap 'echo psiphon killed.; psiphon_stop' EXIT
+    while :; do
+        psiphon & wait
+        rsleep 5
+    done
 }
 
 # start psiphon
@@ -72,7 +76,8 @@ psiphon()
     pidof -qx psiphon-console-client &&
         die 'another instance of psiphon-console-client is running.'
 
-    trap 'echo exiting...; pkill -P$BASHPID' HUP INT TERM
+    trap exit HUP INT TERM
+    trap 'echo psiphon exiting...; psiphon_stop' EXIT
 
     echo psiphon started, connecting...
 
@@ -84,12 +89,15 @@ psiphon()
 
 sandbox()
 {
-    firejail --profile=<(print_firejail_profile)
+    local quiet
+    [[ $VERBOSE == true ]] || quiet=--quiet
+    firejail --profile=<(print_firejail_profile) $quiet -- "$@"
 }
 
 psiphon_process_stdout() {
+    local line
     while IFS= read -r line; do
-        [ "$VERBOSE" = true ] && printf '%s\n' "$line"
+        [[ $VERBOSE == true ]] && printf '%s\n' "$line"
         case $line in
         *Tunnels*)
             is_proxy_working && {
@@ -105,6 +113,7 @@ psiphon_process_stdout() {
 }
 
 is_proxy_working() {
+    local a
     for a in ping.archlinux.org icanhazip.com; do
         curl -s --socks5 "127.0.0.1:$PORT_SOCKS" "$a" >/dev/null && return 0
     done
@@ -114,7 +123,8 @@ is_proxy_working() {
 die() {
     echo "Error: $*"
     notify-send Circumvent "Error: $*"
-    exit 1
+    psiphon_stop
+    exit
 }
 
 # generate psiphon's config file
@@ -177,8 +187,8 @@ x11 none
 disable-mnt
 private-tmp
 private-dev
-mkdir "$DATADIR"
-whitelist "$DATADIR"
+mkdir $DATADIR
+whitelist $DATADIR
 EOF
 }
 
