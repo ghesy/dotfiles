@@ -201,20 +201,21 @@ run_executable()
     local ans exe f
     echo "Enter the executable's path,"
     echo "or 'g' for GTK file selector,"
-    echo "or 'd' for drag and drop,"
-    echo "or 'q' to go back."
-    readfn -rep '>> ' ans || return 1
-    case $ans in
-        q|'') return ;;
-        g) exe=$(zenity --file-selection --title='Select an executable') || return 1 ;;
-        d) exe=$(dragon-drop -t -x | grep -Po '^file://\K.*') || return 1 ;;
-        *) exe=$ans ;;
-    esac
+    echo "or 'd' for drag and drop"
+    while :; do
+        readfn -rep '>> ' ans || return 1
+        case $ans in
+            '') continue ;;
+            g) exe=$(zenity --file-selection --title='Select an executable') && break ;;
+            d) exe=$(dragon-drop -t -x | grep -Po '^file://\K.*') && break ;;
+            *) exe=${ans/#'~/'/"$HOME/"}; [[ -f $exe ]] && break || echo "The given path is not a file or doesn't exist." ;;
+        esac
+    done
 
     printf '\nThese files will be executed:\n\n'
     while IFS= read -r f; do echo "  $f"; done <<< "$exe"
     printf '\nContinue? [Y/n] '
-    readfn -rep ans || return 1
+    readfn -re ans || return 1
     case $ans in ''|y|Y) ;; *) return 1 ;; esac
 
     while IFS= read -r f; do
@@ -306,9 +307,7 @@ tricks()
 {
     check_pfx 'for running winetricks' || return 1
     local args
-    echo "'q' to go back."
     readfn -rep '$ winetricks ' args || return 1
-    [ "$args" = q ] && return
     WINEPREFIX=$PFX WINEARCH=$(get_arch) winetricks $args
 }
 
