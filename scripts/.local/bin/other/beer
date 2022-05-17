@@ -17,6 +17,8 @@ export WINEDEBUG=fixme-all,err-wineboot # make wine less verbose
 export PULSE_LATENCY_MSEC=60 # fix some audio problems
 DIR_ALIAS='~BEER~'
 VI_MODE=true
+F_PROGRAMS=beer-programs # name of the file that stores the list of program in the bottle
+F_ARCH=beer-arch # name of the file that stores the bottle's arch
 
 main()
 {
@@ -122,14 +124,14 @@ list_all_programs()
     local b p
     for b in "$DIR"/*; do
         [ ! -d "$b" ] && continue
-        [ ! -s "$b"/programs ] && continue
+        [ ! -s "$b/$F_PROGRAMS" ] && continue
         while IFS= read -r p; do
             printf '%s\t%s\t%s\n' \
                 "$(basename "${p%.exe}")" \
                 "$(basename "$b")" \
                 "${p/#"$DIR"/"$DIR_ALIAS"}" |
                 column -t -s'	' -o' -- '
-        done < "$b"/programs
+        done < "$b/$F_PROGRAMS"
     done
 }
 
@@ -147,7 +149,7 @@ run_selected_program_all()
 select_program_pfx()
 {
     check_pfx || return 1
-    if [ ! -s "$PFX"/programs ]; then
+    if [ ! -s "$PFX/$F_PROGRAMS" ]; then
         echo "There aren't any predefined programs."
         return 1
     fi
@@ -155,7 +157,7 @@ select_program_pfx()
         while IFS= read -r p; do
             printf '%s\t%s\n' "$(basename "${p%.exe}")" "$p" |
                 column -t -s'	' -o' -- '
-        done < "$PFX"/programs |
+        done < "$PFX/$F_PROGRAMS" |
             ifne fzf --prompt='Select program to run > ' --info=inline
     ) && [ -n "$sel" ] || return 1
     WINEPREFIX=$PFX WINEARCH=$(get_arch) wine "${sel#* -- }"
@@ -225,7 +227,7 @@ edit_programs()
     check_pfx "to edit it's list of programs" || return 1
     local f
     f=$(mktemp) || return 1
-    [ -f "$PFX"/programs ] && cat "$PFX"/programs > "$f"
+    [ -f "$PFX/$F_PROGRAMS" ] && cat "$PFX/$F_PROGRAMS" > "$f"
     printf '\n%s\n' '# Executable files found:' >> "$f"
     find "$PFX"/drive_c -type f -name '*.exe' \
         -not -path '*/users/Documents/*' -not -path '*/users/Temp/*' \
@@ -236,7 +238,7 @@ edit_programs()
         -not -iname '*unins*' -not -iname '*crashhandler*' -printf '#%p\n' \
         >> "$f"
     ${EDITOR:-xdg-open} "$f" &&
-        grep -vE '^(#|$)' "$f" > "$PFX"/programs
+        grep -vE '^(#|$)' "$f" > "$PFX/$F_PROGRAMS"
 }
 
 new_bottle()
@@ -249,9 +251,9 @@ new_bottle()
         *) echo 'Invalid selection'; return 1 ;;
     esac
 
-    readfn -rep "Sandbox: [ 'h'ome (Default) / 'f'ull / 'n'one ] " sandbox || return 1
+    readfn -rep "Sandbox: [ 'f'ull (Default) / 'h'ome / 'n'one ] " sandbox || return 1
     case $sandbox in
-        ''|h|f|n) ;;
+        ''|f|h|n) ;;
         *) echo 'Invalid selection'; return 1 ;;
     esac
 
@@ -260,7 +262,7 @@ new_bottle()
         '') echo 'Name must be non-empty.'; return 1 ;;
     esac
 
-    name=$(printf '%s\n' "$name" | sed 's/[^0-9a-zA-Z ]/_/g')
+    name=${name//[^0-9a-zA-Z ]/_}
 
     readfn -rep "Create bottle named \"$name\"? [Y/n] " ans || return 1
     case $ans in ''|y|Y) ;; *) return ;; esac
@@ -268,12 +270,12 @@ new_bottle()
     d=${DIR:?}/$name
     mkdir -p "$d" || return 1
     arch=${arch:-64}
-    echo "win$arch" > "$d"/arch
+    echo "win$arch" > "$d/$F_ARCH"
     WINEPREFIX=$d WINEARCH=win$arch wine regedit <(theme_dark_background)
     case $sandbox in
         n) ;;
-        ''|h) WINEPREFIX=$d WINEARCH=win$arch winetricks isolate_home ;;
-        f)    WINEPREFIX=$d WINEARCH=win$arch winetricks sandbox ;;
+        ''|f) WINEPREFIX=$d WINEARCH=win$arch winetricks sandbox ;;
+        h) WINEPREFIX=$d WINEARCH=win$arch winetricks isolate_home ;;
     esac
     PFX=$d
 }
@@ -321,8 +323,8 @@ get_arch()
     [ -z "$PFX" ] && { echo invalid; return 1 ;}
     if [ -f "$PFX"/system.reg ]; then
         grep -Pom1 '#\s*arch=\K.*' "$PFX"/system.reg
-    elif [ -f "$PFX"/arch ]; then
-        cat "$PFX"/arch
+    elif [ -f "$PFX/$F_ARCH" ]; then
+        cat "$PFX/$F_ARCH"
     else
         echo invalid
         return 1
