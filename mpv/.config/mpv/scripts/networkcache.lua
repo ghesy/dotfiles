@@ -21,18 +21,15 @@ function update_cache_secs()
 end
 
 function is_network_stream(path)
-    local netprotos = mkset{
+    local proto = path:match("^(%a+)://")
+    if not proto then return false end
+    for _, p in ipairs{
         "http", "https", "ytdl", "rtmp", "rtmps", "rtmpe", "rtmpt", "rtmpts",
         "rtmpte", "rtsp", "rtsps", "mms", "mmst", "mmsh", "mmshttp", "rtp",
-        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"}
-    local proto = type(path) == "string" and path:match("^(%a+)://") or nil
-    return proto and netprotos[proto]
-end
-
-function mkset(list)
-    local set = {}
-    for _, v in ipairs(list) do set[v] = true end
-    return set
+        "srt", "srtp", "gopher", "gophers", "data", "ftp", "ftps", "sftp"} do
+        if proto == p then return true end
+    end
+    return false
 end
 
 function isempty(var)
