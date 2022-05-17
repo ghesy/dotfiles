@@ -106,16 +106,16 @@ zle -N add-surround surround && bindkey -a ys add-surround
 bindkey -M visual S add-surround
 
 # add visited directories to freq
-chpwd_fre() { ( freq -a "$PWD" & ) }
-chpwd_functions+=(chpwd_fre)
+chpwd_freq() { ( freq -a "$PWD" & ) }
+chpwd_functions+=(chpwd_freq)
 
 # add files and dir in the executed commands to freq
-preexec_fre() {
-    for arg in ${(Q)${(Z:C:)1}}; do
-        [[ -e $arg ]] && freq -a "${arg:a}"
+preexec_freq() {
+    for arg in ${(Q)${(Z:C:)1}[2,$]:a}; do
+        [[ -e $arg ]] && freq -a "$arg"
     done
 }
-preexec_functions+=(preexec_fre)
+preexec_functions+=(preexec_freq)
 
 # source some useful fzf stuff
 source /usr/share/fzf/key-bindings.zsh
