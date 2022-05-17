@@ -1,5 +1,3 @@
-let mapleader = " "
-
 " install vim-plug
 let s:VimPlugPath = '${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim'
 let s:VimPlugURL = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
@@ -9,30 +7,31 @@ if ! filereadable(system('printf '.s:VimPlugPath))
     autocmd VimEnter * PlugInstall
 endif
 
+" set the leader key to space
+let mapleader = " "
+
+" set the comment style of unknown files to sharp
+set commentstring=#\ %s
+
 " enable truecolor
 set termguicolors
 
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
+Plug 'maxboisvert/vim-simple-complete'
 Plug 'drmikehenry/vim-headerguard'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-unimpaired'
 Plug 'bling/vim-bufferline'
 Plug 'chaoren/vim-wordmotion'
 Plug 'easymotion/vim-easymotion'
 Plug 'voldikss/vim-floaterm'
-Plug 'mbbill/undotree', {'on':'UndotreeToggle'}
+Plug 'mbbill/undotree'
 " colorschemes
-Plug 'sainnhe/everforest'
-Plug 'pbrisbin/vim-colors-off'
-Plug 'arcticicestudio/nord-vim'
 Plug 'sainnhe/gruvbox-material'
+Plug 'pbrisbin/vim-colors-off'
 call plug#end()
 
 " basics
@@ -47,34 +46,35 @@ set nowrap
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
-set expandtab
 set smartindent
 set list lcs=tab:\-\ "
 set scrolloff=5
 set sidescrolloff=10
 set matchpairs+=<:>
+set nrformats+=unsigned
 set laststatus=0
-set noshowmode
-set noruler
 set mouse=a
 set cursorline
-set title titlestring=nvim
+set title titlestring=nvim\ -\ %t
 set wildmenu
 set wildignorecase
 set wildmode=longest:full,full
 set path+=**
-
-" other
-let g:netrw_dirhistmax = 0
+set completeopt=longest
 set shortmess+=ac
+let g:netrw_dirhistmax = 0
 set noswapfile
 set undofile
+
+" use spaces instead of tabs in shell scripts
+autocmd Filetype sh,bash,zsh setlocal expandtab
 
 " show cursorline only on the active window
 autocmd WinEnter * set cursorline
 autocmd WinLeave * set nocursorline
 
-" upon save, delete all trailing whitespace and newlines at the end of the file.
+" on save, delete all trailing whitespace at the end of the lines,
+" and trailing newlines at the end of the file.
 function s:NoTrailing()
     " if the file is a binary, don't do anything
     if !!search('\%u0000', 'wn') | return | endif
@@ -86,12 +86,14 @@ function s:NoTrailing()
 endf
 autocmd BufWritePre * call <SID>NoTrailing()
 
+nnoremap <C-f> :e **/*
+
 " buffer navigation
 nnoremap <silent> <C-n> :bnext<CR>
 nnoremap <silent> <C-p> :bprev<CR>
 
 " center the cursor horizontally
-nnoremap <silent> z. zs10zh
+nnoremap <silent> z. zs20zh
 
 " indent
 vmap <C-h> <gv4h
@@ -104,7 +106,7 @@ nnoremap Q @q
 noremap <Leader>p "0p
 noremap <Leader>P "0P
 
-" copy/paste
+" copy/paste from clipboard
 vnoremap <C-c> "+y
 map <C-v> "+P
 
@@ -124,9 +126,7 @@ nmap <Leader>gp :diffput<CR>
 " fuzzy searching
 nnoremap <Leader>ff :Files<CR>
 nnoremap <leader>fl :Lines<CR>
-nnoremap <Leader>FL :BLines<CR>
 nnoremap <leader>rg :Rg<CR>
-nnoremap <C-f> :Buffers<CR>
 
 " splits and windows
 nnoremap <silent><Leader>vs :vs<CR>
@@ -135,13 +135,10 @@ nmap <silent><C-h> :wincmd h<CR>
 nmap <silent><C-j> :wincmd j<CR>
 nmap <silent><C-k> :wincmd k<CR>
 nmap <silent><C-l> :wincmd l<CR>
-nnoremap <silent><Leader>i :vertical resize +5<CR>
-nnoremap <silent><Leader>d :vertical resize -5<CR>
-nnoremap <silent><Leader>I :resize +5<CR>
-nnoremap <silent><Leader>D :resize -5<CR>
-nnoremap <silent><Leader>eq :wincmd =<CR>
-nnoremap <silent><Leader>wq :wincmd q<CR>
-nnoremap <silent><Leader>on :only<CR>
+nnoremap <silent><Leader>i :vertical resize +10<CR>
+nnoremap <silent><Leader>d :vertical resize -10<CR>
+nnoremap <silent><Leader>I :resize +10<CR>
+nnoremap <silent><Leader>D :resize -10<CR>
 
 " search for the visually selected text
 vnoremap <silent> // :<C-U>
@@ -155,7 +152,7 @@ vnoremap <C-r> "hy:%s/<C-r><C-r>=escape(@h, '/\.*$^~[')<CR>
   \//gc<left><left><left>
 
 " equalize window sizes upon vim resize
-autocmd VimResized * wincmd = |
+autocmd VimResized * wincmd =
 
 " set the compiler to shellcheck on shell scripts
 autocmd FileType sh,bash compiler shellcheck
@@ -174,12 +171,18 @@ function UndoTreeRun()
     endif
 endf
 
+" vim-simple-complete
+let g:vsc_type_complete = 0
+
 " vim-bufferline
 let g:bufferline_show_bufnr = 0
 
 " easymotion
-nmap s <Plug>(easymotion-s2)
 let g:EasyMotion_smartcase = 1
+nmap s <Plug>(easymotion-s2)
+nmap S <Plug>(easymotion-s2)
+vmap s <Plug>(easymotion-s2)
+vmap S <Plug>(easymotion-s2)
 
 " floaterm
 let g:floaterm_keymap_toggle = '<C-b>'
