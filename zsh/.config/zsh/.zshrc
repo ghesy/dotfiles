@@ -21,30 +21,37 @@ precmd_prompt() {
 }
 precmd_functions+=(precmd_prompt)
 
+# ===
 # facilities to show the changed files and directories in the prompt
-cwddiffupdate() { cwdfiles=($PWD *(NDTom)) }
+
+declare -A cwdfiles
+
 cwddiff() {
-    [[ $cwdfiles[1] != $PWD ]] && return
-    local i j skip a=(*(NDTom)) new=() del=()
-    for i in $a[@]; do
-        skip=0
-        for j in $cwdfiles[2,$]; do
-            [[ $i == $j ]] && { skip=1; break }
-        done
-        (($skip)) || new+=("$i")
+    [[ $cwddiffpath != $PWD ]] && return
+    local f new=() del=()
+    declare -A u
+    for f (*(NDTommh-1)) u[$f]=1
+    for f in ${(k)u[@]}; do
+        ((cwdfiles[$f])) || new+=("$f")
     done
-    for i in $cwdfiles[2,$]; do
-        skip=0
-        for j in $a[@]; do
-            [[ $i == $j ]] && { skip=1; break }
-        done
-        (($skip)) || del+=("$i")
+    for f in ${(k)cwdfiles[@]}; do
+        ((u[$f])) || del+=("$f")
     done
     (($#new)) || (($#del)) && echo
     (($#new)) && echo -ne "$fg[green]" && printf '+%s ' "$new[@]"
     (($#del)) && echo -ne "$fg[red]"   && printf '-%s ' "$del[@]"
     printf '%s\n' "$reset_color"
 }
+
+cwddiffupdate() {
+    cwddiffpath=$PWD
+    cwdfiles=()
+    local f
+    for f (*(NDTommh-1)) cwdfiles[$f]=1
+}
+preexec_functions+=(cwddiffupdate)
+
+# ===
 
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
