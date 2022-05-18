@@ -25,18 +25,15 @@ precmd_functions+=(precmd_prompt)
 # facilities to show the changed files and directories in the prompt
 
 declare -A cwdfiles
+cwddiffglob='*(NDTom)'
 
 cwddiff() {
     [[ $cwddiffpath != $PWD ]] && return
     local f new=() del=()
     declare -A u
-    for f (*(NDTommh-1)) u[$f]=1
-    for f in ${(k)u[@]}; do
-        ((cwdfiles[$f])) || new+=("$f")
-    done
-    for f in ${(k)cwdfiles[@]}; do
-        ((u[$f])) || del+=("$f")
-    done
+    for f (${~cwddiffglob}) u[$f]=1
+    for f (${(k)u[@]}) ((cwdfiles[$f])) || new+=("$f")
+    for f (${(k)cwdfiles[@]}) ((u[$f])) || del+=("$f")
     (($#new)) || (($#del)) && echo
     (($#new)) && echo -ne "$fg[green]" && printf '+%s ' "$new[@]"
     (($#del)) && echo -ne "$fg[red]"   && printf '-%s ' "$del[@]"
@@ -47,7 +44,7 @@ cwddiffupdate() {
     cwddiffpath=$PWD
     cwdfiles=()
     local f
-    for f (*(NDTommh-1)) cwdfiles[$f]=1
+    for f (${~cwddiffglob}) cwdfiles[$f]=1
 }
 preexec_functions+=(cwddiffupdate)
 
