@@ -71,9 +71,7 @@ case $(</sys/class/dmi/id/chassis_type) in
 esac
 
 # load machine-specific configs
-for f in ~/.local/share/local/profile.d/**/*(ND-.); do
-    source "$f"
-done
+for f (~/.local/share/local/profile.d/**/*(ND-.)) source "$f"
 
 # start X if we're on tty1
 [[ -z $DISPLAY ]] && [[ $TTY = /dev/tty1 ]] && [[ -f $XINITRC ]] &&
