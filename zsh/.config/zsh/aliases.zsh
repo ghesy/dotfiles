@@ -13,7 +13,7 @@ lf() {
     rmcmd
     local hidden
     [[ -n $LF_LEVEL ]] && exit
-    [[ $1 == .* ]] && hidden=(-command 'set hidden')
+    [[ ${1:t} == .* ]] && hidden=(-command 'set hidden')
     local tmp
     tmp=$(mktemp) || return
     command lf -last-dir-path="$tmp" ${hidden:+"$hidden[@]"} "$@"
