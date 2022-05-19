@@ -5,6 +5,7 @@
 pkg() { pacman -Q "$@" >/dev/null 2>&1 || pacman -S --needed "$@" || exit 1 ;}
 pkg unbound unbound-runit dns-over-https dns-over-https-runit
 
+install -DCvm644 resolv.conf /etc/resolv.conf
 install -DCvm644 dns.conf /etc/NetworkManager/conf.d/dns.conf
 install -DCvm644 unbound.conf /etc/unbound/unbound.conf
 install -DCvm644 doh-client.conf /etc/dns-over-https/doh-client.conf
