@@ -43,6 +43,7 @@ set visualbell
 set number
 set relativenumber
 set nowrap
+set expandtab
 set tabstop=4
 set softtabstop=4
 set shiftwidth=4
@@ -66,8 +67,8 @@ let g:netrw_dirhistmax = 0
 set noswapfile
 set undofile
 
-" use spaces instead of tabs in shell scripts
-autocmd Filetype sh,bash,zsh setlocal expandtab
+" use actual tabs in proper programming languages
+autocmd Filetype c,cpp,lua setlocal noexpandtab
 
 " show cursorline only on the active window
 autocmd WinEnter * set cursorline
@@ -215,6 +216,6 @@ set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
 set langmap+=ضq,صw,ثe,قr,فt,غy,عu,هi,خo,حp,ج[,چ]
 set langmap+=شa,سs,یd,بf,لg,اh,تj,نk,مl,ک\\;,گ'
 set langmap+=ظz,طx,زc,رv,ذb,دn,پm,و\\,
-set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,]O,[P
+set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,
 set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
 set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
