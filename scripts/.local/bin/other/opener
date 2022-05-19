@@ -42,7 +42,7 @@ case $(file -b --mime-type --dereference -- "$@") in
     audio/*) mpvmusic -- "$@" ;;
     image/*)
         readarray -t paths <<< "$(realpath -- "$@")"
-        sxiv -aoEF "${paths[@]}" .
+        sxiv -aoEF "${paths[@]}" . | { [ -n "$LF_LEVEL" ] && lfselect & }
     ;;
     */x-sc) sc-im -- "$@" ;;
     text/*|*/json) $EDITOR -- "$@" ;;
