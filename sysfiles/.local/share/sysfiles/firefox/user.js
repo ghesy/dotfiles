@@ -1,6 +1,6 @@
 /* github.com/arkenfox/user.js
- * BASED ON COMMIT: cc7ca9d
- * View diff with master: https://github.com/arkenfox/user.js/compare/cc7ca9d..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+ * BASED ON COMMIT: ea139e3
+ * View diff with master: https://github.com/arkenfox/user.js/compare/ea139e3..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
 
 /* ==============================
  * ===    Practical Prefs     ===
@@ -11,6 +11,7 @@ user_pref("browser.fullscreen.autohide", false);
 
 /* disable autoplay for audio and video */
 user_pref("media.autoplay.default", 5);
+user_pref("media.autoplay.blocking_policy", 2);
 
 /* block all notification requests */
 user_pref("permissions.default.desktop-notification", 2);
@@ -50,16 +51,6 @@ user_pref("browser.aboutConfig.showWarning", false);
 
 /* disable default browser check */
 user_pref("browser.shell.checkDefaultBrowser", false);
-
-/* enable DNS over HTTPS
-/* choose a dns server from here:
- * https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers */
-user_pref("network.trr.mode", 2);
-user_pref("network.dns.skipTRR-when-parental-control-enabled", false);
-user_pref("network.trr.blocklist_cleanup_done", true);
-user_pref("network.trr.exclude-etc-hosts", true);
-user_pref("network.trr.uri", "https://dns.quad9.net/dns-query");
-//user_pref("network.trr.uri", "https://doh.eu.dnswarden.com/adultfilter");
 
 /* disable Homepage/ActivityStream stuff */
 user_pref("browser.newtabpage.enabled", true);
@@ -153,6 +144,7 @@ user_pref("network.dns.disablePrefetch", true);
 user_pref("network.predictor.enabled", false);
 user_pref("network.predictor.enable-prefetch", false);
 user_pref("network.http.speculative-parallel-limit", 0);
+user_pref("browser.places.speculativeConnect.enabled", false);
 
 /* disable IPv6 which can be abused and leak data */
 user_pref("network.dns.disableIPv6", true);
@@ -252,9 +244,6 @@ user_pref("devtools.debugger.remote-enabled", false);
 /* remove special permissions for mozilla domains */
 user_pref("permissions.manager.defaultsUrl", "");
 
-/* enable an important security feature */
-user_pref("security.csp.enable", true);
-
 /* cookie, tracking and miner protection */
 user_pref("browser.contentblocking.category", "custom");
 user_pref("network.cookie.cookieBehavior", 1);
@@ -286,6 +275,9 @@ user_pref("permissions.delegation.enabled", false);
 
 /* disable adding downloads to the system's "recent documents" list */
 user_pref("browser.download.manager.addToRecentDocs", false);
+
+/* enable user interaction for security by always asking how to handle new mimetypes */
+user_pref("browser.download.always_ask_before_handling_new_types", true);
 
 /* clear cache upon exit */
 user_pref("privacy.sanitize.sanitizeOnShutdown", true);
@@ -319,3 +311,12 @@ user_pref("network.protocol-handler.external.ms-windows-store", false);
 
 /* disable clipboard commands (cut/copy) from "non-privileged" content */
 //user_pref("dom.allow_cut_copy", false);
+
+/* enable DNS over HTTPS
+/* choose a dns server from here:
+ * https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers */
+//user_pref("network.trr.mode", 2);
+//user_pref("network.dns.skipTRR-when-parental-control-enabled", false);
+//user_pref("network.trr.blocklist_cleanup_done", true);
+//user_pref("network.trr.exclude-etc-hosts", true);
+//user_pref("network.trr.uri", "https://doh.eu.dnswarden.com/adultfilter");
