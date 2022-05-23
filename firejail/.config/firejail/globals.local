@@ -1,1 +1,2 @@
 env LD_PRELOAD=/usr/lib/libhardened_malloc.so
+nonewprivs
