@@ -106,6 +106,7 @@ handle_url()
 
 add_to_history()
 {
+    mkdir -pm700 "$CACHE_DIR"
     printf '%s\t%s\n' "$URL_TYPE" "$URL" >> "$CACHE_DIR/history"
 }
 
@@ -200,6 +201,7 @@ file_dl_to_cache()
 {
     get_file_proxy_and_urls || return
     [ -z "$URL" ] && return 1
+    mkdir -pm700 "$CACHE_DIR" || return
     local n=1
     prnt "$URL" | while IFS= read -r u; do
         $PXY aria2c -q -x10 -s10 -k1M -m1 --no-conf --auto-file-renaming=false \
