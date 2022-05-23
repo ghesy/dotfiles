@@ -9,7 +9,7 @@
 #   pipeurl [-c|--clipboard] [open|copy|download|browse|ask|history] URL
 #
 # dependencies:
-#   moreutils, dmenu, libnotify, mpv, aria2,
+#   moreutils, dmenu, libnotify, mpv, sxiv, aria2,
 #   gallery-dl, tuir (for opening reddit URLs),
 #   my getproxy script (for circumventing censorship) and
 #   my ytdl script (for downloading videos).
@@ -66,16 +66,16 @@ main()
 
 update_url()
 {
-    if [ -n "$URL" ]; then
+    if [[ -n $URL ]]; then
         return 0
-    elif [ -n "$1" ]; then
+    elif [[ -n $1 ]]; then
         URL=$(prnt "$1" | urlgrep | head -1)
-    elif [ "$CLIPBOARD" = true ]; then
+    elif [[ $CLIPBOARD = true ]]; then
         URL=$(get_url_from_clipboard) || return
     else
         URL=$(ask_url_stdin) || return
     fi
-    [ -n "$URL" ] && return 0 || return 1
+    [[ -n $URL ]] && return 0 || return 1
 }
 
 ask_url_stdin()
@@ -115,7 +115,7 @@ history_menu()
     local sel
     sel=$(column -t -s'	' -o' -- ' "$CACHE_DIR/history" | uniq | tac |
         dmenu $WID -l 10 -p 'PipeURL History') || return
-    [ -z "$sel" ] && return 1
+    [[ -z $sel ]] && return 1
     URL=${sel#* -- }
     handle_url
 }
@@ -123,7 +123,7 @@ history_menu()
 get_url_from_clipboard()
 {
     local url=$(xclip -o -selection clipboard 2>/dev/null | urlgrep | head -1)
-    if [ -z "$url" ]; then
+    if [[ -z $url ]]; then
         notify-send -t 1000 PipeURL 'No URLs found in the clipboard.'
         return 1
     else
@@ -140,7 +140,7 @@ copy_to_clipboard()
 reddit_open()
 {
     local term sub
-    [ -t 1 ] && unset term || term="${TERMINAL:?} -e"
+    [[ -t 1 ]] && unset term || term="${TERMINAL:?} -e"
     URL=$(prnt "$URL" | sed -E 's|^(https?://)?(www\.)?(libreddit\.[^/]+)(\S*)|\1reddit.com\4|')
     sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+/?$') && URL=$sub || unset sub
     exec $term tuir ${sub:+-s} "${URL%/}"
@@ -161,7 +161,7 @@ stream_open()
         0/*) ;;
         *) error=true; prnt "$msg" ;;
     esac
-    if [ "$error" = true ]; then
+    if [[ $error = true ]]; then
         msg=${msg#* ERROR: }
         msg=${msg%%(caused*}
         msg=$(prnt "$msg" | head -1)
@@ -173,7 +173,7 @@ $msg}"
 file_dl_to_dldir()
 {
     get_file_proxy_and_urls || return
-    [ -z "$URL" ] && return 1
+    [[ -z $URL ]] && return 1
     prnt "$URL" | while IFS= read -r u; do
         $PXY aria2c -q -x10 -s10 -k1M -m1 --no-conf \
             --async-dns=false -d"$(get_dl_dir)" -- "$u" || {
@@ -187,7 +187,7 @@ file_dl_to_dldir()
 file_dl_to_cache_and_open()
 {
     ID=$(prnt "$URL" | md5sum | cut -d' ' -f1)
-    if [ ! -d "$CACHE_DIR" ] || [ -z "$(find "$CACHE_DIR" -name "$ID-*")" ]; then
+    if [[ ! -d $CACHE_DIR ]] || [[ -z $(find "$CACHE_DIR" -name "$ID-*") ]]; then
         file_dl_to_cache || {
             notify-send PipeURL "Failed: ${ORIGURL:-$URL}"
             rm -- "${CACHE_DIR:?}"/$ID-*
@@ -200,7 +200,7 @@ file_dl_to_cache_and_open()
 file_dl_to_cache()
 {
     get_file_proxy_and_urls || return
-    [ -z "$URL" ] && return 1
+    [[ -z $URL ]] && return 1
     mkdir -pm700 "$CACHE_DIR" || return
     local n=1
     prnt "$URL" | while IFS= read -r u; do
@@ -226,7 +226,7 @@ get_file_proxy_and_urls()
 
 update_url_type()
 {
-    [ -n "$URL_TYPE" ] && return 0
+    [[ -n $URL_TYPE ]] && return 0
     case $(get_simple_url) in
         *.pdf|*.cbz|*.cbr|*.jpg|*.jpeg|*.png|*.webp|*.gif)
             URL_TYPE=file
@@ -256,7 +256,7 @@ update_url_type()
 
 update_action()
 {
-    [ -n "$ACTION" ] && return 0
+    [[ -n $ACTION ]] && return 0
     local actlist action
     case $URL_TYPE in
         file)   actlist='Open\naria2\nCopy\nBrowse\nytdl\n' ;;
