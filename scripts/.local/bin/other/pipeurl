@@ -20,10 +20,10 @@
 # =================
 
 # a list of download directories. the first accessible one will be chosen.
-DL_DIRS="
-/media/downloads
-$HOME/Downloads
-"
+DL_DIRS=(
+    /media/downloads
+    ~/Downloads
+)
 
 # storage of cached images and files
 CACHE_DIR=~/.cache/pipeurl
@@ -288,8 +288,8 @@ get_simple_url()
 
 get_dl_dir()
 {
-    prnt "$DL_DIRS" | while IFS= read -r dir; do
-        [ -d "$dir" ] && [ -r "$dir" ] && [ -w "$dir" ] || continue
+    for dir in "${DL_DIRS[@]}"; do
+        [[ -d $dir ]] && [[ -r $dir ]] && [[ -w $dir ]] || continue
         prnt "$dir"
         return
     done
