@@ -62,10 +62,11 @@ bindctrl o frequent
 bindctrl f search
 
 # basic stuff
+alias sudo='sudo ' # make sudo support aliases
 alias a='command ls -AFt --color=always --group-directories-first'
-alias A='a -l'
 alias l='a'
-alias L='A'
+alias A='a -l'
+alias L='a -l'
 alias t='tree -laFtrC --dirsfirst -L 2'
 alias 1='t -L 1 -i --noreport'
 alias md='mkdir -pv'
@@ -81,7 +82,7 @@ alias p='paru'
 alias pl='paclast -t | head'
 
 # editor
-sv() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
+se() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
 # git
 alias gssh='ssh-add ~/.ssh/keys/github'
