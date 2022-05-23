@@ -64,10 +64,10 @@ export QT_QPA_PLATFORMTHEME=$qtenv
 keychain --dir ~/.local/share/keychain >/dev/null 2>&1
 source ~/.local/share/keychain/"$HOST"-sh
 
-# set machine's chassis type
+# put machine's chassis type in $CHASSIS. see https://github.com/mirror/dmidecode/blob/1286fc9/dmidecode.c#L595
 case $(</sys/class/dmi/id/chassis_type) in
-    9|10|11|14) export CHASSIS=laptop  ;;
-             *) export CHASSIS=desktop ;;
+    9|10|11|14|3[0-2]) export CHASSIS=laptop  ;;
+    *) export CHASSIS=desktop ;;
 esac
 
 # load machine-specific configs
