@@ -141,8 +141,8 @@ reddit_open()
 {
     local term sub
     [[ -t 1 ]] && unset term || term="${TERMINAL:?} -e"
-    URL=$(prnt "$URL" | sed -E 's|^(https?://)?(www\.)?(libreddit\.[^/]+)(\S*)|\1reddit.com\4|')
-    sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+/?$') && URL=$sub || unset sub
+    URL=$(get_converted_url)
+    sub=$(prnt "$URL" | grep -Po '^(https?://)?[^/]+/r/\K[^/]+(?=/(new|rising|controversial|top|gilded)((/.*)?$)|/?$)') && URL=$sub || unset sub
     exec $term tuir ${sub:+-s} "${URL%/}"
 }
 
@@ -154,6 +154,7 @@ stream_dl()
 stream_open()
 {
     local msg error=false
+    URL=$(get_converted_url)
     msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
@@ -236,7 +237,7 @@ update_url_type()
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.kavin.rocks/watch*|invidious.*/watch*|v.fodder.gg/v/*)
+        streamable.com/*|streamja.com/*|piped.*/watch*|invidious.*/watch*|v.fodder.gg/v/*)
             URL_TYPE=video
         ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
@@ -284,6 +285,22 @@ get_simple_url()
 {
     local site=${URL#*://}; site=${site#www.} site=${site%%'?'*} site=${site%/}
     prnt "$site"
+}
+
+get_url_path()
+{
+    local path=${URL#*://}; path=${path#*/}
+    prnt "$path"
+}
+
+get_converted_url()
+{
+    local simple=$(get_simple_url) path=$(get_url_path)
+    case $simple in
+        piped.*/watch*) prnt "https://www.youtube.com/$path" ;;
+        libreddit.*/*) prnt "https://www.reddit.com/$path" ;;
+        *) prnt "$URL" ;;
+    esac
 }
 
 get_dl_dir()
