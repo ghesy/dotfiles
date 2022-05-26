@@ -1,10 +1,10 @@
-" install vim-plug
-let s:VimPlugPath = '${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site/autoload/plug.vim'
+" install vim-plug if not installed
+let s:VimPlugPath = stdpath('data') . '/site/autoload/plug.vim'
 let s:VimPlugURL = 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-if ! filereadable(system('printf '.s:VimPlugPath))
+if empty(glob(s:VimPlugPath))
     echo 'Installing vim-plug...'
     call system('curl --create-dirs -fsLo '.s:VimPlugPath.' '.s:VimPlugURL)
-    autocmd VimEnter * PlugInstall
+    autocmd VimEnter * PlugInstall | source $MYVIMRC
 endif
 
 " set the leader key to space
