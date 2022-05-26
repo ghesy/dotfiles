@@ -9,6 +9,4 @@ slang=eng,en,per,fa
 no-sub-visibility
 force-window=immediate
 keep-open=yes
-osd-font='Sansita Light'
-sub-font='Lato Light'
 sub-border-size=6
