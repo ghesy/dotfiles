@@ -1,8 +1,12 @@
 #!/bin/bash
 # run tree, select a file or directory using fzf, then print it's path.
 
+# config
+maxdepth=2
+
 main()
 {
+    [[ -n $1 ]] && { cd "$1" || exit 1 ;}
     local path
     while sel=$(sel); do
         [[ -e $sel ]] && path="${path%/}${path:+/}$sel"
@@ -18,7 +22,7 @@ main()
 sel()
 {
     local tree sel num depth line
-    tree=$(echo ../; tree -atlFCL 2 --dirsfirst -I '.dbus|Trash|.Trash-*|dosdevices|mesa_shader_cache|go-build|$RECYCLE.BIN|System Volume Information')
+    tree=$(echo ../; tree -atlFCL "$maxdepth" --dirsfirst -I '.dbus|Trash|.Trash-*|dosdevices|mesa_shader_cache|go-build|$RECYCLE.BIN|System Volume Information')
     sel=$(printf '%s\n' "$tree" | cat -n | fzf --header="$PWD" --ansi --height=100% --with-nth=2.. -d'\t') || return 1
     num=$(set -- $sel; echo $1)
     tree=$(printf '%s\n' "$tree" | head -$num | tac | sed 's/\x1b\[[0-9;]*m//g')
