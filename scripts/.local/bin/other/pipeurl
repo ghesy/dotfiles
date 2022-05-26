@@ -218,7 +218,7 @@ get_file_proxy_and_urls()
     # if it's a gallery or image site, get the raw URL(s) using gallery-dl.
     case $(get_simple_url) in
         *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
-        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
+        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*|flickr.com/photos/*/*)
             URL=$($PXY gallery-dl -G -- "$URL") || return
             PXY=$(getproxy "$(prnt "$URL" | head -1)")
         ;;
@@ -240,7 +240,7 @@ update_url_type()
         streamable.com/*|streamja.com/*|piped.*/watch*|invidious.*/watch*|v.fodder.gg/v/*)
             URL_TYPE=video
         ;;
-        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*)
+        reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*|flickr.com/photos/*/*)
             URL_TYPE=file
         ;;
         reddit.com/*|redd.it/*|libreddit.*/*)
