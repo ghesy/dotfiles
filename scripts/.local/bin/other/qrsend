@@ -1,0 +1,75 @@
+#!/bin/bash
+# send stuff to your phone with the help of QR codes.
+
+# TODO: ability to serve over the internet with the help of:
+#   $ printf 'QR\n.QREncode\nQREncode\nQREncode INC.\nQREncode\nQREncode\nQREncode CA\nqr@en.code\n' | openssl req -new -newkey rsa:4096 -x509 -sha256 -days 7 -nodes -out cert.crt -keyout key.key
+# and:
+#   $ upnpc -a $(set -- $(ip r) && echo $9) 8080 23850 tcp
+
+# if the input data is bigger than this size, serve or
+# upload it instead of directly showing it as QR
+qr_max_bytes=600
+
+main()
+{
+    set -e
+
+    tmpfiles=()
+    trap 'rm -f -- "${tmpfiles[@]}"' EXIT
+
+    tmp=$(mktemp -t pipeqr.XXXXXXXXXX.txt)
+    tmpfiles+=("$tmp")
+    xclip -o -selection clipboard > "$tmp"
+
+    if [[ -e $(<"$tmp") ]]; then
+
+        [[ $(wc -c < "$(<"$tmp")") -ge $qr_max_bytes ]] && content='' || content='Show Content QR\n'
+        action=$(printf 'Serve Locally\nUpload to Pastebin\n'"$content"'Show Path QR\n' | dmenu)
+        case $action in
+            'Serve Locally') localserve "$(<"$tmp")" ;;
+            'Upload to Pastebin') pastebin "$(<"$tmp")" ;;
+            'Show Content QR') qropen "$(<"$tmp")" ;;
+            'Show Path QR') qropen "$tmp" ;;
+        esac
+
+    elif [[ $(wc -c < "$tmp") -ge $qr_max_bytes ]]; then
+
+        action=$(printf 'Serve Locally\nUpload to Pastebin\n' | dmenu)
+        case $action in
+            'Serve Locally') localserve "$tmp" ;;
+            'Upload to Pastebin') pastebin "$tmp" ;;
+        esac
+    else
+        qropen "$tmp"
+    fi
+}
+
+qropen()
+{
+    img=$(mktemp -t pipeqr.XXXXXXXXXX.png)
+    tmpfiles+=("$img")
+    qrencode -o "$img" < "$1" && sxiv -pz150 "$img"
+}
+
+localserve()
+{
+    [[ -d $1 ]] && upload=$(printf 'No\nYes\n' | dmenu -p 'Enable Upload?')
+    [[ $upload = Yes ]] && upload=u
+    ${TERMINAL:?} -e miniserve --random-route -PDq$upload -- "$1" >/dev/null 2>&1
+}
+
+pastebin()
+{
+    ${TERMINAL:?} -e sh -c '
+        url=$(curl -#fT "$0" https://temp.sh)
+        case $url in
+            https://temp.sh/*)
+                {
+                    printf "%s\n\n" "$url"
+                    echo "$url" | qrencode -t ansi256utf8
+                } | ${PAGER:-less} ;;
+        esac
+    ' "$1" >/dev/null 2>&1
+}
+
+main "$@"
