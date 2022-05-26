@@ -13,11 +13,10 @@ function update_cache_secs()
     if isempty(path) then
         return
     elseif isempty(orig_cache_secs) then
-        orig_cache_secs = mp.get_property("options/cache-secs")
+        orig_cache_secs = mp.get_property("cache-secs")
     end
-    mp.commandv("set", "cache-secs",
-        is_network_stream(path) and opts.cache_secs or orig_cache_secs
-    )
+    mp.set_property("cache-secs",
+        is_network_stream(path) and opts.cache_secs or orig_cache_secs)
 end
 
 function is_network_stream(path)
