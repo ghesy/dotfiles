@@ -51,7 +51,7 @@ preexec_functions+=(cwddiffupdate)
 # ===
 
 # tab complete options
-zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' # make lowercase letters match uppercase letters as well
+zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|=* l:|=*' # enable case-insensitive substring matching
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}" # use LS_COLORS to colorize names of files and dirs
 zstyle ':completion:*' hosts '' # don't match against /etc/hosts entries
 zstyle ':completion:*' file-sort modification
