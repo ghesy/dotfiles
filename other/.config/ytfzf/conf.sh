@@ -7,32 +7,43 @@ video_player() {
     pipeurl "$@"
 }
 
+audio_player() {
+    sxipc "$YTFZF_PID"
+    pipeurl --audio "$@"
+}
+
+downloader() {
+    setsid -f ${TERMINAL:?} -e ytdl "$@" >/dev/null 2>&1
+}
+
 thumbnail_quality=high
-thumbnail_viewer=img_display_function
-img_display_function() {
+thumbnail_viewer=previewfn
+previewfn() {
     [ "$1" != view ] && return 0
     sxipc "$YTFZF_PID"
     sxip "$2" "$5" "$6" "$3" "$(($4+3))" "$YTFZF_PID" "$YTFZF_PID"
 }
 
-download_shortcut=ctrl-alt-d
-custom_shortcut_binds=alt-d
-handle_custom_keypresses() {
-    case $1 in
-        alt-d)
-            setsid -f ${TERMINAL:?} -e ytdl $(cat "$ytfzf_selected_urls") >/dev/null 2>&1
-            return 0 ;;
-    esac
+numshorten() {
+    if [ "$1" -ge 1000000000 ]; then
+        awk -v i="$1" 'BEGIN{printf("%.1fB\n", i/10^9)}'
+    elif [ "$1" -ge 1000000 ]; then
+        awk -v i="$1" 'BEGIN{printf("%.1fM\n", i/10^6)}'
+    elif [ "$1" -ge 1000 ]; then
+        awk -v i="$1" 'BEGIN{printf("%.1fK\n", i/10^3)}'
+    else
+        echo "$1"
+    fi
 }
 
 thumbnail_video_info_text () {
-    [ -n "$title" ] && printf "\n ${c_cyan}%s" "$title"
-    [ -n "$channel" ] && printf "\n ${c_blue}Channel  ${c_green}%s" "$channel"
-    [ -n "$duration" ] && printf "\n ${c_blue}Duration ${c_yellow}%s" "$duration"
-    [ -n "$views" ] && printf "\n ${c_blue}Views    ${c_magenta}%s" "$views"
-    [ -n "$date" ] && printf "\n ${c_blue}Date     ${c_cyan}%s" "$date"
-    [ -n "$url" ] && urlhost=${url#https://} && printf "\n ${c_blue}Source   ${c_reset}%s" "${urlhost%%/*}"
-    [ -n "$description" ] && printf "\n ${c_blue}Description${c_reset}: %s" "$(printf "%s" "$description" | sed 's/\\n/\n/g')"
+    [ -n "$title" ] && printf "${c_cyan}%s\n" "$title" | fold -sw "$FZF_PREVIEW_COLUMNS"
+    [ -n "$channel" ] && printf "${c_blue}Channel  ${c_green}%s\n" "$channel"
+    [ -n "$duration" ] && printf "${c_blue}Duration ${c_yellow}%s\n" "$duration"
+    [ -n "$views" ] && printf "${c_blue}Views    ${c_magenta}%s\n" "$(numshorten "$views")"
+    [ -n "$date" ] && printf "${c_blue}Date     ${c_cyan}%s\n" "$date"
+    [ -n "$url" ] && urlhost=${url#https://} && printf "${c_blue}Source   ${c_reset}%s\n" "${urlhost%%/*}"
+    [ -n "$description" ] && printf "${c_blue}Description${c_reset}: %s\n" "$(printf "%s" "$description" | sed 's/\\n/\n/g')"
 }
 
 video_pref='bestvideo[height>=360]+bestaudio/bestvideo+bestaudio/best[height>=360]/best'
