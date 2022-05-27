@@ -1,3 +1,18 @@
+blacklist /.Trash
+
 read-only ${HOME}/.config/X11
 read-only ${HOME}/.config/zsh
+
+read-only ${HOME}/.dots/gtk
+read-only ${HOME}/.config/gtk-2.0
+read-only ${HOME}/.config/gtk-3.0
+
+read-only ${HOME}/.dots/xdg
+read-only ${HOME}/.config/mimeapps.list
+
+read-only ${HOME}/.dots/fontconfig
+read-only ${HOME}/.config/fontconfig
+read-only ${HOME}/.cache/fontconfig
+
 blacklist ${HOME}/.pvpn-cli
+blacklist ${HOME}/.local/share/password-store

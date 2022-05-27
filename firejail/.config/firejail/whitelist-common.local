@@ -1,3 +1,5 @@
+include whitelist-fontconfig.inc
 whitelist ${HOME}/.dots/gtk
+read-only ${HOME}/.dots/gtk
 whitelist ${HOME}/.dots/xdg
-whitelist ${HOME}/.dots/fontconfig
+read-only ${HOME}/.dots/xdg

@@ -1,3 +1,0 @@
-mkdir ${HOME}/.local/share/ts3client
-whitelist ${HOME}/.local/share/ts3client
-ignore mkdir
