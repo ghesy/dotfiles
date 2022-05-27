@@ -69,7 +69,7 @@ update_url()
     if [[ -n $URL ]]; then
         return 0
     elif [[ -n $1 ]]; then
-        URL=$(prnt "$1" | urlgrep | head -1)
+        URL=$(prnt "$1" | urlgrep | head -n1)
     elif [[ $CLIPBOARD = true ]]; then
         URL=$(get_url_from_clipboard) || return
     else
@@ -122,7 +122,7 @@ history_menu()
 
 get_url_from_clipboard()
 {
-    local url=$(xclip -o -selection clipboard 2>/dev/null | urlgrep | head -1)
+    local url=$(xclip -o -selection clipboard 2>/dev/null | urlgrep | head -n1)
     if [[ -z $url ]]; then
         notify-send -t 1000 PipeURL 'No URLs found in the clipboard.'
         return 1
@@ -165,7 +165,7 @@ stream_open()
     if [[ $error = true ]]; then
         msg=${msg#* ERROR: }
         msg=${msg%%(caused*}
-        msg=$(prnt "$msg" | head -1)
+        msg=$(prnt "$msg" | head -n1)
         notify-send PipeURL "Failed to open the video${msg:+:
 $msg}"
     fi
@@ -220,7 +220,7 @@ get_file_proxy_and_urls()
         *.jpg|*.jpeg|*.png|*.webp|*.gif) ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*|flickr.com/photos/*/*)
             URL=$($PXY gallery-dl -G -- "$URL") || return
-            PXY=$(getproxy "$(prnt "$URL" | head -1)")
+            PXY=$(getproxy "$(prnt "$URL" | head -n1)")
         ;;
     esac
 }

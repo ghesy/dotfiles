@@ -9,7 +9,7 @@ feed=https://artixlinux.org/feed.php
 newest_build_date=$(
     pacman -Qin | grep -Po '^Build Date\s*:\s*\K[^+]*' |
     xargs -d'\n' -L1 -P "$(nproc)" date +%s -d |
-    sort -rn | head -1
+    sort -rn | head -n1
 )
 
 curl -fsL "${feed:?}" | while IFS='>' read -r -d'<' TAG VALUE; do
