@@ -37,6 +37,7 @@ main()
     # === global variables
     ACTION=open
     CLIPBOARD=false
+    AUDIO=false
     URL=''
     URL_TYPE=''
     readonly WID=${WINDOWID:+-w $WINDOWID}
@@ -46,6 +47,7 @@ main()
     for arg; do case $1 in
         -h|--help) print_help; return ;;
         -c|--clipboard) shift; CLIPBOARD=true ;;
+        -a|--audio) shift; AUDIO=true ;;
         --) shift; break ;;
         -*) echo "${0##*/}: invalid option: $arg" >&2; return 1 ;;
         *) break ;;
@@ -153,12 +155,13 @@ stream_dl()
 
 stream_open()
 {
-    local msg error=false
+    local msg novideo error=false
+    [[ $AUDIO = true ]] && novideo=--video=no
     URL=$(get_converted_url)
-    msg=$($(getproxy "$URL") mpv --msg-level=all=error -- "$URL" 2>&1)
+    msg=$($(getproxy "$URL") mpv $novideo --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
         2/*'Temporary failure in name resolution'*)
-            proxychains -q mpv --msg-level=all=error -- "$URL" || error=true ;;
+            proxychains -q mpv $novideo --msg-level=all=error -- "$URL" || error=true ;;
         0/*) ;;
         *) error=true; prnt "$msg" ;;
     esac
@@ -327,14 +330,16 @@ print_help()
 {
     cat << 'EOF'
 usage:
-  pipeurl [-c|--clipboard] [open|copy|download|browse|ask|history] URL
+  pipeurl [-c|--clipboard] [-a|--audio] [open|copy|download|browse|ask|history] URL
 
 options:
-  -c, --clipboard  get the url from the clipboard
-  -h, --help       print this help message and exit
+  -c, --clipboard   get the url from the clipboard
+  -a, --audio       only stream the audio
+  -h, --help        print this help message and exit
 
-the first parameter after the options is the
+the first argument after the options is the
 action that will be performed on the URL.
+if no action is specified, defaults to open.
 EOF
 }
 
