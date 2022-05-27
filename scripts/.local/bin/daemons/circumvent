@@ -1,6 +1,7 @@
 #!/bin/bash
 # configure and start the psiphon proxy client.
-# requires psiphon-console-client(AUR), curl, firejail and libnotify(optional).
+# requires psiphon-console-client(AUR), curl, firejail,
+# my disable-all.inc firejail config, libnotify(optional).
 
 # Config
 # ==========
@@ -165,28 +166,11 @@ EOF
 
 print_firejail_profile() {
     cat << EOF
-include globals.local
-include disable-common.inc
-include disable-devel.inc
-include disable-interpreters.inc
-machine-id
-netfilter
-no3d
-nodvd
-nogroups
-noinput
-nonewprivs
-nosound
-notv
-nou2f
-novideo
-protocol unix,inet,inet6
-seccomp
-shell none
-x11 none
-disable-mnt
-private-tmp
-private-dev
+ignore net none
+ignore private
+include disable-all.inc
+private-bin psiphon-console-client
+protocol inet,inet6
 mkdir $DATADIR
 whitelist $DATADIR
 EOF
