@@ -1,3 +1,0 @@
-# /etc/udev/rules.d/69-hdparm.rules
-# turn on powersaving on rotational hard drives using hdparm.
-ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="/usr/bin/hdparm -B 127 /dev/%k"

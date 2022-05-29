@@ -1,0 +1,13 @@
+pkgname=htoprc
+pkgdesc="htop's config"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(htop)
+source=(htoprc)
+md5sums=(SKIP)
+install=restore-orig.install
+
+package() {
+    install -vDm644 htoprc -t "$pkgdir"/etc/
+}

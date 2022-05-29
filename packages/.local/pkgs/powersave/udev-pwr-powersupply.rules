@@ -1,0 +1,4 @@
+# /usr/lib/udev/rules.d/pwr-powersupply.rules
+# set cpu to high/low power mode upon laptop charger connection/disconnection.
+SUBSYSTEM=="power_supply", ATTR{online}=="0", RUN+="/usr/bin/pwr low"
+SUBSYSTEM=="power_supply", ATTR{online}=="1", RUN+="/usr/bin/pwr high"

@@ -1,0 +1,13 @@
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = runit
+Target = elogind
+
+[Action]
+Description = Reconfiguring autologin...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/autologin
+Depends = runit
+Depends = elogind

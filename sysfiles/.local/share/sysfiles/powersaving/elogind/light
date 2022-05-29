@@ -1,4 +1,0 @@
-#!/bin/sh
-# /etc/elogind/system-sleep/pwr
-[ "$1" != post ] && exit
-setsid -f light -S 40 >/dev/null 2>&1

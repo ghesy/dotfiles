@@ -1,0 +1,13 @@
+pkgname=firejail-symlinks
+pkgdesc="add firejail symlinks in /usr/local/bin for some programs"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(firejail)
+progs=(discord teamspeak3 anydesk)
+package() {
+    mkdir -p "$pkgdir"/usr/local/bin
+    for p in "${progs[@]}"; do
+        ln -s /usr/bin/firejail "$pkgdir"/usr/local/bin/$p
+    done
+}

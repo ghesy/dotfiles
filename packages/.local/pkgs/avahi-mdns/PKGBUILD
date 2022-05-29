@@ -1,0 +1,13 @@
+pkgname=avahi-mdns
+pkgdesc="enable local hostname resolution using avahi"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(avahi avahi-runit nss-mdns)
+source=(nsswitch.conf)
+md5sums=(SKIP)
+install=restore-orig.install
+
+package() {
+    install -vDm644 nsswitch.conf -t "$pkgdir"/etc/
+}

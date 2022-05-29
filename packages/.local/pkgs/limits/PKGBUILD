@@ -1,0 +1,12 @@
+pkgname=limits
+pkgdesc="change the default limits of the pam_limits module"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(pam)
+source=(limits-defaults.conf)
+md5sums=(SKIP)
+
+package() {
+    install -vDm644 limits-defaults.conf "$pkgdir"/etc/security/limits.d/00-defaults.conf
+}

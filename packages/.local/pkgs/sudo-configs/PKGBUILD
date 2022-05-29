@@ -1,0 +1,17 @@
+pkgname=sudo-configs
+pkgdesc="configs for sudo"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(sudo)
+source=(
+    sudoers-defaults
+    faillock.conf
+)
+md5sums=(SKIP SKIP)
+install=restore-orig.install
+
+package() {
+    install -vDm644 sudoers-defaults -t "$pkgdir"/etc/sudoers.d/00-defaults
+    install -vDm644 faillock.conf "$pkgdir"/etc/security/faillock.conf
+}

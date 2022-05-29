@@ -1,0 +1,21 @@
+# /etc/sudoers.d/00-defaults
+
+root ALL=(ALL) ALL
+%wheel ALL=(ALL) ALL
+
+Defaults insults
+Defaults env_keep += "EDITOR VISUAL PAGER LANG LANGUAGE LINGUAS LC_* _XKB_CHARSET"
+Defaults timestamp_timeout=60, passwd_timeout=0
+
+Cmnd_Alias PROGRAMS = \
+  /usr/bin/grub-entries, \
+  /usr/bin/grub-reboot, \
+  /usr/bin/protonvpn, \
+  /usr/bin/fgconsole, \
+  /usr/bin/nethogs, \
+  /usr/bin/iotop, \
+  /usr/bin/chvt
+
+%wheel ALL=(ALL) NOPASSWD: PROGRAMS
+
+# vim:ft=sudoers

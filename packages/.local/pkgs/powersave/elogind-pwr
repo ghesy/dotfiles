@@ -1,0 +1,4 @@
+#!/bin/sh
+# /usr/lib/elogind/system-sleep/pwr
+# set the cpu power level based on the state of the charger on resume from sleep
+[ "$1" = post ] && pwr auto

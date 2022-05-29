@@ -1,0 +1,11 @@
+pkgname=nobeep
+pkgdesc="disable beeping by blacklisting the pcspkr kernel module"
+pkgver=r1
+pkgrel=1
+arch=(any)
+source=(nobeep.conf)
+md5sums=(SKIP)
+
+package() {
+    install -vDm644 nobeep.conf -t "$pkgdir"/usr/lib/modprobe.d/
+}

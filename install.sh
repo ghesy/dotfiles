@@ -18,11 +18,3 @@ stow -v */ || exit 1
 # copy default configs to their destination
 (cd ~/.config/tuir && cp -Ln tuir.def.cfg tuir.cfg)
 (cd ~/.config/transmission-daemon && cp -Ln settings.def.json settings.json)
-
-# install system configurations
-printf 'Install sysfiles? [y/N] '
-read ans
-case "$ans" in y|Y) ;; *) exit ;; esac
-for d in ~/.local/share/sysfiles/*/; do
-    cd "$d" && sudo ./install.sh
-done

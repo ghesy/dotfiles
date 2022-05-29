@@ -18,7 +18,7 @@ pushd ~/.dots >/dev/null
         echo dotfiles contains uncommited changes
     else
         [ "$(f git pull)" != 'Already up to date.' ] &&
-            echo y | ./install.sh && echo
+            ./install.sh && echo
     fi
 popd >/dev/null
 

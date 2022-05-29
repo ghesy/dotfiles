@@ -1,0 +1,12 @@
+pkgname=issue
+pkgdesc="a cool /etc/issue file"
+pkgver=r1
+pkgrel=1
+arch=(any)
+source=(issue)
+md5sums=(SKIP)
+install=restore-orig.install
+
+package() {
+    install -vDm644 issue -t "$pkgdir"/etc/
+}

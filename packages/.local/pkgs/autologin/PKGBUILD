@@ -1,0 +1,14 @@
+pkgname=autologin
+pkgdesc="autologin to my user on boot"
+pkgver=r2
+pkgrel=1
+arch=(any)
+depends=(elogind runit)
+source=(autologin.hook autologin.sh)
+md5sums=(SKIP SKIP)
+install=autologin.install
+
+package() {
+    install -vDm755 autologin.sh "$pkgdir"/usr/share/libalpm/scripts/autologin
+    install -vDm644 autologin.hook -t "$pkgdir"/usr/share/libalpm/hooks/
+}

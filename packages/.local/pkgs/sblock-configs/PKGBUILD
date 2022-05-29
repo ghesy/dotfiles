@@ -1,0 +1,17 @@
+pkgname=sblock-configs
+pkgdesc="configs for sblock"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(sblock-git)
+source=(sources.list allow.list header)
+md5sums=(SKIP SKIP SKIP)
+install=restore-orig.install
+
+prepare() {
+    sed 's|HOSTNAME|'"${HOSTNAME:?}"'|g' header > header-patched
+}
+
+package() {
+    install -vDm644 sources.list allow.list header-patched -t "$pkgdir"/etc/sblock/
+}

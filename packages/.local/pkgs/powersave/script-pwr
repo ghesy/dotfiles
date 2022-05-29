@@ -1,0 +1,140 @@
+#!/bin/bash
+# /usr/bin/pwr
+# this script sets the energy leven and turbo settings of the cpu.
+
+# get forked to background
+[[ $1 = --nofork ]] && shift || exec setsid -f "$0" --nofork "$@" >/dev/null 2>&1
+
+# sleep using the internal read command
+exec {sleepfd}<> <(:)
+rsleep() { read -t $1 -u $sleepfd ;}
+
+main()
+{
+    is_laptop || {
+        echo "this machine is not a battery powered device. exiting."
+        return 0
+    }
+
+    # update dwmbar's battery module
+    killall -49 dwmbar
+
+    traps
+
+    case $1 in
+        -h|--help|'') print_help; exit 0 ;;
+        init) init ;;
+        cpu)
+            case $2 in
+                high|low|auto) cpu $2 ;;
+                *) print_help; exit 1 ;;
+            esac
+        ;;
+        *) print_help; exit 1 ;;
+    esac
+}
+
+init()
+{
+    # enable laptop mode
+    write 'enabling laptop mode' '5' /proc/sys/vm/laptop_mode
+
+    # set sata power saving to auto
+    write 'enabling sata powersaving' \
+        'auto' \
+        /sys/class/ata_port/ata*/power/control \
+        /sys/block/sd*/device/power/control \
+
+}
+
+# set cpu's energy level
+cpu()
+{
+    local cpu=/sys/devices/system/cpu
+    local energy=$cpu/cpufreq/policy*/energy_performance_preference
+    local noturbo=$cpu/intel_pstate/no_turbo
+
+    kill_other_instance
+
+    case $1 in
+        high)
+            write 'enabling turbo' '0' $noturbo
+            write 'increasing cpu clock speed' 'balance_performance' $energy
+        ;;
+        low)
+            write 'disabling turbo' '1' $noturbo
+            write 'decreasing cpu clock speed' 'balance_power' $energy
+        ;;
+        auto)
+            for f in /sys/class/power_supply/*/online; do
+                if [[ -f $f ]] && [[ $(<"$f") -eq 1 ]]; then
+                    cpu high
+                    return
+                fi
+            done
+            cpu low
+    esac
+}
+
+# return true if the machine's chassis type is a laptop, notebook, etc.
+is_laptop()
+{
+    case $(</sys/class/dmi/id/chassis_type) in
+        9|10|11|14|3[0-2]) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# kill the other instance of pwr
+kill_other_instance()
+{
+    local pid=/var/run/pwr.pid
+    [[ -s $pid ]] && {
+        echo "killing the other running instance of ${0##*/}..."
+        kill $(<$pid)
+    }
+    echo $$ > $pid || exit 1
+}
+
+# function to repeatedly try to write the given string to
+# the given file until it succeeds
+write()
+{
+    local msg=$1
+    local val=$2
+    shift 2
+    for file; do
+        [[ ! -e $file ]] && continue
+        printf '%s by writing "%s" to "%s"...   ' "$msg" "$val" "$file"
+        for i in {1..120}; do
+            [[ -w $file ]] && echo "$val" > "$file" && {
+                echo done.
+                break
+            }
+            rsleep 2 & wait
+        done
+    done
+}
+
+traps()
+{
+    # kill background jobs on exit
+    trap exit HUP INT TERM
+    trap 'kill $(jobs -p); rm "$pid"' EXIT
+}
+
+print_help()
+{
+    cat << EOF
+usage:
+  pwr [--nofork] cpu {high|low|auto}
+or
+  pwr [--nofork] init
+
+options:
+  --nofork      do not fork; stay in foreground
+  -h, --help    print this help message and exit
+EOF
+}
+
+main "$@"

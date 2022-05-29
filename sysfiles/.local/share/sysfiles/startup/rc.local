@@ -1,6 +1,0 @@
-#!/bin/sh
-# /etc/rc.local
-# rc.local for Artix Linux
-# This file will be executed on stage 2 before running services.
-setsid -f ntpd -gq >/dev/null 2>&1
-setsid -f light -S 40 >/dev/null 2>&1

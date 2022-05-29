@@ -1,0 +1,15 @@
+pkgname=xorg-configs
+pkgdesc="some X.Org configs"
+pkgver=r2
+pkgrel=1
+arch=(any)
+source=(
+    10-dpms-disable.conf
+    20-touchpad.conf
+)
+md5sums=(SKIP SKIP)
+
+package() {
+    install -vDm644 10-dpms-disable.conf -t "$pkgdir"/usr/lib/X11/xorg.conf.d/
+    install -vDm644 20-touchpad.conf -t "$pkgdir"/usr/lib/X11/xorg.conf.d/
+}

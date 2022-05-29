@@ -1,0 +1,12 @@
+pkgname=proxychains-config
+pkgdesc="proxychains's config"
+pkgver=r1
+pkgrel=1
+arch=(any)
+source=(proxychains.conf)
+md5sums=(SKIP)
+install=restore-orig.install
+
+package() {
+    install -vDm644 proxychains.conf -t "$pkgdir"/etc/
+}
