@@ -11,6 +11,7 @@ repo=''
 repo_bind_dir=''
 rebuilt_pkgs=()
 tmpdir=''
+force=false
 declare -A target_pkgs
 
 # setup options and traps to catch errors
@@ -22,6 +23,8 @@ main()
 {
     # cd to the script's directory
     cd "$(dirname "$(readlink -f "${0:?}")")"
+
+    [[ $* = -f ]] && force=true
 
     # bind the repo-dir as rw to a temporary location
     bind_repo_dir
@@ -58,10 +61,15 @@ add_rebuilt_pkgs_to_db()
     local pkg
     pushd "$repo_dir" >/dev/null
     set +u
-    for pkg in "${rebuilt_pkgs[@]}"; do
-        printf '%s\n' "$pkg"-*.pkg.tar.zst |
+    if [[ $force = true ]]; then
+        printf '%s\n' *.pkg.tar.zst |
             pacsort -f | xargs -rd'\n' repo-add -n -R "$repo"
-    done
+    else
+        for pkg in "${rebuilt_pkgs[@]}"; do
+            printf '%s\n' "$pkg"-*.pkg.tar.zst |
+                pacsort -f | xargs -rd'\n' repo-add -n -R "$repo"
+        done
+    fi
     set -u
     popd >/dev/null
 }
@@ -71,6 +79,7 @@ add_rebuilt_pkgs_to_db()
 cleanup_removed_pkgs()
 {
     local pkg pkg_name
+    [[ ! -s $repo ]] && return
     pushd "$repo_dir" >/dev/null
     set +u
     for pkg in $(tar -tf "$repo" | grep -Po '^[^/]+(?=/$)'); do
