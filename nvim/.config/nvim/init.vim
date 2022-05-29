@@ -149,8 +149,8 @@ vnoremap <silent> // :<C-U>
   \ gVzv:call setreg('"', old_reg, old_regtype)<CR>
 
 " perform replace on visually-selected text
-vnoremap <C-r> "hy:%s@<C-r><C-r>=escape(@h, '@\.*$^~[')<CR>
-  \@@gc<left><left><left>
+vnoremap <C-r> "hy:%s@\(<C-r><C-r>=escape(@h, '@\.*$^~[')<CR>
+  \\)@@gc<left><left><left>
 
 " equalize window sizes upon vim resize
 autocmd VimResized * wincmd =
