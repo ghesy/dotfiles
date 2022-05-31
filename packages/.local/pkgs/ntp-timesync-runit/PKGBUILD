@@ -1,14 +1,13 @@
 pkgname=ntp-timesync-runit
 pkgdesc="runit service to sync time on startup using ntp"
-pkgver=r2
+pkgver=r3
 pkgrel=1
 arch=(any)
 depends=(ntp)
 source=(ntp.conf ntp-timesync.run)
 md5sums=(SKIP SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 ntp.conf -t "$pkgdir"/etc/
+    install -vDm644 ntp.conf -t "$pkgdir"/usr/share/ntp-timesync/
     install -vDm755 ntp-timesync.run "$pkgdir"/etc/runit/sv/ntp-timesync/run
 }
