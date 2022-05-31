@@ -1,5 +1,4 @@
-# teamspeak3's firejail profile
-# based on disable-all.inc
+# teamspeak3's firejail profile, built around disable-all.inc
 
 noblacklist /opt
 whitelist /opt/teamspeak3

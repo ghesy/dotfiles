@@ -1,8 +1,12 @@
 # this firejail profile disables as much stuff as possible.
 
 include globals.local
+
+# the /proc and /run dirs cannot be successfully blacklisted;
+# but these two incs disable as much of them as possible
 include disable-proc.inc
 include whitelist-run-common.inc
+
 include enable-hardened-malloc.inc
 
 # basic stuff
@@ -19,14 +23,14 @@ dbus-user none
 ipc-namespace
 shell none
 
-# make stuff private
+# make required directories private
 private
 private-bin true
 private-etc resolv.conf,nsswitch.conf,hosts,host.conf,
 private-lib
 private-tmp
 
-# blacklist unneeded stuff
+# blacklist everything else
 disable-mnt
 blacklist /opt
 blacklist /srv
@@ -40,7 +44,7 @@ blacklist /var
 blacklist /.Trash
 blacklist ${RUNUSER}
 
-# disable stuff in /dev
+# disable as much of /dev as possible
 private-dev
 no3d
 nodvd
@@ -49,3 +53,5 @@ notv
 nou2f
 novideo
 noprinters
+
+# vim:ft=firejail
