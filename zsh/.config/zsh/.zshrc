@@ -6,6 +6,7 @@ HISTFILE=~/.cache/zsh/history
 [[ ! -d ${HISTFILE:h} ]] && mkdir -pm700 ${HISTFILE:h}
 setopt sharehistory histreduceblanks histignoredups
 setopt ignoreeof nullglob interactivecomments autocd
+setopt correct noclobber clobberempty
 
 # shell prompt
 autoload -U colors && colors
@@ -68,6 +69,7 @@ bindkey '\t' zle-complete-and-list
 # ctrl+e: edit the current cmdline in the editor
 autoload edit-command-line && zle -N edit-command-line
 bindkey '^e' edit-command-line
+bindkey -M vicmd '^e' edit-command-line
 
 # enable vi mode
 bindkey -v '^?' backward-delete-char
