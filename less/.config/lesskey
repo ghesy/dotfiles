@@ -14,7 +14,7 @@ w  toggle-option ^PS
 U pipe .pipeurl ask\r
 
 # find referenced utilities and open their man pages
-m pipe .dman -\r
+K pipe .dman -\r
 
 # pipe the text through fribidi and show it
 x pipe \^fribidi | less\r
@@ -24,5 +24,5 @@ o forw-search \^\ +
 O forw-search \^
 
 #env
-LESS = -RSMWic --use-color --incsearch --line-num-width=3 --mouse --wheel-lines=3
+LESS = -RSMic --use-color --incsearch --line-num-width=3 --mouse --wheel-lines=3 --no-histdups
 LESSHISTFILE = -
