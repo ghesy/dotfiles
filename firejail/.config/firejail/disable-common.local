@@ -16,3 +16,4 @@ read-only ${HOME}/.cache/fontconfig
 
 blacklist ${HOME}/.pvpn-cli
 blacklist ${HOME}/.local/share/password-store
+blacklist ${HOME}/.cache/neomutt
