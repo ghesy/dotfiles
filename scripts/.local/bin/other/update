@@ -1,37 +1,47 @@
 #!/bin/bash
 # update my dotfiles, my syncthing-synced files and my suckless software repoes.
-set -eE
-trap 'echo failed at line $LINENO: $BASH_COMMAND' ERR
+set -ueE
+trap 'echo "${0##*/}: failed @ line $LINENO: $BASH_COMMAND"' ERR
 
 f() { "$@" || kill $$ ;}
 
 pushd /media/syncthing/Main >/dev/null
-    basename "$PWD"
+    printf '%-35s' 'stowing syncthing dirs... '
     ./install.sh
+    echo done.
 popd >/dev/null
 
 pushd ~/.dots >/dev/null
-    basename "$PWD"
+    printf '%-35s' 'updating dotfiles... '
     if [ "$(f git branch --show)" != master ]; then
-        echo dotfiles is not on the proper branch
+        echo not on the proper branch.
     elif [ -n "$(f git status --porcelain)" ]; then
-        echo dotfiles contains uncommited changes
+        echo contains uncommited changes.
+    elif [ "$(f git pull)" = 'Already up to date.' ]; then
+        echo up to date.
     else
-        [ "$(f git pull)" != 'Already up to date.' ] &&
-            ./install.sh && echo
+        ./install.sh
+        echo done.
     fi
 popd >/dev/null
 
+printf '%-35s' 'updating the local repository... '
+~/.local/pkgs/mkrepo.sh
+echo done.
+
 for dir in ~/Repositories/suckless/*/; do
     pushd "$dir" >/dev/null
-        basename "$PWD"
+        printf '%-35s' "updating ${PWD##*/}..."
         if [[ $(f git branch --show) != my-* ]]; then
-            echo "$(basename "$dir") is not on the proper branch"
+            echo not on the proper branch.
         elif [ -n "$(f git status --porcelain)" ]; then
-            echo "$(basename "$dir") contains uncommited changes"
+            echo contains uncommited changes.
+        elif [ "$(f git pull)" = 'Already up to date.' ]; then
+            echo up to date.
         else
-            [ "$(f git pull)" != 'Already up to date.' ] &&
-                make && sudo make install
+            make
+            sudo make install
+            echo done.
         fi
     popd >/dev/null
 done
