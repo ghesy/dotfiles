@@ -31,3 +31,4 @@ export NUGET_PACKAGES=~/.cache/NuGetPackages
 export GEM_SPEC_CACHE=~/.cache/gem
 
 export PIPX_BIN_DIR=~/.local/bin/pipx
+export ABDUCO_SOCKET_DIR=$XDG_RUNTIME_DIR
