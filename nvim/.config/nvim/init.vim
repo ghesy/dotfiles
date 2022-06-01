@@ -24,11 +24,11 @@ Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-eunuch'
-Plug 'bling/vim-bufferline'
 Plug 'chaoren/vim-wordmotion'
 Plug 'easymotion/vim-easymotion'
 Plug 'voldikss/vim-floaterm'
 Plug 'mbbill/undotree'
+Plug 'akinsho/bufferline.nvim', {'tag':'v2.*'}
 " colorschemes
 Plug 'sainnhe/gruvbox-material'
 Plug 'pbrisbin/vim-colors-off'
@@ -175,9 +175,6 @@ endf
 " vim-simple-complete
 let g:vsc_type_complete = 0
 
-" vim-bufferline
-let g:bufferline_show_bufnr = 0
-
 " easymotion
 let g:EasyMotion_smartcase = 1
 nmap s <Plug>(easymotion-s2)
@@ -219,3 +216,25 @@ set langmap+=ظz,طx,زc,رv,ذb,دn,پm,و\\,
 set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,
 set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
 set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
+
+lua << EOF
+require("bufferline").setup {
+  options = {
+    mode = "buffers", -- set to "tabs" to only show tabpages instead
+    close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
+    right_mouse_command = "bdelete! %d", -- can be a string | function, see "Mouse actions"
+    left_mouse_command = "buffer %d",    -- can be a string | function, see "Mouse actions"
+    middle_mouse_command = nil,          -- can be a string | function, see "Mouse actions"
+    max_name_length = 18,
+    max_prefix_length = 15, -- prefix used when a buffer is de-duplicated
+    tab_size = 18,
+    show_buffer_close_icons = false,
+    show_close_icon = false,
+    persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
+    -- can also be a table containing 2 custom separators
+    -- [focused and unfocused]. eg: { '|', '|' }
+    separator_style = "slant",
+    sort_by = "insert_after_current",
+  }
+}
+EOF

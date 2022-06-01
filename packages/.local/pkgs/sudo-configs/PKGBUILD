@@ -1,6 +1,6 @@
 pkgname=sudo-configs
-pkgdesc="configs for sudo"
-pkgver=r1
+pkgdesc="configs for sudo and pam"
+pkgver=r5
 pkgrel=1
 arch=(any)
 depends=(sudo)
@@ -9,9 +9,10 @@ source=(
     faillock.conf
 )
 md5sums=(SKIP SKIP)
-install=restore-orig.install
+install=restore-orig-and-configure-pam.install
 
 package() {
-    install -vDm644 sudoers-defaults -t "$pkgdir"/etc/sudoers.d/00-defaults
+    install -vdm750 "$pkgdir"/etc/sudoers.d
+    install -vDm440 sudoers-defaults "$pkgdir"/etc/sudoers.d/00-defaults
     install -vDm644 faillock.conf "$pkgdir"/etc/security/faillock.conf
 }
