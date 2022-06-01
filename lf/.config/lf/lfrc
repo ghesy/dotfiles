@@ -72,6 +72,7 @@ map K push hkl # go to the previous parent dir
 map J push hjl # go to the next parent dir
 map E sudoedit
 map <c-n> $$SHELL
+map q $$SHELL
 
 # renaming
 map b bulkrename
