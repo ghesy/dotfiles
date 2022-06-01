@@ -72,6 +72,7 @@ map K parentup
 map J parentdown
 map E sudoedit
 map <c-n> $$SHELL
+map q $$SHELL
 
 # renaming
 map b bulkrename
