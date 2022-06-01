@@ -118,7 +118,7 @@ alias vi='nvim'
 # pacman
 p() {
     case $1 in
-        -Ss|-Q*|-T*) pacman "$@" ;;
+        -Q*|-T*|-S[gils]|-Sii) pacman "$@" ;;
         -*) sudo pacman "$@" ;;
         *) pacman "$@" ;;
     esac
