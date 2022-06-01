@@ -10,6 +10,9 @@ IFS=$'\n'
 # escape doublequotes
 set -- "${@//\"/\\\"}"
 
+# function to send commands to lf
+send() { lf -remote "send ${id:?} $*" ;}
+
 # if any part of the given path is hidden (starts with a dot),
 # set the hidden option in lf to show hidden files too
 for path; do
@@ -17,9 +20,6 @@ for path; do
         .*|*/.*) send 'set hidden'; break ;;
     esac
 done
-
-# function to send commands to lf
-send() { lf -remote "send ${id:?} $*" ;}
 
 # select the files in lf
 case $# in
