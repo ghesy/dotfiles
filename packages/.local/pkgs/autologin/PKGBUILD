@@ -1,6 +1,6 @@
 pkgname=autologin
-pkgdesc="autologin to my user on boot"
-pkgver=r2
+pkgdesc="autologin to a user on boot"
+pkgver=r3
 pkgrel=1
 arch=(any)
 depends=(elogind runit)
