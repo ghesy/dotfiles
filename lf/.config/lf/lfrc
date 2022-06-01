@@ -5,7 +5,6 @@ set mouse
 set drawbox
 set nopreview
 set period 1
-set ratios 1
 set dircounts
 set timefmt        "2006-01-02 15:04"
 set infotimefmtnew "2006-01-02 15:04"
@@ -13,6 +12,10 @@ set infotimefmtold "2006-01-02 15:04"
 set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
+
+cmd ratios set ratios 1:1
+cmd ratios-nopreview set ratios 1
+ratios-nopreview
 
 cmd scrolloff set scrolloff 10
 scrolloff
@@ -26,7 +29,7 @@ cmd on-quit $printf '\033[23t'
 
 # show the git branch in the prompt
 cmd on-cd &{{
-    if b=$(git branch --show-current) && [ -n $b ]; then
+    if b=$(git branch --show-current) && [[ -n $b ]]; then
         lf -remote 'send '$id' set promptfmt "\033[2m%d at \033[33m'$b'"'
     elif [[ $lf_promptfmt == *' at '* ]]; then
         lf -remote 'send '$id' set promptfmt "\033[2m%d"'
@@ -34,9 +37,9 @@ cmd on-cd &{{
 }}
 on-cd
 
-# ============
-# = mappings
-# ============
+# ========
+# = maps
+# ========
 
 map ~ cd ~
 map . set hidden!
@@ -44,6 +47,7 @@ map * push :glob-select<space>
 map P push :paste<space>""<left>
 map gh
 map g top
+map <c-g> bottomdir
 map zz center
 map L openall
 map t preview-toggle
@@ -54,7 +58,7 @@ map U &termopen
 map D push :trash<space>
 map X !$f
 map m mkdir
-map <c-n> togglenum
+map <c-l> togglenum
 map <c-f> finder
 map <c-o> freq
 map W &feh --bg-fill -- $f
@@ -96,16 +100,21 @@ map <tab> :echo
 # ============
 
 cmd q quit
+
+cmd bottomdir :set dironly; bottom; set nodironly
 cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
-cmd togglenum push :set<space>number!;set<space>relativenumber!<enter>
+cmd togglenum :set number!; set relativenumber!
 
 cmd open $opener $f
 cmd openall $opener $fx
 
 cmd preview-toggle preview-on
-cmd preview-on push :set<space>ratios<space>1:1;set<space>preview;load;cmd<space>preview-toggle<space>preview-off<enter>
-cmd preview-off push :set<space>nopreview;set<space>ratios<space>1;cmd<space>preview-toggle<space>preview-on;&sxipc<enter>
+cmd preview-on :ratios; set preview; load; cmd preview-toggle preview-off
+cmd preview-off :set nopreview; ratios-nopreview; cmd preview-toggle preview-on; &sxipc
+
+cmd finder $lfselect "$(finder)"
+cmd freq   $lfselect "$(freq -m fzf)"
 
 cmd mkdir %{{
     set -e
@@ -139,22 +148,6 @@ cmd delete ${{
     esac || read -p 'Press enter to continue'
 }}
 
-cmd finder ${{
-    f=$(finder) || exit
-    case ${f##*/} in
-        .*) lf -remote "send $id set hidden" ;;
-    esac
-    lfselect $f
-}}
-
-cmd freq ${{
-    f=$(freq -m fzf) || exit
-    case ${f##*/} in
-        .*) lf -remote "send $id set hidden" ;;
-    esac
-    lfselect $f
-}}
-
 cmd archive ${{
     printf '\e[?1049h\e[H'
     apack $1 $(realpath -s --relative-base=$PWD -- $fx) ||
@@ -179,12 +172,12 @@ cmd paste ${{
     printf '\e[?1049h\e[H'
     list=~/.local/share/lf/files
     count=$(wc -l <$list)
-    [ ! -f $list ] || [ $count -le 1 ] &&
+    [[ ! -f $list ]] || [[ $count -le 1 ]] &&
         { lf -remote "send $id echo nothing to paste."; exit ;}
     action=$(head -n1 $list)
     srcs=$(sed 1d $list)
     printf '\e[?25l' # hide the cursor
-    [ "$1" = --simple ] && shift && mode=simple || mode=adv
+    [[ $1 = --simple ]] && shift && mode=simple || mode=adv
     case $action${mode:+-$mode} in
         copy-adv) advcp -ag --backup=numbered -- ${srcs:?} ${1:-.} ;;
         move-adv) advmv  -g --backup=numbered -- ${srcs:?} ${1:-.} ;;
@@ -194,9 +187,9 @@ cmd paste ${{
     rm $list
     lf -remote 'send clear'
     lf -remote 'send load'
-    if [ -n "$1" ]; then
+    if [[ -n $1 ]]; then
         lfselect "$1"
-    elif [ $count -eq 2 ]; then
+    elif [[ $count -eq 2 ]]; then
         lfselect "${srcs##*/}"
     fi
     printf '\e[?25h' # show the cursor
