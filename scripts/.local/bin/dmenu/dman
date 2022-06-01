@@ -20,7 +20,7 @@ if [ "$1" = '-' ]; then
     # make a list of referenced man pages from stdin
     list=$(
         sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g' |
-            grep -Eo '[0-9a-zA-Z_-]+\([0-9nl][a-zA-Z]*\)' |
+            grep -Eo '[0-9a-zA-Z._-]+\([0-9nl][a-zA-Z]*\)' |
             cat -n | sort -ufk2 | sort -n | cut -f2-
     )
 
@@ -38,7 +38,7 @@ else
     )
 
     # ask for a man page from the user
-    man=$(prnt "$list" | rev | cut -d/ -f1 | rev | cut -d. -f1 | sort -u | menu)
+    man=$(prnt "$list" | grep -Po '.*/\K\S+(?=\.[0-9nl][a-zA-Z]*(\.gz)?)' | sort -u | menu)
 
     # get the available sections of the selected man page
     sec=$(prnt "$list" | grep -Po "^.*/\Q${man:?}\E\.\K[0-9nl][a-zA-Z]*(?=(\.gz)?)" | sort)
