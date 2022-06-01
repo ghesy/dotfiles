@@ -78,8 +78,15 @@ alias v='nvim'
 alias vi='nvim'
 
 # pacman
-alias p='paru'
-alias pl='paclast -t | head'
+p() {
+    case $1 in
+        -Ss|-Q*|-T*) pacman "$@" ;;
+        -*) sudo pacman "$@" ;;
+        *) pacman "$@" ;;
+    esac
+}
+compdef '_dispatch pacman pacman' p
+alias pl='paclast -t | head -n20'
 
 # editor
 se() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
