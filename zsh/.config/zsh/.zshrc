@@ -13,7 +13,7 @@ autoload -U colors && colors
 precmd_prompt() {
     local cwd branch host
     cwd=${PWD/#$HOME/'~'}
-    cwd=${${(j:/:)${(s:/:)cwd}[-3,$]}:-$cwd}
+    cwd=${${(j[/])${(s[/])cwd}[-3,$]}:-$cwd}
     branch=$(command git branch --show-current 2>/dev/null)
     branch=${branch:+" on $fg[yellow]$branch$reset_color"}
     [[ -n $SSH_CONNECTION ]] && host=" at $fg[blue]%M$reset_color"
@@ -53,7 +53,7 @@ preexec_functions+=(cwddiffupdate)
 
 # tab complete options
 zstyle ':completion:*' matcher-list '' 'm:{[:lower:]}={[:upper:]}' 'r:|=* l:|=*' # enable case-insensitive substring matching
-zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}" # use LS_COLORS to colorize names of files and dirs
+zstyle ':completion:*' list-colors "${(s[:])LS_COLORS}" # use LS_COLORS to colorize names of files and dirs
 zstyle ':completion:*' hosts '' # don't match against /etc/hosts entries
 zstyle ':completion:*' file-sort modification
 zstyle ':completion:*' list-dirs-first true
@@ -95,7 +95,7 @@ autoload -U select-bracketed && zle -N select-bracketed
 autoload -U select-quoted && zle -N select-quoted
 () { local mode char
 for mode in visual viopp; do
-    for char in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+    for char in {a,i}${(s[])^:-'()[]{}<>bB'}; do
         bindkey -M $mode $char select-bracketed
     done
     for char in {a,i}{\',\",\`}; do
@@ -117,7 +117,7 @@ chpwd_functions+=(chpwd_freq)
 
 # add files and dir in the executed commands to freq
 preexec_freq() {
-    for arg in ${(Q)${(Z:C:)1}[2,$]:a}; do
+    for arg in ${(Q)${(Z[C])1}[2,$]:a}; do
         [[ -e $arg ]] && freq -a "$arg"
     done
 }

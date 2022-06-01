@@ -2,7 +2,7 @@
 
 # add all of ~/.local/bin's immediate subdirectories to $PATH
 paths=(~/.local/bin/*(ND-/))
-export PATH=$PATH${paths:+:}${(j.:.)paths}
+export PATH=$PATH${paths:+:}${(j[:])paths}
 
 # default programs
 export TERMINAL=st
