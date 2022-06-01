@@ -23,7 +23,7 @@ Grub
 Email, Mutt
 	tui neomutt
 
-Unread Mail
+Notify Unread Emails
 	unread
 
 Claws Mail
@@ -164,7 +164,7 @@ Music
 Bashmount
 	tui bashmount
 
-Dictionary
+Dictionary, Translate
 	tui dictfzf
 
 Calculator
@@ -173,10 +173,10 @@ Calculator
 TV
 	tui tv
 
-Transmission, Torrents
+Transmission, Torrents, tremc
 	tui tremc
 
-Download Manager,
+Download Manager, aria2
 	tui aria2p
 
 # ==============
@@ -228,7 +228,7 @@ YouTube
 Passwords
 	exec dpass
 
-aria2 Config, daria2
+Download Manager Config, aria2 Config
 	exec daria2
 
 Manuals
