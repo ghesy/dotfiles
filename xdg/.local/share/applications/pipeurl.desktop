@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=PipeURL
-Type=Application
-Categories=Network
-MimeType=x-scheme-handler/pipeurl
-Exec=pipeurl %u
