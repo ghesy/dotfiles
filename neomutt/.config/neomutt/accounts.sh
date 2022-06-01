@@ -34,6 +34,6 @@ set my_spam_folder +Spam # For Gmail: "+[Gmail]/Spam"
 eof
 
 mkdir -p ~/.cache/neomutt $dir/mailbook 2>/dev/null
-! sel=$(basename -a "$acc"/* | dmenu -w $WINDOWID -p 'Choose an email account') ||
+! sel=$(basename -a "$acc"/* | dmenu -w $WINDOWID -l 10 -p 'Choose an email account') ||
     [ ! -r "$acc/$sel" ] && { pkill -xg0 neomutt && exit ;}
 echo source "$acc/$sel"
