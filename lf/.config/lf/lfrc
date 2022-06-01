@@ -1,9 +1,9 @@
 set shell bash
 set shellopts '-u'
 set ifs "\n"
+set incsearch
+set incfilter
 set mouse
-set drawbox
-set nopreview
 set period 1
 set dircounts
 set timefmt        "2006-01-02 15:04"
@@ -13,9 +13,9 @@ set errorfmt  "\033[31m%s\033[0m"
 set promptfmt "\033[2m%d"
 set hiddenfiles ".*:$RECYCLE.BIN:System Volume Information"
 
-cmd ratios set ratios 1:1
-cmd ratios-nopreview set ratios 1
-ratios-nopreview
+cmd ratios set ratios 1:2:3
+cmd ratios-nopreview set ratios 1:5
+ratios
 
 cmd scrolloff set scrolloff 10
 scrolloff
@@ -68,8 +68,8 @@ map S getdirsize
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
 map o &readlink -f -- $f | lfselect # follow symlinks
 map H push :mark-load<enter>' # jump back to previous dir
-map K push hkl # go to the previous parent dir
-map J push hjl # go to the next parent dir
+map K parentup
+map J parentdown
 map E sudoedit
 map <c-n> $$SHELL
 
@@ -106,10 +106,14 @@ cmd bulkrename $realpath -s --relative-base=$PWD -- $fx | vidir -v -
 cmd getdirsize !printf '\e[?1049h\e[H... '; du -sh 2>/dev/null
 cmd togglenum :set number!; set relativenumber!
 
+# go to the next/previous parent dir
+cmd parentup   :updir; set dironly; up;   set nodironly; open
+cmd parentdown :updir; set dironly; down; set nodironly; open
+
 cmd open $opener $f
 cmd openall $opener $fx
 
-cmd preview-toggle preview-on
+cmd preview-toggle preview-off
 cmd preview-on :ratios; set preview; load; cmd preview-toggle preview-off
 cmd preview-off :set nopreview; ratios-nopreview; cmd preview-toggle preview-on; &sxipc
 
