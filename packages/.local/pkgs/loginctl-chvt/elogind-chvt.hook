@@ -1,0 +1,15 @@
+#!/bin/sh
+# go back to the tty that we switched away from before suspend.
+
+# config
+origtty=/run/origtty
+
+set -eu
+
+[ "$1" != post ] && exit
+[ ! -f "$origtty" ] && exit
+
+tty=$(cat "$origtty")
+rm "$origtty"
+sleep 1
+chvt "$tty"

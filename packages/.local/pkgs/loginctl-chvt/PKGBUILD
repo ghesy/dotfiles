@@ -1,0 +1,13 @@
+pkgname=loginctl-chvt
+pkgdesc="a wrapper for loginctl to change the tty on suspend"
+pkgver=r4
+pkgrel=1
+arch=(any)
+depends=(elogind kbd)
+source=(loginctl-chvt.sh elogind-chvt.hook)
+md5sums=(SKIP SKIP)
+
+package() {
+    install -vDm755 loginctl-chvt.sh "$pkgdir"/usr/local/bin/loginctl
+    install -vDm755 elogind-chvt.hook "$pkgdir"/usr/lib/elogind/system-sleep/chvt
+}
