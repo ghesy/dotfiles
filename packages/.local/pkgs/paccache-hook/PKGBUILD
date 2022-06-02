@@ -1,6 +1,6 @@
 pkgname=paccache-hook
 pkgdesc="hook to cleanup pacman cache"
-pkgver=r3
+pkgver=r4
 pkgrel=1
 arch=(any)
 depends=(pacman-contrib)
