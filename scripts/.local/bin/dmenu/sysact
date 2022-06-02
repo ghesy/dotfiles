@@ -1,74 +1,84 @@
-#!/bin/sh
+#!/bin/bash
 # ask for a system action.
 
-actions='鈴 Sleep
-鈴 Hibernate
-⏻ Poweroff
- Reboot
- Logout'
+actions=(
+    '鈴 Sleep'
+    '鈴 Hibernate'
+    '⏻ Poweroff'
+    ' Reboot'
+    ' Logout'
+)
 
 # the -shb and -shf dmenu color options require dmenu's fuzzyhighlight patch.
 colors='-sb #42214d'
 
-main() {
+main()
+{
     set -e
-    action=$1
-    [ -z "$1" ] && action=$(echo "$actions" | dmenu -p 'System Action:' $colors)
+
+    noconfirm=false
+    case $1 in
+        -n|--noconfirm) noconfirm=true; shift ;;
+    esac
+
+    action=${1,,}
+    [[ -z $1 ]] && action=$(
+        printf '%s\n' "${actions[@]}" | dmenu -p 'System Action:' $colors
+    )
+
     case $action in
+        *' Logout'|logout)
+            ask 'Logout?' &&
+                kill "$(pstree -ps $$ | grep -Po 'dwm\(\K\d+')"
+        ;;
         *' Sleep'|sleep|suspend)
-            loginctl_chvt suspend$(can_hibernate && echo -then-hibernate)
+            loginctl suspend$(can_hibernate && echo -then-hibernate)
         ;;
         *' Poweroff'|poweroff|shutdown)
-            ask 'Poweroff?' && loginctl poweroff
+            ask 'Poweroff?' &&
+                loginctl poweroff
         ;;
-        *' Logout'|logout)
-            ask 'Logout?' && pkill -x Xorg -t tty$(sudo -A fgconsole)
+        *' Reboot'|reboot)
+            os=$(ask_reboot_os)
+            ask 'Reboot?' || return 1
+            [[ -n $os ]] && sudo -A grub-reboot "$os"
+            loginctl reboot
         ;;
         *' Hibernate'|hibernate)
             if can_hibernate; then
-                ask 'Hibernate?' && loginctl_chvt hibernate
+                ask 'Hibernate?' && loginctl hibernate
             else
-                notify-send 'Hibernation is not enabled on this machine.'
+                msg='Hibernation is not enabled on this machine.'
+                echo "$msg" >&2
+                notify-send "$msg"
             fi
-        ;;
-        *' Reboot'|reboot)
-            unset os
-            command -v grub-reboot >/dev/null &&
-                command -v grub-entries >/dev/null &&
-                entries=$(sudo -A grub-entries -g) &&
-                [ "$(echo "$entries" | wc -l)" -gt 1 ] && {
-                    sel=$(echo "$entries" | dmenu -p 'Reboot to:' $colors) || return 1
-                    os=$(echo "$sel" | cut -d' ' -f2-)
-                }
-            ask 'Reboot?' || return 1
-            [ -n "$os" ] && sudo -A grub-reboot "$os"
-            loginctl reboot
         ;;
     esac
 }
 
-ask() {
-    ans=$(printf "No\\nYes" | dmenu -p "$*" \
+ask_reboot_os()
+{
+    command -v grub-reboot  >/dev/null || return 1
+    command -v grub-entries >/dev/null || return 1
+    entries=$(sudo -A grub-entries -g) || return 1
+    readarray -t entries <<< "$entries"
+    [[ ${#entries[@]} -le 1 ]] && return 0
+    sel=$(printf '%s\n' "${entries[@]}" | dmenu -p 'Reboot to:' $colors) || return 1
+    echo "${sel#* }"
+}
+
+ask()
+{
+    [[ $noconfirm = true ]] && return 0
+    ans=$(printf 'No\nYes\n' | dmenu -p "$*" \
         -nb darkred -nhb darkred -nf darkgray -nhf darkgray \
         -sb maroon -shb maroon -sf white -shf orange)
-    [ "$ans" = Yes ] && return 0 || return 1
+    [[ $ans = Yes ]] && return 0 || return 1
 }
 
-can_hibernate() {
-    [ $(cat /sys/power/resume) != 0:0 ]
-}
-
-# change tty before running the loginctl command, then change it back
-loginctl_chvt() {
-    sudo -A fgconsole -h 2>/dev/null
-    sudo -A chvt -h 2>/dev/null
-    loginctl lock-session
-    sleep 0.5
-    vt=$(sudo -A fgconsole)
-    sudo -A chvt 6
-    loginctl "${1:?}"
-    sleep 8
-    sudo -A chvt ${vt:-1}
+can_hibernate()
+{
+    [[ $(</sys/power/resume) != 0:0 ]]
 }
 
 main "$@"
