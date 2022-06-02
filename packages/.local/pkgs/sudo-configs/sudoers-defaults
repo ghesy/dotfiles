@@ -5,14 +5,13 @@ Defaults env_keep += "EDITOR VISUAL PAGER LANG LANGUAGE LINGUAS LC_* _XKB_CHARSE
 Defaults timestamp_timeout=60, passwd_timeout=0
 
 Cmnd_Alias PROGRAMS = \
+  /usr/local/bin/loginctl, \
   /usr/bin/grub-entries, \
   /usr/bin/grub-reboot, \
   /usr/bin/protonvpn, \
-  /usr/bin/fgconsole, \
   /usr/bin/nethogs, \
-  /usr/bin/iotop, \
-  /usr/bin/chvt
+  /usr/bin/iotop
 
-%wheel ALL=(ALL:ALL) NOPASSWD: PROGRAMS
+%wheel ALL=(ALL:ALL) ALL, NOPASSWD: PROGRAMS
 
 # vim:ft=sudoers

@@ -1,6 +1,6 @@
 pkgname=sudo-configs
 pkgdesc="configs for sudo and pam"
-pkgver=r5
+pkgver=r8
 pkgrel=1
 arch=(any)
 depends=(sudo)
