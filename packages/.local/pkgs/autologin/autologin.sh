@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # /usr/share/libalpm/scripts/autologin
 
 # config
@@ -15,5 +15,6 @@ sv=/run/runit/service/agetty-tty${tty:?}
 sed -Ei 's|(\S*GETTY_ARGS=).*|\1"--noclear --autologin '"${user:?}"'"|' ${sv:?}/conf
 
 # make agetty's service wait for elogind
-grep -q 'sv check elogind' ${sv:?}/run ||
-    sed -i '2i sv check elogind >/dev/null || exit 1' ${sv:?}/run
+line='sv check elogind >/dev/null && sleep 1 || exit 1'
+sed -i "s@^sv check elogind .*@${line//&/\\&}@" ${sv:?}/run
+grep -q '^sv check elogind' ${sv:?}/run || sed -i "2i $line" ${sv:?}/run
