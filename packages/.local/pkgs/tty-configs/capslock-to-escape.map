@@ -1,0 +1,2 @@
+include "i386/qwerty/defkeymap"
+keycode 58 = Escape
