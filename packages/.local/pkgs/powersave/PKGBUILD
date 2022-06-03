@@ -1,6 +1,6 @@
 pkgname=powersave
 pkgdesc="a collection of configs and scripts for saving power"
-pkgver=r2
+pkgver=r3
 pkgrel=1
 arch=(any)
 depends=(light)
@@ -10,7 +10,7 @@ source=(
     runit-lowbattery
     script-lowbattery
     script-pwr
-    sysinit-backlight
+    rc-backlight
     udev-85-backlight.rules
     udev-pci-powersave.rules
     udev-pwr-powersupply.rules
@@ -32,7 +32,7 @@ package() {
     # backlight
     install -vDm644 elogind-backlight "$pkgdir"/usr/lib/elogind/system-sleep/backlight
     install -vDm644 udev-85-backlight.rules "$pkgdir"/usr/lib/udev/rules.d/85-backlight.rules
-    install -vDm755 sysinit-backlight "$pkgdir"/usr/lib/rc/sv.d/backlight
+    install -vDm755 rc-backlight "$pkgdir"/usr/lib/rc/sv.d/backlight
     mkdir -vp "$pkgdir"/etc/rc/sysinit
     ln -sT /usr/lib/rc/sv.d/backlight "$pkgdir"/etc/rc/sysinit/98-backlight
 
