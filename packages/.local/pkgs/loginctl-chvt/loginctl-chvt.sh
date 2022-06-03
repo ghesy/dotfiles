@@ -14,7 +14,7 @@ set -e
 # the --chvt option is for internal use
 if [ "$1" = --chvt ]; then
     shift
-    /usr/bin/loginctl lock-session
+    /usr/bin/loginctl lock-sessions
     sleep 0.5
     fgconsole > "$origtty"
     chvt "${sparetty:?}"
