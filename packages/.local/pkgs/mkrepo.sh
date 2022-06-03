@@ -47,7 +47,7 @@ build_updated_pkgs()
         must_touch=true
         echo building "$pkg_name"...
         pushd "$pkg_dir" >/dev/null
-        PKGDEST=$repo_dir makepkg -csr && ret=$? || ret=$?
+        PKGDEST=$repo_dir makepkg -dc && ret=$? || ret=$?
         popd >/dev/null
         [[ $ret -ne 13 ]] && [[ $ret -ne 0 ]] && exit 1
         [[ $ret -eq  0 ]] && rebuilt_pkgs+=("$pkg_name")
