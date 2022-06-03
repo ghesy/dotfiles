@@ -44,7 +44,7 @@ lf() {
 # get the pid of the parent of the parent only if it belongs to a shell
 pppid() {
     local pppid=${${(s[ ])"$(</proc/$PPID/stat)"#* [a-zA-Z] }[1]}
-    case $(getcmd "$pppid") in
+    case ${$(getcmd "$pppid")#-} in
         sh|dash|bash|zsh) echo "$pppid" ;;
         *) return 1 ;;
     esac
@@ -55,7 +55,7 @@ zshexit_lf() {
     [[ -n $lftmp ]] && rm "$lftmp"
     if isparentlf; then
         kill $PPID
-        pid=$(pppid) && kill -HUP $pid
+        pid=$(pppid) && kill -HUP "$pid"
     fi
 }
 zshexit_functions+=(zshexit_lf)
