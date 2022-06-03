@@ -1,6 +1,7 @@
 is_loop=1
 enable_hist=1
 show_thumbnails=1
+pages_to_scrape=2
 
 video_player() {
     sxipc "$YTFZF_PID"
