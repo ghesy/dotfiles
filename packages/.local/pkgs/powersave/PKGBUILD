@@ -1,6 +1,6 @@
 pkgname=powersave
 pkgdesc="a collection of configs and scripts for saving power"
-pkgver=r1
+pkgver=r2
 pkgrel=1
 arch=(any)
 depends=(light)
@@ -14,8 +14,10 @@ source=(
     udev-85-backlight.rules
     udev-pci-powersave.rules
     udev-pwr-powersupply.rules
+    modprobe-audio-powersave.conf
+    sysctl-laptopmode.conf
 )
-md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 
 package() {
     # pwr
@@ -36,4 +38,6 @@ package() {
 
     # other
     install -vDm644 udev-pci-powersave.rules "$pkgdir"/usr/lib/udev/rules.d/pci-powersave.rules
+    install -vDm644 modprobe-audio-powersave.conf "$pkgdir"/usr/lib/modprobe.d/audio-powersave.conf
+    install -vDm644 sysctl-laptopmode.conf "$pkgdir"/usr/lib/sysctl.d/laptopmode.conf
 }
