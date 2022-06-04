@@ -1,5 +1,13 @@
-include whitelist-fontconfig.inc
-whitelist ${HOME}/.dots/gtk
-read-only ${HOME}/.dots/gtk
+# some configs are symlinks of my dotfiles, so add these to whitelist-common.
+
+read-only ${HOME}/.config/fontconfig
+read-only ${HOME}/.cache/fontconfig
+
+whitelist ${HOME}/.dots/fontconfig
+read-only ${HOME}/.dots/fontconfig
+
 whitelist ${HOME}/.dots/xdg
 read-only ${HOME}/.dots/xdg
+
+whitelist ${HOME}/.dots/gtk
+read-only ${HOME}/.dots/gtk
