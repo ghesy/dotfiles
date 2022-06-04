@@ -1,0 +1,14 @@
+pkgname=firecfg-configs
+pkgdesc="configure firecfg and add a pacman hook to run it automatically"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(firejail)
+source=(firecfg.config firejail.hook)
+md5sums=(SKIP SKIP)
+install=print-msg-and-restore-orig.install
+
+package() {
+    install -vDm644 firecfg.config -t "$pkgdir"/etc/firejail/
+    install -vDm644 firejail.hook -t "$pkgdir"/usr/share/libalpm/hooks/
+}
