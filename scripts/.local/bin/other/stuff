@@ -5,11 +5,11 @@
 conf=~/.config/stuff/config
 localdir=~/.local/share/local/stuff.d
 
-shopt -s nullglob
-
 main()
 {
     set -e
+    shopt -s nullglob
+
     eval "$(parse INIT)"
     case $1 in
         -m)
