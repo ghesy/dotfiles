@@ -1,0 +1,12 @@
+pkgname=pacdiff-ng
+pkgdesc="an improved version of pacman-contrib's pacdiff utility"
+pkgver=r1
+pkgrel=1
+arch=(any)
+depends=(pacman)
+source=(pacdiff-ng)
+md5sums=(SKIP)
+
+package() {
+    install -vDm755 pacdiff-ng -t "$pkgdir"/usr/bin/
+}
