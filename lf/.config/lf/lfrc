@@ -54,7 +54,6 @@ map t preview-toggle
 map T tag-toggle
 map x extract
 map a push :archive<space>
-map U &termopen
 map D push :trash<space>
 map X !$f
 map m mkdir
@@ -64,6 +63,7 @@ map <c-o> freq
 map W &feh --bg-fill -- $f
 map V push $$EDITOR<space>
 map R &dragon-drop -a -x $fx
+map U &firetransfer --drag $fx
 map S getdirsize
 map Y &printf %s $f | xclip -selection clipboard # copy file's path
 map o &readlink -f -- $f | lfselect # follow symlinks

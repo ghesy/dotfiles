@@ -1,4 +1,5 @@
 # telegram-desktop's firejail profile, built around disable-all.inc
+name telegram-desktop
 
 include globals.local
 
@@ -34,7 +35,7 @@ dbus-user.talk org.freedesktop.ScreenSaver
 
 include disable-all.inc
 
-private-bin telegram-desktop,sh
+private-bin telegram-desktop,sh,dragon-drop
 private-etc alternatives,ca-certificates,crypto-policies,fonts,group,ld.so.cache,ld.so.preload,localtime,machine-id,os-release,passwd,pki,pulse
 
 # vim:ft=firejail

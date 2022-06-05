@@ -1,4 +1,5 @@
 # firefox's firejail profile, built around disable-all.inc
+name firefox
 
 include globals.local
 
@@ -47,7 +48,7 @@ dbus-user.talk org.freedesktop.ScreenSaver # allow inhibiting screensavers
 include disable-all.inc
 
 seccomp !chroot
-private-bin firefox,sh,env,which,dbus-launch,dbus-send
+private-bin firefox,sh,bash,env,which,dbus-launch,dbus-send,dragon-drop
 private-etc machine-id,pki,pango,passwd,group,mime.types,mailcap
 
 # vim:ft=firejail

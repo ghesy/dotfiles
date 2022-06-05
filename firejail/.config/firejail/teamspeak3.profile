@@ -1,4 +1,5 @@
 # teamspeak3's firejail profile, built around disable-all.inc
+name teamspeak3
 
 include globals.local
 
@@ -25,6 +26,6 @@ whitelist ${DOWNLOADS}
 include disable-all.inc
 
 seccomp !chroot
-private-bin teamspeak3,bash
+private-bin teamspeak3,bash,dragon-drop
 
 # vim:ft=firejail

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -ueE
+trap 'echo ${0##*/}: failed @ line $LINENO: $BASH_COMMAND' ERR
+
+[[ $# -eq 0 ]] && exit 1
+
+drag=false
+case $1 in
+    --drag) shift; drag=true ;;
+    -*)
+        echo "transfer files to firejailed programs."
+        echo "usage:"
+        echo "  firetransfer [--drag] FILE..."
+        echo "options:"
+        echo "  -d      after transfering the files, launch dragon-drop"
+        echo "              for dragging the files"
+        exit
+    ;;
+esac
+
+usv down unclutter
+class=$(xprop WM_CLASS)
+usv up unclutter
+
+class=${class%\"*}
+class=${class##*\"}
+case $class in
+    'TeamSpeak 3') class=teamspeak3 ;;
+    'TelegramDesktop') class=telegram-desktop ;;
+esac
+
+destarr=()
+for f; do
+    dest=~/"${f##*/}"
+    destarr+=("$dest")
+    firejail --put="$class" "$f" "$dest"
+done
+
+echo transfer done.
+
+[[ $drag = true ]] &&
+    firejail --join="$class" dragon-drop -a -x "${destarr[@]}"
