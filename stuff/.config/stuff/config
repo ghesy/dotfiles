@@ -119,7 +119,8 @@ Github
 	web https://github.com/soystemd
 
 AUR
-	web "https://aur.archlinux.org/packages/?O=0&SeB=m&K=soystemd&outdated=&SB=p&SO=d&PP=250&do_Search=Go"
+	user=soystemd
+	web "https://aur.archlinux.org/packages/?SeB=m&K=$user&PP=250"
 
 Tailscale Management
 	web https://tailscale.com/admin
@@ -137,10 +138,10 @@ Reddit
 CPU, htop
 	tui htop
 
-Net Top
+NetTop
 	tuiroot nethogs -l
 
-Disk Top, IOTop
+IOTop
 	tuiroot iotop
 
 i7z
@@ -174,7 +175,11 @@ TV
 	tui tv
 
 Transmission, Torrents, tremc
+	pidof -q transmission-daemon || transmission-daemon
 	tui tremc
+
+Kill Transmission
+	killall transmission-daemon
 
 Download Manager, aria2
 	tui aria2p
@@ -216,7 +221,7 @@ Sound Card Profiles
 dRandr, Monitors, HDMI
 	exec drandr
 
-NetworkManager, Wi-Fi
+NetworkManager, Wi-Fi, Internet
 	exec networkmanager_dmenu
 
 Last Notification
