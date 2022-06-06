@@ -1,6 +1,6 @@
 pkgname=dns-configs
 pkgdesc="configure DNS-over-HTTPS and DNS caching"
-pkgver=r2
+pkgver=r3
 pkgrel=1
 arch=(any)
 depends=(networkmanager unbound unbound-runit dns-over-https dns-over-https-runit)
