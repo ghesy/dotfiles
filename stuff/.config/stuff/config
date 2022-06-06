@@ -20,13 +20,13 @@ Firefox, Browser
 Grub
 	root grub-customizer
 
-Email, Mutt
+Mail, NeoMutt
 	tui neomutt
 
-Notify Unread Emails
+Notify Unread Mails
 	unread
 
-Claws Mail
+ClawsMail
 	exec claws-mail --alternate-config-dir ~/.local/share/claws-mail
 
 GParted, Partitioning
