@@ -1,17 +1,23 @@
 pkgname=sblock-configs
 pkgdesc="configs for sblock"
-pkgver=r1
+pkgver=r3
 pkgrel=1
 arch=(any)
-depends=(sblock-git)
+depends=(nebula16 sblock-git)
+backup=(
+    etc/sblock/sources.nebula16.list
+    etc/sblock/header-patched.nebula16
+    etc/sblock/allow.nebula16.list
+)
 source=(sources.list allow.list header)
 md5sums=(SKIP SKIP SKIP)
-install=restore-orig.install
 
 prepare() {
     sed 's|HOSTNAME|'"${HOSTNAME:?}"'|g' header > header-patched
 }
 
 package() {
-    install -vDm644 sources.list allow.list header-patched -t "$pkgdir"/etc/sblock/
+    install -vDm644 sources.list "$pkgdir"/etc/sblock/sources.nebula16.list
+    install -vDm644 header-patched "$pkgdir"/etc/sblock/header-patched.nebula16
+    install -vDm644 allow.list header-patched -t "$pkgdir"/etc/sblock/allow.nebula16.list
 }

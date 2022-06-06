@@ -1,0 +1,13 @@
+# print helpful messages after installation and removal
+
+post_install() {
+    echo "	Add the users for which you want desktop integration with:"
+    echo "	  $ firecfg --add-users USER..."
+    echo "	If you don't want to wait until the next trigger of this hook, run:"
+    echo "	  $ firecfg"
+}
+
+post_remove() {
+    echo "	You may want to remove any existing links with:"
+    echo "	  $ firecfg --clean"
+}

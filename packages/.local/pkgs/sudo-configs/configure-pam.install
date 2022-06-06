@@ -1,0 +1,31 @@
+# add/remove the nodelay option in the /etc/pam.d/system-auth
+# file upon installation/removal
+
+pam=/etc/pam.d/system-auth
+
+post_install() {
+    tmp=$(mktemp) || return 1
+    awk '
+        $1 == "auth" && $0 ~ /\spam_(unix|faillock)\.so\s/ && $0 !~ /\snodelay/ {
+            print $0 " nodelay"
+            next
+        }
+        { print }
+    ' "$pam" > "$tmp" || return 1
+    mv -vf "$tmp" "$pam"
+    chmod 644 "$pam"
+}
+
+post_remove() {
+    tmp=$(mktemp) || return 1
+    awk '
+        $1 == "auth" && $0 ~ /\spam_(unix|faillock)\.so\s/ && $0 ~ /\snodelay/ {
+            gsub("\\snodelay", "")
+            print
+            next
+        }
+        { print }
+    ' "$pam" > "$tmp" || return 1
+    mv -vf "$tmp" "$pam"
+    chmod 644 "$pam"
+}

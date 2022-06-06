@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Install
+Target = etc/*
+Target = boot/*
+
+[Action]
+Description = Installing nebula16 configs...
+Exec = /usr/share/libalpm/scripts/nebula16 install
+When = PostTransaction
+NeedsTargets

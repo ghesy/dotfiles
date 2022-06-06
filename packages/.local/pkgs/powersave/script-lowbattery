@@ -1,6 +1,9 @@
 #!/bin/bash
 # /usr/bin/lowbattery
-# send warning notifications and eventually hibernate the system on low battery.
+
+# this script monitors the battery level in order to:
+# - send warning notifications and eventually hibernate the system on low battery
+# - turn off laptop mode on low battery
 
 # this function sends a notification to all running X sessions of the system.
 notif() {
@@ -29,7 +32,7 @@ while :; do
     for b in /sys/class/power_supply/BAT*; do
         [[ -d $b ]] && [[ $(<"$b"/status) != Charging ]] &&
             case $(<"$b"/capacity) in
-                [6-9]) notif ;;
+                [6-9]) pwr laptopmode off; notif ;;
                 [0-5]) loginctl hibernate ;;
             esac
     done

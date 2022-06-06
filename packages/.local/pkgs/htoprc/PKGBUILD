@@ -1,13 +1,13 @@
 pkgname=htoprc
 pkgdesc="htop's config"
-pkgver=r1
+pkgver=r3
 pkgrel=1
 arch=(any)
-depends=(htop)
+depends=(nebula16 htop)
+backup=(etc/htoprc.nebula16)
 source=(htoprc)
 md5sums=(SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 htoprc -t "$pkgdir"/etc/
+    install -vDm644 htoprc "$pkgdir"/etc/htoprc.nebula16
 }

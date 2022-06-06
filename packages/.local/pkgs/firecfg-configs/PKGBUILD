@@ -1,14 +1,15 @@
 pkgname=firecfg-configs
 pkgdesc="configure firecfg and add a pacman hook to run it automatically"
-pkgver=r1
+pkgver=r4
 pkgrel=1
 arch=(any)
-depends=(firejail)
+depends=(nebula16 firejail)
+backup=(etc/firejail/firecfg.nebula16.config)
 source=(firecfg.config firejail.hook)
 md5sums=(SKIP SKIP)
-install=print-msg-and-restore-orig.install
+install=print-msg.install
 
 package() {
-    install -vDm644 firecfg.config -t "$pkgdir"/etc/firejail/
+    install -vDm644 firecfg.config "$pkgdir"/etc/firejail/firecfg.nebula16.config
     install -vDm644 firejail.hook -t "$pkgdir"/usr/share/libalpm/hooks/
 }

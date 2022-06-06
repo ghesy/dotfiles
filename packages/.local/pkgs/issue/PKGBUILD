@@ -1,12 +1,13 @@
 pkgname=issue
 pkgdesc="a cool /etc/issue file"
-pkgver=r1
+pkgver=r2
 pkgrel=1
 arch=(any)
+depends=(nebula16)
+backup=(etc/issue.nebula16)
 source=(issue)
 md5sums=(SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 issue -t "$pkgdir"/etc/
+    install -vDm644 issue "$pkgdir"/etc/issue.nebula16
 }

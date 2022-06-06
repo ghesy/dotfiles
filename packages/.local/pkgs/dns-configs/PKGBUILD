@@ -1,9 +1,21 @@
 pkgname=dns-configs
 pkgdesc="configure DNS-over-HTTPS and DNS caching"
-pkgver=r3
+pkgver=r5
 pkgrel=1
 arch=(any)
-depends=(networkmanager unbound unbound-runit dns-over-https dns-over-https-runit)
+depends=(
+    nebula16
+    networkmanager
+    unbound
+    unbound-runit
+    dns-over-https
+    dns-over-https-runit
+)
+backup=(
+    etc/resolv.nebula16.conf
+    etc/unbound/unbound.nebula16.conf
+    etc/dns-over-https/doh-client.nebula16.conf
+)
 source=(
     doh-client.conf
     nm-no-rc.conf
@@ -11,11 +23,10 @@ source=(
     unbound.conf
 )
 md5sums=(SKIP SKIP SKIP SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 resolv.conf -t "$pkgdir"/etc/
-    install -vDm644 unbound.conf -t "$pkgdir"/etc/unbound/
-    install -vDm644 doh-client.conf -t "$pkgdir"/etc/dns-over-https/
+    install -vDm644 resolv.conf "$pkgdir"/etc/resolv.nebula16.conf
+    install -vDm644 unbound.conf "$pkgdir"/etc/unbound/unbound.nebula16.conf
+    install -vDm644 doh-client.conf "$pkgdir"/etc/dns-over-https/doh-client.nebula16.conf
     install -vDm644 nm-no-rc.conf "$pkgdir"/usr/lib/NetworkManager/conf.d/no-rc.conf
 }

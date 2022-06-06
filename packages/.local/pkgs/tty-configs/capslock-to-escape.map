@@ -1,2 +1,2 @@
-include "i386/qwerty/defkeymap"
+include "/usr/share/kbd/keymaps/i386/qwerty/defkeymap.map.gz"
 keycode 58 = Escape

@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# introduction
+#
+#   this script and the accompanying pacman hook handle
+#   configs in the format of nebula16 when they're installed.
+#
+# how to use and how it works
+#
+#   for instance, to install a custom /etc/unbound/unbound.conf in
+#   a package, you have to install it as /etc/unbound/unbound.nebula16.conf .
+#
+#   that's all you have to do.
+#
+#   the pacman hook will then call this script, which will rename
+#   unbound.conf to unbound.orig16.conf, and install a symlink as
+#   unbound.conf pointing to unbound.nebula16.conf .
+#   simple as.
+
+while IFS= read -r file; do
+    [ "$1" != check ] && [ ! -f "$file" ] && continue
+    case $file in
+        *.nebula16.*|*.nebula16) ;;
+        *) continue ;;
+    esac
+    file=/$file
+    basename=${file##*/}
+    basename_orig_1=${basename%.nebula16*}
+    basename_orig_2=${basename##*.nebula16}
+    basename_orig=${basename_orig_1}${basename_orig_2}
+    dirname=${file%/*}
+    file_orig=${dirname}/${basename_orig}
+    file_orig_backup=${dirname}/${basename_orig_1}.orig16${basename_orig_2}
+    case $1 in
+        install)
+            [ -f "$file_orig" ] && mv -f  "$file_orig" "$file_orig_backup"
+            ln -sfT "$basename" "$file_orig"
+        ;;
+        restore)
+            [ -f "$file_orig_backup" ] && mv -f "$file_orig_backup" "$file_orig"
+        ;;
+        check) # check for problems and conflicts
+            if [ -e "$file_orig_backup" ]; then
+                echo "	==> Error: nebula16: the backup path is preoccupied with file or directory:"
+                echo "	\"$file_orig_backup\""
+                echo "	this path must be unoccupied for backing up \"$file_orig\"."
+                exit 1
+            elif [ ! -f "$file_orig" ]; then
+                echo "	==> Error: nebula16: target is not a file:"
+                echo "	\"$file_orig\""
+                echo "	target should either be a file or not exist."
+                exit 1
+            fi
+        ;;
+    esac
+done

@@ -1,18 +1,19 @@
 pkgname=sudo-configs
 pkgdesc="configs for sudo and pam"
-pkgver=r8
+pkgver=r10
 pkgrel=1
 arch=(any)
-depends=(sudo)
+depends=(nebula16 sudo)
+backup=(etc/security/faillock.nebula16.conf)
 source=(
     sudoers-defaults
     faillock.conf
 )
 md5sums=(SKIP SKIP)
-install=restore-orig-and-configure-pam.install
+install=configure-pam.install
 
 package() {
     install -vdm750 "$pkgdir"/etc/sudoers.d
     install -vDm440 sudoers-defaults "$pkgdir"/etc/sudoers.d/00-defaults
-    install -vDm644 faillock.conf "$pkgdir"/etc/security/faillock.conf
+    install -vDm644 faillock.conf "$pkgdir"/etc/security/faillock.nebula16.conf
 }

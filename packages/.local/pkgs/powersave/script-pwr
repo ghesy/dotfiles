@@ -1,9 +1,9 @@
 #!/bin/bash
 # /usr/bin/pwr
 # this script sets the energy leven and turbo settings of the cpu.
+# inspired by laptop-mode's control script: https://www.kernel.org/doc/html/latest/admin-guide/laptops/laptop-mode.html#control-script
 
-# get forked to background
-[[ $1 = --nofork ]] && shift || exec setsid -f "$0" --nofork "$@" >/dev/null 2>&1
+# config
 
 # sleep using the internal read command
 exec {sleepfd}<> <(:)
@@ -11,6 +11,19 @@ rsleep() { read -t $1 -u $sleepfd ;}
 
 main()
 {
+    local action arg
+    for arg; do case $1 in
+        -h|--help|'') print_help; exit 0 ;;
+        init) break ;;
+        cpu)
+            case $2 in
+                high|low|auto) break ;;
+                *) print_help; exit 1 ;;
+            esac
+        ;;
+        *) print_help; exit 1 ;;
+    esac; done
+
     is_laptop || {
         echo "this machine is not a battery powered device. exiting."
         return 0
@@ -21,17 +34,7 @@ main()
 
     traps
 
-    case $1 in
-        -h|--help|'') print_help; exit 0 ;;
-        init) init ;;
-        cpu)
-            case $2 in
-                high|low|auto) cpu $2 ;;
-                *) print_help; exit 1 ;;
-            esac
-        ;;
-        *) print_help; exit 1 ;;
-    esac
+    "$@"
 }
 
 init()
@@ -50,6 +53,10 @@ init()
 # set cpu's energy level
 cpu()
 {
+    # get forked to background
+    [[ $PWR_FORKED != true ]] && exec setsid -f "$0" --nofork "$@" >/dev/null 2>&1
+
+    traps
     local cpu=/sys/devices/system/cpu
     local energy=$cpu/cpufreq/policy*/energy_performance_preference
     local noturbo=$cpu/intel_pstate/no_turbo

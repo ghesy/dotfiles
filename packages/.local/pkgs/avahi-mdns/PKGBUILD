@@ -1,13 +1,13 @@
 pkgname=avahi-mdns
 pkgdesc="enable local hostname resolution using avahi"
-pkgver=r1
+pkgver=r3
 pkgrel=1
 arch=(any)
-depends=(avahi avahi-runit nss-mdns)
+depends=(nebula16 avahi avahi-runit nss-mdns)
+backup=(etc/nsswitch.nebula16.conf)
 source=(nsswitch.conf)
 md5sums=(SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 nsswitch.conf -t "$pkgdir"/etc/
+    install -vDm644 nsswitch.conf "$pkgdir"/etc/nsswitch.nebula16.conf
 }

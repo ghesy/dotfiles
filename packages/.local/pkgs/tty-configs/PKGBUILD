@@ -1,14 +1,14 @@
 pkgname=tty-configs
 pkgdesc="configure tty's keymap and font"
-pkgver=r2
+pkgver=r4
 pkgrel=1
 arch=(any)
-depends=(kbd)
+depends=(nebula16 kbd)
+backup=(etc/vconsole.nebula16.conf)
 source=(capslock-to-escape.map vconsole.conf)
 md5sums=(SKIP SKIP)
-install=restore-orig.install
 
 package() {
-    install -vDm644 vconsole.conf -t "$pkgdir"/etc/
+    install -vDm644 vconsole.conf "$pkgdir"/etc/vconsole.nebula16.conf
     install -vDm644 capslock-to-escape.map -t "$pkgdir"/usr/share/kbd/keymaps/i386/qwerty/
 }

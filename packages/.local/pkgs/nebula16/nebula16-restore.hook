@@ -1,0 +1,11 @@
+[Trigger]
+Type = Path
+Operation = Remove
+Target = etc/*
+Target = boot/*
+
+[Action]
+Description = Restoring original nebula16 configs...
+Exec = /usr/share/libalpm/scripts/nebula16 restore
+When = PreTransaction
+NeedsTargets

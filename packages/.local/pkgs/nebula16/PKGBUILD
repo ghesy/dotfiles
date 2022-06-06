@@ -1,0 +1,21 @@
+pkgname=nebula16
+pkgdesc="a tool for manipulating configs in /etc using pacman packages"
+pkgver=r2
+pkgrel=1
+arch=(any)
+source=(
+    nebula16
+    nebula16-check.hook
+    nebula16-install.hook
+    nebula16-restore.hook
+)
+md5sums=(SKIP SKIP SKIP SKIP)
+
+package() {
+    install -vDm755 nebula16 -t "$pkgdir"/usr/share/libalpm/scripts/
+    install -vDm644 \
+        nebula16-check.hook \
+        nebula16-install.hook \
+        nebula16-restore.hook \
+        -t "$pkgdir"/usr/share/libalpm/hooks/
+}
