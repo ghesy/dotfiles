@@ -16,5 +16,5 @@ mkdir -p $l/bin $l/sv/run $s/applications $s/gnupg $c/kicad \
 stow -v */ || exit 1
 
 # copy default configs to their destination
-(cd ~/.config/tuir && cp -Ln tuir.def.cfg tuir.cfg)
-(cd ~/.config/transmission-daemon && cp -Ln settings.def.json settings.json)
+(cd ~/.config/tuir && cp -vLn tuir.def.cfg tuir.cfg)
+(cd ~/.config/transmission-daemon && cp -vLn settings.def.json settings.json)
