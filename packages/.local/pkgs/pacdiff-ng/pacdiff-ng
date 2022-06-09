@@ -151,7 +151,7 @@ view_three_way_diff() {
 		$SUDO rm -v "$pacfile"
         return 0
 	fi
-	$SUDO rm -r "$tempdir"
+	$SUDO rm -rf "$tempdir"
 	return 1
 }
 
