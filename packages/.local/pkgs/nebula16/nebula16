@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# introduction
+# - introduction
 #
 #   this script and the accompanying pacman hook handle
 #   configs in the format of nebula16 when they're installed.
 #
-# how to use and how it works
+# - how to use and how it works
 #
 #   for instance, to install a custom /etc/unbound/unbound.conf in
 #   a package, you have to install it as /etc/unbound/unbound.nebula16.conf .
@@ -13,9 +13,11 @@
 #   that's all you have to do.
 #
 #   the pacman hook will then call this script, which will rename
-#   unbound.conf to unbound.orig16.conf, and install a symlink as
-#   unbound.conf pointing to unbound.nebula16.conf .
-#   simple as.
+#   unbound.conf to unbound.orig16.conf (if it exists), and install a
+#   symlink in place of unbound.conf pointing to unbound.nebula16.conf .
+#
+#   upon the file unbound.nebula16.conf being removed (due to package update
+#   or removal), unbound.orig16.conf will be renamed back to unbound.conf .
 
 while IFS= read -r file; do
     [ "$1" != check ] && [ ! -f "$file" ] && continue
@@ -37,20 +39,30 @@ while IFS= read -r file; do
             ln -sfT "$basename" "$file_orig"
         ;;
         restore)
-            [ -f "$file_orig_backup" ] && mv -f "$file_orig_backup" "$file_orig"
+            [ -L "$file_orig" ] && rm "$file_orig"
+            # see footnote 1 below on why 'if' is used here instead of '&&'
+            if [ -f "$file_orig_backup" ]; then
+                mv -n "$file_orig_backup" "$file_orig"
+            fi
         ;;
         check) # check for problems and conflicts
             if [ -e "$file_orig_backup" ]; then
                 echo "	==> Error: nebula16: the backup path is preoccupied with file or directory:"
                 echo "	\"$file_orig_backup\""
-                echo "	this path must be unoccupied for backing up \"$file_orig\"."
+                echo "	this path must be unoccupied in order to backup \"$file_orig\"."
                 exit 1
-            elif [ ! -f "$file_orig" ]; then
+            elif [ -e "$file_orig" ] && [ ! -f "$file_orig" ]; then
                 echo "	==> Error: nebula16: target is not a file:"
                 echo "	\"$file_orig\""
-                echo "	target should either be a file or not exist."
+                echo "	target should either be a file or not exist at all."
                 exit 1
             fi
         ;;
     esac
 done
+
+# footnote 1:
+#   the return status of the whole '&&' statement will be false if
+#   either the condition before the '&&' or the command after it is false,
+#   so in this case we use an if clause to not return false if the condition
+#   is false. thus the return status will be the that of the 'mv' command.

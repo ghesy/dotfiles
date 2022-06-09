@@ -1,6 +1,6 @@
 pkgname=nebula16
-pkgdesc="a tool for manipulating configs in /etc using pacman packages"
-pkgver=r2
+pkgdesc="a tool for configuring pre-existing files in /etc using pacman packages"
+pkgver=r5
 pkgrel=1
 arch=(any)
 source=(
