@@ -1,6 +1,6 @@
 pkgname=dns-configs
 pkgdesc="setup dnscrypt-proxy for encrypted DNS and DNS caching"
-pkgver=r14
+pkgver=r15
 pkgrel=1
 arch=(any)
 depends=(dnscrypt-proxy)
