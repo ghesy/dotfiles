@@ -1,32 +1,27 @@
 pkgname=dns-configs
-pkgdesc="configure DNS-over-HTTPS and DNS caching"
-pkgver=r5
+pkgdesc="setup dnscrypt-proxy for encrypted DNS and DNS caching"
+pkgver=r14
 pkgrel=1
 arch=(any)
-depends=(
-    nebula16
-    networkmanager
-    unbound
-    unbound-runit
-    dns-over-https
-    dns-over-https-runit
-)
+depends=(dnscrypt-proxy)
 backup=(
-    etc/resolv.nebula16.conf
-    etc/unbound/unbound.nebula16.conf
-    etc/dns-over-https/doh-client.nebula16.conf
+    etc/dnscrypt-nebula/dnscrypt-nebula.toml
+    etc/dnscrypt-nebula/captive-portals.conf
 )
 source=(
-    doh-client.conf
     nm-no-rc.conf
     resolv.conf
-    unbound.conf
+    dnscrypt-nebula.toml
+    dnscrypt-captive-portals.conf
+    dnscrypt-nebula.run
 )
-md5sums=(SKIP SKIP SKIP SKIP)
+md5sums=(SKIP SKIP SKIP SKIP SKIP)
 
 package() {
+    install -vm755 --directory --owner dnscrypt --group dnscrypt "$pkgdir"/var/lib/dnscrypt-nebula
     install -vDm644 resolv.conf "$pkgdir"/etc/resolv.nebula16.conf
-    install -vDm644 unbound.conf "$pkgdir"/etc/unbound/unbound.nebula16.conf
-    install -vDm644 doh-client.conf "$pkgdir"/etc/dns-over-https/doh-client.nebula16.conf
     install -vDm644 nm-no-rc.conf "$pkgdir"/usr/lib/NetworkManager/conf.d/no-rc.conf
+    install -vDm644 dnscrypt-nebula.toml -t "$pkgdir"/etc/dnscrypt-nebula/
+    install -vDm644 dnscrypt-captive-portals.conf "$pkgdir"/etc/dnscrypt-nebula/captive-portals.conf
+    install -vDm755 dnscrypt-nebula.run "$pkgdir"/etc/runit/sv/dnscrypt-nebula/run
 }

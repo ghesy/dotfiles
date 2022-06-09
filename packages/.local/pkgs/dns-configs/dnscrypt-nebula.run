@@ -1,0 +1,2 @@
+#!/bin/sh
+exec dnscrypt-proxy -config /etc/dnscrypt-nebula/dnscrypt-nebula.toml 2>&1

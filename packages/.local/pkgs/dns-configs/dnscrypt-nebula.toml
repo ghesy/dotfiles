@@ -1,0 +1,154 @@
+# dnscrypt-proxy's config
+# the default config can be found here:
+# https://github.com/DNSCrypt/dnscrypt-proxy/blob/master/dnscrypt-proxy/example-dnscrypt-proxy.toml
+
+# ==============================
+# = global settings
+# ==============================
+
+# list of server names to use.
+# these ones are all dnscrypt servers.
+server_names = [
+    'opennic-R4SAS',
+    'sth-dnscrypt-se',
+    'acsacsar-ams-ipv4',
+    'moulticast-de-ipv4',
+    'serbica',
+    'dnscrypt.ca-1',
+    'dnscrypt.ca-2',
+    'meganerd',
+    'ffmuc.net',
+]
+
+# how long a DNS query will wait for a response, in milliseconds.
+# 10000 is the highest reasonable value.
+timeout = 10000
+
+# keepalive for HTTP queries, in seconds. default is 5.
+keepalive = 30
+
+# bootstrap resolvers; used for finding the IP of DoH servers and
+# retrieving the initial list of servers.
+bootstrap_resolvers = [
+
+    # https://dns.lavate.ch
+    '95.217.25.217:53',
+    '130.61.185.42:53' ,
+    '79.110.170.43:53' ,
+
+    # https://nic.cz/odvr
+    '193.17.47.1:53',
+    '185.43.135.1:53',
+
+    # quad9
+    '9.9.9.9:53',
+    '149.112.112.112:53',
+]
+
+# always use the bootstrap resolver before the system DNS settings
+ignore_system_dns = true
+
+# wait as long as it takes for internet connectivity
+netprobe_timeout = -1
+
+# address used for connectivity checks
+netprobe_address = '9.9.9.9:53'
+
+# use the top 2 fastest servers
+lb_strategy = 'p2'
+lb_estimator = true
+
+# other stuff
+max_clients = 250
+force_tcp = false
+blocked_query_response = 'refused'
+listen_addresses = ['127.0.0.1:53']
+
+# ==============================
+# = server properties
+# ==============================
+
+# servers to choose from the defines lists.
+# has no effect if server_names[] is defined.
+
+ipv4_servers = true
+ipv6_servers = false # do not enable if you don't have IPv6 connectivity
+
+dnscrypt_servers = true # use servers implementing the DNSCrypt protocol
+odoh_servers = false # use servers implementing the Oblivious DoH protocol
+doh_servers = false # use servers implementing the DNS-over-HTTPS protocol
+
+require_dnssec = true # server must support DNS security extensions (DNSSEC)
+require_nolog = true # server must not log user queries (declarative)
+require_nofilter = false # server must not enforce its own blocklist (for parental control, ads blocking...)
+
+# server names to avoid even if they match all criteria
+disabled_server_names = ['decloudus-nogoogle-tst', 'decloudus-nogoogle-tstipv6']
+
+# ==============================
+# = filters
+# ==============================
+
+# immediately respond to IPv6-related queries with an empty response.
+# This makes things faster when there is no IPv6 connectivity.
+block_ipv6 = true
+
+# immediately respond to A and AAAA queries for host names without a domain name
+block_unqualified = true
+
+# immediately respond to queries for local zones instead of
+# leaking them to upstream resolvers.
+block_undelegated = true
+
+# ==============================
+# = DNS cache
+# ==============================
+
+cache = true
+cache_size = 4096
+cache_min_ttl = 2400
+cache_max_ttl = 86400
+
+# TTL for negatively cached entries
+cache_neg_min_ttl = 60
+cache_neg_max_ttl = 600
+
+# ==============================
+# = system settings
+# ==============================
+
+# switch to a different system user after listening sockets have been created.
+# note: when using -pidfile, the PID file directory must be writable by this user.
+user_name = 'dnscrypt'
+
+# use the system logger.
+use_syslog = true
+
+# ==============================
+# = captive portal handling
+# ==============================
+
+[captive_portals]
+
+# a file that contains a set of hosts used by operating systems to
+# check for connectivity and captive portals, along with hard-coded
+# IP addresses to return.
+map_file = 'captive-portals.conf'
+
+# ==============================
+# = server lists
+# ==============================
+
+# remote lists of available servers
+# multiple sources can be used simultaneously,
+# but every source requires a dedicated cache file.
+# refer to the documentation for URLs of public sources.
+
+[sources]
+
+  [sources.'public-resolvers']
+    urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://ipv6.download.dnscrypt.info/resolvers-list/v3/public-resolvers.md', 'https://download.dnscrypt.net/resolvers-list/v3/public-resolvers.md']
+    cache_file = '/var/lib/dnscrypt-nebula/public-resolvers.md'
+    minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+    refresh_delay = 72
+    prefix = ''
