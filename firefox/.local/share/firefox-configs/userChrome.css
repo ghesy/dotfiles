@@ -1,0 +1,5 @@
+/* increase firefox's UI font size */
+html:root, window:root, panel, menupopup,
+popupnotification, tooltip, panelview, #main-menubar {
+    font-size: 16px !important;
+}
