@@ -1,6 +1,6 @@
 pkgname=dns-configs
 pkgdesc="setup dnscrypt-proxy for encrypted DNS and DNS caching"
-pkgver=r15
+pkgver=r16
 pkgrel=1
 arch=(any)
 depends=(dnscrypt-proxy)
@@ -16,9 +16,10 @@ source=(
     dnscrypt-nebula.run
 )
 md5sums=(SKIP SKIP SKIP SKIP SKIP)
+install=chown.install
 
 package() {
-    install -vm755 --directory --owner dnscrypt --group dnscrypt "$pkgdir"/var/lib/dnscrypt-nebula
+    install -vdm755 "$pkgdir"/var/lib/dnscrypt-nebula
     install -vDm644 resolv.conf "$pkgdir"/etc/resolv.nebula16.conf
     install -vDm644 nm-no-rc.conf "$pkgdir"/usr/lib/NetworkManager/conf.d/no-rc.conf
     install -vDm644 dnscrypt-nebula.toml -t "$pkgdir"/etc/dnscrypt-nebula/
