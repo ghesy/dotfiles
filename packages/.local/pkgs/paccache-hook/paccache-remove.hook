@@ -1,0 +1,10 @@
+[Trigger]
+Type = Package
+Operation = Remove
+Target = *
+
+[Action]
+Description = Removing obsolete cached package files...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/paccache remove
+NeedsTargets

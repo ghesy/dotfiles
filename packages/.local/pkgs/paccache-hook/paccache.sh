@@ -11,30 +11,33 @@ ignore=(
 
 main()
 {
+    # whenever packages get removed, update their modification times in
+    # the cache so we can keep track of when they were uninstalled
+    [[ $1 == remove ]] && update_target_mtimes
+
     # remove uninstalled packages older than a month,
-    # excluding the packages specified in the ignore array
-    pacman-conf cachedir | while IFS= read -r cachedir; do
-        cd "$cachedir" || continue
-        get_uninstalled_pkgs | filter_out_newer_than_a_month |
-            xargs -rd'\n' rm -fv
-    done
+    # but keep the packages specified in the makedepends array
+    paccache --verbose --remove --uninstalled --keep 0 --min-mtime '-1month' \
+        --ignore "$(joinby ',' "${ignore[@]}")"
 
     # only keep 2 versions of the other packages in the cache
     paccache --verbose --remove --keep 2
 }
 
-get_uninstalled_pkgs()
+update_target_mtimes()
 {
-    paccache --verbose --dryrun --uninstalled --keep 0 \
-        --ignore "$(joinby ',' "${ignore[@]}")" | grep '^[0-9a-z]'
-}
-
-filter_out_newer_than_a_month()
-{
-    xargs -rd'\n' stat -c '%W	%n' | awk '
-        BEGIN { monthago = systime() - (60 * 60 * 24 * 30) }
-        $1 < monthago { print $2 }
-    '
+    local IFS=$'\n' cachedir pkg target
+    set -- $(cat) # get the removed packages (targets) from stdin and set them as args
+    for cachedir in $(pacman-conf cachedir); do
+        [[ ! -d $cachedir ]] && continue
+        for pkg in "$cachedir"/*; do
+            [[ ! -f $pkg ]] && continue
+            for target; do
+                [[ ${pkg##*/} =~ ^"$target"-[^-]+-[^-]+-[^-]+\.pkg\.tar\.zst(\.sig)?$ ]] &&
+                    touch --no-create "$pkg"
+            done
+        done
+    done
 }
 
 joinby()

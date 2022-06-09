@@ -1,13 +1,14 @@
 pkgname=paccache-hook
 pkgdesc="hook to cleanup pacman cache"
-pkgver=r4
+pkgver=r5
 pkgrel=1
 arch=(any)
 depends=(pacman-contrib)
-source=(paccache.hook paccache.sh)
-md5sums=(SKIP SKIP)
+source=(paccache-remove.hook paccache-nonremove.hook paccache.sh)
+md5sums=(SKIP SKIP SKIP)
 
 package() {
     install -vDm755 paccache.sh "$pkgdir"/usr/share/libalpm/scripts/paccache
-    install -vDm644 paccache.hook -t "$pkgdir"/usr/share/libalpm/hooks/
+    install -vDm644 paccache-remove.hook paccache-nonremove.hook \
+        -t "$pkgdir"/usr/share/libalpm/hooks/
 }
