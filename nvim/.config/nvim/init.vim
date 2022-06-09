@@ -67,6 +67,10 @@ let g:netrw_dirhistmax = 0
 set noswapfile
 set undofile
 
+" allow the lf file manager to open in vim terminals
+" without it being considered as a nested instance
+unlet $LF_LEVEL
+
 " use actual tabs in proper programming languages
 autocmd Filetype c,cpp,lua setlocal noexpandtab
 
@@ -149,8 +153,14 @@ vnoremap <silent> // :<C-U>
   \ gVzv:call setreg('"', old_reg, old_regtype)<CR>
 
 " perform replace on visually-selected text
-vnoremap <C-r> "hy:%s^\(<C-r><C-r>=escape(@h, '\.*$^~[')<CR>
-  \\)^^gc<left><left><left>
+vnoremap <C-r> "hy:%s`\(<C-r><C-r>=escape(@h, '\.*$`~[')<CR>
+  \\)``gc<left><left><left>
+
+" text objects for c-style functions ('daf', 'cif', ...)
+xnoremap <silent> if :<C-u>call search("^}") \| normal! V%{j<CR>
+onoremap <silent> if :<C-u>call search("^}") \| normal! V%{j<CR>
+xnoremap <silent> af :<C-u>call search("^}") \| normal! jVk%{j<CR>
+onoremap <silent> af :<C-u>call search("^}") \| normal! jVk%{j<CR>
 
 " equalize window sizes upon vim resize
 autocmd VimResized * wincmd =
