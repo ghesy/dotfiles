@@ -9,29 +9,10 @@ rmcmd() {
 precmd_rmcmd() { rmcmdstate=0 }
 precmd_functions+=(precmd_rmcmd)
 
-# get the cmd name of the given process
-getcmd() {
-    echo "${${(As[/])${(A0)"$(</proc/${1:?}/cmdline)"}[1]}[-1]}"
-}
-
-# if the given arg is a file, print it's dirname. otherwise, print it without change.
-getpath() {
-    [[ -f $1 ]] && printf '%s\n' "$1:h" || printf '%s\n' "$1"
-}
-
-# return true if the parent process is lf
-isparentlf() {
-    [[ -n $LF_LEVEL ]] && [[ $(getcmd $PPID) = lf ]] && return 0 || return 1
-}
-
 lf() {
     rmcmd
-    local hidden lfjob
-    if isparentlf; then
-        command lf -remote "send $id cd \"${$(getpath "${1:-$PWD}")//\"/\\\"}\""
-        zshexit_lf() {:;}
-        exit
-    fi
+    [[ $LF_LEVEL -ge 1 ]] && return 1
+    local hidden
     [[ $1 == .* ]] || [[ $1 == */.* ]] && hidden=(-command 'set hidden')
     lftmp=$(mktemp) || return
     command lf -last-dir-path="$lftmp" ${hidden:+"$hidden[@]"} "$@"
@@ -40,24 +21,7 @@ lf() {
     unset lftmp
     [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
 }
-
-# get the pid of the parent of the parent only if it belongs to a shell
-pppid() {
-    local pppid=${${(s[ ])"$(</proc/$PPID/stat)"#* [a-zA-Z] }[1]}
-    case ${$(getcmd "$pppid")#-} in
-        sh|dash|bash|zsh) echo "$pppid" ;;
-        *) return 1 ;;
-    esac
-}
-
-zshexit_lf() {
-    local pid
-    [[ -n $lftmp ]] && rm "$lftmp"
-    if isparentlf; then
-        kill $PPID
-        pid=$(pppid) && kill -HUP "$pid"
-    fi
-}
+zshexit_lf() { [[ -n $lftmp ]] && rm "$lftmp" }
 zshexit_functions+=(zshexit_lf)
 
 # search the filesystem
@@ -154,4 +118,4 @@ alias pvpn='sudo protonvpn'
 alias al='$EDITOR ~/.config/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
 alias pxy='proxychains'
-alias pacdiff='pacdiff-ng'
+alias pacdiff='sudo pacdiff-ng'

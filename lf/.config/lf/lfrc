@@ -71,8 +71,7 @@ map H push :mark-load<enter>' # jump back to previous dir
 map K parentup
 map J parentdown
 map E sudoedit
-map <c-n> $$SHELL
-map q $$SHELL
+map <c-n> quit
 
 # renaming
 map b bulkrename
