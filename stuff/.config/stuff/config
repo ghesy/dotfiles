@@ -184,6 +184,9 @@ Kill Transmission
 Download Manager, aria2
 	tui aria2p
 
+Services, Runit
+	tui svfzf
+
 # ==============
 # = dmenu stuff
 # ==============

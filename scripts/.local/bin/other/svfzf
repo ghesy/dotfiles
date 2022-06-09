@@ -1,0 +1,107 @@
+#!/bin/bash
+# manage runit services using fzf.
+
+active_svdir=/run/runit/service
+inactive_svdir=/etc/runit/sv
+
+export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --ansi --height=100%"
+
+main()
+{
+    while :; do
+        active_services=$(sudo rsm -c yes | sed 1,2d)
+        inactive_services=(
+            $(
+                comm -23 \
+                    <(basename -a "$inactive_svdir"/*/) \
+                    <(basename -a "$active_svdir"/*/) |
+                    grep -v agetty-
+            )
+        )
+        service=$(
+            {
+                echo ---
+                echo Quit
+                echo Refresh
+                echo ---
+                printf '%s\n' "$active_services"
+                printf '  %s\n' "${inactive_services[@]}"
+                echo ---
+            } | fzf
+        ) || continue
+
+        case $service in
+            Quit) break ;;
+            ---|Refresh) continue ;;
+        esac
+
+        service=${service# ? *}
+        service=${service%% *}
+        [[ -z $service ]] && break
+
+        action=$(
+            printf 'Restart\nDown\nActivate\nDeactivate\nTrash\nShow Owner\nView\n' |
+                fzf --prompt=Action:
+        )
+        case $action in
+            Restart) restart ;;
+            Down) down ;;
+            Activate) activate ;;
+            Deactivate) deactivate ;;
+            Trash) trash ;;
+            'Show Owner') owner ;;
+            View) view ;;
+        esac
+    done
+}
+
+restart()
+{
+    activate
+    sudo sv restart "$service"
+}
+
+down()
+{
+    [[ -e $active_svdir/$service ]] && sudo sv down "$service"
+}
+
+activate()
+{
+    src=$inactive_svdir/$service
+    dest=$active_svdir/$service
+    [[ -e $src ]] && [[ ! -e $dest ]] && sudo ln -sT "$src" "$dest"
+}
+
+deactivate()
+{
+    down
+    sudo rm -f "$active_svdir/$service"
+    sudo rm -rf "$inactive_svdir/$service/supervise"
+}
+
+trash()
+{
+    ask 'Trash the service?' || return
+    deactivate
+    sudo trash-put "$inactive_svdir/$service"
+}
+
+owner()
+{
+    pacman -Qo "$inactive_svdir/$service" 2>&1 | ${PAGER:-less}
+}
+
+view()
+{
+    find "$inactive_svdir/$service" -maxdepth 1 -type f \
+        -exec ${EDITOR:-nvim} '{}' +
+}
+
+ask()
+{
+    ans=$(printf 'No\nYes\n' | fzf --prompt="$*")
+    [[ $ans = Yes ]] && return 0 || return 1
+}
+
+main "$@"
