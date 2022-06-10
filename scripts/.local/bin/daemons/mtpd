@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/sh -u
 # this script mounts and opens any connected mtp devices while it's running.
 # requires go-mtpfs, moreutils , fuse and udev.
 
 # config
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/mtpd"
+cache="${XDG_CACHE_HOME:-${HOME:?}/.cache}/mtpd"
 tmp="${XDG_RUNTIME_DIR:-/tmp}/mtpd"
 
 main()
@@ -33,13 +33,14 @@ handle()
 
 mount()
 {
-    m="$(generate_mountpoint "$1")" || return 1
-    c="$(generate_cachedir "$1")"   || return 1
-    set_mounted "$1" "$m" "$c"
-    TMPDIR="$c" go-mtpfs -dev=" $(get_serial "$1")$" "$m" 2>&1 |
+    mp_a="$(generate_mountpoint "$1")" || return 1
+    cd_a="$(generate_cachedir "$1")"   || return 1
+    serial_a="$(get_sysfs_serial "$1")"  || return 1
+    set_mounted "$1" "$serial_a" "$mp_a" "$cd_a" || return 1
+    TMPDIR="$cd_a" go-mtpfs -dev=" $(get_serial "$1")$" "$mp_a" 2>&1 |
         while IFS= read -r line; do
             case $line in
-                *mounted*) setsid -f xdg-open "$m" >/dev/null 2>&1 ;;
+                *mounted*) setsid -f xdg-open "$mp_a" >/dev/null 2>&1 ;;
             esac
         done
     is_mounted "$1" && unmount_and_cleanup "$1"
@@ -47,39 +48,50 @@ mount()
 
 unmount_and_cleanup()
 {
-    mp="$(get_mountpoint "$1")"
-    cd="$(get_cachedir "$1")"
-    unmount "$mp"
-    rmdir "$mp" 2>/dev/null
-    rm -rf "$cd"
-    awk -v dev="$1" '$1 != dev' "$table" | sponge "$table"
+    mp_b="$(get_mountpoint "$1")"
+    cd_b="$(get_cachedir "$1")"
+    unmount_loop "$1" "$mp_b"
+    rmdir "$mp_b" 2>/dev/null
+    # for safety, make sure cachedir is actually in the cache
+    case ${cd_b:-} in
+        "$cache"/*) rm -rf "$cd_b" ;;
+    esac
+    [ -f "$table" ] && awk -v dev="$1" '$1 != dev' "$table" | sponge "$table"
+}
+
+unmount_loop()
+{
+    delay=2
+    until unmount "$@"; do
+        sleep $delay.$$$$
+        [ $delay -lt 120 ] && delay=$((delay+2))
+    done
 }
 
 unmount()
 {
-    delay=2
-    until fusermount -u "$1" 2>&1 | grep -Eq 'not found|(bad|invalid) mount'; do
-        sleep $delay
-        [ $delay -lt 120 ] && delay=$((delay+2))
-    done
+    serial_b=$(get_serial "$1" 2>/dev/null) || return 0
+    pkill -fs0 -- "^go-mtpfs -dev= $serial_b\\$"
+    fusermount -u "$2" 2>&1 | grep -Eq 'not found|(bad|invalid) mount'
 }
 
 is_connected() { [ -r "/sys/$1/serial" ] ;}
 is_mounted()   { cut -f1 "$table" | grep -qx "$1" ;}
 set_mounted() {
-    ( printf '%s\t%s\t%s\n' "$1" "$2" "$3"; cat "$table" ) | sponge "$table"
+    ( printf '%s\t%s\t%s\t%s\n' "$1" "$2" "$3" "$4"; cat "$table" ) | sponge "$table"
 }
 
-get_serial()       { cat "/sys/$1/serial" ;}
-get_product_name() { tr ' \t' '_' < "/sys/$1/product" ;}
-get_vendor_name()  { tr ' \t' '_' < "/sys/$1/manufacturer" ;}
-get_mountpoint()   { awk -v dev="$1" '$1 == dev {print $2; exit}' "$table" ;}
-get_cachedir()     { awk -v dev="$1" '$1 == dev {print $3; exit}' "$table" ;}
+get_sysfs_serial()       { cat "/sys/$1/serial" ;}
+get_sysfs_product_name() { tr ' \t' '_' < "/sys/$1/product" ;}
+get_sysfs_vendor_name()  { tr ' \t' '_' < "/sys/$1/manufacturer" ;}
+get_serial()       { awk -v dev="$1" '$1 == dev {print $2; exit}' "$table" ;}
+get_mountpoint()   { awk -v dev="$1" '$1 == dev {print $3; exit}' "$table" ;}
+get_cachedir()     { awk -v dev="$1" '$1 == dev {print $4; exit}' "$table" ;}
 
 is_integer()          { [ "$1" -eq "$1" ] 2>/dev/null ;}
 generate_cachedir()   { mktemp -d "$cache/XXXXXXXXXX" ;}
 generate_mountpoint() {
-    mktemp -d "$tmp/$(get_product_name "$1")-$(get_vendor_name "$1")-XXXXXX"
+    mktemp -d "$tmp/$(get_sysfs_product_name "$1")-$(get_sysfs_vendor_name "$1")-XXXXXX"
 }
 
 make_dirs()
@@ -101,8 +113,22 @@ go-mtpfs, fuse, udev and moreutils are required for mtpd."
     pidof -q udevd || die udevd is not running.
 }
 
-die()     { printf '%s\n' "mtpd: Error: $*"; exit 1 ;}
-cleanup() { pkill -P$$; rm "$table"; rm -rf "${cache:?}"/* ;}
+die() {
+    printf '%s\n' "mtpd: Error: $*"
+    exit 1
+}
 
-trap cleanup HUP INT TERM
+cleanup() {
+    pkill -fs0 -- "^go-mtpfs -dev= "
+    pkill -xfs0 -- "sleep [0-9]+\.$$$$"
+    sleep 0.3
+    pkill -P$$
+    sleep 0.3
+    rm "$table"
+    rm -rf "${cache:?}"/*
+    rmdir --ignore-fail-on-non-empty "${tmp:?}"/*/ 2>/dev/null
+}
+
+trap exit HUP INT TERM
+trap cleanup exit
 main "$@"
