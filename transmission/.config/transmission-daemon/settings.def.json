@@ -21,7 +21,7 @@
     "incomplete-dir": "/media/downloads/transmission/incomplete",
     "incomplete-dir-enabled": true,
     "lpd-enabled": false,
-    "message-level": 2,
+    "message-level": 1,
     "peer-congestion-algorithm": "",
     "peer-id-ttl-hours": 6,
     "peer-limit-global": 200,
