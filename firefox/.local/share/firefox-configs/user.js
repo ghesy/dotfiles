@@ -22,8 +22,10 @@ user_pref("media.autoplay.blocking_policy", 2);
 /* block all notification requests */
 user_pref("permissions.default.desktop-notification", 2);
 
-/* disable disk cache and only use memory cache (which is enabled by default) */
+/* disable disk cache and only use memory cache */
 user_pref("browser.cache.disk.enable", false);
+user_pref("browser.privatebrowsing.forceMediaMemoryCache", true);
+user_pref("media.memory_cache_max_size", 65536);
 
 /* interval for saving session data to restore if firefox crashes.
  * default is 15000 milliseconds which is too short. */
@@ -117,9 +119,6 @@ user_pref("breakpad.reportURL", "");
 user_pref("browser.tabs.crashReporting.sendReport", false);
 user_pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
 
-/* enable blocklists */
-user_pref("extensions.blocklist.enabled", true);
-
 /* disable checking downloaded files */
 user_pref("browser.safebrowsing.downloads.remote.enabled", false);
 user_pref("browser.safebrowsing.downloads.remote.url", "");
@@ -188,16 +187,9 @@ user_pref("browser.urlbar.suggest.topsites", false);
 /* don't ask to save passwords */
 user_pref("signon.rememberSignons", false);
 
-/* don't write cache to disk in private browsing */
-user_pref("browser.privatebrowsing.forceMediaMemoryCache", true);
-user_pref("media.memory_cache_max_size", 65536);
-
 /* disable favicons in shortcuts, which remain on disk
  * even after deleting the shortcut */
 user_pref("browser.shell.shortcutFavicons", false);
-
-/* enforce TLS 1.0 and 1.1 downgrades as session only */
-user_pref("security.tls.version.enable-deprecated", false);
 
 /* disable TLS1.3 0-RTT (round-trip time) */
 user_pref("security.tls.enable_0rtt_data", false);
@@ -210,6 +202,27 @@ user_pref("browser.xul.error_pages.expert_bad_cert", true);
 
 /* disable graphite which has many security issues */
 user_pref("gfx.font_rendering.graphite.enabled", false);
+
+/* disable rendering of SVG OpenType fonts */
+user_pref("gfx.font_rendering.opentype_svg.enabled", false);
+
+/* disable all DRM content */
+user_pref("media.eme.enabled", false);
+
+/* change "Add Security Exception" dialog's behaviour on SSL warnings */
+user_pref("browser.ssl_override_behavior", 1);
+
+/* certificate-related prefs */
+user_pref("security.cert_pinning.enforcement_level", 2);
+user_pref("security.remote_settings.crlite_filters.enabled", true);
+user_pref("security.pki.crlite_mode", 2);
+user_pref("security.pki.sha1_enforcement_level", 1);
+user_pref("security.OCSP.require", true);
+user_pref("security.ssl.require_safe_negotiation", true);
+
+/* webrtc-related prefs */
+user_pref("media.peerconnection.ice.proxy_only_if_behind_proxy", true);
+user_pref("media.peerconnection.ice.default_address_only", true);
 
 /* send less info on cross origin */
 user_pref("network.http.referer.XOriginTrimmingPolicy", 2);
@@ -231,6 +244,10 @@ user_pref("dom.disable_window_move_resize", true);
 
 /* disable push notifications */
 user_pref("dom.push.enabled", false);
+
+/* https-only related prefs */
+user_pref("security.mixed_content.block_display_content", true);
+user_pref("dom.security.https_only_mode", true);
 
 /* disable insecure asm.js */
 user_pref("javascript.options.asmjs", false);
