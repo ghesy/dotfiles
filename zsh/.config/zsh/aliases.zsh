@@ -17,11 +17,14 @@ lf() {
     lftmp=$(mktemp) || return
     command lf -last-dir-path="$lftmp" ${hidden:+"$hidden[@]"} "$@"
     local dir=$(<"$lftmp")
-    rm "$lftmp"
+    command rm "$lftmp"
     unset lftmp
     [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
 }
-zshexit_lf() { [[ -n $lftmp ]] && rm "$lftmp" }
+zshexit_lf() (
+    command pkill -xs0 lf
+    command rm -f "$lftmp"
+)
 zshexit_functions+=(zshexit_lf)
 
 # search the filesystem
