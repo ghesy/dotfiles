@@ -9,6 +9,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-fontconfig.inc
 include allow-gtk-configs.inc
+include allow-xdg.inc
 
 ignore no3d
 ignore novideo

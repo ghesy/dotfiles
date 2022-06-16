@@ -1,0 +1,13 @@
+pkgname=firexdg
+pkgdesc="facilities to use xdg-open from inside firejail sandboxes"
+pkgver=r6
+pkgrel=1
+arch=(any)
+depends=(inotify-tools)
+source=(firexdg xdg-open)
+md5sums=(SKIP SKIP)
+
+package() {
+    install -vDm755 firexdg -t "$pkgdir"/usr/bin/
+    install -vDm755 xdg-open -t "$pkgdir"/usr/local/bin/
+}

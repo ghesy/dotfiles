@@ -1,0 +1,24 @@
+#!/bin/bash
+# listen for and open arguments that are written to
+# a pre-specific file by our xdg-open replacement.
+
+f=${XDG_RUNTIME_DIR:?}/firexdg
+ns=$f-notsandboxed
+
+trap 'rm -f -- "$f" "$ns"' EXIT
+: > "$ns"
+: > "$f"
+
+# sleep function using the internal read command
+exec {sleepfd}<> <(:)
+rsleep() { read -t $1 -u $sleepfd ;}
+
+until ! ev=$(inotifywait -q -e modify -e move_self -e delete_self -- "$f" "$ns"); do
+    [[ ! -f $ns ]] && : > "$ns"
+    [[ ! -f $f  ]] && : > "$f"
+    [[ ! -s $f  ]] && continue
+    set -- $(<"$f")
+    setsid -f /usr/bin/xdg-open "$@" >/dev/null 2>&1
+    rsleep 0.1
+    : > "$f"
+done

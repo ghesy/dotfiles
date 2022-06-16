@@ -9,6 +9,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
+include allow-xdg.inc
 
 ignore memory-deny-write-execute
 
