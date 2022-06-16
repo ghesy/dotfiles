@@ -77,7 +77,8 @@ update_url()
     else
         URL=$(ask_url_stdin) || return
     fi
-    [[ -n $URL ]] && return 0 || return 1
+    [[ -z $URL ]] && return 1
+    URL=$(remove_useless_url_pieces)
 }
 
 ask_url_stdin()
@@ -129,7 +130,10 @@ get_url_from_clipboard()
         notify-send -t 1000 PipeURL 'No URLs found in the clipboard.'
         return 1
     else
-        notify-send -h "$NOTIFREP" -t 1000 PipeURL 'Found a URL in the clipboard.'
+        if [[ -n $ACTION ]]; then
+            notify-send -h "$NOTIFREP" -t 1000 \
+                PipeURL "Found a URL in the clipboard: $(URL=$url get_url_site)"
+        fi
         prnt "$url"
     fi
 }
@@ -240,7 +244,8 @@ update_url_type()
         hooktube.com/watch*|bitchute.com/video/*|lbry.tv/@*/*|odysee.com/@*/*|odysee.com/*:$(rep 40 '?')*|\
         khanacademy.org/*/v/*|v.redd.it/*|tiktok.com/@*/video/*|aparat.com/v/*|aparat.com/*/live|\
         streamff.com/v/*|mixture.gg/v/*|streamgg.com/v/*|streamwo.com/v/*|clippituser.tv/c/*|\
-        streamable.com/*|streamja.com/*|piped.*/watch*|invidious.*/watch*|v.fodder.gg/v/*)
+        streamable.com/*|streamja.com/*|piped.*/watch*|invidious.*/watch*|v.fodder.gg/v/*|\
+        vimeo.com/$(rep 9 '?'))
             URL_TYPE=video
         ;;
         reddit.com/gallery/*|i.redd.it*|imgur.com/*|gfycat.com/*|flickr.com/photos/*/*)
@@ -268,7 +273,7 @@ update_action()
         video)  actlist='Stream\nytdl\nCopy\nBrowse\n' ;;
         other)  actlist='Browse\nStream\nCopy\nytdl\naria2\n' ;;
     esac
-    action=$(printf "$actlist" | dmenu $WID -p 'Choose Action') || return
+    action=$(printf "$actlist" | dmenu $WID -p "Choose Action for $(get_url_site)") || return
     case $action in
         Open|Stream|Copy|Browse|ytdl|aria2|tuir) ACTION=${action,,} ;;
         *)
@@ -296,12 +301,30 @@ get_url_path()
     prnt "$path"
 }
 
+get_url_site()
+{
+    local site=$(get_simple_url); site=${site%%/*}
+    prnt "$site"
+}
+
 get_converted_url()
 {
     local simple=$(get_simple_url) path=$(get_url_path)
     case $simple in
         piped.*/watch*) prnt "https://www.youtube.com/$path" ;;
         libreddit.*/*) prnt "https://www.reddit.com/$path" ;;
+        *) prnt "$URL" ;;
+    esac
+}
+
+# return a shortened version of the URL by removing redundant pieces from it
+# this isn't necessary, but shorter URLs look nicer in the history.
+remove_useless_url_pieces()
+{
+    local simple=$(get_simple_url) path=$(get_url_path)
+    local params=${path#*'?'}
+    case $simple in
+        aparat.com/v/*) prnt "https://www.aparat.com/${path%/*}?$params" ;;
         *) prnt "$URL" ;;
     esac
 }
