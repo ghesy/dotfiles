@@ -8,6 +8,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
+include allow-gtk-configs.inc
 include allow-xdg.inc
 
 join-or-start telegram-desktop

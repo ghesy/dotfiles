@@ -60,9 +60,8 @@ nou2f
 novideo
 noprinters
 
-# in dynamically-allocated programs, load and use hardened_malloc:
+# in dynamically-linked programs, load and use hardened_malloc:
 # https://wiki.archlinux.org/title/Firejail#Use_with_hardened_malloc
-# https://github.com/GrapheneOS/hardened_malloc
 env LD_PRELOAD=/usr/lib/libhardened_malloc.so
 private-lib libhardened_malloc.so
 
