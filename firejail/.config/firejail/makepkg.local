@@ -1,0 +1,5 @@
+ignore private-tmp
+ignore private-cache
+whitelist ${HOME}/.cache/paru/clone
+whitelist ${HOME}/.local/pkgs
+whitelist ${HOME}/.dots/packages
