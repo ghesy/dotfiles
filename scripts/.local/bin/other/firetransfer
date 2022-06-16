@@ -1,4 +1,5 @@
 #!/bin/bash
+# transfer files to firejailed programs.
 
 set -ueE
 trap 'echo ${0##*/}: failed @ line $LINENO: $BASH_COMMAND' ERR
@@ -28,6 +29,8 @@ class=${class##*\"}
 case $class in
     'TeamSpeak 3') class=teamspeak3 ;;
     'TelegramDesktop') class=telegram-desktop ;;
+    'firefox') ;;
+    *) exit 1 ;;
 esac
 
 destarr=()
