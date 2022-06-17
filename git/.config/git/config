@@ -20,7 +20,5 @@
     helper = cache
 [commit]
     gpgsign = true
-[push]
-    gpgsign = true
 [tag]
     gpgsign = true
