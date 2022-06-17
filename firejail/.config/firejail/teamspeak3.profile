@@ -9,6 +9,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
+include allow-dragon-drop.inc
 include allow-xdg.inc
 
 ignore memory-deny-write-execute
@@ -27,6 +28,6 @@ whitelist ${DOWNLOADS}
 include disable-all.inc
 
 seccomp !chroot
-private-bin teamspeak3,bash,dragon-drop
+private-bin teamspeak3,bash
 
 # vim:ft=firejail

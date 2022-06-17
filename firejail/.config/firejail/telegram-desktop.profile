@@ -8,7 +8,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
-include allow-gtk-configs.inc
+include allow-dragon-drop.inc
 include allow-xdg.inc
 
 join-or-start telegram-desktop
@@ -37,7 +37,7 @@ dbus-user.talk org.freedesktop.ScreenSaver
 
 include disable-all.inc
 
-private-bin telegram-desktop,sh,dragon-drop
+private-bin telegram-desktop,sh
 private-etc alternatives,ca-certificates,crypto-policies,fonts,group,ld.so.cache,ld.so.preload,localtime,machine-id,os-release,passwd,pki,pulse
 
 # vim:ft=firejail

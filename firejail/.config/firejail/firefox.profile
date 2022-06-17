@@ -9,6 +9,7 @@ include allow-usr-share.inc
 include allow-networking.inc
 include allow-fontconfig.inc
 include allow-gtk-configs.inc
+include allow-dragon-drop.inc
 include allow-xdg.inc
 
 ignore no3d
@@ -49,7 +50,7 @@ dbus-user.talk org.freedesktop.ScreenSaver # allow inhibiting screensavers
 include disable-all.inc
 
 seccomp !chroot
-private-bin firefox,sh,bash,env,which,dbus-launch,dbus-send,dragon-drop
+private-bin firefox,sh,bash,env,which,dbus-launch,dbus-send
 private-etc machine-id,pki,pango,passwd,group,mime.types,mailcap
 
 # vim:ft=firejail
