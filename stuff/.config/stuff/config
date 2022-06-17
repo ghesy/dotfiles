@@ -112,8 +112,10 @@ Whatsapp
 CUPS
 	web localhost:631
 
+# open the router config webpage
 Router
-	web $(set -- $(ip r); echo "$3")
+	set -- $(ip r)
+	web http://"$3"
 
 Github
 	web https://github.com/soystemd
@@ -124,6 +126,12 @@ AUR
 
 Tailscale Management
 	web https://tailscale.com/admin
+
+# open the network login webpage
+# https://en.wikipedia.org/wiki/Captive_portal
+Network Login, Captive Portal
+	set -- $(nmcli -g ip4.dns dev show)
+	web http://"$(drill @"$1" neverssl.com | grep -m1 '^[^;]' | cut -f5)"
 
 # ============
 # = TUI stuff
