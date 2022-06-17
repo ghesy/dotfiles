@@ -19,7 +19,7 @@ if [ "$1" = '-' ]; then
 
     # make a list of referenced man pages from stdin
     list=$(
-        sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g' |
+        sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g' | sed -Ez 's/-\n\s*/-/g' |
             grep -Eo '[0-9a-zA-Z._-]+\([0-9nl][a-zA-Z]*\)' |
             cat -n | sort -ufk2 | sort -n | cut -f2-
     )
