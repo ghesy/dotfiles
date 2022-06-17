@@ -12,6 +12,7 @@ image/png=img.desktop
 image/jpeg=img.desktop
 image/gif=img.desktop
 image/webp=img.desktop
+image/avif=img.desktop
 image/svg+xml=img.desktop
 
 image/x-xcf=gimp.desktop
