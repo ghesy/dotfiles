@@ -51,7 +51,9 @@ main()
             Trash) trash ;;
             'Show Owner') owner ;;
             View) view ;;
+            *) continue ;;
         esac
+        read -p 'Press enter to continue '
     done
 }
 
