@@ -46,7 +46,7 @@ blacklist /usr/local
 blacklist /usr/share
 blacklist /usr/src
 blacklist /var
-blacklist /.Trash
+blacklist /.Trash*
 blacklist ${RUNUSER}
 
 # disable as much of /dev as possible

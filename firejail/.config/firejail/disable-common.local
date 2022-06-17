@@ -1,4 +1,4 @@
-blacklist /.Trash
+blacklist /.Trash*
 
 read-only ${HOME}/.config/X11
 read-only ${HOME}/.config/zsh
