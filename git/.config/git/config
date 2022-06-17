@@ -2,8 +2,6 @@
     name = Ehsan Ghorbannezhad
     email = ehsan@disroot.org
     signingkey = 0DDFA36FF019B89A
-[credential]
-    helper = cache
 [alias]
     s = status
     l = log --oneline
@@ -11,12 +9,18 @@
     up = pull --rebase --autostash
     tree = log --oneline --graph --decorate --all
     upstr = rebase --rebase-merges --autostash
-[init]
-    defaultBranch = master
-[commit]
-    gpgsign = true
 [merge]
     ff = no
 [pull]
     ff = yes
     rebase = no
+[init]
+    defaultBranch = master
+[credential]
+    helper = cache
+[commit]
+    gpgsign = true
+[push]
+    gpgsign = true
+[tag]
+    gpgsign = true
