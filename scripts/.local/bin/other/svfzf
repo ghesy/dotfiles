@@ -1,15 +1,28 @@
 #!/bin/bash
 # manage runit services using fzf.
 
-active_svdir=/run/runit/service
-inactive_svdir=/etc/runit/sv
+# ==========
+# = config
+# ==========
+
+user_active_svdir=~/.local/runit/run
+user_inactive_svdir=~/.local/runit/sv
+
+system_active_svdir=/run/runit/service
+system_inactive_svdir=/etc/runit/sv
 
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --ansi --height=100%"
 
+# =================
+# = end of config
+# =================
+
 main()
 {
+    set_mode user
+
     while :; do
-        active_services=$(sudo rsm -c yes | sed 1,2d)
+        active_services=$($rsm -c yes | sed 1,2d)
         inactive_services=(
             $(
                 comm -23 \
@@ -20,19 +33,18 @@ main()
         )
         service=$(
             {
-                echo ---
-                echo Quit
                 echo Refresh
+                echo Toggle Mode
                 echo ---
                 printf '%s\n' "$active_services"
                 printf '  %s\n' "${inactive_services[@]}"
                 echo ---
             } | fzf
-        ) || continue
+        ) || break
 
         case $service in
-            Quit) break ;;
-            ---|Refresh) continue ;;
+            ---|Refresh|*' SERVICE '*) continue ;;
+            'Toggle Mode') toggle_mode; continue ;;
         esac
 
         service=${service# ? *}
@@ -60,26 +72,26 @@ main()
 restart()
 {
     activate
-    sudo sv restart "$service"
+    $sv restart "$service"
 }
 
 down()
 {
-    [[ -e $active_svdir/$service ]] && sudo sv down "$service"
+    [[ -e $active_svdir/$service ]] && $sv down "$service"
 }
 
 activate()
 {
     src=$inactive_svdir/$service
     dest=$active_svdir/$service
-    [[ -e $src ]] && [[ ! -e $dest ]] && sudo ln -sT "$src" "$dest"
+    [[ -e $src ]] && [[ ! -e $dest ]] && $ln -sT "$src" "$dest"
 }
 
 deactivate()
 {
     down
-    sudo rm -f "$active_svdir/$service"
-    sudo rm -rf "$inactive_svdir/$service/supervise"
+    $rm -f "${active_svdir:?}/${service:?}"
+    $rm -rf "${inactive_svdir:?}/${service:?}/supervise"
 }
 
 trash()
@@ -104,6 +116,38 @@ ask()
 {
     ans=$(printf 'No\nYes\n' | fzf --prompt="$*")
     [[ $ans = Yes ]] && return 0 || return 1
+}
+
+toggle_mode()
+{
+    case $mode in
+        user) set_mode system ;;
+        system) set_mode user ;;
+    esac
+}
+
+set_mode()
+{
+    case $1 in
+        user)
+            mode=user
+            active_svdir=$user_active_svdir
+            inactive_svdir=$user_inactive_svdir
+            sv='usv'
+            rsm='ursm'
+            ln='ln'
+            rm='rm'
+        ;;
+        system)
+            mode=system
+            active_svdir=$system_active_svdir
+            inactive_svdir=$system_inactive_svdir
+            sv='sudo sv'
+            rsm='sudo rsm'
+            ln='sudo ln'
+            rm='sudo rm'
+        ;;
+    esac
 }
 
 main "$@"
