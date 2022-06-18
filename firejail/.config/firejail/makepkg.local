@@ -1,5 +1,6 @@
 ignore private-tmp
 ignore private-cache
+ignore noexec ${HOME}
 whitelist ${HOME}/.cache/paru/clone
 whitelist ${HOME}/.local/pkgs
 whitelist ${HOME}/.dots/packages
