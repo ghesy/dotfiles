@@ -1,3 +1,3 @@
 #!/bin/sh
 # rsm, but for user services.
-SVDIR=~/.local/sv/run rsm "$@"
+SVDIR=~/.local/runit/run rsm "$@"

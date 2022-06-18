@@ -41,7 +41,7 @@ menu()
 getcwds()
 {
     readlink /proc/*/cwd |
-        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/sv/|/TelegramDesktop| \(deleted\)$' |
+        grep -Ev '^'"$HOME"'$|^/$|^/proc/|/\.local/runit/|/TelegramDesktop| \(deleted\)$' |
         sed 's|$|/|'
 }
 

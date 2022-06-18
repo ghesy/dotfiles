@@ -25,7 +25,7 @@ remaps &
 wait
 
 # run and manage the user services (dwmbar, stalonetray, etc.) using runsvdir
-runsvdir -P ~/.local/sv/run &
+runsvdir -P ~/.local/runit/run &
 
 # lock the screen
 until pidof -q xss-lock; do sleep 0.2; done
