@@ -10,7 +10,7 @@ cd "$(dirname "$(readlink -f "${0:?}")")" || exit 1
 l=~/.local s=$l/share c=~/.config
 mkdir -p $l/bin $l/runit/run $s/applications $s/gnupg $c/kicad \
     $c/pulse $c/gtk-2.0 $c/gtk-3.0 $c/transmission-daemon \
-    $s/local/profile.d $s/local/xinitrc.d $s/local/gimme/aliases.d
+    $s/local/profile.d $s/local/xinitrc.d $s/local/stuff.d
 
 # install the dotfiles
 stow -v */ || exit 1
