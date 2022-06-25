@@ -52,32 +52,38 @@ main()
         [[ -z $service ]] && break
 
         action=$(
-            printf 'Restart\nDown\nActivate\nDeactivate\nTrash\nShow Owner\nView\n' |
+            printf 'Up\nDown\nRestart\nActivate\nDeactivate\nTrash\nShow Owner\nView Service\n' |
                 fzf --prompt=Action:
         )
         case $action in
-            Restart) restart ;;
+            Up) up ;;
             Down) down ;;
+            Restart) restart ;;
             Activate) activate ;;
             Deactivate) deactivate ;;
             Trash) trash ;;
             'Show Owner') owner ;;
-            View) view ;;
+            'View Service') view ;;
             *) continue ;;
         esac
         read -p 'Press enter to continue '
     done
 }
 
-restart()
+up()
 {
-    activate
-    $sv restart "$service"
+    [[ -e $active_svdir/$service ]] && $sv up "$service"
 }
 
 down()
 {
     [[ -e $active_svdir/$service ]] && $sv down "$service"
+}
+
+restart()
+{
+    activate
+    $sv restart "$service"
 }
 
 activate()
