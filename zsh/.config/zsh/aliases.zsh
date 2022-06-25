@@ -14,11 +14,9 @@ lf() {
     [[ $LF_LEVEL -ge 1 ]] && return 1
     local hidden
     [[ $1 == .* ]] || [[ $1 == */.* ]] && hidden=(-command 'set hidden')
-    lftmp=$(mktemp) || return
-    command lf -last-dir-path="$lftmp" ${hidden:+"$hidden[@]"} "$@"
-    local dir=$(<"$lftmp")
-    command rm "$lftmp"
-    unset lftmp
+    [[ -n $lftmp ]] || lftmp=$(mktemp --tmpdir lf.XXXXXXXXXX) || return
+    LF_STATE_FILE=$lftmp command lf ${hidden:+"$hidden[@]"} "$@"
+    local dir=$(LF_STATE_FILE=$lftmp lfstate getcwd)
     [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
 }
 zshexit_lf() (

@@ -23,9 +23,18 @@ scrolloff
 set previewer ~/.config/lf/previewer
 set cleaner sxipc
 
-# change the terminal title to lf and reset it on exit
+# change the terminal title to lf
 $printf '\033[22t\033]0;lf\a'
-cmd on-quit $printf '\033[23t'
+
+cmd on-quit ${{
+    # reset the terminal title on exit
+    printf '\033[23t'
+    # save lf's state
+    [[ -n ${LF_STATE_FILE:-} ]] && lfstate save
+}}
+
+# restore lf's state
+&lfstate restore
 
 # show the git branch in the prompt
 cmd on-cd &{{

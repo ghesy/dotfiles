@@ -1,0 +1,55 @@
+#!/bin/bash
+# with this script, lf can save it's options and the cursor position
+# after exiting and restore them at a later time.
+
+# the lf options to restore
+restore_opts=(
+    ratios preview number relativenumber dironly
+)
+
+main()
+{
+    [[ -z $LF_STATE_FILE ]] && exit
+    case $1 in
+        save)
+            : > "$LF_STATE_FILE"
+            for opt in "${restore_opts[@]}"; do
+                record "$opt"
+            done
+            printf '\000%s\000%s' "$f" "$PWD" >> "$LF_STATE_FILE"
+        ;;
+        restore)
+            [[ ! -s $LF_STATE_FILE ]] && exit
+            eval "$(getfield 1)"
+            if [[ $PWD == "$(getfield 3)" ]] && [[ ! -e $(getlastarg) ]]; then
+                lfselect "$(getfield 2)"
+            fi
+        ;;
+        getcwd)
+            getfield 3
+        ;;
+    esac
+}
+
+record()
+{
+    value=lf_$1
+    value=${!value}
+    case $value in
+        true)  echo 'lf -remote "send $id set '$1'"' >> "$LF_STATE_FILE" ;;
+        false) echo 'lf -remote "send $id set no'$1'"' >> "$LF_STATE_FILE" ;;
+        *) echo 'lf -remote "send $id set '$1' '$value'"' >> "$LF_STATE_FILE" ;;
+    esac
+}
+
+getfield()
+{
+    awk -v field="$1" 'BEGIN { RS="\000" }; NR == field { print $0 }' "$LF_STATE_FILE"
+}
+
+getlastarg()
+{
+    awk 'BEGIN { RS="\000" }; END { print $0 }' "/proc/${id:?}/cmdline"
+}
+
+main "$@"
