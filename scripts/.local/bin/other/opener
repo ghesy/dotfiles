@@ -55,4 +55,8 @@ case $(file -b --mime-type --dereference -- "$@") in
     */x-xz|*/zstd|*/x-7z*|*/x-ace*|*/x-rar*|*/x-gtar|*/zip)
         atool -lp -- "$@"
     ;;
+
+    application/x-bittorrent)
+        transadd "$@"
+    ;;
 esac || read -p 'Press enter to continue'
