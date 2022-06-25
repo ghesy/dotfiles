@@ -1,5 +1,5 @@
 #!/bin/sh
-echo calculator
+echo  Calculator
 printf '\033[22t\033[6 q\033]0;calculator\007'
 if command -v qalc >/dev/null; then
     trap exit HUP
