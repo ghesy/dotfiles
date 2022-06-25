@@ -129,3 +129,9 @@ source /usr/share/fzf/completion.zsh
 
 # source the aliases
 source ~/.config/zsh/aliases.zsh
+
+if [[ $1 == run ]]; then
+    shift
+    "$@"
+    set --
+fi

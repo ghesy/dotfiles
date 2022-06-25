@@ -1,19 +1,3 @@
 #!/bin/sh
 # open the given path in lf.
-if [ "$1" = -a ]; then
-    shift
-    tmp=$(mktemp) || exit
-    unset ishidden
-    case $1 in .*|*/.*) ishidden=true ;; esac
-    lf ${ishidden:+-command 'set hidden'} -last-dir-path="$tmp" -- "$1"
-    [ ! -f "$tmp" ] && exit
-    dir=$(cat "$tmp")
-    rm -f "$tmp"
-    [ -d "$dir" ] && cd "$dir"
-    TMUX= exec ${SHELL:-}
-else
-    path=${1:-$PWD}
-    [ -d "$path" ] && path=${path%/}/
-    command -v st >/dev/null && TERMINAL='st -t st'
-    setsid -f ${TERMINAL:?} -e "$0" -a "$path" >/dev/null 2>&1
-fi
+setsid -f ${TERMINAL:?} -e zsh -is run lf -- "$1" >/dev/null 2>&1
