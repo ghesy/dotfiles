@@ -6,8 +6,8 @@
 
 # config
 dir=~/Documents/Screenshots
-savemode='Save '
-copymode='Copy '
+savemode=' Disk'
+copymode=' Clipboard'
 mode=$savemode # initial mode
 delay=0.2
 
