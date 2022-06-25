@@ -14,122 +14,116 @@ INIT
 # = GUI stuff
 # ============
 
-Firefox, Browser
+ Firefox,  Browser
 	exec firefox
 
-Grub
+漣 Grub
 	root grub-customizer
 
-Mail, NeoMutt
+ Mail,  NeoMutt
 	tui neomutt
 
-Notify Unread Mails
+ Notify Unread Mails
 	unread
 
-ClawsMail
+ ClawsMail
 	exec claws-mail --alternate-config-dir ~/.local/share/claws-mail
 
-GParted, Partitioning
+ GParted,  Partitioning
 	root gparted
 
-Ventoy, ISO
+ Ventoy,  ISO
 	root ventoygui
 
-Book Reader, Foliate
+ Book Reader,  Foliate
 	exec foliate
 
-aRandr
+ ARandR
 	exec arandr
 
-Miracast
+ Miracast
 	exec gnome-network-displays
 
-Steam
+ Steam
 	export HOME=~/.local/share/SteamHome && mkdir -p ~ && exec steam
 
-TS3
+響 TS3, 響 TeamSpeak
 	trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 
-Ripcord
+響 Ripcord
 	trayrun ripcord
 
-Discord
+響 Discord
 	exec discord
 
-Telegram
+ Telegram
 	exec telegram-desktop
 
-AnyDesk
+ AnyDesk
 	trayrun anydesk
 
-Printers
+朗 Printers
 	exec system-config-printer
 
-Gimp
+ Gimp
 	exec gimp
 
-Reset Tor
+ Reset Tor
 	exec restor
 
-VirtualMic
+ VirtualMic
 	exec virtualmic
 
-Syncthing
+ Syncthing
 	exec syncthingopen
 
-Footabll
-	exec fstream
-
-Clock
+ Clock
 	exec dclock -bg black -led_off black -nofade -seconds -bell -slope 50
 
-OBS, Recorder
+ OBS,  Recorder
 	exec obs
 
-Color Picker
+ Color Picker
 	exec gcolor3
 
-KiCad, PCB
+ KiCad,  PCB
 	exec kicad
 
-Symphytum
-	exec symphytum
-
-Pavucontrol
+蓼 Pavucontrol
 	exec pavucontrol
 
 # ============
 # = Web stuff
 # ============
 
-Whatsapp
+ Whatsapp
 	if command -v whatsapp-for-linux; then
 		exec whatsapp-for-linux
 	else
 		web https://web.whatsapp.com
 	fi
 
-CUPS
+朗 CUPS
 	web localhost:631
 
 # open the router config webpage
-Router
+泌 Router
 	set -- $(ip r)
 	web http://"$3"
 
-Github
+ Github
 	web https://github.com/soystemd
 
-AUR
+ AUR
 	user=soystemd
 	web "https://aur.archlinux.org/packages/?SeB=m&K=$user&PP=250"
 
-Tailscale Management
+ Tailscale Management
 	web https://tailscale.com/admin
 
 # open the network login webpage
 # https://en.wikipedia.org/wiki/Captive_portal
-Network Login, Captive Portal
+﫻 Network Login, 﫻 Captive Portal
 	set -- $(nmcli -g ip4.dns dev show)
 	web http://"$(drill @"$1" neverssl.com | grep -m1 '^[^;]' | cut -f5)"
 
@@ -137,117 +131,117 @@ Network Login, Captive Portal
 # = TUI stuff
 # ============
 
-Newsboat, RSS
+ Newsboat,  RSS
 	tui nboat
 
-Reddit
+ Reddit,  tuir
 	tui tuir
 
-CPU, htop
+ CPU,  htop
 	tui htop
 
-NetTop
+ NetTop
 	tuiroot nethogs -l
 
-IOTop
+ IOTop
 	tuiroot iotop
 
-i7z
+ i7z
 	tuiroot i7z
 
-Reset Router
+ Reset Router
 	tui resrouter
 
-lsusb, Devices
+ USB Devices
 	tui watchusb
 
-Mixer
+蓼 Mixer
 	tui pulsemixer
 
-Cava, Visualizer
+蓼 Cava, 蓼 Visualizer
 	tui cava
 
-Music
+ Music
 	tui ncmpcpp
 
-Bashmount
+ Bashmount
 	tui bashmount
 
-Dictionary, Translate
+﬜ Dictionary, ﬜ Translate
 	tui dictfzf
 
-Calculator
+ Calculator
 	tui calc
 
-TV
+ TV Shows
 	tui tv
 
-Transmission, Torrents, tremc
-	pidof -q transmission-daemon || transmission-daemon
+﬩ Transmission, ﬩ Torrents
+	pidof -q transmission-daemon || chill transmission-daemon
 	tui tremc
 
-Kill Transmission
+﬩ Kill Transmission
 	killall transmission-daemon
 
-Download Manager, aria2
+ Download Manager
 	tui aria2p
 
-Services, Runit
+漣 Services, 漣 Runit
 	tui svfzf
+
+ Font Preview
+	tui fontpreview
 
 # ==============
 # = dmenu stuff
 # ==============
 
-Autolock
+ Autolock
 	exec autolock
 
-No Autolock
+ No Autolock
 	exec autolock -p
 
-Wine Programs
+ Wine Programs
 	exec beer -d
 
-Beer, Wine Management
+ Beer,  Wine Management
 	tui beer
 
-FTP
+歷 FTP
 	exec dftp
 
-SFTP
+旅 SFTP
 	exec dsftp
 
-Screenshot
+ Screenshot
 	exec dshot
 
-Emojies
+ Emojies
 	exec demoji
 
-VPN
+ VPN
 	exec dvpn
 
-Sound Card Profiles
+醙 Sound Card Profiles
 	exec dpaprofile
 
-dRandr, Monitors, HDMI
+ drandr,  Monitors,  HDMI
 	exec drandr
 
-NetworkManager, Wi-Fi, Internet
+ NetworkManager,  Wi-Fi,  Internet
 	exec networkmanager_dmenu
 
-Last Notification
-	exec dunstctl history-pop
-
-YouTube
+ YouTube
 	exec yt
 
-Passwords
+ Passwords
 	exec dpass
 
-Download Manager Config, aria2 Config
+漣 Download Manager Config
 	exec daria2
 
-Manuals
+ Manuals
 	exec dman
 
 # vim:noexpandtab
