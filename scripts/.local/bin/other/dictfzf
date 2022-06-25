@@ -2,12 +2,14 @@
 # search for words and see their definitions using dict and fzf.
 histfile=~/.cache/dictfzf/history
 mkdir -p "${histfile%/*}"
-echo dictfzf
+echo ﬜ Dictionary
 cmd='{ dict -mfsexact -- {q}; dict -mfslev -- {q}; dict -mfssubstring -- {q} ;} | \
     cut -f4 | cat -n | sort -ufk2 | sort -n | cut -f2- | awk NF'
 printf '\033[5 q'
 sleep 0.01
 while :; do
-    word=$(:|fzf --disabled --bind="change:reload:$cmd" --history="$histfile") &&
-        dict "${word:?}" | "${PAGER:-less}"
+    word=$(:|fzf --disabled --bind="change:reload:$cmd" --history="$histfile")
+    ex=$?
+    [ $ex -eq 130 ] && break
+    [ $ex -eq 0 ] && dict "${word:?}" | "${PAGER:-less}"
 done
