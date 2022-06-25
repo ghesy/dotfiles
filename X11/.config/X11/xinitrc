@@ -32,7 +32,4 @@ until pidof -q xss-lock; do sleep 0.2; done
 loginctl lock-session
 sleep 0.5
 
-# loop to launch dwm and relaunch upon it's exit
-while :; do
-    dwm
-done
+dwm
