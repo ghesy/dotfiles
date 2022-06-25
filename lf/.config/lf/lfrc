@@ -154,14 +154,14 @@ cmd delete ${{
 
 cmd archive ${{
     printf '\e[?1049h\e[H'
-    apack $1 $(realpath -s --relative-base=$PWD -- $fx) ||
+    chill apack $1 $(realpath -s --relative-base=$PWD -- $fx) ||
         { read -p 'Press enter to continue'; exit; }
     lfselect $1
 }}
 
 cmd extract ${{
     printf '\e[?1049h\e[H'
-    aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
+    chill aunpack -De -- $fx || { read -p 'Press enter to continue'; exit ;}
     f=${f%.*}; lfselect ${f%.tar}
 }}
 
@@ -183,10 +183,10 @@ cmd paste ${{
     printf '\e[?25l' # hide the cursor
     [[ $1 = --simple ]] && shift && mode=simple || mode=adv
     case $action${mode:+-$mode} in
-        copy-adv) advcp -ag --backup=numbered -- ${srcs:?} ${1:-.} ;;
-        move-adv) advmv  -g --backup=numbered -- ${srcs:?} ${1:-.} ;;
-        copy-simple) cp -av --backup=numbered -- ${srcs:?} ${1:-.} ;;
-        move-simple) mv  -v --backup=numbered -- ${srcs:?} ${1:-.} ;;
+        copy-adv) chill advcp -ag --backup=numbered -- $srcs ${1:-.} ;;
+        move-adv) chill advmv  -g --backup=numbered -- $srcs ${1:-.} ;;
+        copy-simple) chill cp -av --backup=numbered -- $srcs ${1:-.} ;;
+        move-simple) chill mv  -v --backup=numbered -- $srcs ${1:-.} ;;
     esac || { read -p 'Press enter to continue'; exit ;}
     rm $list
     lf -remote 'send clear'

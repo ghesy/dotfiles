@@ -83,7 +83,7 @@ download_all() {
 }
 
 download() {
-    $(get_proxy) yt-dlp "${OPTS[@]}" -P temp:$TMP $args -- "$URL"
+    chill $(get_proxy) yt-dlp "${OPTS[@]}" -P temp:$TMP $args -- "$URL"
 }
 
 get_title() {

@@ -1,0 +1,3 @@
+#!/bin/sh
+# run a program with lower CPU and IO priority.
+exec nice -n15 ionice -n7 "$@"

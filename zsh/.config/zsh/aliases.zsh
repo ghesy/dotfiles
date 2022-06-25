@@ -49,7 +49,7 @@ h() {
 
 paru() {
     [[ $# -eq 0 ]] && sudo -v && artixnews
-    command paru "$@"
+    chill paru "$@"
 }
 
 # rerun the last command and pipe to pager
@@ -105,10 +105,10 @@ alias g='git'
 alias fu='git rev-parse --git-dir >/dev/null 2>&1 && nvim -c Git -c only'
 
 # atool
-aunpack='command aunpack -De'
+aunpack='chill aunpack -De'
 apack() {
     local name=$1; shift
-    command apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
+    chill apack "$name" ${(f)$(realpath -s --relative-base="$PWD" -- "$@")}
 }
 
 # other
