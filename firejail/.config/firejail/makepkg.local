@@ -1,6 +1,18 @@
 ignore private-tmp
 ignore private-cache
 ignore noexec ${HOME}
+
 whitelist ${HOME}/.cache/paru/clone
+
 whitelist ${HOME}/.local/pkgs
 whitelist ${HOME}/.dots/packages
+
+whitelist ${HOME}/.config/pacman
+read-only ${HOME}/.config/pacman
+whitelist ${HOME}/.dots/makepkg/.config/pacman
+read-only ${HOME}/.dots/makepkg/.config/pacman
+
+whitelist ${HOME}/.local/bin/other
+read-only ${HOME}/.local/bin/other
+whitelist ${HOME}/.dots/scripts/.local/bin/other
+read-only ${HOME}/.dots/scripts/.local/bin/other
