@@ -1,5 +1,4 @@
 set selection-clipboard clipboard
-set incremental-search true
 set scroll-page-aware true
 set scroll-step 100
 set scroll-hstep 200
