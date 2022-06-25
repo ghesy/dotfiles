@@ -1,6 +1,17 @@
 #!/bin/sh
 # add a torrent to transmission.
-pidof -q transmission-daemon &&
-    transmission-remote --add "$@" &&
+answer=$(
+    printf 'No\nYes\n' |
+        dmenu -p 'Add Torrent?' -sb '#80232f' ${WINDOWID:+ -w $WINDOWID}
+)
+[ "$answer" != Yes ] && exit
+
+pidof -q transmission-daemon || {
+    notify-send 'Starting Transmission...'
+    chill transmission-daemon
+    sleep 3
+}
+
+transmission-remote --add "$@" &&
     notify-send Transmission 'Torrent added.' ||
     notify-send Transmission 'Failed to add torrent.'
