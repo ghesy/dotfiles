@@ -9,15 +9,17 @@
 # list of server names to use.
 # these ones are all dnscrypt servers.
 server_names = [
-    'opennic-R4SAS',
     'sth-dnscrypt-se',
-    'acsacsar-ams-ipv4',
-    'moulticast-de-ipv4',
-    'serbica',
+    'dns.watch',
+    'opennic-R4SAS',
+    'dnscrypt.pl',
     'dnscrypt.ca-1',
+    'saldnssg01-conoha-ipv4',
     'dnscrypt.ca-2',
-    'meganerd',
+    'ams-dnscrypt-nl',
+    'acsacsar-ams-ipv4',
     'ffmuc.net',
+    'meganerd',
 ]
 
 # how long a DNS query will wait for a response, in milliseconds.
