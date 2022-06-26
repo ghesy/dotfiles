@@ -16,30 +16,38 @@ main()
             for opt in "${restore_opts[@]}"; do
                 record "$opt"
             done
-            printf '\000%s\000%s' "$f" "$PWD" >> "$LF_STATE_FILE"
+            printf '\000%s\000%s\000%s\000%s' "$f" "$fs" "$fx" "$PWD" >> "$LF_STATE_FILE"
         ;;
         restore)
             [[ ! -s $LF_STATE_FILE ]] && exit
-            eval "$(getfield 1)"
-            if [[ $PWD == "$(getfield 3)" ]] && [[ ! -e $(getlastarg) ]]; then
-                lfselect "$(getfield 2)"
+            getfs | ifne lfselect
+            if [[ $PWD == "$(getcwd)" ]] && [[ ! -e $(getlastarg) ]]; then
+                lfselect "$(getf)"
             fi
+            eval "$(getcmds)"
         ;;
-        getcwd)
-            getfield 3
-        ;;
+        getf|getfs|getfx|getcwd) "$1" ;;
     esac
 }
 
+getcmds () { getfield 1 ;}
+getf    () { getfield 2 ;}
+getfs   () { getfield 3 ;}
+getfx   () { getfield 4 ;}
+getcwd  () { getfield 5 ;}
+
 record()
 {
-    value=lf_$1
-    value=${!value}
+    local opt=$1
+    local value=lf_$opt
+    local value=${!value}
     case $value in
-        true)  echo 'lf -remote "send $id set '$1'"' >> "$LF_STATE_FILE" ;;
-        false) echo 'lf -remote "send $id set no'$1'"' >> "$LF_STATE_FILE" ;;
-        *) echo 'lf -remote "send $id set '$1' '$value'"' >> "$LF_STATE_FILE" ;;
+        true)  echo 'lf -remote "send $id set '$opt'"' >> "$LF_STATE_FILE" ;;
+        false) echo 'lf -remote "send $id set no'$opt'"' >> "$LF_STATE_FILE" ;;
+        *) echo 'lf -remote "send $id set '$opt' '$value'"' >> "$LF_STATE_FILE" ;;
     esac
+    [[ $opt/$value == preview/false ]] &&
+        echo '(sleep 0.1; lf -remote "send $id preview-off";)&' >> "$LF_STATE_FILE"
 }
 
 getfield()
