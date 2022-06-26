@@ -1,6 +1,6 @@
 pkgname=firexdg
 pkgdesc="facilities to use xdg-open from inside firejail sandboxes"
-pkgver=r6
+pkgver=r7
 pkgrel=1
 arch=(any)
 depends=(inotify-tools)

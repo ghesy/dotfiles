@@ -17,8 +17,7 @@ until ! ev=$(inotifywait -q -e modify -e move_self -e delete_self -- "$f" "$ns")
     [[ ! -f $ns ]] && : > "$ns"
     [[ ! -f $f  ]] && : > "$f"
     [[ ! -s $f  ]] && continue
-    set -- $(<"$f")
-    setsid -f /usr/bin/xdg-open "$@" >/dev/null 2>&1
+    setsid -f xargs -0 -a "$f" /usr/bin/xdg-open >/dev/null 2>&1
     rsleep 0.1
     : > "$f"
 done

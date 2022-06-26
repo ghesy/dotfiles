@@ -3,4 +3,4 @@ f=${XDG_RUNTIME_DIR:?}/firexdg
 ns=$f-notsandboxed
 [ ! -f "$f" ] && exec /usr/bin/xdg-open "$@"
 [ -f "$ns" ] && [ -r "$ns" ] && exec /usr/bin/xdg-open "$@"
-printf '%s\n' "$@" > "$f"
+printf '%s\000' "$@" > "$f"
