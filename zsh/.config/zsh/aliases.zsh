@@ -18,6 +18,9 @@ lf() {
     LF_STATE_FILE=$lftmp command lf ${hidden:+"$hidden[@]"} "$@"
     local dir=$(LF_STATE_FILE=$lftmp lfstate getcwd)
     [[ ${dir:A} != ${PWD:A} ]] && [[ -d $dir ]] && cd "$dir"
+    f=$(LF_STATE_FILE=$lftmp lfstate getf)
+    fs=(${(f)$(LF_STATE_FILE=$lftmp lfstate getfs)})
+    fx=(${(f)$(LF_STATE_FILE=$lftmp lfstate getfx)})
 }
 zshexit_lf() (
     command pkill -xs0 lf
