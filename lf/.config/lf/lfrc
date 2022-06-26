@@ -81,6 +81,7 @@ map K parentup
 map J parentdown
 map E sudoedit
 map <c-n> quit
+map w
 
 # renaming
 map b bulkrename
