@@ -34,7 +34,7 @@ main()
         service=$(
             {
                 echo Refresh
-                echo Toggle Mode
+                echo Toggle Mode - Mode: $mode
                 echo ---
                 printf '%s\n' "$active_services"
                 printf '  %s\n' "${inactive_services[@]}"
@@ -44,7 +44,7 @@ main()
 
         case $service in
             ---|Refresh|*' SERVICE '*) continue ;;
-            'Toggle Mode') toggle_mode; continue ;;
+            'Toggle Mode'*) toggle_mode; continue ;;
         esac
 
         service=${service# ? *}
