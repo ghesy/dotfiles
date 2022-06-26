@@ -47,6 +47,20 @@ user_pref("ui.click_hold_context_menus", false);
 /* disable animations */
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 
+/* font size */
+user_pref("font.minimum-size.x-western", 22);
+user_pref("font.size.variable.x-western", 22);
+user_pref("font.size.monospace.x-western", 20);
+user_pref("font.minimum-size.ar", 22);
+user_pref("font.size.variable.ar", 22);
+user_pref("font.size.monospace.ar", 20);
+
+/* make firefox use the fonts configured in fontconfig
+   https://wiki.archlinux.org/title/Firefox#Font_troubleshooting */
+user_pref("gfx.font_rendering.fontconfig.max_generic_substitutions", 10);
+user_pref("gfx.font_rendering.opentype_svg.enabled", false);
+user_pref("font.name-list.emoji", "emoji");
+
 /* ================================
  * ===   Privacy / Annoyances   ===
  * ================================ */
@@ -154,9 +168,6 @@ user_pref("network.predictor.enabled", false);
 user_pref("network.predictor.enable-prefetch", false);
 user_pref("network.http.speculative-parallel-limit", 0);
 user_pref("browser.places.speculativeConnect.enabled", false);
-
-/* disable IPv6 which can be abused and leak data */
-user_pref("network.dns.disableIPv6", true);
 
 /* when using SOCKS proxy, also route DNS lookups through it */
 user_pref("network.proxy.socks_remote_dns", true);
@@ -316,6 +327,10 @@ user_pref("privacy.clearOnShutdown.sessions", false);
 user_pref("privacy.clearOnShutdown.offlineApps", false);
 user_pref("privacy.clearOnShutdown.cookies", false);
 
+/* do not disable IPv6
+ * disabling IPv6 causes certificate issues when combined with dnscrypt-proxy */
+user_pref("network.dns.disableIPv6", false);
+
 /* ==============================
  * ===     Windows Prefs      ===
  * ============================== */
@@ -332,6 +347,9 @@ user_pref("network.protocol-handler.external.ms-windows-store", false);
 /* =============================
  * ===    Disabled Stuff    ===
  * ============================= */
+
+/* disable IPv6 which can be abused and leak data */
+//user_pref("network.dns.disableIPv6", true);
 
 /* disable downloads panel opening on every download */
 //user_pref("browser.download.alwaysOpenPanel", false);
