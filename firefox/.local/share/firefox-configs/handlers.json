@@ -1,0 +1,26 @@
+{
+  "defaultHandlersVersion": {},
+  "mimeTypes": {},
+  "schemes": {
+    "magnet": {
+      "action": 2,
+      "handlers": [
+        {
+          "name": "xdg-open",
+          "path": "/usr/bin/xdg-open"
+        }
+      ]
+    },
+    "file": {
+      "action": 2,
+      "handlers": [
+        {
+          "name": "xdg-open",
+          "path": "/usr/bin/xdg-open"
+        }
+      ]
+    }
+  },
+  "isDownloadsImprovementsAlreadyMigrated": true,
+  "isSVGXMLAlreadyMigrated": true
+}
