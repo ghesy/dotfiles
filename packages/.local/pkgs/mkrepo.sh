@@ -1,20 +1,26 @@
 #!/bin/bash
-# build a pacman repository from a directory of PKGBUILDs.
+# this utility builds a pacman repository from a directory of PKGBUILDs.
+# the packages are built with makepkg's --nodeps option,
+# so they should not need any makedepends.
 # requires pacman, pacman-contrib and bindfs.
 
-# config
+## config
 repo_dir=/var/lib/repo/nebula
 repo_name=nebula
+##
 
-# global variables
+## global variables and arrays
 repo=''
 repo_bind_dir=''
 rebuilt_pkgs=()
 tmpdir=''
 force=false
+rebuild=false
 declare -A target_pkgs
+version=1.0.0
+##
 
-# setup options and traps to catch errors
+# options and traps to catch errors
 set -eEu -o pipefail
 shopt -s nullglob
 trap 'echo ${0##*/}: failed @ line $LINENO: $BASH_COMMAND' ERR
@@ -24,13 +30,21 @@ main()
     # cd to the script's directory
     cd "$(dirname "$(readlink -f "${0:?}")")"
 
-    [[ $* = -f ]] && force=true
+    case $* in
+        '') ;;
+        -f|--force) force=true ;;
+        -r|--rebuild) force=true rebuild=true ;;
+        -v|--version) print_version; exit ;;
+        -h|--help) print_help; exit ;;
+        *) print_help; exit 1 ;;
+    esac
 
     # bind the repo-dir as rw to a temporary location
     bind_repo_dir
     repo_dir=$repo_bind_dir
     repo=$repo_dir/$repo_name.db.tar.zst
 
+    [[ $rebuild == true ]] && purge_everything
     build_updated_pkgs
     cleanup_removed_pkgs
     add_rebuilt_pkgs_to_db
@@ -52,7 +66,7 @@ build_updated_pkgs()
         [[ $ret -ne 13 ]] && [[ $ret -ne 0 ]] && exit 1
         [[ $ret -eq  0 ]] && rebuilt_pkgs+=("$pkg_name")
     done
-    [[ $must_touch = true ]] && touch "$repo" || :
+    [[ $must_touch == true ]] && touch "$repo" || :
 }
 
 # add the rebuilt packages to the database
@@ -61,15 +75,13 @@ add_rebuilt_pkgs_to_db()
     local pkg
     pushd "$repo_dir" >/dev/null
     set +u
-    if [[ $force = true ]]; then
-        printf '%s\n' *.pkg.tar.zst |
-            pacsort -f | xargs -rd'\n' repo-add -n -R "$repo"
+    if [[ $force == true ]]; then
+        printf '%s\n' *.pkg.tar.zst
     else
         for pkg in "${rebuilt_pkgs[@]}"; do
-            printf '%s\n' "$pkg"-*.pkg.tar.zst |
-                pacsort -f | xargs -rd'\n' repo-add -n -R "$repo"
+            printf '%s\n' "$pkg"-*.pkg.tar.zst
         done
-    fi
+    fi | pacsort -f | xargs -rd'\n' repo-add -n -R "$repo"
     set -u
     popd >/dev/null
 }
@@ -91,6 +103,14 @@ cleanup_removed_pkgs()
         fi
     done
     set -u
+    popd >/dev/null
+}
+
+# remove all packages and database files in the repo dir
+purge_everything()
+{
+    pushd "$repo_dir" >/dev/null
+    rm -fv *.pkg.tar.zst "$repo_name".{db,files}{,.tar.zst{,.old}}
     popd >/dev/null
 }
 
@@ -150,6 +170,27 @@ cleanup()
     mountpoint -q "$repo_dir" && sudo umount "$repo_dir"
     rmdir "$repo_dir"
     rmdir "$tmpdir"
+}
+
+print_version()
+{
+    echo "mkrepo-$version"
+}
+
+print_help()
+{
+cat << EOF
+mkrepo-$version
+Usage: mkrepo [--force|--rebuild]
+Options:
+  -f, --force     attempt to (re)add all the packages in the repo
+                    dir to the database. normally only the rebuilt
+                    packages are added to the database.
+  -r, --rebuild   remove all package and database files from the
+                    repo dir and recreate everything from scratch.
+  -v, --version   display the version info and exit.
+  -h, --help      display this help message and exit.
+EOF
 }
 
 main "$@"
