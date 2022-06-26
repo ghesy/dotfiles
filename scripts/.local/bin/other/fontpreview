@@ -1,4 +1,27 @@
 #!/bin/sh
+# a wrapper for fontpreview-ueberzug.
+
+export FONTPREVIEW_SIZE=800x1500
+
+export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS
+--height=100% --preview-window=nohidden"
+
+export FONTPREVIEW_PREVIEW_TEXT=$(
+cat << 'EOF'
+ABCDEFGHIJKLM
+NOPQRSTUVWXYZ
+abcdefghijklm
+nopqrstuvwxyz
+1234567890
+!@#$\%^&*,.;:
+_-=+'"|\(){}[]
+کتف لرس خشیپ
+مفهوم ساختگی
+۱۲۳۴۵۶۷۸۹۰
+EOF
+)
+
 p=/tmp/fontpreview-ueberzug-fifo
 [ -p "$p" ] && rm "$p"
-FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height=100%" exec fontpreview-ueberzug
+
+exec fontpreview-ueberzug
