@@ -1,7 +1,7 @@
 /* My version of https://github.com/arkenfox/user.js
  * Updated on 2022-06-07
- * Based on commit: 662eddb
- * View diff with master: https://github.com/arkenfox/user.js/compare/662eddb..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+ * Based on commit: c21b9fa
+ * View diff with master: https://github.com/arkenfox/user.js/compare/c21b9fa..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
  * Please update the commit hashes after merging the latest commit's changes */
 
 /* ==============================
@@ -48,18 +48,31 @@ user_pref("ui.click_hold_context_menus", false);
 user_pref("toolkit.cosmeticAnimations.enabled", false);
 
 /* font size */
-user_pref("font.minimum-size.x-western", 22);
+user_pref("font.minimum-size.x-western", 20);
 user_pref("font.size.variable.x-western", 22);
 user_pref("font.size.monospace.x-western", 20);
-user_pref("font.minimum-size.ar", 22);
+user_pref("font.minimum-size.ar", 20);
 user_pref("font.size.variable.ar", 22);
 user_pref("font.size.monospace.ar", 20);
 
 /* make firefox use the fonts configured in fontconfig
-   https://wiki.archlinux.org/title/Firefox#Font_troubleshooting */
+ * https://wiki.archlinux.org/title/Firefox#Font_troubleshooting */
 user_pref("gfx.font_rendering.fontconfig.max_generic_substitutions", 10);
 user_pref("gfx.font_rendering.opentype_svg.enabled", false);
 user_pref("font.name-list.emoji", "emoji");
+
+/* confirm before closing multiple tabs */
+user_pref("browser.tabs.warnOnClose", true);
+
+/* don't show the warning message when going fullscreen */
+user_pref("full-screen-api.warning.delay", 0);
+user_pref("full-screen-api.warning.timeout", 0);
+
+/* disable alt key toggling the menu bar */
+user_pref("ui.key.menuAccessKey", 0);
+
+/* always display the whole url (don't trim "http://") */
+user_pref("browser.urlbar.trimURLs", false);
 
 /* ================================
  * ===   Privacy / Annoyances   ===
@@ -178,9 +191,6 @@ user_pref("network.gio.supported-protocols", "");
 /* disable apparently dangerous domain guessing */
 user_pref("browser.fixup.alternate.enabled", false);
 
-/* display the whole url */
-user_pref("browser.urlbar.trimURLs", false);
-
 /* disable live search suggestions and address bar leakages */
 user_pref("browser.search.suggest.enabled", false);
 user_pref("browser.urlbar.suggest.searches", false);
@@ -205,14 +215,8 @@ user_pref("browser.shell.shortcutFavicons", false);
 /* disable TLS1.3 0-RTT (round-trip time) */
 user_pref("security.tls.enable_0rtt_data", false);
 
-/* display warning on the padlock for "broken security" */
-user_pref("security.ssl.treat_unsafe_negotiation_as_broken", true);
-
 /* display advanced information on Insecure Connection warning pages */
 user_pref("browser.xul.error_pages.expert_bad_cert", true);
-
-/* disable graphite which has many security issues */
-user_pref("gfx.font_rendering.graphite.enabled", false);
 
 /* disable rendering of SVG OpenType fonts */
 user_pref("gfx.font_rendering.opentype_svg.enabled", false);
@@ -227,9 +231,11 @@ user_pref("browser.ssl_override_behavior", 1);
 user_pref("security.cert_pinning.enforcement_level", 2);
 user_pref("security.remote_settings.crlite_filters.enabled", true);
 user_pref("security.pki.crlite_mode", 2);
-user_pref("security.pki.sha1_enforcement_level", 1);
 user_pref("security.OCSP.require", true);
-user_pref("security.ssl.require_safe_negotiation", true);
+
+/* show a little warning next to the padlock icon on
+ * sites that don't have safe ssl negotiation */
+user_pref("security.ssl.treat_unsafe_negotiation_as_broken", true);
 
 /* webrtc-related prefs */
 user_pref("media.peerconnection.ice.proxy_only_if_behind_proxy", true);
@@ -259,9 +265,6 @@ user_pref("dom.push.enabled", false);
 /* https-only related prefs */
 user_pref("security.mixed_content.block_display_content", true);
 user_pref("dom.security.https_only_mode", true);
-
-/* disable insecure asm.js */
-user_pref("javascript.options.asmjs", false);
 
 /* disable accessiblity */
 user_pref("accessibility.force_disabled", 1);
@@ -317,15 +320,17 @@ user_pref("browser.download.manager.addToRecentDocs", false);
 /* enable user interaction for security by always asking how to handle new mimetypes */
 user_pref("browser.download.always_ask_before_handling_new_types", true);
 
-/* clear cache upon exit */
+/* clear cache on exit */
 user_pref("privacy.sanitize.sanitizeOnShutdown", true);
 user_pref("privacy.clearOnShutdown.cache", true);
+/* don't clear these on exit */
 user_pref("privacy.clearOnShutdown.downloads", false);
 user_pref("privacy.clearOnShutdown.formdata", false);
 user_pref("privacy.clearOnShutdown.history", false);
 user_pref("privacy.clearOnShutdown.sessions", false);
 user_pref("privacy.clearOnShutdown.offlineApps", false);
 user_pref("privacy.clearOnShutdown.cookies", false);
+user_pref("privacy.clearOnShutdown.siteSettings", false);
 
 /* do not disable IPv6
  * disabling IPv6 causes certificate issues when combined with dnscrypt-proxy */
@@ -344,18 +349,33 @@ user_pref("security.family_safety.mode", 0);
 /* 2621: disable links launching Windows Store on Windows 8/8.1/10 */
 user_pref("network.protocol-handler.external.ms-windows-store", false);
 
-/* =============================
- * ===    Disabled Stuff    ===
- * ============================= */
+/* ===============================
+ * ===    Enforced Defaults    ===
+ * =============================== */
+
+user_pref("extensions.blocklist.enabled", true); // [DEFAULT: true]
+user_pref("network.http.referer.spoofSource", false); // [DEFAULT: false]
+user_pref("security.dialog_enable_delay", 1000); // [DEFAULT: 1000]
+user_pref("dom.storage.next_gen", true); // [DEFAULT: true FF92+]
+user_pref("privacy.firstparty.isolate", false); // [DEFAULT: false]
+user_pref("extensions.webcompat.enable_shims", true); // [DEFAULT: true]
+user_pref("security.tls.version.enable-deprecated", false); // [DEFAULT: false]
+user_pref("extensions.webcompat-reporter.enabled", false); // [DEFAULT: false]
+user_pref("security.pki.sha1_enforcement_level", 1); // [DEFAULT: 1 FF102+]
+
+/* ============================
+ * ===    Disabled Prefs    ===
+ * ============================ */
+
+/* do not connect to sites with unsafe SSL negotiation
+ * this breaks some websites */
+//user_pref("security.ssl.require_safe_negotiation", true);
 
 /* disable IPv6 which can be abused and leak data */
 //user_pref("network.dns.disableIPv6", true);
 
 /* disable downloads panel opening on every download */
 //user_pref("browser.download.alwaysOpenPanel", false);
-
-/* disable clipboard commands (cut/copy) from "non-privileged" content */
-//user_pref("dom.allow_cut_copy", false);
 
 /* enable DNS over HTTPS
 /* choose a dns server from here:
@@ -365,3 +385,18 @@ user_pref("network.protocol-handler.external.ms-windows-store", false);
 //user_pref("network.trr.blocklist_cleanup_done", true);
 //user_pref("network.trr.exclude-etc-hosts", true);
 //user_pref("network.trr.uri", "https://eu1.dns.lavate.ch/dns-query");
+
+/* ==========================================
+ * ===    Removed / Deprecated Prefs    ===
+ * ========================================== */
+
+/* these prefs disable graphite and wasm, but they were
+ * removed from arkenfox since they're useful and don't increase
+ * security that much. even tor browser doesn't disable these.
+ * https://github.com/arkenfox/user.js/commit/7144f8b */
+//user_pref("javascript.options.asmjs", false);
+//user_pref("gfx.font_rendering.graphite.enabled", false);
+
+/* disable clipboard commands (cut/copy) from "non-privileged" content.
+ * removed from arkenfox. */
+//user_pref("dom.allow_cut_copy", false);
