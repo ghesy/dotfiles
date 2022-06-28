@@ -5,7 +5,7 @@
 
 local r = mp.command_native{
 	name = "subprocess",
-    capture_stdout = true,
+	capture_stdout = true,
 	capture_stderr = true,
 	playback_only = false,
 	args = { "fc-match", "-f%{family}", "sans-serif" },
