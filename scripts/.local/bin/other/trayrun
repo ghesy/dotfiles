@@ -1,12 +1,39 @@
 #!/bin/sh
-# Usage: trayrun PROGRAM [WINDOW_NAME] [PROCESS_NAME]
-# Function:
-#   if the PROCESS_NAME is running, runs PROGRAM.
-#   otherwise, clicks on the program's icon that has the name WINDOW_NAME.
-#   if WINDOW_NAME or PROCESS_NAME aren't given, PROGRAM is used in their place.
+#
+# brief:
+#   some programs have tray icons and should be reopened
+#   by clicking the tray icon. with this script, you can launch AND
+#   reopen the programs with one command, without using the mouse.
+#
+# usage:
+#   trayrun PROGRAM [WINDOW_NAME] [PROCESS_NAME]
+#
+# function:
+#   - if no PROCESS_NAME is running, run PROGRAM.
+#   - otherwise, click on the program's tray icon that matches WINDOW_NAME.
+#   note 1:
+#     if any of the WINDOW_NAME or PROCESS_NAME are omitted,
+#     value of PROGRAM is used in their place.
+#   note 2:
+#     WINDOW_NAME is matched against classname, class and name of the window.
 
-pidof -q "${3:-${1:?}}" || exec "${1:?}"
-xy=$(xwininfo -name stalonetray -tree -int | tac |
-    grep -iA2 "${2:-${1:?}}" |
-    tail -n1 | awk '{print$NF}' | tr + ' ')
-xdotool mousemove ${xy:?} mousemove_relative 10 10 click 1 mousemove restore
+# substitute $1 for absent values
+set -- "${1:?}" "${2:-$1}" "${3:-1}"
+
+# exec the program if it isn't running
+pidof -q "$3" || exec "$1"
+
+# get windowid of my dwm's systray
+id=$(xdotool search --classname systray)
+
+# find the coordinates of the tray icon
+coord=$(
+    xwininfo -id "${id:?}" -tree -int |
+        awk -v ptrn="$2" '
+            $0 ~ ptrn { geom = $NF }
+            END { gsub("+", " ", geom); print geom }
+        '
+)
+
+# click on the icon
+xdotool mousemove ${coord:?} mousemove_relative 10 10 click 1 mousemove restore
