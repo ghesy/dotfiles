@@ -10,7 +10,7 @@ p=$(find * -name '*.gpg' | rev | cut -c5- | rev | dmenu -p Pass -sb '#4b2626')
 f=$(pass show "${p:?}")
 
 p() { printf '%s\n' "$*" ;}
-pass=$(p "${f:?}" | head -n1)
+pass=$(p "${f:?}" | head -n1 | grep -Eiv '^username:|^otpauth://') ||:
 user=$(p "${f:?}" | grep -Pio '^username:\s*\K.*') ||:
 
 # notification replace hint
