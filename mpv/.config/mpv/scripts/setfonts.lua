@@ -1,7 +1,13 @@
 -- author: Ehsan Ghorbannezhad <ehsan@disroot.org>
--- properly set mpv's subtitle and osd fonts to the system's sans-serif font
--- mpv is supposed to set the --sub-font and --osd-font options to sans-serif
--- by default, but for some reason libass defaults to NotoSans or whatever.
+--
+-- properly set mpv's subtitle and osd fonts to the system's sans-serif font.
+--
+-- this is a workaround for libass defaulting to NotoSans or some other font
+-- for some reason. normally it should use the system's sans-serif font.
+--
+-- setting the font explicitly by setting sub-font and osd-font mpv's config
+-- works as well, but then if you change the system's font in fontconfig,
+-- you have to change it here too. not cool.
 
 local r = mp.command_native{
 	name = "subprocess",
