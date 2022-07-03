@@ -1,2 +1,3 @@
 # vim:ft=firejail
-ignore include enable-hardened-malloc.inc
+ignore env LD_PRELOAD=/usr/lib/libhardened_malloc.so
+ignore private-lib libhardened_malloc.so
