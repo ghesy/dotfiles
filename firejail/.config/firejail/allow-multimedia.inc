@@ -2,6 +2,7 @@
 
 ignore x11 none
 ignore nosound
+ignore machine-id
 
 noblacklist ${RUNUSER}
 whitelist ${RUNUSER}/pulse/native
