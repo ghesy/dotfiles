@@ -5,6 +5,7 @@ join-or-start discord
 include globals.local
 
 include no-private-lib.inc
+include no-hardened-malloc.inc
 include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
