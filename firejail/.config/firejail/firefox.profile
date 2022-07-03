@@ -4,6 +4,7 @@ name firefox
 include globals.local
 
 include no-private-lib.inc
+include no-hardened-malloc.inc
 include allow-multimedia.inc
 include allow-usr-share.inc
 include allow-networking.inc
@@ -17,6 +18,7 @@ ignore novideo
 ignore machine-id
 ignore ipc-namespace
 ignore memory-deny-write-execute
+noblacklist /sys
 
 ignore private
 
