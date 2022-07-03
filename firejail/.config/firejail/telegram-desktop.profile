@@ -1,5 +1,6 @@
 # telegram-desktop's firejail profile, built around disable-all.inc
 name telegram-desktop
+join-or-start telegram-desktop
 
 include globals.local
 
@@ -10,12 +11,6 @@ include allow-multimedia.inc
 include allow-fontconfig.inc
 include allow-dragon-drop.inc
 include allow-xdg.inc
-
-join-or-start telegram-desktop
-
-ignore no3d
-ignore machine-id
-ignore memory-deny-write-execute
 
 ignore private
 
@@ -28,6 +23,10 @@ read-only ${HOME}/.config/qt6ct
 
 mkdir ${DOWNLOADS}
 whitelist ${DOWNLOADS}
+
+ignore no3d
+ignore machine-id
+ignore memory-deny-write-execute
 
 dbus-user filter
 ignore dbus-user none

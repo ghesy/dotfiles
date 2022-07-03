@@ -12,14 +12,6 @@ include allow-fontconfig.inc
 include allow-dragon-drop.inc
 include allow-xdg.inc
 
-x11 xephyr
-ignore apparmor
-ignore noexec ${HOME}
-ignore memory-deny-write-execute
-
-noblacklist /opt
-whitelist /opt/discord
-
 ignore private
 
 mkdir ${HOME}/.config/discord
@@ -27,6 +19,14 @@ whitelist ${HOME}/.config/discord
 
 mkdir ${DOWNLOADS}
 whitelist ${DOWNLOADS}
+
+noblacklist /opt
+whitelist /opt/discord
+
+x11 xephyr
+ignore apparmor
+ignore noexec ${HOME}
+ignore memory-deny-write-execute
 
 dbus-user filter
 ignore dbus-user none

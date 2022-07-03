@@ -12,11 +12,6 @@ include allow-fontconfig.inc
 include allow-dragon-drop.inc
 include allow-xdg.inc
 
-ignore memory-deny-write-execute
-
-noblacklist /opt
-whitelist /opt/teamspeak3
-
 ignore private
 
 mkdir ${HOME}/.local/share/ts3client
@@ -24,6 +19,11 @@ whitelist ${HOME}/.local/share/ts3client
 
 mkdir ${DOWNLOADS}
 whitelist ${DOWNLOADS}
+
+noblacklist /opt
+whitelist /opt/teamspeak3
+
+ignore memory-deny-write-execute
 
 include disable-all.inc
 

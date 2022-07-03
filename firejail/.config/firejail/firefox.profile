@@ -13,13 +13,6 @@ include allow-gtk-configs.inc
 include allow-dragon-drop.inc
 include allow-xdg.inc
 
-ignore no3d
-ignore novideo
-ignore machine-id
-ignore ipc-namespace
-ignore memory-deny-write-execute
-noblacklist /sys
-
 ignore private
 
 mkdir ${HOME}/.mozilla
@@ -40,6 +33,12 @@ noblacklist ${HOME}/.local/share/pki
 
 mkdir ${DOWNLOADS}
 whitelist ${DOWNLOADS}
+
+ignore no3d
+ignore novideo
+ignore ipc-namespace
+ignore memory-deny-write-execute
+noblacklist /sys
 
 dbus-user filter
 ignore dbus-user none
