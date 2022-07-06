@@ -1,4 +1,6 @@
 #!/bin/sh
 opts='--no-conf -k1M -x5 -m2 -UWget --lowest-speed-limit=5K'
-aria2c $opts -o "${1:?}" "${2:?}" ||
+aria2c $opts -o "${1:?}" "${2:?}" || {
+    echo "[aria2-makepkg] download failed; retrying with proxy..."
     proxychains -q aria2c --async-dns=false $opts -o "${1:?}" "${2:?}"
+}
