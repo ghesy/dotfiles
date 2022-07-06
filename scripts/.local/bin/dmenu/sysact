@@ -29,7 +29,7 @@ main()
     case $action in
         *' Logout'|logout)
             ask 'Logout?' &&
-                kill "$(pstree -ps $$ | grep -Po 'dwm\(\K\d+')"
+                kill "$(pstree -ps $$ | grep -Po 'xinit\(\K\d+')"
         ;;
         *' Sleep'|sleep|suspend)
             loginctl suspend$(can_hibernate && echo -then-hibernate)

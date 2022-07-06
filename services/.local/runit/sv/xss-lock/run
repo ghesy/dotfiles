@@ -1,2 +1,3 @@
 #!/bin/sh
+( ( sleep 0.2; loginctl lock-session ) & )
 exec xss-lock -- sh -c 'dunstctl set-paused true; slock; dunstctl set-paused false'
