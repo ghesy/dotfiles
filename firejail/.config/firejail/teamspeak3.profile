@@ -30,4 +30,4 @@ include disable-all.inc
 seccomp !chroot
 private-bin teamspeak3,bash
 
-# vim:ft=firejail
+# vim:filetype=firejail

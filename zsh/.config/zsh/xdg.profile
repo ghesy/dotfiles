@@ -1,4 +1,4 @@
-# vim:ft=zsh
+# vim:filetype=zsh
 
 export _JAVA_OPTIONS=-Djava.util.prefs.userRoot="$HOME"/.config/java
 export ANSIBLE_CONFIG=~/.config/ansible/ansible.cfg

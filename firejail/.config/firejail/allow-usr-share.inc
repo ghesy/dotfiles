@@ -3,4 +3,4 @@
 noblacklist /usr/share
 include whitelist-usr-share-common.inc
 
-# vim:ft=firejail
+# vim:filetype=firejail

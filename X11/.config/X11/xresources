@@ -1,4 +1,4 @@
-! vim:ft=xdefaults
+! vim:filetype=xdefaults
 
 *.foreground: #aaaaaa
 *.background: #202020

@@ -220,4 +220,4 @@ cmd ls ${{
     ls $args --group-directories-first | fribidi --ltr | ${PAGER:-less}
 }}
 
-# vim:ft=conf
+# vim:filetype=conf

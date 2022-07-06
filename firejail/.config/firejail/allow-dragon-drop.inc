@@ -3,4 +3,4 @@
 include allow-gtk-configs.inc
 private-bin dragon-drop
 
-# vim:ft=firejail
+# vim:filetype=firejail

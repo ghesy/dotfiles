@@ -39,4 +39,4 @@ include disable-all.inc
 private-bin telegram-desktop,sh
 private-etc alternatives,ca-certificates,crypto-policies,fonts,group,ld.so.cache,ld.so.preload,localtime,machine-id,os-release,passwd,pki,pulse
 
-# vim:ft=firejail
+# vim:filetype=firejail

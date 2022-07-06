@@ -1,4 +1,4 @@
-# vim:ft=zsh
+# vim:filetype=zsh
 
 # add all of ~/.local/bin's immediate subdirectories to $PATH
 paths=(~/.local/bin/*(ND-/))

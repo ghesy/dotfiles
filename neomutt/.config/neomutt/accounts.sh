@@ -12,7 +12,7 @@ command -v lynx >/dev/null  ||
     notify-send NeoMutt 'Please install "lynx" to be able to read HTML mails'
 
 [ ! -d "$acc" ] && cat << 'eof' | { mkdir -p "$acc"; cat > "$acc"/EXAMPLE ;}
-# vim:ft=neomuttrc
+# vim:filetype=neomuttrc
 set realname  = 'Real Name'
 set imap_user = username
 set my_pass   = "`pass account`"

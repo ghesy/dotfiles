@@ -37,4 +37,4 @@ include disable-all.inc
 seccomp !chroot
 private-bin discord
 
-# vim:ft=firejail
+# vim:filetype=firejail

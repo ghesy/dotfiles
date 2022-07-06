@@ -11,4 +11,4 @@ read-only ${HOME}/.dots/gtk
 
 private-etc gtk-3.0,gtk-2.0
 
-# vim:ft=firejail
+# vim:filetype=firejail

@@ -54,4 +54,4 @@ seccomp !chroot
 private-bin firefox,sh,bash,env,which,dbus-launch,dbus-send
 private-etc machine-id,pki,pango,passwd,group,mime.types,mailcap
 
-# vim:ft=firejail
+# vim:filetype=firejail

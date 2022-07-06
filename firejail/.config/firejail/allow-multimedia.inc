@@ -10,4 +10,4 @@ whitelist ${RUNUSER}/pipewire-?
 
 private-etc pulse,X11
 
-# vim:ft=firejail
+# vim:filetype=firejail

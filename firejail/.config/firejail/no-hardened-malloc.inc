@@ -1,3 +1,3 @@
-# vim:ft=firejail
+# vim:filetype=firejail
 ignore env LD_PRELOAD=/usr/lib/libhardened_malloc.so
 ignore private-lib libhardened_malloc.so

@@ -20,4 +20,4 @@ blacklist ${RUNUSER}/firexdg-notsandboxed
 
 private-bin xdg-open
 
-# vim:ft=firejail
+# vim:filetype=firejail

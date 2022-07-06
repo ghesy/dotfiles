@@ -27,4 +27,4 @@ sample_bits = 16
 # method = pulse
 # source = auto
 
-# vim:ft=conf
+# vim:filetype=conf

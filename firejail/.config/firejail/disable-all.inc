@@ -69,4 +69,4 @@ noprinters
 env LD_PRELOAD=/usr/lib/libhardened_malloc.so
 private-lib libhardened_malloc.so
 
-# vim:ft=firejail
+# vim:filetype=firejail
