@@ -1,6 +1,6 @@
 pkgname=firecfg-configs
 pkgdesc="configure firecfg and add a pacman hook to run it automatically"
-pkgver=r5
+pkgver=r7
 pkgrel=1
 arch=(any)
 depends=(nebula16 firejail)
