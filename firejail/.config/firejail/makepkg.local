@@ -17,3 +17,5 @@ whitelist ${HOME}/.local/bin/other
 read-only ${HOME}/.local/bin/other
 whitelist ${HOME}/.dots/scripts/.local/bin/other
 read-only ${HOME}/.dots/scripts/.local/bin/other
+
+# vim:filetype=firejail
