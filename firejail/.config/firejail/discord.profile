@@ -10,7 +10,7 @@ include allow-networking.inc
 include allow-multimedia.inc
 include allow-fontconfig.inc
 include allow-dragon-drop.inc
-include allow-xdg.inc
+include allow-xdg-open.inc
 
 ignore private
 

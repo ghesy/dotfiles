@@ -1,4 +1,4 @@
-# include this in case any program needs xdg support
+# include this in case any program needs xdg-open support
 
 include allow-usr-share.inc
 
