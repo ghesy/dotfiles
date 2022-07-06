@@ -72,7 +72,7 @@ INIT
 	exec restor
 
  VirtualMic
-	exec virtualmic
+	exec virtmic
 
  Syncthing
 	exec syncthingopen

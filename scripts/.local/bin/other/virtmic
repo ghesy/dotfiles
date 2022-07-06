@@ -1,0 +1,28 @@
+#!/bin/sh
+# a dmenu frontend for virtualmic
+
+history=~/.cache/virtualmic
+
+pid=$(pidof -x virtualmic) && {
+    pkill -KILL -P "$pid"
+    exit
+}
+
+host=$(
+    {
+        [ -f "$history" ] && cat "$history"
+    } | dmenu -p "Enter host or 'clear' to clear history"
+)
+
+if [ -z "$host" ]; then
+    exit
+elif [ "$host" = 'clear' ]; then
+    : > "$history"
+    exit
+fi
+
+grep -Fx "$host" "$history" || echo "$host" >> "$history"
+virtualmic -d "$host" &
+notify-send 'VirtualMic' 'Connected.'
+pwait -x virtualmic
+notify-send 'VirtualMic' 'Disconnected.'
