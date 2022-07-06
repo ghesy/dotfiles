@@ -1,2 +1,3 @@
+# vim:filetype=firejail
 nonewprivs
-xephyr-screen 1850x1000
+xephyr-screen 1895x1035
