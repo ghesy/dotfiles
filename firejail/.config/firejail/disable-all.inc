@@ -1,8 +1,12 @@
 # this firejail profile disables as much stuff as possible.
 # other profiles can include this and then only allow the stuff that's needed.
 
+# blacklist usual things that should be disabled. this is useful in case any
+# top level directory is allowed using "noblacklist" or "ignore private".
+include disable-common.inc
+
 # the /proc and /run dirs cannot be successfully blacklisted;
-# but these two incs disable as much of them as possible
+# but these two incs disable as much of them as possible.
 include disable-proc.inc
 include whitelist-run-common.inc
 
