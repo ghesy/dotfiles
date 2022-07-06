@@ -1,19 +1,59 @@
+# trash-cli
 blacklist /.Trash*
 
-read-only ${HOME}/.config/X11
-read-only ${HOME}/.config/zsh
+# history files
+blacklist-nolog ${HOME}/.cache/zsh
 
-read-only ${HOME}/.dots/gtk
+# runit
+blacklist ${HOME}/.local/runit
+blacklist /run/runit
+blacklist /etc/runit
+blacklist /etc/rc
+blacklist /etc/rc.d
+blacklist ${PATH}/rsm
+blacklist ${PATH}/sv
+blacklist ${PATH}/ursm
+blacklist ${PATH}/usv
+
+# var
+blacklist /var/lib/repo
+
+# startup files
+read-only ${HOME}/.config/zsh
+read-only ${HOME}/.config/X11
+
+# initialization files that allow arbitrary command execution
+read-only ${HOME}/.config/neomutt
+read-only ${HOME}/.config/networkmanager-dmenu
+read-only ${HOME}/.config/newsboat
+read-only ${HOME}/.config/pacman
+read-only ${HOME}/.config/paru
+read-only ${HOME}/.config/pulse
+read-only ${HOME}/.config/resrouter
+read-only ${HOME}/.config/safeeyes
+read-only ${HOME}/.config/stuff
+read-only ${HOME}/.config/sxiv
+read-only ${HOME}/.config/syncthing
+read-only ${HOME}/.config/tuir
+read-only ${HOME}/.config/ytfzf
+read-only ${HOME}/.config/lesskey
+blacklist /tmp/lf.*
+
+# sockets
+blacklist /tmp/nvim*
+blacklist ${RUNUSER}/lf.*
+
+# top secret
+blacklist ${HOME}/.local/share/password-store
+blacklist ${HOME}/.cache/neomutt
+blacklist ${HOME}/.config/aurvote
+blacklist ${HOME}/.pvpn-cli
+blacklist ${HOME}/.local/share/ts3client
+
+# files and directories that some programs fuck with for no reason
+read-only ${HOME}/.config/fontconfig
+read-only ${HOME}/.cache/fontconfig
 read-only ${HOME}/.config/gtk-2.0
 read-only ${HOME}/.config/gtk-3.0
 
-read-only ${HOME}/.dots/xdg
-read-only ${HOME}/.config/mimeapps.list
-
-read-only ${HOME}/.dots/fontconfig
-read-only ${HOME}/.config/fontconfig
-read-only ${HOME}/.cache/fontconfig
-
-blacklist ${HOME}/.pvpn-cli
-blacklist ${HOME}/.local/share/password-store
-blacklist ${HOME}/.cache/neomutt
+# vim:filetype=firejail
