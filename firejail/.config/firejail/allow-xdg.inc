@@ -18,6 +18,6 @@ noblacklist ${RUNUSER}
 whitelist ${RUNUSER}/firexdg
 blacklist ${RUNUSER}/firexdg-notsandboxed
 
-private-bin xdg-open
+private-bin xdg-open,xdg-mime,sh,grep,egrep,head,tr,cut,sed
 
 # vim:filetype=firejail
