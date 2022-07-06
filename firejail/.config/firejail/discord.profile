@@ -17,6 +17,9 @@ ignore private
 mkdir ${HOME}/.config/discord
 whitelist ${HOME}/.config/discord
 
+# don't allow discord to overwrite settings.json
+read-only ${HOME}/.config/discord/settings.json
+
 mkdir ${DOWNLOADS}
 whitelist ${DOWNLOADS}
 

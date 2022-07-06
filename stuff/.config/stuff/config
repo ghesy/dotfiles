@@ -54,6 +54,8 @@ INIT
 	trayrun ripcord
 
 響 Discord
+	echo '{ "SKIP_HOST_UPDATE": true, "WINDOW_BOUNDS": { "x": 0, "y": 0, "width": 1895, "height": 1035 } }' \
+		> ~/.config/discord/settings.json
 	exec discord
 
  Telegram
