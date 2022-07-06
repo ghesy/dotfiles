@@ -1,6 +1,7 @@
 ignore private-tmp
 ignore private-cache
 ignore noexec ${HOME}
+ignore noexec /tmp
 
 whitelist ${HOME}/.cache/paru/clone
 
