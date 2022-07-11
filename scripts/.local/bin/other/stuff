@@ -2,7 +2,7 @@
 # with this script, you can run stuff.
 
 # paths
-conf=~/.config/stuff/config
+conf=~/.config/stuff/stuff.conf
 localdir=~/.local/share/local/stuff.d
 
 main()
