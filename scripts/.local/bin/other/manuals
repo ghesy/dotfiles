@@ -1,0 +1,53 @@
+#!/bin/sh -e
+# select and open man pages using fzf, tabbed and st.
+#
+# if - is given as the first argument, dman will read stdin and
+# look for referenced utilities in the form of UTIL(SECTION),
+# it will then ask for one using fzf and open it.
+
+# config
+title=Manuals
+name=${0##*/}
+export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --height=100%"
+
+main()
+{
+    case $1 in
+        '') select_man | open_man ;;
+        -) select_man_from_stdin | open_man ;;
+    esac
+}
+
+open_man()
+{
+    xargs -rI{} setsid -f st -t '{}' -e man '{}' >/dev/null 2>&1
+}
+
+select_man()
+{
+    get_all_mans | dmenu -l 10 ${WINDOWID:+-w "$WINDOWID"}
+}
+
+select_man_from_stdin()
+{
+    get_mans_from_stdin | ifne dmenu -l 10 ${WINDOWID:+-w "$WINDOWID"}
+}
+
+get_all_mans()
+(
+    IFS=:
+    for d in $(man -w); do
+        find -L "$d"/man[0-9nl]* -type f
+    done |
+        perl -pe 's|.*/(.*)\.([0-9nl][a-zA-Z]*)(\.gz)?|\1(\2)|' |
+        sort -u
+)
+
+get_mans_from_stdin()
+{
+    sed '1d;$d' | col -b | sed -Ez 's/‐\n\s*//g; s/-\n\s*/-/g' |
+        grep -Eo '[0-9a-zA-Z._-]+\([0-9nl][a-zA-Z]*\)' |
+        cat -n | sort -ufk2 | sort -n | cut -f2-
+}
+
+main "$@"

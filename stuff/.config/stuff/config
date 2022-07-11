@@ -250,6 +250,6 @@ INIT
 	exec daria2
 
  Manuals
-	exec dman
+	exec manuals
 
 # vim:noexpandtab
