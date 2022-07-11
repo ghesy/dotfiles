@@ -24,7 +24,7 @@ INIT
 	tui neomutt
 
  Notify Unread Mails
-	unread
+	exec unread
 
  ClawsMail
 	exec claws-mail --alternate-config-dir ~/.local/share/claws-mail
@@ -45,13 +45,13 @@ INIT
 	exec gnome-network-displays
 
  Steam
-	steam
+	exec steam
 
 響 TS3, 響 TeamSpeak
-	trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
+	exec trayrun teamspeak3 TeamSpeak ts3client_linux_amd64
 
 響 Ripcord
-	trayrun ripcord
+	exec trayrun ripcord
 
 響 Discord
 	echo '{ "SKIP_HOST_UPDATE": true, "WINDOW_BOUNDS": { "x": 0, "y": 0, "width": 1895, "height": 1035 } }' \
@@ -62,7 +62,7 @@ INIT
 	exec telegram-desktop
 
  AnyDesk
-	trayrun anydesk
+	exec trayrun anydesk
 
 朗 Printers
 	exec system-config-printer
