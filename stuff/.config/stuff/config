@@ -70,6 +70,9 @@ INIT
  Gimp
 	exec gimp
 
+ Diagrams,  Flowchart
+	exec drawio
+
  Reset Tor
 	exec restor
 
@@ -184,6 +187,9 @@ INIT
 
 ﬩ Kill Transmission
 	killall transmission-daemon
+
+省 Toggle Turtle Mode, 省 Transmission Speed Limit
+	transturtle
 
  Download Manager
 	tui aria2p
