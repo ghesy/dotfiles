@@ -74,6 +74,9 @@ user_pref("ui.key.menuAccessKey", 0);
 /* always display the whole url (don't trim "http://") */
 user_pref("browser.urlbar.trimURLs", false);
 
+/* display advanced information on Insecure Connection warning pages */
+user_pref("browser.xul.error_pages.expert_bad_cert", true);
+
 /* ================================
  * ===   Privacy / Annoyances   ===
  * ================================ */
@@ -215,9 +218,6 @@ user_pref("browser.shell.shortcutFavicons", false);
 /* disable TLS1.3 0-RTT (round-trip time) */
 user_pref("security.tls.enable_0rtt_data", false);
 
-/* display advanced information on Insecure Connection warning pages */
-user_pref("browser.xul.error_pages.expert_bad_cert", true);
-
 /* disable rendering of SVG OpenType fonts */
 user_pref("gfx.font_rendering.opentype_svg.enabled", false);
 
@@ -261,10 +261,6 @@ user_pref("dom.disable_window_move_resize", true);
 
 /* disable push notifications */
 user_pref("dom.push.enabled", false);
-
-/* https-only related prefs */
-user_pref("security.mixed_content.block_display_content", true);
-user_pref("dom.security.https_only_mode", true);
 
 /* disable accessiblity */
 user_pref("accessibility.force_disabled", 1);
@@ -367,19 +363,23 @@ user_pref("security.pki.sha1_enforcement_level", 1); // [DEFAULT: 1 FF102+]
  * ===    Disabled Prefs    ===
  * ============================ */
 
+/* https-only related prefs
+ * disabled because they're annoying */
+//user_pref("security.mixed_content.block_display_content", true);
+//user_pref("dom.security.https_only_mode", true);
+
 /* do not connect to sites with unsafe SSL negotiation
- * this breaks some websites */
+ * disabled because it breaks some websites */
 //user_pref("security.ssl.require_safe_negotiation", true);
 
-/* disable IPv6 which can be abused and leak data */
+/* disable IPv6 which can be abused and leak data
+ * disabled because it causes certificate errors when combined with dnscrypt-proxy */
 //user_pref("network.dns.disableIPv6", true);
-
-/* disable downloads panel opening on every download */
-//user_pref("browser.download.alwaysOpenPanel", false);
 
 /* enable DNS over HTTPS
 /* choose a dns server from here:
- * https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers */
+ * https://github.com/curl/curl/wiki/DNS-over-HTTPS#publicly-available-servers
+ * disabled because my system now has encrypted DNS thanks to dnscrypt-proxy */
 //user_pref("network.trr.mode", 2);
 //user_pref("network.dns.skipTRR-when-parental-control-enabled", false);
 //user_pref("network.trr.blocklist_cleanup_done", true);
