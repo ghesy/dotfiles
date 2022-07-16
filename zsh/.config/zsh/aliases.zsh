@@ -123,4 +123,6 @@ alias pvpn='sudo protonvpn'
 alias al='$EDITOR ~/.config/zsh/aliases.zsh'
 alias downgrade='sudo downgrade --ala-url https://archive.artixlinux.org'
 alias pxy='proxychains'
-alias pacdiff='sudo pacdiff-ng'
+alias pacdiff='
+    sudo DIFFPROG="nvim -d" DIFFSEARCHPATH="/etc /boot" pacdiff --threeway
+'
