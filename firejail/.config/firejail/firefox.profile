@@ -12,6 +12,7 @@ include allow-fontconfig.inc
 include allow-gtk-configs.inc
 include allow-dragon-drop.inc
 include allow-xdg-open.inc
+include allow-gpu.inc
 
 ignore private
 
@@ -38,7 +39,6 @@ ignore no3d
 ignore novideo
 ignore ipc-namespace
 ignore memory-deny-write-execute
-noblacklist /sys
 
 dbus-user filter
 ignore dbus-user none
