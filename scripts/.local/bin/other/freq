@@ -75,7 +75,8 @@ add()
 
 cleanup()
 {
-    fre --sorted | while IFS= read -r p; do
+    local IFS=$'\n'
+    for p in $(fre --sorted); do
         [ ! -e "$p" ] && fre --delete "$p"
     done
 }
