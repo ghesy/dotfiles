@@ -1,0 +1,5 @@
+#!/bin/sh
+# open the given image and all other images in it's directory in sxiv.
+# this script is called by ~/.local/share/applications/img.deskop.
+img=$(realpath -- "${1:?}")
+exec sxiv -aEF "$img" "$(dirname "$img")"

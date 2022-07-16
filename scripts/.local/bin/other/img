@@ -1,5 +1,0 @@
-#!/bin/sh
-# this script is called by this desktop file to open images:
-# ~/.local/share/applications/img.deskop
-p=$(realpath -- "${1:?}")
-exec sxiv -aoEF "$p" "$(dirname "$p")"
