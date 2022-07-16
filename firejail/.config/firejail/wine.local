@@ -1,0 +1,9 @@
+ignore noblacklist ${HOME}/.Steam
+ignore noblacklist ${HOME}/.local/share/Steam
+ignore noblacklist ${HOME}/.local/share/steam
+ignore noblacklist ${HOME}/.steam
+
+whitelist ${HOME}/.cache/winetricks
+whitelist ${HOME}/.local/share/beer
+
+# vim:filetype=firejail
