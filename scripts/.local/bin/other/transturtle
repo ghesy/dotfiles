@@ -1,0 +1,43 @@
+#!/bin/sh
+# toggle transmission-daemon's turtle mode.
+# turtle mode throttles the download speed to a set amount.
+
+main()
+{
+    is_transmission_running || return
+
+    if is_turtle_mode_enabled; then
+        disable_turtle_mode &&
+            notify-send Transmission '🏃 Unlimited speed!'
+    else
+        enable_turtle_mode &&
+            notify-send Transmission '🐢 Turtle mode enabled.'
+    fi
+}
+
+is_transmission_running()
+{
+    pidof -q transmission-daemon
+}
+
+is_turtle_mode_enabled()
+{
+    transmission-remote --session-info | grep -q 'Enabled turtle'
+}
+
+enable_turtle_mode()
+{
+    tremote --alt-speed
+}
+
+disable_turtle_mode()
+{
+    tremote --no-alt-speed
+}
+
+tremote()
+{
+    transmission-remote "$@" | grep -q success
+}
+
+main "$@"
