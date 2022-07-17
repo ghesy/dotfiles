@@ -33,8 +33,8 @@ cwddiff() {
     local f new=() del=()
     declare -A u
     for f (${~cwddiffglob}) u[$f]=1
-    for f (${(k)u[@]}) ((cwdfiles[$f])) || new+=("$f")
-    for f (${(k)cwdfiles[@]}) ((u[$f])) || del+=("$f")
+    for f (${(k)u[@]}) [[ $cwdfiles[$f] -ne 1 ]] && new+=("$f")
+    for f (${(k)cwdfiles[@]}) [[ $u[$f] -ne 1 ]] && del+=("$f")
     (($#new)) || (($#del)) && echo
     (($#new)) && echo -ne "$fg[green]" && printf '+%s ' "$new[@]"
     (($#del)) && echo -ne "$fg[red]"   && printf '-%s ' "$del[@]"
