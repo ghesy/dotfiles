@@ -1,7 +1,7 @@
 /* My version of https://github.com/arkenfox/user.js
  * Updated on 2022-06-07
- * Based on commit: c21b9fa
- * View diff with master: https://github.com/arkenfox/user.js/compare/c21b9fa..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
+ * Based on commit: ceacc9d
+ * View diff with master: https://github.com/arkenfox/user.js/compare/ceacc9d..master?diff=unified#diff-417e8f625f16252f8ace3b0791d24c9b073d7394e9216c7b5d14a516d2572277
  * Please update the commit hashes after merging the latest commit's changes */
 
 /* ==============================
@@ -352,7 +352,6 @@ user_pref("network.protocol-handler.external.ms-windows-store", false);
 user_pref("extensions.blocklist.enabled", true); // [DEFAULT: true]
 user_pref("network.http.referer.spoofSource", false); // [DEFAULT: false]
 user_pref("security.dialog_enable_delay", 1000); // [DEFAULT: 1000]
-user_pref("dom.storage.next_gen", true); // [DEFAULT: true FF92+]
 user_pref("privacy.firstparty.isolate", false); // [DEFAULT: false]
 user_pref("extensions.webcompat.enable_shims", true); // [DEFAULT: true]
 user_pref("security.tls.version.enable-deprecated", false); // [DEFAULT: false]
@@ -400,3 +399,6 @@ user_pref("security.pki.sha1_enforcement_level", 1); // [DEFAULT: 1 FF102+]
 /* disable clipboard commands (cut/copy) from "non-privileged" content.
  * removed from arkenfox. */
 //user_pref("dom.allow_cut_copy", false);
+
+/* removed from firefox */
+//user_pref("dom.storage.next_gen", true);
