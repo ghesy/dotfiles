@@ -29,6 +29,8 @@ Plug 'easymotion/vim-easymotion'
 Plug 'voldikss/vim-floaterm'
 Plug 'mbbill/undotree'
 Plug 'akinsho/bufferline.nvim', {'tag':'v2.*'}
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/nvim-treesitter-refactor'
 " colorschemes
 Plug 'sainnhe/gruvbox-material'
 Plug 'pbrisbin/vim-colors-off'
@@ -230,6 +232,27 @@ set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
 set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
 
 lua << EOF
+require("nvim-treesitter.configs").setup{
+    ensure_installed = { "c", "cpp", "lua", "bash", "vim" },
+    highlight = { enable = true },
+    refactor = {
+        highlight_current_scope = { enable = false },
+        smart_rename = {
+            enable = true,
+            keymaps = { smart_rename = "grr" },
+        },
+        navigation = {
+            enable = true,
+            keymaps = {
+                goto_definition = "gnd",
+                list_definitions = "gnD",
+                list_definitions_toc = "gO",
+                goto_next_usage = "<a-*>",
+                goto_previous_usage = "<a-#>",
+            },
+        },
+    },
+}
 require("bufferline").setup{
     options = {
         -- separator_style = "slant",
