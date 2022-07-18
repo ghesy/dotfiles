@@ -176,6 +176,10 @@ onoremap <silent> if :<C-u>call search("^}") \| normal! V%{j<CR>
 xnoremap <silent> af :<C-u>call search("^}") \| normal! jVk%{j<CR>
 onoremap <silent> af :<C-u>call search("^}") \| normal! jVk%{j<CR>
 
+" insert a function skeleton
+nnoremap <Leader>fn i()<CR>{<CR>}<UP><UP><LEFT>
+inoremap <C-f> ()<CR>{<CR>}<UP><UP><LEFT>
+
 " equalize window sizes upon vim resize
 autocmd VimResized * wincmd =
 
