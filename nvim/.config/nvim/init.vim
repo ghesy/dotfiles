@@ -73,7 +73,10 @@ set undofile
 " without it being considered as a nested instance
 unlet $LF_LEVEL
 
-" use actual tabs in proper programming languages
+" use c syntax for *.h files
+let g:c_syntax_for_h = 1
+
+" use actual tab characters for some filetypes
 autocmd Filetype c,cpp,lua setlocal noexpandtab
 
 " show cursorline only on the active window
