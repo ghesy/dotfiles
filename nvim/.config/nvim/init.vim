@@ -44,6 +44,7 @@ set updatetime=2000
 set visualbell
 set number
 set relativenumber
+set colorcolumn=80
 set nowrap
 set expandtab
 set tabstop=4
@@ -68,6 +69,7 @@ set shortmess+=ac
 let g:netrw_dirhistmax = 0
 set noswapfile
 set undofile
+"set notimeout
 
 " allow the lf file manager to open in vim terminals
 " without it being considered as a nested instance
