@@ -253,6 +253,14 @@ endf
 set statusline=%{FillStatus()}
 exec "set fillchars=stlnc:" . HorizLine1 . ",stl:" . HorizLine2
 
+function s:ChangeColors()
+    hi VertSplit     guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi StatusLine    guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+    hi StatusLineNC  guifg=#505050 ctermfg=darkgrey ctermbg=NONE guibg=NONE
+endf
+autocmd ColorScheme * call s:ChangeColors()
+call s:ChangeColors()
+
 " persian langmap
 set langmap=۱1,۲2,۳3,۴4,۵5,۶6,۷7,۸8,۹9,۰0,٬@,٫#,﷼$,٪%,×^,،&,ـ_
 set langmap+=ضq,صw,ثe,قr,فt,غy,عu,هi,خo,حp,ج[,چ]
