@@ -224,6 +224,9 @@ user_pref("gfx.font_rendering.opentype_svg.enabled", false);
 /* disable all DRM content */
 user_pref("media.eme.enabled", false);
 
+/* limit font-based fingerprinting on private browsing */
+user_pref("layout.css.font-visibility.private", 1);
+
 /* change "Add Security Exception" dialog's behaviour on SSL warnings */
 user_pref("browser.ssl_override_behavior", 1);
 
