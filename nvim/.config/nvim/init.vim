@@ -196,6 +196,27 @@ function UndoTreeRun()
     endif
 endf
 
+" detect filetypes through the SUDO_COMMAND environment variable.
+" this functionality was in the vim-eunuch plugin, but it was removed from
+" it in commit cceba47 due to it not being set by the sudoedit program anymore.
+" but if you manually set it in the shell, this functionality is still useful:
+" sudoedit() { SUDO_COMMAND="sudoedit $*" command sudoedit "$@" ;}
+" source code: https://github.com/tpope/vim-eunuch/blob/6c8387a/plugin/eunuch.vim#L282-L295
+function s:SudoEditInit() abort
+    let files = split($SUDO_COMMAND, ' ')[1:-1]
+    if len(files) ==# argc()
+        for i in range(argc())
+            execute 'autocmd BufEnter' fnameescape(argv(i))
+              \ 'if empty(&filetype) || &filetype ==# "conf"'
+              \ '|doautocmd filetypedetect BufReadPost' fnameescape(files[i])
+              \ '|endif'
+        endfor
+    endif
+endf
+if $SUDO_COMMAND =~# '^sudoedit '
+    call s:SudoEditInit()
+endif
+
 " vim-simple-complete
 let g:vsc_type_complete = 0
 
