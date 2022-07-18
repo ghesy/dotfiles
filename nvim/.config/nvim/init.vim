@@ -230,23 +230,14 @@ set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
 set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
 
 lua << EOF
-require("bufferline").setup {
-  options = {
-    mode = "buffers", -- set to "tabs" to only show tabpages instead
-    close_command = "bdelete! %d",       -- can be a string | function, see "Mouse actions"
-    right_mouse_command = "bdelete! %d", -- can be a string | function, see "Mouse actions"
-    left_mouse_command = "buffer %d",    -- can be a string | function, see "Mouse actions"
-    middle_mouse_command = nil,          -- can be a string | function, see "Mouse actions"
-    max_name_length = 18,
-    max_prefix_length = 15, -- prefix used when a buffer is de-duplicated
-    tab_size = 18,
-    show_buffer_close_icons = false,
-    show_close_icon = false,
-    persist_buffer_sort = true, -- whether or not custom sorted buffers should persist
-    -- can also be a table containing 2 custom separators
-    -- [focused and unfocused]. eg: { '|', '|' }
-    separator_style = "slant",
-    sort_by = "insert_after_current",
-  }
+require("bufferline").setup{
+    options = {
+        -- separator_style = "slant",
+        sort_by = "insert_after_current",
+        show_close_icon = false,
+        show_buffer_close_icons = false,
+        right_mouse_command = nil,
+        middle_mouse_command = nil,
+    }
 }
 EOF
