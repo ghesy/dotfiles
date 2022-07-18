@@ -103,6 +103,13 @@ nnoremap <silent><C-n>   :BufferLineCycleNext<CR>
 nnoremap <silent><C-p>   :BufferLineCyclePrev<CR>
 nnoremap <silent><C-S-n> :BufferLineMoveNext<CR>
 nnoremap <silent><C-S-p> :BufferLineMovePrev<CR>
+nnoremap <silent>gb      :BufferLinePick<CR>
+" jump to different buffers using <Leader>1 through <Leader>9
+for n in range(1, 9)
+    exec "nnoremap <silent><Leader>" . n .
+      \ " :BufferLineGoToBuffer " . n . "<CR>"
+endfor
+
 
 " center the cursor horizontally
 nnoremap <silent> z. zs20zh
