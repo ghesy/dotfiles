@@ -94,8 +94,10 @@ autocmd BufWritePre * call <SID>NoTrailing()
 nnoremap <C-f> :e **/*
 
 " buffer navigation
-nnoremap <silent> <C-n> :bnext<CR>
-nnoremap <silent> <C-p> :bprev<CR>
+nnoremap <silent><C-n>   :BufferLineCycleNext<CR>
+nnoremap <silent><C-p>   :BufferLineCyclePrev<CR>
+nnoremap <silent><C-S-n> :BufferLineMoveNext<CR>
+nnoremap <silent><C-S-p> :BufferLineMovePrev<CR>
 
 " center the cursor horizontally
 nnoremap <silent> z. zs20zh
