@@ -21,6 +21,11 @@ remaps &
 # set the wallpaper
 ~/.fehbg &
 
+# run gpg-agent and export it's ssh-agent socket
+gpgconf --launch gpg-agent
+gpg-connect-agent updatestartuptty /bye
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+
 # wait for the tasks to finish
 wait
 

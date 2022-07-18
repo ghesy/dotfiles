@@ -68,9 +68,9 @@ change:first,up:previous-history,down:next-history
 command -v qt5ct >/dev/null && qtenv=qt5ct || qtenv=gtk2
 export QT_QPA_PLATFORMTHEME=$qtenv
 
-# run keychain (an ssh-agent manager)
-keychain --dir ~/.local/share/keychain >/dev/null 2>&1
-source ~/.local/share/keychain/"$HOST"-sh
+# run gpg-agent and export it's ssh-agent socket
+gpgconf --launch gpg-agent
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
 # put machine's chassis type in $CHASSIS. see https://github.com/mirror/dmidecode/blob/1286fc9/dmidecode.c#L595
 case $(</sys/class/dmi/id/chassis_type) in

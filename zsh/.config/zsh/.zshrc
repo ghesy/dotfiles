@@ -8,6 +8,9 @@ setopt sharehistory histreduceblanks histignoredups
 setopt ignoreeof nullglob interactivecomments autocd
 setopt correct noclobber clobberempty
 
+# apparently this is needed for gpg-agent. see man gpg-agent(1) for details.
+export GPG_TTY=$TTY
+
 # shell prompt
 autoload -U colors && colors
 precmd_prompt() {

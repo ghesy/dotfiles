@@ -83,6 +83,7 @@ alias rm='rm -iv --'
 alias unlink='rm'
 alias v='nvim'
 alias vi='nvim'
+alias g='git'
 
 # pacman
 p() {
@@ -98,9 +99,6 @@ alias pl='paclast -t | head -n20'
 # editor
 se() { SUDO_COMMAND="sudoedit $1" sudoedit "$1" }
 
-# git
-alias gssh='ssh-add ~/.ssh/keys/github'
-alias g='git'
 
 # run vim-fugitive
 alias fu='git rev-parse --git-dir >/dev/null 2>&1 && nvim -c Git -c only'
