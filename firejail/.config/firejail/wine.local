@@ -1,7 +1,7 @@
-ignore noblacklist ${HOME}/.Steam
-ignore noblacklist ${HOME}/.local/share/Steam
-ignore noblacklist ${HOME}/.local/share/steam
 ignore noblacklist ${HOME}/.steam
+ignore noblacklist ${HOME}/.steampid
+ignore noblacklist ${HOME}/.steampath
+ignore noblacklist ${HOME}/.local/share/Steam
 
 whitelist ${HOME}/.cache/winetricks
 whitelist ${HOME}/.local/share/beer
