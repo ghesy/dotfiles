@@ -1,0 +1,16 @@
+pkgname=logrotate-configs
+pkgdesc="configs for logrotate"
+pkgver=r2
+pkgrel=1
+arch=(any)
+depends=(nebula16 logrotate)
+source=(
+    logrotate.conf
+    logrotate-windscribe
+)
+md5sums=(SKIP SKIP)
+
+package() {
+    install -vDm644 logrotate.conf "$pkgdir"/etc/logrotate.nebula16.conf
+    install -vDm644 logrotate-windscribe "$pkgdir"/etc/logrotate.d/windscribe
+}
