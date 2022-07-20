@@ -1,0 +1,4 @@
+/var/log/usbguard/usbguard-audit.log {
+    daily
+    missingok
+}

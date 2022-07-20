@@ -1,0 +1,37 @@
+pkgname=usbguard-configs
+pkgdesc="setup usbguard with some basic rules, plus some helper scripts"
+pkgver=r3
+pkgrel=1
+arch=(any)
+depends=(nebula16 usbguard libnotify)
+conflicts=(usbguard-runit)
+backup=(
+    etc/usbguard/usbguard-daemon.nebula16.conf
+    etc/usbguard/rules.nebula16.conf
+)
+source=(
+    daemon.conf
+    rules.conf
+    usbguard-add-input-devices.sh
+    usbguard-notify-daemon.sh
+    usbguard.run
+    logrotate-usbguard
+)
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
+
+package() {
+    # usbguard configs
+    install -vdm750 "$pkgdir"/etc/usbguard
+    install -vDm600 daemon.conf "$pkgdir"/etc/usbguard/usbguard-daemon.nebula16.conf
+    install -vDm600 rules.conf "$pkgdir"/etc/usbguard/rules.nebula16.conf
+
+    # helper scripts
+    install -vDm755 usbguard-add-input-devices.sh "$pkgdir"/usr/bin/usbguard-add-input-devices
+    install -vDm755 usbguard-notify-daemon.sh "$pkgdir"/usr/bin/usbguard-notify-daemon
+
+    # runit service
+    install -vDm755 usbguard.run "$pkgdir"/etc/runit/sv/usbguard/run
+
+    # logrotate config
+    install -vDm644 logrotate-usbguard "$pkgdir"/etc/logrotate.d/usbguard
+}
