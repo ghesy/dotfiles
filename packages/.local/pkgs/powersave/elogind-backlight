@@ -1,6 +1,0 @@
-#!/bin/sh
-# /usr/lib/elogind/system-sleep/light
-# set the backlight to 40% on resume from sleep
-[ "$1" = post ] &&
-    command -v light >/dev/null &&
-    setsid -f light -S 40 >/dev/null 2>&1

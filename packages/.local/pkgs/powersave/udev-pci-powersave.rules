@@ -1,3 +1,0 @@
-# /usr/lib/udev/rules.d/pci-powersave.rules
-# enable pci powersaving.
-SUBSYSTEM=="pci", ATTR{power/control}="auto"
