@@ -1,0 +1,21 @@
+#!/bin/sh
+# toggle gpg-agent's password caching.
+# this is useful for when someone else needs to use your computer.
+
+set -e
+
+# notification hint used for replacement
+replacehint='string:x-canonical-private-synchronous:toggle-gpg-cache'
+
+if pgrep -a gpg-agent | grep -q -- '--default-cache-ttl 0 '; then
+    # `gpgconf --reload` wouldn't work here because the agent must
+    # be killed and restarted without the given command line options
+    gpgconf --kill gpg-agent
+    gpgconf --launch gpg-agent
+    notify-send -h "$replacehint" '  GPG password cache enabled.'
+else
+    gpgconf --kill gpg-agent
+    gpg-agent --daemon \
+        --default-cache-ttl 0 --default-cache-ttl-ssh 0 >/dev/null
+    notify-send -h "$replacehint" '  GPG password cache cleared and disabled.'
+fi
