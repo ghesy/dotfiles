@@ -14,6 +14,7 @@ image/gif=img.desktop
 image/webp=img.desktop
 image/avif=img.desktop
 image/svg+xml=img.desktop
+image/x-xpixmap=img.desktop
 
 image/x-xcf=gimp.desktop
 image/vnd.adobe.photoshop=gimp.desktop
