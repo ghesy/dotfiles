@@ -29,5 +29,9 @@ export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 # wait for the tasks to finish
 wait
 
-# run and manage the user services (dwm, dwmbar, etc.) using runsvdir
-runsvdir -P ~/.local/runit/run
+# run and manage the user services (dwmbar, picom, etc.) using runsvdir
+runsvdir -P ~/.local/runit/run &
+
+while :; do
+    dwm
+done
