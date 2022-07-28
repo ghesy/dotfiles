@@ -13,7 +13,7 @@ speed() {
     echo ' KB'
 }
 
-eval $(sample 1); sleep $duration; eval $(sample 2)
+eval "$(sample 1)"; sleep $duration; eval "$(sample 2)"
 
 printf 'D: '
 speed $d1 $d2
