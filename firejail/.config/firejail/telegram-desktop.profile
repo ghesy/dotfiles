@@ -14,9 +14,9 @@ include allow-xdg-open.inc
 
 ignore private
 
+noblacklist ${HOME}/.local/share/TelegramDesktop
 mkdir ${HOME}/.local/share/TelegramDesktop
 whitelist ${HOME}/.local/share/TelegramDesktop
-noblacklist ${HOME}/.local/share/TelegramDesktop
 
 whitelist ${HOME}/.config/qt6ct
 read-only ${HOME}/.config/qt6ct

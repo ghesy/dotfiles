@@ -42,16 +42,25 @@ blacklist /tmp/lf.*
 # sockets
 blacklist /tmp/nvim*
 blacklist ${RUNUSER}/lf.*
+blacklist ${RUNUSER}/gnupg
 
 # top secret
 blacklist ${HOME}/.local/share/gnupg
 blacklist ${HOME}/.local/share/password-store
 blacklist ${HOME}/.cache/neomutt
+blacklist ${HOME}/.local/share/neomutt
 blacklist ${HOME}/.config/aurvote
 blacklist ${HOME}/.pvpn-cli
 blacklist ${HOME}/.local/share/ts3client
+blacklist ${HOME}/.local/share/TelegramDesktop
 
-# files and directories that some programs fuck with for no reason
+# monero
+blacklist ${HOME}/.local/share/monero/wallets
+blacklist ${HOME}/.bitmonero
+blacklist ${HOME}/.shared-ringdb
+
+# files and dirs that some programs might mess with for no reason
+# for example, electron programs remove BDF fonts from fontconfig's cache
 read-only ${HOME}/.config/fontconfig
 read-only ${HOME}/.cache/fontconfig
 read-only ${HOME}/.config/gtk-2.0
