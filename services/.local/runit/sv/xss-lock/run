@@ -1,4 +1,5 @@
 #!/bin/sh
+command -v slock >/dev/null || exit 1
 exec xss-lock --transfer-sleep-lock -- sh -c '
     dunstctl set-paused true
     slock
