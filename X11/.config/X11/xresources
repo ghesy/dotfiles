@@ -4,7 +4,7 @@
 *.background: #202020
 *.font: Fira Mono:pixelsize=14
 
-! include dpi settings file if it exists
+! include the dpi settings file if it exists
 #if defined __has_include && __has_include ("dpi")
 #include "dpi"
 #endif
