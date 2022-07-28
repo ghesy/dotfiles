@@ -1,6 +1,6 @@
 pkgname=sudo-configs
 pkgdesc="configs for sudo and pam"
-pkgver=r10
+pkgver=r12
 pkgrel=1
 arch=(any)
 depends=(nebula16 sudo)

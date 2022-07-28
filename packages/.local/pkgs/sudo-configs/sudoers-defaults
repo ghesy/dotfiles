@@ -2,7 +2,7 @@
 
 Defaults insults
 Defaults env_keep += "EDITOR VISUAL PAGER LANG LANGUAGE LINGUAS LC_* _XKB_CHARSET"
-Defaults timestamp_timeout=60, passwd_timeout=0
+Defaults timestamp_timeout=15, passwd_timeout=0
 
 Cmnd_Alias PROGRAMS = \
   /usr/local/bin/loginctl, \
