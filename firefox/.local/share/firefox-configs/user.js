@@ -233,7 +233,6 @@ user_pref("browser.ssl_override_behavior", 1);
 /* certificate-related prefs */
 user_pref("security.cert_pinning.enforcement_level", 2);
 user_pref("security.remote_settings.crlite_filters.enabled", true);
-user_pref("security.pki.crlite_mode", 2);
 user_pref("security.OCSP.require", true);
 
 /* show a little warning next to the padlock icon on
@@ -373,6 +372,10 @@ user_pref("security.pki.sha1_enforcement_level", 1); // [DEFAULT: 1 FF102+]
 /* do not connect to sites with unsafe SSL negotiation
  * disabled because it breaks some websites */
 //user_pref("security.ssl.require_safe_negotiation", true);
+
+/* consult CRLite and enforce both "Revoked" and "Not Revoked" results
+ * disabled because it causes certificate errors when combined with dnscrypt-proxy */
+// user_pref("security.pki.crlite_mode", 2);
 
 /* disable IPv6 which can be abused and leak data
  * disabled because it causes certificate errors when combined with dnscrypt-proxy */
