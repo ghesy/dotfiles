@@ -1,8 +1,10 @@
 #!/bin/sh
 # add a torrent to transmission.
+
 answer=$(
     printf 'No\nYes\n' |
-        dmenu -p 'Add Torrent?' -sb '#80232f' ${WINDOWID:+ -w $WINDOWID}
+        dmenu -p 'Add Torrent?' -nb '#333333' -nf '#aaaaaa' -sb '#80232f' \
+        ${WINDOWID:+ -w $WINDOWID}
 )
 [ "$answer" != Yes ] && exit
 
