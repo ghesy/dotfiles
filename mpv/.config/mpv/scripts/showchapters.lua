@@ -5,10 +5,9 @@
 -- config
 local opts = {
     chapters_to_show = 30,
-    -- scales are in % from osd-font-size
-    font_scale = 40,
-    font_scale_inactive_chapters = 35,
-    font_alpha_inactive_chapters = 60,
+    prefix_active   = "● ",
+    prefix_inactive = ". ",
+    ass_style = "{\\fnmonospace\\fs7}",
 }
 (require 'mp.options').read_options(opts)
 
@@ -37,12 +36,8 @@ function show_chapters()
 
     local osd_w, osd_h, aspect = mp.get_osd_size()
     local ass = assdraw:ass_new()
-    ass:new_event()
     ass:an(1)
-
-    -- font scale
-    ass:append('{\\fscx' .. tostring(opts.font_scale) .. '}')
-    ass:append('{\\fscy' .. tostring(opts.font_scale) .. '}')
+    ass:append(opts.ass_style)
 
     local ch_index = mp.get_property_number("chapter")
     local ch_total = mp.get_property_osd("chapter-list/count")
@@ -73,19 +68,10 @@ function show_chapters()
             end
 
             title = mp.get_property_osd("chapter-list/" .. tostring(ch_index + i_ch) .. "/title")
-            time = mp.get_property_osd("chapter-list/" .. tostring(ch_index + i_ch) .. "/time")
+            time  = mp.get_property_osd("chapter-list/" .. tostring(ch_index + i_ch) .. "/time")
 
             ass:append("\\N")
-
-            if i_ch == 0 then
-                ass:append("{\\alpha&H" .. '00' .. "}")
-                ass:append('{\\fscx' .. tostring(opts.font_scale) .. '}')
-                ass:append('{\\fscy' .. tostring(opts.font_scale) .. '}')
-            else
-                ass:append("{\\alpha&H" .. tostring(opts.font_alpha_inactive_chapters) .. "}")
-                ass:append('{\\fscx' .. tostring(opts.font_scale_inactive_chapters) .. '}')
-                ass:append('{\\fscy' .. tostring(opts.font_scale_inactive_chapters) .. '}')
-            end
+            ass:append(i_ch == 0 and opts.prefix_active or opts.prefix_inactive)
 
             -- removing paths
             if string.sub(title, 1, 1) == '/' then
@@ -97,13 +83,13 @@ function show_chapters()
                 time = disp_time(time_2_seconds(time) / speed)
             end
 
-            ass:append('[' .. time .. "]  " .. title)
+            ass:append('[' .. time .. "] " .. title)
 
             ::continue::
         end
     end
 
-    mp.set_osd_ass(osd_w, osd_h, ass.text)
+    mp.set_osd_ass(0, 0, ass.text)
 end
 
 function toggle()
