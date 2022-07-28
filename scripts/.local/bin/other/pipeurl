@@ -164,7 +164,7 @@ stream_open()
     URL=$(get_converted_url)
     msg=$($(getproxy "$URL") mpv $novideo --msg-level=all=error -- "$URL" 2>&1)
     case $?/$msg in
-        2/*'Temporary failure in name resolution'*)
+        2/*'Temporary failure in name resolution'*|2/*'HTTP Error 403:'*)
             proxychains -q mpv $novideo --msg-level=all=error -- "$URL" || error=true ;;
         0/*) ;;
         *) error=true; prnt "$msg" ;;
