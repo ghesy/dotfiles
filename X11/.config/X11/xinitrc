@@ -6,6 +6,9 @@ for f in /etc/X11/xinit/xinitrc.d/?*.sh; do [ -x "$f" ] && . "$f"; done; unset f
 # source machine-specific configs
 for f in ~/.local/share/local/xinitrc.d/*; do [ -r "$f" ] && . $f; done; unset f
 
+# refresh gpg-agent's tty since we're switching to an X session
+gpg-connect-agent updatestartuptty /bye &
+
 # merge xresources
 xrdb -merge ~/.config/X11/xresources &
 
@@ -20,11 +23,6 @@ remaps &
 
 # set the wallpaper
 ~/.fehbg &
-
-# run gpg-agent and export it's ssh-agent socket
-gpgconf --launch gpg-agent
-gpg-connect-agent updatestartuptty /bye
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
 
 # wait for the tasks to finish
 wait
