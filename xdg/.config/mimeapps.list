@@ -5,14 +5,15 @@ inode/directory=file.desktop
 text/plain=text.desktop
 text/x-shellscript=text.desktop
 application/x-shellscript=text.desktop
-text/x-Algol68=text.desktop
 application/json=text.desktop
+text/x-Algol68=text.desktop
 
 image/png=img.desktop
 image/jpeg=img.desktop
 image/gif=img.desktop
 image/webp=img.desktop
 image/avif=img.desktop
+image/heic=img.desktop
 image/svg+xml=img.desktop
 image/x-xpixmap=img.desktop
 
