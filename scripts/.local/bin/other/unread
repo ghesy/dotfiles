@@ -1,49 +1,76 @@
 #!/bin/bash
 # login to mutt's email accounts and notify the unread emails.
-# requires curl and python.
+# requires python3 and libnotify.
 
 # config
 mutt_accounts_dir=~/.local/share/neomutt/accounts
 
-# make sure only one instance of this script runs, using flock(1).
-[ "$FLOCKER" != "$(realpath -- "$0")" ] &&
-    exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
-
-# decode utf8-encoded email subjects
-utf8() {
-python -c "import sys,email.header
-def decode(s): return ''.join(w.decode(e or 'utf8') if isinstance(w,bytes) else w
-for w,e in email.header.decode_header(s))
-print(decode(sys.stdin.read()))"
-}
-
-unread()
+main()
 {
-    unset imap_user pass folder ids count last_subject
+    one_instance
 
-    # get the variables 'imap_user', 'folder' and imap's password
-    # from the neomutt account file
-    eval "$(grep -E '^set.*(imap_user|folder).*=' "${1:?}" |
-        sed -E 's/set\s+(\S+)\s*=\s*(\S+)/\1=\2/')"
-    pass=$(eval "$(grep '`.*pass ' "$1" | cut -d'`' -f2)" | head -n1) || return 1
+    notify-send -u low 'Fetching Emails...'
 
-    # use curl to get the mails from the imap server
-    c() { curl -fsSLX"$1" "${folder:?}/INBOX" --connect-timeout 10 -K- <<< "-u${imap_user:?}:${pass:?}" ;}
-    if ids=$(c 'FETCH 1:* (UID FLAGS)'); then
-        ids=$(echo "$ids" | grep -v Seen | cut -d' ' -f5)
-        count=$(printf "%s${ids:+\n}" "$ids" | wc -l)
-        if [ "$count" -gt 0 ]; then
-            last_subject=$(c "UID FETCH $(echo "$ids" | tail -n1) (ENVELOPE)" |
-                cut -d\" -f4- | grep -Po '^.*?[^\\](?=")' | utf8)
-        fi
-        notif="Unread Count: $count${last_subject:+$'\n'Last Subject:$'\n'$last_subject}"
-    else
-        notif='Failed.'
-    fi
-    notify-send -t 30000 -u low " $(basename "$1")" "$notif"
+    # loop over email account config files
+    for file in "${mutt_accounts_dir:?}"/*; do
+        [[ -f $file ]] && notify_unread "$file"
+    done
 }
 
-notify-send -u low 'Fetching Emails...'
-for f in "${mutt_accounts_dir:?}"/*; do
-    [ -f "$f" ] && unread "$f"
-done
+notify_unread()
+{
+    local file=$1
+    local imap_user folder password host port count msg
+
+    # get the variables "imap_user" and "folder" from the neomutt account file
+    eval "$(
+        grep -E '^set.*(imap_user|folder).*=' "${file:?}" |
+            sed -E 's/set\s+(\w+)\s*=\s*("?)(\S+)\2/\1="\3"/'
+    )"
+
+    # get the imap password from the neomutt account file
+    password=$(eval "$(grep '`.*pass ' "$file" | cut -d'`' -f2)") || {
+        notify-send 'Unread' "Failed to get the password for ${1##*/}."
+        exit 1
+    }
+    password=$(printf '%s\n' "$password" | head -n1)
+
+    port=${folder##*:}
+    host=${folder##*//}; host=${host##*@}; host=${host%:*}
+
+    if count=$(get_unread_count "$host" "$port" "$imap_user" "$password") \
+        && [[ -n $count ]]
+    then
+        msg="$count Unread."
+    else
+        msg="Failed."
+    fi
+
+    notify-send -t 30000 -u low " ${1##*/}" "$msg"
+}
+
+get_unread_count()
+{
+python3 -c "
+import sys, imaplib
+host = sys.argv[1]
+port = sys.argv[2]
+username = sys.argv[3]
+password = sys.argv[4]
+imap = imaplib.IMAP4_SSL(host, port)
+imap.login(username, password)
+imap.select('inbox')
+status, response = imap.search(None, 'unseen')
+list = response[0].split()
+print(len(list))
+" "$@"
+}
+
+# make sure only one instance of this script runs, using flock(1).
+one_instance()
+{
+    [[ $FLOCKER != $(realpath -- "$0") ]] &&
+        exec env FLOCKER="$(realpath -- "$0")" flock -en "$0" "$0" "$@"
+}
+
+main "$@"
