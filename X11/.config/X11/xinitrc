@@ -32,6 +32,10 @@ wait
 # run and manage the user services (dwmbar, picom, etc.) using runsvdir
 runsvdir -P ~/.local/runit/run &
 
+# lock the screen
+until pidof -q xss-lock; do sleep 0.2; done
+loginctl lock-session
+
 while :; do
     dwm
 done
