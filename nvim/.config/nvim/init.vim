@@ -18,22 +18,21 @@ set termguicolors
 
 " plugins
 call plug#begin('~/.local/share/nvim/plugged')
+Plug 'sainnhe/gruvbox-material'
 Plug 'maxboisvert/vim-simple-complete'
-Plug 'drmikehenry/vim-headerguard'
 Plug 'junegunn/fzf.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-surround'
 Plug 'tpope/vim-eunuch'
 Plug 'chaoren/vim-wordmotion'
 Plug 'easymotion/vim-easymotion'
-Plug 'voldikss/vim-floaterm'
 Plug 'mbbill/undotree'
-Plug 'akinsho/bufferline.nvim', {'tag':'v2.*'}
+Plug 'drmikehenry/vim-headerguard'
+Plug 'voldikss/vim-floaterm'
+Plug 'akinsho/bufferline.nvim', {'tag': 'v2.*'}
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-refactor'
-" colorschemes
-Plug 'sainnhe/gruvbox-material'
-Plug 'pbrisbin/vim-colors-off'
 call plug#end()
 
 " basics
@@ -64,7 +63,6 @@ set wildmenu
 set wildignorecase
 set wildmode=longest:full,full
 set path+=**
-set completeopt=longest
 set shortmess+=ac
 let g:netrw_dirhistmax = 0
 set noswapfile
@@ -224,7 +222,8 @@ if $SUDO_COMMAND =~# '^sudoedit '
 endif
 
 " vim-simple-complete
-let g:vsc_type_complete = 0
+"let g:vsc_type_complete = 0
+"set completeopt=menu,longest
 
 " easymotion
 let g:EasyMotion_smartcase = 1
@@ -276,9 +275,14 @@ set langmap+=ْQ,ٌW,ٍE,ًR,ُT,ِY,َU,ّI,
 set langmap+=ؤA,ئS,يD,إF,أG,آH,ةJ,»K,«L
 set langmap+=كZ,ژC,ٰV,‌B,ٔN,ءM,؟?
 
+" ===============
+" = Lua Section
+" ===============
+
 lua << EOF
+
 require("nvim-treesitter.configs").setup{
-    ensure_installed = { "c", "cpp", "lua", "bash", "vim" },
+    ensure_installed = { "c", "cpp", "python", "lua", "bash", "vim" },
     highlight = { enable = true },
     refactor = {
         highlight_current_scope = { enable = false },
@@ -298,6 +302,7 @@ require("nvim-treesitter.configs").setup{
         },
     },
 }
+
 require("bufferline").setup{
     options = {
         -- separator_style = "slant",
@@ -308,4 +313,5 @@ require("bufferline").setup{
         middle_mouse_command = nil,
     }
 }
+
 EOF
