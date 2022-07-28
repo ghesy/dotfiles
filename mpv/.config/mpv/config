@@ -6,15 +6,24 @@
 ytdl-raw-options=sub-lang=en,write-sub=,write-auto-sub=,format-sort=[res:480,codec,abr~50]
 ytdl-format=bestvideo[height>=360]+bestaudio/bestvideo+bestaudio/best[height>=360]/best
 
-# audio and subtitles
+# audio language preference
 alang=jpn,eng,en,per,fa
+
+# subtitle settings
 slang=eng,en,per,fa
 no-sub-visibility
 sub-border-size=6
 
-# window settings
+# always show a window and don't close it at the end
 force-window=immediate
 keep-open=yes
+
+# make the osd bar less intrusive
+osd-bar-align-y=0.8
+osd-bar-h=1
+
+# make the seek bar a bit snazzier
+script-opts=osc-seekrangestyle=bar
 
 # don't put the watch-later files in ~/.config/mpv
 watch-later-directory=~/.local/share/mpv/watch-later
