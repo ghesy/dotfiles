@@ -1,6 +1,7 @@
 # discord's firejail profile, built around disable-all.inc
 name discord
 join-or-start discord
+deterministic-shutdown
 
 include globals.local
 
