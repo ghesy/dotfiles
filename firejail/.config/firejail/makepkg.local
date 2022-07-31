@@ -3,6 +3,9 @@ ignore private-cache
 ignore noexec ${HOME}
 ignore noexec /tmp
 
+# add netlink to protocols, which is required for aria2 (it's async DNS feature)
+protocol netlink
+
 whitelist ${HOME}/.cache/paru/clone
 
 whitelist ${HOME}/.local/pkgs
