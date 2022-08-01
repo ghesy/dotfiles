@@ -50,7 +50,7 @@
 
 ### Text
 
-- Editor: [Nvim](nvim/.config/nvim)
+- Editor: [Neovim](nvim/.config/nvim)
 - Pager: [Less](less/.config)
 
 ### Package Management
@@ -64,7 +64,7 @@
 - [Sudo and PAM](packages/.local/pkgs/sudo-configs)
 - [Firejail](firejail/.config/firejail)
 
-### Other
+### Other Configs
 
 - [Local Packages](packages/.local/pkgs)
 - Email Client: [NeoMutt](neomutt/.config/neomutt)
@@ -74,5 +74,11 @@
 - Download Manager: [aria2c + aria2p](aria2/.config)
 - [FireFox Configs](firefox/.local/share/firefox-configs)
 - [Git](git/.config/git)
+- Mounting USB flash drives: [bashmount](other/.config/bashmount)
+- NetworkManager UI: [networkmanager-dmenu](other/.config/networkmanager-dmenu)
 
-### Basics
+### Home Cleanup
+
+- [Environment Variables](zsh/.config/zsh/xdg.profile)
+- [wget](other/.config/wget)
+- [npm](other/.config/npm)
