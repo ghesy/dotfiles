@@ -11,6 +11,7 @@ include allow-multimedia.inc
 include allow-fontconfig.inc
 include allow-dragon-drop.inc
 include allow-xdg-open.inc
+include allow-gpu.inc
 
 ignore private
 
