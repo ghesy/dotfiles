@@ -2,7 +2,7 @@
 # a file opener script.
 # note: sxiv's -F option requires the START_FROM_FILE_PATCH from sxiv-flexipatch,
 # and the -E option requires this patch:
-# https://github.com/soystemd/sxiv-flexipatch/commit/7422f2c?diff=unified
+# https://github.com/ghesy/sxiv-flexipatch/commit/7422f2c?diff=unified
 
 [ $# -eq 0 ] && exit 1
 
